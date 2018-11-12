@@ -1,6 +1,8 @@
 # VRCAvatarTools
 This editor script tool allows you to copy components from existing avatars to new ones, making it much faster to reimport avatars from blender or setup new ones.
 
+Short video example: [Here](https://puu.sh/BZMGY/53e5dad7c3.mp4)
+
 ## Supported Components:
 - **Transforms** - Can fix broken poses left behind after animating an avatar
 - **Dynamic Bones** - Can copy Dynamic Bones from one avatar to another, if the bone and parent names are the same
