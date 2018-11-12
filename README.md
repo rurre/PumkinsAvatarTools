@@ -2,6 +2,7 @@
 This editor script tool allows you to copy components from existing avatars to new ones, making it much faster to reimport avatars from blender or setup new ones.
 
 Screenshot: [Here](https://puu.sh/C0Ho6/3abcacf731.png)
+
 Video Example: [Here](https://puu.sh/BZMGY/53e5dad7c3.mp4)
 
 ## Supported Components:
