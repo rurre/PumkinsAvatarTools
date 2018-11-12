@@ -12,3 +12,7 @@ This editor script tool allows you to copy components from existing avatars to n
 - **Audio Sorces**
 - **Skinned Mesh Rendereds**
 - **Some other things I need to decide to add**
+
+To launch the tool go to `Tools > Pumkin > Avatar Tools`
+
+**Important:** Since this is an editor script it needs to be in a folder called `Editor`anywhere in your project.
