@@ -1,269 +1,18 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using VRCSDK2;
 using VRC.Core;
 using UnityEditor.SceneManagement;
 
+
+/// <summary>
+/// VRCAvatar tools by Pumkin
+/// https://github.com/rurre/VRCAvatarTools
+/// </summary>
+
 namespace Pumkin
 {
-    #region Strings Struct
-
-    public struct AvatarToolsStrings
-    {
-        static readonly Dictionary<string, string> dictionary_english, dictionary_uwu;
-
-        static Dictionary<string, string> stringDictionary;
-
-        public enum DictionaryLanguage { English, uwu = 100 };
-
-        public static readonly string version = "0.4b";
-
-        static public DictionaryLanguage Language { get; private set; }
-
-        //Dictionary Template
-        /*
-        dictionary_empty = new Dictionary<string, string>
-            {
-                //Main
-                {"main_title", "" },
-                {"main_windowName", "" },
-                {"main_msgDefault", "" },
-                {"main_version", "" },
-
-                //UI Main
-                {"ui_copyFrom", "" },
-                {"ui_copyTo", "" },
-                {"button_copySelected" , "" },
-
-                //UI Transforms
-                {"ui_transforms", "" },
-                {"ui_transforms_position", "" },
-                {"ui_transforms_rotation", "" },
-                {"ui_transforms_scale", "" },
-            
-                //UI Dynamic Bones
-                {"ui_dynamicBones", "" },
-                {"ui_dynamicBones_settings", "" },
-                {"ui_dynamicBones_colliders", "" },
-                {"ui_dynamicBones_removeOld", "" },
-                {"ui_dynamicBones_removeOldColliders", "" },
-                {"ui_dynamicBones_createMissing", "" },
-
-                //UI Colliders
-                {"ui_colliders", "" },
-                {"ui_colliders_box", ""},
-                {"ui_colliders_capsule", ""},
-                {"ui_colliders_sphere", ""},
-                {"ui_colliders_removeOld", "" },
-
-                //UI Avatar Descriptor
-                {"ui_descriptor", "" },
-                {"ui_descriptor_settings", "" },
-                {"ui_descriptor_pipelineId", "" },
-                {"ui_descriptor_animationOverrides", "" },
-
-                //Log
-                { "log_actionAttempt", "" },
-                { "log_copyToAndFromInvalid", "" },
-                { "log_copyFromInvalid" , "" },
-                { "log_copyToInvalid" , "" },
-                { "log_done" , "" },                
-
-                //Warnings
-                { "warn_warning", "" },
-                { "warn_copyToPrefab", "" },
-                { "warn_prefabOverwriteYes", "" },
-                { "warn_prefabOverwriteNo", "" },
-
-                //Credits
-                { "credits_line1", ""},
-                { "credits_line2", "" + " " + version },    
-                { "credits_line3", ""},
-                { "credits_line4", "" },
-                { "credits_line5", "" },
-
-                //Misc                
-                { "misc_uwu", "" },
-            };*/
-
-        static AvatarToolsStrings()
-        {
-            dictionary_uwu = new Dictionary<string, string>
-            {
-                {"main_title", "Pumkin's Avataw Toows! ÒwÓ" },
-                {"main_windowName", "Avataw Toows" },
-                {"main_msgDefault", "Pick Objects to copy Componyents to and fwom." },
-                {"main_version", "Vewsion" },
-
-                //UI Main
-                {"ui_copyFrom", "Copy fwom:" },
-                {"ui_copyTo", "Copy to:" },
-                {"button_copySelected" , "Copy sewected (´• ω •`)" },
-
-                //UI Transforms
-                {"ui_transforms", "Twansfowms! º^º" },
-                {"ui_transforms_position", "Position~" },
-                {"ui_transforms_rotation", "Wotation~" },
-                {"ui_transforms_scale", "Scawe~" },
-            
-                //UI Dynamic Bones
-                {"ui_dynamicBones", "Dynyamic Bonyes +w+" },
-                {"ui_dynamicBones_settings", "Settings~" },
-                {"ui_dynamicBones_colliders", "Cowwidews~" },
-                {"ui_dynamicBones_removeOld", "Wemuv Owd Bonyes~" },
-                {"ui_dynamicBones_removeOldColliders", "Wemuv Owd Cowwidews~" },
-                {"ui_dynamicBones_createMissing", "Cweate Missing Bonyes~" },
-
-                //UI Colliders
-                {"ui_colliders", "Cowwidews! >w<" },
-                {"ui_colliders_box", "Box Cowwidews! :o" },
-                {"ui_colliders_capsule", "Capsule Cowwidews! :0" },
-                {"ui_colliders_sphere", "Sphere Cowwidews! :O" },
-                {"ui_colliders_mesh", "Mesh Cowwidews! :C" },
-                {"ui_colliders_removeOld", "Wemuv Owd Cowwidews" },
-
-                //UI Avatar Descriptor
-                {"ui_descriptor", "Avataw Descwiptow! =w=" },
-                {"ui_descriptor_settings", "Settings~" },
-                {"ui_descriptor_pipelineId", "Pipewinye Id uwu" },
-                {"ui_descriptor_animationOverrides", "Anyimation Ovewwides!" },
-
-                //Log
-                { "log_actionAttempt", "Attempting to {0} {1} fwom {2} to {3} OwO" },
-                { "log_copyToAndFromInvalid", "Can't copy Componyents because 'Copy Fwom' & 'Copy To' awe invawid~" },
-                { "log_copyFwomInvalid" , "Can't copy Componyents because 'Copy Fwom' is invawid~" },
-                { "log_copyToInvalid" , "Can't copy Componyents because 'Copy To' is invawid~" },
-                { "log_done" , "Donye. Check Unyity Consowe fow fuww Output Wog uwu" },                
-
-                //Warnings
-                { "warn_warning", "O no~" },
-                { "warn_copyToPrefab", "You awe twying to copy componyents to a pwefab!\nThis cannyot be undonye.\nAwe you suwe you want to continyue uwu?" },
-                { "warn_pwefabOverwriteYes", "Mhm, uwu" },
-                { "warn_pwefabOverwriteNyo", "Nyo, ;w;" },
-
-                //Cwedits
-                { "credits_line1", "Pumkin's Avataw Toows~"},
-                { "credits_line2", "Vewsion" + " " + version },
-                { "credits_line3", "Nyow with 100% mowe wedundant stwings~"},
-                { "credits_line4", "I'ww add mowe stuff to this eventuawwy >w<" },
-                { "credits_line5", "Poke me! But on Discowd at Pumkin#2020~ uwus" },
-
-                //Misc
-                { "misc_poke", "Poke me~" },
-                { "misc_uwu", "OwO" },
-            };
-            dictionary_english = new Dictionary<string, string>
-            {
-                //Main
-                {"main_title", "Pumkin's Avatar Tools" },
-                {"main_windowName", "Avatar Tools" },
-                {"main_msgDefault", "Pick Objects to copy Components to and from." },
-                {"main_version", "Version" },
-
-                //UI Main
-                {"ui_copyFrom", "Copy from:" },
-                {"ui_copyTo", "Copy to:" },
-                {"button_copySelected" , "Copy Selected" },
-
-                //UI Transforms
-                {"ui_transforms", "Transforms" },
-                {"ui_transforms_position", "Position" },
-                {"ui_transforms_rotation", "Rotation" },
-                {"ui_transforms_scale", "Scale" },
-            
-                //UI Dynamic Bones
-                {"ui_dynamicBones", "Dynamic Bones" },
-                {"ui_dynamicBones_settings", "Settings" },
-                {"ui_dynamicBones_colliders", "Colliders" },
-                {"ui_dynamicBones_removeOld", "Remove Old Bones" },
-                {"ui_dynamicBones_removeOldColliders", "Remove Old Colliders" },
-                {"ui_dynamicBones_createMissing", "Create Missing Bones" },
-
-                //UI Colliders
-                {"ui_colliders", "Colliders" },
-                {"ui_colliders_box", "Box Colliders" },
-                {"ui_colliders_capsule", "Capsule Colliders" },
-                {"ui_colliders_sphere", "Sphere Colliders" },
-                {"ui_colliders_mesh", "Mesh Colliders" },
-                {"ui_colliders_removeOld", "Remove Old Colliders" },
-
-                //UI Avatar Descriptor
-                {"ui_descriptor", "Avatar Descriptor" },
-                {"ui_descriptor_settings", "Settings" },
-                {"ui_descriptor_pipelineId", "Pipeline Id" },
-                {"ui_descriptor_animationOverrides", "Animation Overrides" },
-
-                //Log
-                { "log_actionAttempt", "Attempting to {0} {1} from {2} to {3}" },
-                { "log_copyToAndFromInvalid", "Can't copy Components because 'Copy From' & 'Copy To' are invalid" },
-                { "log_copyFromInvalid" , "Can't copy Components because 'Copy From' is invalid" },
-                { "log_copyToInvalid" , "Can't copy Components because 'Copy To' is invalid" },
-                { "log_done" , "Done. Check Unity Console for full Output Log" },
-                { "log_cantCopyToItself", "Can't copy Components from an object to itself. What are you doing?" },
-                { "log_noComponentsSelected", "No components selected" },
-
-                //Warnings
-                { "warn_warning", "Warning" },
-                { "warn_copyToPrefab", "You are trying to copy components to a prefab.\nThis cannot be undone.\nAre you sure you want to continue?" },
-                { "warn_prefabOverwriteYes", "Yes, Overwrite" },
-                { "warn_prefabOverwriteNo", "No, Cancel" },
-
-                //Credits
-                { "credits_line1", "Pumkin's Avatar Tools"},
-                { "credits_line2", "Version" + " " + version },
-                { "credits_line3", "Now with 100% more redundant strings"},
-                { "credits_line4", "I'll add more stuff to this eventually" },
-                { "credits_line5", "Poke me on Discord at Pumkin#2020" },
-
-                //Misc                
-                { "misc_uwu", "uwu" },
-            };
-
-            Language = DictionaryLanguage.English;
-            stringDictionary = dictionary_english;
-
-            SetLanguage(DictionaryLanguage.English);
-        }
-
-        public static void SetLanguage(DictionaryLanguage lang)
-        {
-            switch(lang)
-            {
-                case DictionaryLanguage.English:
-                    stringDictionary = dictionary_english;
-                    break;
-                case DictionaryLanguage.uwu:
-                    stringDictionary = dictionary_uwu;
-                    break;
-                default:
-                    stringDictionary = dictionary_english;
-                    break;
-            }
-            Language = lang;
-            PumkinsAvatarTools.ReloadStrings();
-        }
-
-        public static string GetString(string stringName, params string[] formatArgs)
-        {
-            if(string.IsNullOrEmpty(stringName))
-                return stringName;
-
-            string s = string.Empty;
-            stringDictionary.TryGetValue(stringName, out s);
-
-            if(formatArgs.Length > 0)
-            {
-                if(!string.IsNullOrEmpty(s))
-                {
-                    s = string.Format(stringName, formatArgs);
-                }
-            }
-            return s;
-        }
-    };
-    #endregion
-
     [ExecuteInEditMode]
     public class PumkinsAvatarTools : EditorWindow
     {
@@ -294,13 +43,19 @@ namespace Pumkin
         bool bColliders_copyBox = true;
         bool bColliders_copyCapsule = true;
         bool bColliders_copySphere = true;
-        bool bColliders_copyMesh = true;        
+        bool bColliders_copyMesh = true;
 
+        bool bSkinMeshRender_copy = true;
+        bool bSkinMeshRender_copySettings = true;
+        bool bSkinMeshRender_copyBlendShapeValues = true;
+        bool bSkinMeshRender_resetBlendShapeValues = true;
+        bool bSkinMeshRender_copyMaterials = true;        
 
         //Editor
         bool _expandTransforms = false;
         bool _expandDynamicBones = false;
         bool _expandAvatarDescriptor = false;
+        bool _expandSkinnedMeshRenderer = false;
         bool _expandColliders = false;
 
         //Strings
@@ -327,7 +82,7 @@ namespace Pumkin
         public static void ReloadStrings()
         {
             _msg = AvatarToolsStrings.GetString("main_msgDefault") ?? "_Pick Objects to copy Components to and from.";
-            _logTemplate = AvatarToolsStrings.GetString("log_actionAttempt") ?? "_Attempting to {0} {1} from {2} to {3}";
+            _logTemplate = AvatarToolsStrings.GetString("log_actionAttempt") ?? "_Attempting to copy {0} from {1} to {2}";
         }
 
         void OnGUI()
@@ -373,9 +128,24 @@ namespace Pumkin
             }
             else
             {
-                EditorGUILayout.Space();
+                EditorGUILayout.Space();                
+                
                 selectedCopyTo = (GameObject)EditorGUILayout.ObjectField(AvatarToolsStrings.GetString("ui_copyTo") ?? "_Copy to:", selectedCopyTo, typeof(GameObject), true);
                 selectedCopyFrom = (GameObject)EditorGUILayout.ObjectField(AvatarToolsStrings.GetString("ui_copyFrom") ?? "_Copy from:", selectedCopyFrom, typeof(GameObject), true);
+
+                EditorGUILayout.BeginHorizontal();
+                if(GUILayout.Button(AvatarToolsStrings.GetString("button_clear") ?? "_Clear"))
+                {
+                    selectedCopyTo = null;
+                    selectedCopyFrom = null;
+                }
+                if(GUILayout.Button(AvatarToolsStrings.GetString("button_swap") ?? "_Swap"))
+                {
+                    GameObject o = selectedCopyTo;
+                    selectedCopyTo = selectedCopyFrom;
+                    selectedCopyFrom = o;
+                }
+                EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.Space();
 
@@ -440,6 +210,26 @@ namespace Pumkin
                     EditorGUI.EndDisabledGroup();
                 }
 
+                //SkinnedMeshRenderer menu
+                EditorGUILayout.BeginHorizontal();
+                _expandSkinnedMeshRenderer = GUILayout.Toggle(_expandSkinnedMeshRenderer, EditorGUIUtility.IconContent("SkinnedMeshRenderer Icon"), "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                bSkinMeshRender_copy = GUILayout.Toggle(bSkinMeshRender_copy, AvatarToolsStrings.GetString("ui_skinMeshRender") ?? "_Skinned Mesh Renderers", GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                EditorGUILayout.EndHorizontal();
+
+                if(_expandSkinnedMeshRenderer)
+                {
+                    EditorGUI.BeginDisabledGroup(!bSkinMeshRender_copy);
+                    EditorGUILayout.Space();
+
+                    bSkinMeshRender_copySettings = EditorGUILayout.Toggle(AvatarToolsStrings.GetString("ui_skinMeshRender_settings") ?? "_Settings", bSkinMeshRender_copySettings, GUILayout.ExpandWidth(false));
+                    bSkinMeshRender_copyMaterials = EditorGUILayout.Toggle(AvatarToolsStrings.GetString("ui_skinMeshRender_materials") ?? "_Materials", bSkinMeshRender_copyMaterials, GUILayout.ExpandWidth(false));
+                    bSkinMeshRender_copyBlendShapeValues = EditorGUILayout.Toggle(AvatarToolsStrings.GetString("ui_skinMeshRender_blendShapeValues") ?? "_BlendShape Values", bSkinMeshRender_copyBlendShapeValues, GUILayout.ExpandWidth(false));
+                    bSkinMeshRender_resetBlendShapeValues = EditorGUILayout.Toggle(AvatarToolsStrings.GetString("ui_skinMeshRender_resetBlendShapes") ?? "_Reset BlendShapes", bSkinMeshRender_resetBlendShapeValues, GUILayout.ExpandWidth(false));
+
+                    EditorGUILayout.Space();
+                    EditorGUI.EndDisabledGroup();
+                }
+
                 //Collider menu
                 EditorGUILayout.BeginHorizontal();
                 _expandColliders = GUILayout.Toggle(_expandColliders, EditorGUIUtility.IconContent("BoxCollider Icon"), "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
@@ -492,7 +282,7 @@ namespace Pumkin
                             _msg = AvatarToolsStrings.GetString("log_cantCopyToItself") ?? "_Can't copy Components from an object to itself. What are you doing?";
                             return;
                         }
-                        if(!(bDynamicBones_copyColliders || bDynamicBones_copy || bColliders_copy || bDescriptor_copy))
+                        if(!(bDynamicBones_copyColliders || bDynamicBones_copy || bColliders_copy || bDescriptor_copy || bSkinMeshRender_copy))
                         {
                             _msg = AvatarToolsStrings.GetString("log_noComponentsSelected") ?? "_No components selected";
                             return;
@@ -547,7 +337,8 @@ namespace Pumkin
                     CopyAvatarDescriptor(objFrom, objTo);
                 }
             }
-
+            //End run once
+            
             if(bTransforms_copy)
             {
                 CopyTransforms(objFrom, objTo);
@@ -560,9 +351,13 @@ namespace Pumkin
                 }
             }
             if(bColliders_copy)
+            {                
+                CopyColliders(objFrom, objTo);
+            }
+            if(bSkinMeshRender_copy)
             {
-                //CopyColliders(objFrom, objTo);
-                CopyCollidersNew(objFrom, objTo);
+                //CopySkinMeshRenderer(objFrom, objTo, bSkinMeshRender_copyBlendShapeValues, bSkinMeshRender_copyMaterials, bSkinMeshRender_copySettings, bSkinMeshRender_resetBlendShapeValues);
+                CopySkinMeshRenderer(objFrom, objTo);
             }
 
             //Copy Components in Children
@@ -648,7 +443,8 @@ namespace Pumkin
         /// </summary>
         void CopyDynamicBoneColliders(GameObject from, GameObject to, bool removeOld = false)
         {
-            string log = "Attempting to copy DynamicBoneColliders from {0} to {1} - ";
+            string[] logFormat = {  "DynamicBoneCollider", from.name, to.name };
+            string log = _logTemplate;
             List<DynamicBoneCollider> dFromList = new List<DynamicBoneCollider>();
             dFromList.AddRange(from.GetComponents<DynamicBoneCollider>());
             if(dFromList.Count == 0)
@@ -687,13 +483,13 @@ namespace Pumkin
 
                 if(dFrom == null)
                 {
-                    log += "Failed. {0} has no DynamicBoneCollider.";
-                    Log(log, LogType.Warning);
+                    log += "Failed: {2} has no {1}";
+                    Log(log, LogType.Warning, logFormat);
                     //Debug.LogFormat("_{0} has no DynamicBoneCollider. Ignoring.", from.name);
                     return;
                 }
 
-                log += "{0} has no DynamicBoneCollider. Creating - ";                
+                log += "{2} has no {1}. Creating - ";                
                 //Debug.LogWarningFormat("_{0} has no DynamicBoneCollider. Creating", to.name);
                 dTo = to.AddComponent<DynamicBoneCollider>();
 
@@ -715,14 +511,14 @@ namespace Pumkin
                             break;
                         }
                     }
-                    log += "Duplicate DynamicBoneCollider with the exact same settings already exists. Removing duplicate.";
-                    Log(log, LogType.Warning);
+                    log += "Duplicate {1} with the same settings already exists. Removing duplicate.";
+                    Log(log, LogType.Warning, logFormat);
                     //Debug.LogFormat("_Duplicate DynamicBoneCollider with the exact same settings already exists. Removing duplicate.");
                 }
                 else
                 {
-                    log += "Success";
-                    Log(log);
+                    log += "Success: Added {1} to {3}.";
+                    Log(log, LogType.Log, logFormat);
                     //Debug.LogFormat("_Succesfully copied DynamicBoneCollider component from {0} to {1}", from.name, to.name);
                 }
             }
@@ -732,7 +528,10 @@ namespace Pumkin
         /// Copies DynamicBone components. 
         /// </summary>
         void CopyDynamicBones(GameObject from, GameObject to, bool createMissing = true)
-        {
+        {            
+            string log = _logTemplate;
+            string[] logFormat = {  "DynamicBoneCollider", from.name, to.name };
+
             var dFromList = new List<DynamicBone>();
             var dToList = new List<DynamicBone>();
 
@@ -828,13 +627,34 @@ namespace Pumkin
                                 cTo.enabled = fc.enabled;
 
                                 newCollList.Add(cTo);
+                                log += "Success: Added {1} to {3}";
+                                Log(log, LogType.Log, logFormat);
                             }
                         }
                     }
                 }
 
-                if(dFrom == null || !bDynamicBones_copySettings || dFrom.m_Root == null)
+                logFormat = new string[] {  "DynamicBone", from.name, to.name };
+                log = _logTemplate;
+
+                if(dFrom == null)
+                {
+                    log += "Failed - {2} has no {1}. Ignoring";
+                    Log(log, LogType.Warning, logFormat);
                     return;
+                }
+                else if(!bDynamicBones_copySettings)
+                {
+                    log += "Failed - Not allowed to: Copy settings is unchecked.";
+                    Log(log, LogType.Warning, logFormat);
+                    return;
+                }
+                else if(dFrom.m_Root == null)
+                {
+                    Log(log, LogType.Warning, logFormat);
+                    log += "Failed - {3}'s {2} has no Root set. Ignoring";
+                    return;
+                }
 
                 dTo.enabled = dFrom.enabled;
 
@@ -899,16 +719,22 @@ namespace Pumkin
                             dTo.m_ReferenceObject = toRef;
                     }
                 }
-                Debug.LogFormat("Succesfully copied DynamicBone component from {0} to {1}", from.name, to.name);
+
+                log += "Success: Copied {1} from {2} to {3}";
+                Log(log, LogType.Log, logFormat);
+                //Debug.LogFormat("Succesfully copied DynamicBone component from {0} to {1}", from.name, to.name);
             }
         }
 
-        void CopyCollidersNew(GameObject from, GameObject to)
+        /// <summary>
+        /// Copies Box, Capsule, Sphere and Mesh colliders from one object to another
+        /// </summary>        
+        void CopyColliders(GameObject from, GameObject to)
         {
             if(!(bColliders_copyBox || bColliders_copyCapsule || bColliders_copyMesh || bColliders_copySphere))
                 return;
 
-            string log = "";
+            string log = _logTemplate;            
 
             var cFromList = new List<Collider>();
             var cToList = new List<Collider>();
@@ -924,11 +750,12 @@ namespace Pumkin
             cToList.AddRange(to.GetComponents<MeshCollider>());
 
             foreach(var cFrom in cFromList)
-            {
-                log += "Attempting to copy BoxCollider from {0} to {1} - ";
-                bool found = false;                
+            {                
+                bool found = false;
+                string[] logFormat = {  cFrom.GetType().ToString(), from.name, to.name };
+
                 foreach(var c in cToList)
-                {
+                {                    
                     found = CollidersAreIdentical(c, cFrom);
                 }
                 if(!found)
@@ -941,7 +768,7 @@ namespace Pumkin
                         cTo.size = cc.size;
                         cTo.center = cc.center;
                         cTo.contactOffset = cc.contactOffset;
-                                                
+
                         cTo.isTrigger = cc.isTrigger;
 
                         if(cc.material == tempMat)
@@ -954,9 +781,7 @@ namespace Pumkin
                         else
                             cTo.sharedMaterial = cc.sharedMaterial;
 
-                        cTo.enabled = cc.enabled;
-
-                        log += "Success - Copied BoxCollider";
+                        cTo.enabled = cc.enabled;                        
                     }
                     else if(bColliders_copyCapsule && cFrom is CapsuleCollider)
                     {
@@ -967,7 +792,7 @@ namespace Pumkin
                         cTo.radius = cc.radius;
                         cTo.height = cc.height;
                         cTo.contactOffset = cc.contactOffset;
-                                                
+
                         cTo.isTrigger = cc.isTrigger;
 
                         if(cc.material == tempMat)
@@ -980,18 +805,16 @@ namespace Pumkin
                         else
                             cTo.sharedMaterial = cc.sharedMaterial;
 
-                        cTo.enabled = cc.enabled;
-
-                        log += "Success - Copied CapsuleCollider";
+                        cTo.enabled = cc.enabled;                        
                     }
                     else if(bColliders_copySphere && cFrom is SphereCollider)
                     {
                         SphereCollider cc = (SphereCollider)cFrom;
-                        SphereCollider cTo = to.AddComponent<SphereCollider>();                        
+                        SphereCollider cTo = to.AddComponent<SphereCollider>();
                         cTo.center = cc.center;
                         cTo.radius = cc.radius;
-                        
-                        cTo.contactOffset = cc.contactOffset;                        
+
+                        cTo.contactOffset = cc.contactOffset;
                         cTo.isTrigger = cc.isTrigger;
 
                         if(cc.material == tempMat)
@@ -1004,9 +827,7 @@ namespace Pumkin
                         else
                             cTo.sharedMaterial = cc.sharedMaterial;
 
-                        cTo.enabled = cc.enabled;
-
-                        log += "Success - Copied SphereCollider";
+                        cTo.enabled = cc.enabled;                        
                     }
                     else if(bColliders_copyMesh && cFrom is MeshCollider)
                     {
@@ -1018,7 +839,7 @@ namespace Pumkin
                         cTo.sharedMesh = cc.sharedMesh;
                         cTo.skinWidth = cc.skinWidth;
 
-                        cTo.contactOffset = cc.contactOffset;                        
+                        cTo.contactOffset = cc.contactOffset;
                         cTo.isTrigger = cc.isTrigger;
 
                         if(cc.material == tempMat)
@@ -1031,173 +852,48 @@ namespace Pumkin
                         else
                             cTo.sharedMaterial = cc.sharedMaterial;
 
-                        cTo.enabled = cc.enabled;
-
-                        log += "Success - Copied MeshCollider";
+                        cTo.enabled = cc.enabled;                        
+                    }
+                    else
+                    {
+                        log += "Failed: Unsupported Collider type {1} on {2}. Ignoring";
+                        Log(log, LogType.Error, logFormat);
+                        return;
                     }
                 }
                 else
                 {
-                    log += "Failed. Already exists";
+                    log += "Failed: {1} already exists on {3}. Ignoring";
+                    Log(log, LogType.Warning, logFormat);
+                    return;
                 }
-                Log(log);
-                log = "";
+                log += "Success - Added {1} to {3}";
+                Log(log, LogType.Log, logFormat);                
             }
         }
-
+       
         /// <summary>
-        /// Copies Collider components.
-        /// </summary>    
-        void CopyColliders(GameObject from, GameObject to)
-        {
-            if(!bColliders_copyBox && !bColliders_copyCapsule && !bColliders_copySphere && !bColliders_copyMesh)
-                return;
-
-            string log = "";
-
-            if(bColliders_copyBox)
-            {
-                var cBoxFromList = from.GetComponents<BoxCollider>();
-                var cBoxToList = to.GetComponents<BoxCollider>();
-
-                foreach(var cFrom in cBoxFromList)
-                {
-                    CollidersAreIdentical(cFrom, null);
-
-                    log += "Attempting to copy BoxCollider from {0} to {1} - ";
-                    bool found = false;
-                    BoxCollider cTo;
-                    foreach(var c in cBoxToList)
-                    {
-                        if(PhysMaterialsAreIdentical(cFrom.material, c.material) && PhysMaterialsAreIdentical(cFrom.sharedMaterial, c.sharedMaterial) &&
-                            cFrom.size == c.size && cFrom.center == c.center && cFrom.isTrigger == c.isTrigger)
-                        {
-                            found = true;
-                        }
-                    }
-                    if(!found)
-                    {
-                        log += "Success - Copied BoxCollider";
-                        cTo = to.AddComponent<BoxCollider>();
-                        cTo.size = cFrom.size;
-                        cTo.center = cFrom.center;
-                        cTo.contactOffset = cFrom.contactOffset;
-                        cTo.material = cFrom.material;
-                        cTo.sharedMaterial = cFrom.sharedMaterial;
-                        cTo.isTrigger = cFrom.isTrigger;
-                    }
-                    else
-                    {
-                        log += "Failed. Already exists";
-                    }
-                    Log(log);
-                    log = "";
-                }
-            }
-
-            if(bColliders_copyCapsule)
-            {
-                var cCapsFromList = from.GetComponents<CapsuleCollider>();
-                var cCapsToList = to.GetComponents<CapsuleCollider>();
-
-                foreach(var cFrom in cCapsFromList)
-                {
-                    CollidersAreIdentical(cFrom, null);
-                    log += "Attempting to copy CapsuleCollider from {0} to {1} - ";
-                    bool found = false;
-                    CapsuleCollider cTo;
-                    foreach(var c in cCapsToList)
-                    {
-                        if(PhysMaterialsAreIdentical(cFrom.material, c.material) && PhysMaterialsAreIdentical(cFrom.sharedMaterial, c.sharedMaterial) &&
-                            cFrom.height == c.height && cFrom.center == c.center && cFrom.isTrigger == c.isTrigger && cFrom.radius == c.radius && cFrom.direction == c.direction)
-                        {
-                            found = true;
-                        }
-                    }
-                    if(!found)
-                    {
-                        log += "Success - Copied CapsuleCollider";
-                        cTo = to.AddComponent<CapsuleCollider>();
-                        cTo.height = cFrom.height;
-                        cTo.center = cFrom.center;
-                        cTo.contactOffset = cFrom.contactOffset;
-                        cTo.material = cFrom.material;
-                        cTo.sharedMaterial = cFrom.sharedMaterial;
-                        cTo.isTrigger = cFrom.isTrigger;
-                        cTo.radius = cFrom.radius;
-                        cTo.direction = cFrom.direction;
-                    }
-                    else
-                    {
-                        log += "Failed. Already exists";
-                    }
-                    Log(log);
-                    log = "";
-                }
-            }
-
-            if(bColliders_copySphere)
-            {                
-                return;
-
-                var cSphFromList = from.GetComponents<SphereCollider>();
-                var cSphToList = to.GetComponents<SphereCollider>();
-
-                foreach(var cFrom in cSphFromList)
-                {
-                    log += "Attempting to copy CapsuleCollider from {0} to {1} - ";
-                    bool found = false;
-                    SphereCollider cTo;
-                    foreach(var c in cSphToList)
-                    {
-                        if(PhysMaterialsAreIdentical(cFrom.material, c.material) && PhysMaterialsAreIdentical(cFrom.sharedMaterial, c.sharedMaterial) &&
-                            cFrom.center == c.center && cFrom.isTrigger == c.isTrigger && cFrom.radius == c.radius)
-                        {
-                            found = true;
-                        }
-                    }
-                    if(!found)
-                    {
-                        log += "Success - Copied SphereCollider";
-                        cTo = to.AddComponent<SphereCollider>();                        
-                        cTo.center = cFrom.center;
-                        cTo.contactOffset = cFrom.contactOffset;
-                        cTo.material = cFrom.material;
-                        cTo.sharedMaterial = cFrom.sharedMaterial;
-                        cTo.isTrigger = cFrom.isTrigger;
-                        cTo.radius = cFrom.radius;                        
-                    }
-                    else
-                    {
-                        log += "Failed. Already exists";
-                    }
-                    Log(log);
-                    log = "";
-                }
-            }
-        }
-
-        /// <summary>
-        /// Copies Transform components.
+        /// Copies Transform component settings. Note that only one can exist on an object, and every object should have one already.
         /// </summary>    
         void CopyTransforms(GameObject from, GameObject to)
         {
             var tFrom = from.transform;
             var tTo = to.transform;
 
-            string logMsg = string.Format("_Attempting to copy components from {0} to {1} - ", from.name, to.name);
+            string log = _logTemplate;
+            string[] logFormat = { "Transforms", from.name, to.name };
 
             if(tTo == null || tFrom == null)
             {
-                logMsg += string.Format("_Failed: {0} or {1} is null. This shouldn't even be possible. What are you doing!", tTo.name, tFrom.name);
-                Log(logMsg, LogType.Error);
+                log += "Failed: {2} or {3} is null. This shouldn't even be possible. What are you doing?";                
+                Log(log, LogType.Error);
                 return;
             }
 
             if(tFrom == tFrom.root || tFrom == tFrom.root.Find(tFrom.name))
             {
-                logMsg += string.Format("_Ignored: {0} is root or child of root.", tFrom.name);
-                Log(logMsg);
+                log += "Ignored: {2} is root or child of root.";
+                Log(log, LogType.Warning, logFormat);
                 return;
             }
 
@@ -1211,8 +907,84 @@ namespace Pumkin
                 tTo.localRotation = tFrom.localRotation;
             }
 
-            logMsg += "Success";
-            Log(logMsg);
+            log += "Success: Copied {1} from {2} to {3}";
+            Log(log, LogType.Log ,logFormat);
+        }
+
+        /// <summary>
+        /// Copies SkinnedMeshRenderer settings. Note that only one can exist on an object.
+        /// </summary>                
+        void CopySkinMeshRenderer(GameObject from, GameObject to)//, bool copyBlendShapeValues, bool copyMaterials, bool copySettings, bool resetBlendShapeValues)
+        {
+            //if(!(copyBlendShapeValues || copyMaterials || copySettings || resetBlendShapeValues))
+            if(!(bSkinMeshRender_copyBlendShapeValues || bSkinMeshRender_copyMaterials || bSkinMeshRender_copySettings || bSkinMeshRender_resetBlendShapeValues))
+                return;
+
+            string log = _logTemplate;
+            string[] logFormat = { "SkinnedMeshRenderer", from.name, to.name };
+
+            SkinnedMeshRenderer rFrom = from.GetComponent<SkinnedMeshRenderer>();
+            SkinnedMeshRenderer rTo = to.GetComponent<SkinnedMeshRenderer>();
+
+            if(rTo != null )
+            {
+                log += "Failed: {2} is null. Ignoring";
+                Log(log, LogType.Warning, logFormat);
+
+                if(bSkinMeshRender_resetBlendShapeValues)//(resetBlendShapeValues)
+                {
+                    for(int i = 0; i < rTo.sharedMesh.blendShapeCount; i++)
+                    {
+                        rTo.SetBlendShapeWeight(i, 0);
+                    }
+                }
+            }
+            if(rFrom == null)
+            {
+                log += "Failed: {1} is null. Ignoring";
+                Log(log, LogType.Warning, logFormat);
+                return;
+            }
+            
+            Mesh fromMesh = rFrom.sharedMesh;
+
+            if(bSkinMeshRender_copySettings)//(copySettings)
+            {
+                rTo.enabled = rFrom.enabled;
+                rTo.quality = rFrom.quality;
+                rTo.updateWhenOffscreen = rFrom.updateWhenOffscreen;
+                rTo.skinnedMotionVectors = rFrom.skinnedMotionVectors;
+                rTo.sharedMesh = rFrom.sharedMesh;
+                rTo.rootBone = rFrom.rootBone;
+                rTo.lightProbeUsage = rFrom.lightProbeUsage;
+                rTo.reflectionProbeUsage = rFrom.reflectionProbeUsage;
+                rTo.probeAnchor = rFrom.probeAnchor;
+                rTo.shadowCastingMode = rFrom.shadowCastingMode;
+                rTo.receiveShadows = rFrom.receiveShadows;                
+                rTo.motionVectorGenerationMode = rFrom.motionVectorGenerationMode;                
+            }
+
+            if(bSkinMeshRender_copyBlendShapeValues)//(copyBlendShapeValues)
+            {                
+                for(int i = 0; i < rFrom.sharedMesh.blendShapeCount; i++)
+                {
+                    string name = fromMesh.GetBlendShapeName(i);
+                    int frames = fromMesh.GetBlendShapeFrameCount(i);
+
+                    if(!string.IsNullOrEmpty(name))
+                    {
+                        rTo.SetBlendShapeWeight(rTo.sharedMesh.GetBlendShapeIndex(name), fromMesh.GetBlendShapeFrameWeight(i,0));
+                    }
+                }
+            }
+
+            if(bSkinMeshRender_copyMaterials)//(copyMaterials)
+            {
+                rTo.sharedMaterials = rFrom.sharedMaterials;                
+            }
+
+            log += "Success: Copied {1} from {2} to {3}";
+            Log(log, LogType.Log, logFormat);
         }
 
         #endregion
@@ -1290,8 +1062,10 @@ namespace Pumkin
             return path;
         }
 
-        void Log(string message, LogType logType = LogType.Log)
+        void Log(string message, LogType logType = LogType.Log, params string[] logFormat)
         {
+            if(logFormat.Length > 0)
+                message = string.Format(message, logFormat);
             switch(logType)
             {
                 case LogType.Error:
@@ -1358,5 +1132,211 @@ namespace Pumkin
         }
 
         #endregion
-    }    
+    }
+
+    #region Strings Struct
+
+    public struct AvatarToolsStrings
+    {
+        static readonly Dictionary<string, string> dictionary_english, dictionary_uwu;
+        public enum DictionaryLanguage { English, uwu = 100 };
+        public static readonly string version = "0.4b";
+
+        static Dictionary<string, string> stringDictionary;
+        static public DictionaryLanguage Language { get; private set; }
+
+        static AvatarToolsStrings()
+        {
+            dictionary_uwu = new Dictionary<string, string>
+            {
+                {"main_title", "Pumkin's Avataw Toows! ÒwÓ" },
+                {"main_windowName", "Avataw Toows" },
+                {"main_msgDefault", "Pick Objects to copy Componyents to and fwom." },
+                {"main_version", "Vewsion" },
+
+                //UI Main
+                {"ui_copyFrom", "Copy fwom:" },
+                {"ui_copyTo", "Copy to:" },
+                {"button_copySelected" , "Copy sewected (´• ω •`)" },
+                {"button_swap" , "Swap (ﾟωﾟ;)" },
+                {"button_clear" , "Cweaw（>﹏<）" },
+
+                //UI Transforms
+                {"ui_transforms", "Twansfowms! º^º" },
+                {"ui_transforms_position", "Position~" },
+                {"ui_transforms_rotation", "Wotation~" },
+                {"ui_transforms_scale", "Scawe~" },
+            
+                //UI Dynamic Bones
+                {"ui_dynamicBones", "Dynyamic Bonyes +w+" },
+                {"ui_dynamicBones_settings", "Settings~" },
+                {"ui_dynamicBones_colliders", "Cowwidews~" },
+                {"ui_dynamicBones_removeOld", "Wemuv Owd Bonyes~" },
+                {"ui_dynamicBones_removeOldColliders", "Wemuv Owd Cowwidews~" },
+                {"ui_dynamicBones_createMissing", "Cweate Missing Bonyes~" },
+
+                //UI Colliders
+                {"ui_colliders", "Cowwidews! >w<" },
+                {"ui_colliders_box", "Box Cowwidews! :o" },
+                {"ui_colliders_capsule", "Capsule Cowwidews! :0" },
+                {"ui_colliders_sphere", "Sphere Cowwidews! :O" },
+                {"ui_colliders_mesh", "Mesh Cowwidews! :C" },
+                {"ui_colliders_removeOld", "Wemuv Owd Cowwidews" },
+
+                //UI Avatar Descriptor
+                {"ui_descriptor", "Avataw Descwiptow! =w=" },
+                {"ui_descriptor_settings", "Settings~" },
+                {"ui_descriptor_pipelineId", "Pipewinye Id uwu" },
+                {"ui_descriptor_animationOverrides", "Anyimation Ovewwides!" },
+
+                //UI Skinned Mesh Renderer
+                {"ui_skinMeshRender", "Skinnyed Mesh Wendewews o-o" },
+                {"ui_skinMeshRender_settings", "Settings agen!" },
+                {"ui_skinMeshRender_materials", "Matewials owo" },
+                {"ui_skinMeshRender_blendShapeValues", "BwendShape Vawues (⁰д⁰ )" },
+                {"ui_skinMeshRender_resetBlendShapes", "Weset BwendShapes òwó" }, 
+
+                //Log
+                { "log_actionAttempt", "Attempting to copy {0} fwom {1} to {2} OwO" },
+                { "log_copyToAndFromInvalid", "Can't copy Componyents because 'Copy Fwom' & 'Copy To' awe invawid~" },
+                { "log_copyFwomInvalid" , "Can't copy Componyents because 'Copy Fwom' is invawid~" },
+                { "log_copyToInvalid" , "Can't copy Componyents because 'Copy To' is invawid~" },
+                { "log_done" , "Donye. Check Unyity Consowe fow fuww Output Wog uwu" },                
+
+                //Warnings
+                { "warn_warning", "O no~" },
+                { "warn_copyToPrefab", "You awe twying to copy componyents to a pwefab!\nThis cannyot be undonye.\nAwe you suwe you want to continyue uwu?" },
+                { "warn_pwefabOverwriteYes", "Mhm, uwu" },
+                { "warn_pwefabOverwriteNyo", "Nyo, ;w;" },
+
+                //Cwedits
+                { "credits_line1", "Pumkin's Avataw Toows~"},
+                { "credits_line2", "Vewsion" + " " + version },
+                { "credits_line3", "Nyow with 100% mowe wedundant stwings~"},
+                { "credits_line4", "I'ww add mowe stuff to this eventuawwy >w<" },
+                { "credits_line5", "Poke me! But on Discowd at Pumkin#2020~ uwus" },
+
+                //Misc
+                { "misc_poke", "Poke me~" },
+                { "misc_uwu", "OwO" },
+            };
+            dictionary_english = new Dictionary<string, string>
+            {
+                //Main
+                {"main_title", "Pumkin's Avatar Tools" },
+                {"main_windowName", "Avatar Tools" },
+                {"main_msgDefault", "Pick Objects to copy Components to and from." },
+                {"main_version", "Version" },
+
+                //UI Main
+                {"ui_copyFrom", "Copy from:" },
+                {"ui_copyTo", "Copy to:" },                
+                {"button_copySelected" , "Copy Selected" },
+                {"button_swap" , "Swap" },
+                {"button_clear" , "Clear" },
+
+                //UI Transforms
+                {"ui_transforms", "Transforms" },
+                {"ui_transforms_position", "Position" },
+                {"ui_transforms_rotation", "Rotation" },
+                {"ui_transforms_scale", "Scale" },
+            
+                //UI Dynamic Bones
+                {"ui_dynamicBones", "Dynamic Bones" },
+                {"ui_dynamicBones_settings", "Settings" },
+                {"ui_dynamicBones_colliders", "Colliders" },
+                {"ui_dynamicBones_removeOld", "Remove Old Bones" },
+                {"ui_dynamicBones_removeOldColliders", "Remove Old Colliders" },
+                {"ui_dynamicBones_createMissing", "Create Missing Bones" },
+
+                //UI Colliders
+                {"ui_colliders", "Colliders" },
+                {"ui_colliders_box", "Box Colliders" },
+                {"ui_colliders_capsule", "Capsule Colliders" },
+                {"ui_colliders_sphere", "Sphere Colliders" },
+                {"ui_colliders_mesh", "Mesh Colliders" },
+                {"ui_colliders_removeOld", "Remove Old Colliders" },
+
+                //UI Avatar Descriptor
+                {"ui_descriptor", "Avatar Descriptor" },
+                {"ui_descriptor_settings", "Settings" },
+                {"ui_descriptor_pipelineId", "Pipeline Id" },
+                {"ui_descriptor_animationOverrides", "Animation Overrides" },
+
+                //UI Skinned Mesh Renderer
+                {"ui_skinMeshRender", "Skinned Mesh Renderers" },
+                {"ui_skinMeshRender_settings", "Settings" },
+                {"ui_skinMeshRender_materials", "Materials" },
+                {"ui_skinMeshRender_blendShapeValues", "BlendShape Values" },
+                {"ui_skinMeshRender_resetBlendShapes", "Reset BlendShapes" },
+
+                //Log
+                { "log_actionAttempt", "Attempting to copy {0} from {1} to {2}" },
+                { "log_copyToAndFromInvalid", "Can't copy Components because 'Copy From' & 'Copy To' are invalid" },
+                { "log_copyFromInvalid" , "Can't copy Components because 'Copy From' is invalid" },
+                { "log_copyToInvalid" , "Can't copy Components because 'Copy To' is invalid" },
+                { "log_done" , "Done. Check Unity Console for full Output Log" },
+                { "log_cantCopyToItself", "Can't copy Components from an object to itself. What are you doing?" },
+                { "log_noComponentsSelected", "No components selected" },
+
+                //Warnings
+                { "warn_warning", "Warning" },
+                { "warn_copyToPrefab", "You are trying to copy components to a prefab.\nThis cannot be undone.\nAre you sure you want to continue?" },
+                { "warn_prefabOverwriteYes", "Yes, Overwrite" },
+                { "warn_prefabOverwriteNo", "No, Cancel" },
+
+                //Credits
+                { "credits_line1", "Pumkin's Avatar Tools"},
+                { "credits_line2", "Version" + " " + version },
+                { "credits_line3", "Now with 100% more redundant strings"},
+                { "credits_line4", "I'll add more stuff to this eventually" },
+                { "credits_line5", "Poke me on Discord at Pumkin#2020" },
+
+                //Misc                
+                { "misc_uwu", "uwu" },
+            };
+
+            Language = DictionaryLanguage.English;
+            stringDictionary = dictionary_english;
+
+            SetLanguage(DictionaryLanguage.English);
+        }
+
+        public static void SetLanguage(DictionaryLanguage lang)
+        {
+            switch(lang)
+            {
+                case DictionaryLanguage.English:
+                    stringDictionary = dictionary_english;
+                    break;
+                case DictionaryLanguage.uwu:
+                    stringDictionary = dictionary_uwu;
+                    break;
+                default:
+                    stringDictionary = dictionary_english;
+                    break;
+            }
+            Language = lang;
+            PumkinsAvatarTools.ReloadStrings();
+        }
+
+        public static string GetString(string stringName, params string[] formatArgs)
+        {
+            if(string.IsNullOrEmpty(stringName))
+                return stringName;
+
+            string s = string.Empty;
+            stringDictionary.TryGetValue(stringName, out s);
+
+            if(formatArgs.Length > 0)
+            {
+                if(!string.IsNullOrEmpty(s))
+                {
+                    s = string.Format(stringName, formatArgs);
+                }
+            }
+            return s;
+        }
+    };
+    #endregion
 }
