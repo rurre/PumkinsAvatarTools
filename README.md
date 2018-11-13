@@ -10,11 +10,11 @@ Video Example: [Here](https://puu.sh/BZMGY/53e5dad7c3.mp4)
 - **Dynamic Bones** - Can copy Dynamic Bones from one avatar to another, if the bone and parent names are the same
 - **Avatar Descriptors** - Avatar descriptors, their viseme setup, animation override controllers and pipeline IDs
 - **Colliders** - Box, Capsule, Sphere and Mesh Colliders
+- **Skinned Mesh Rendereds** - Can copy Settings, Materials and BlendShape settings
 
 ### Not yet supported:
 - **Particle Systems**
 - **Audio Sorces**
-- **Skinned Mesh Rendereds**
 - **Some other things I need to decide to add**
 
 To launch the tool go to `Tools > Pumkin > Avatar Tools`
