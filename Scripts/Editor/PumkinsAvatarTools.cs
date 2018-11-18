@@ -2407,73 +2407,126 @@ namespace Pumkin
             //Mistakes
             dictionary_uwu = new Dictionary<string, string>
             {
-                {"main_title", "Pumkin's Avataw Awoos! ÒwÓ" },
-                {"main_windowName", "Avataw Awoos" },
-                {"main_msgDefault", "Pick Objects to copy Componyents to and fwom." },
-                {"main_version", "Vewsion" },
+                #region Main
+                //Main
+                {"ui_main_title", "Pumkin's Avataw Awoos! ÒwÓ" },
+                {"ui_main_windowName", "Avataw Awoos" },
+                {"ui_main_version", "Vewsion~" },
+                {"ui_main_avatar", "Avataw :o" },
+                {"ui_tools", "Toows òwó" },
+                {"ui_copier", "Copy Componyents uwu" },
+                {"ui_avatarInfo", "Avataw Info 0w0" },
+                {"ui_removeAll", "Wemuv Aww (⁰д⁰ )" },
+                {
+                    "ui_avatarInfo_template",
 
-                //UI Main
-                {"ui_copier_copyFrom", "Copy fwom:" },
-                {"ui_copier_copyTo", "Copy to:" },
-                {"button_copySelected" , "Copy sewected (´• ω •`)" },
-                {"button_swap" , "Swap (ﾟωﾟ;)" },
-                {"button_clear" , "Cweaw（>﹏<）" },
+                    "{0}\n---------------------\n" +
+                    "GameObjects: {1} ({2})\n\n" +
+                    "Skinnyed Mesh Wendewews: {3} ({4})\n" +
+                    "Mesh Wendewews: {5} ({6})\n" +
+                    "Twiangwes: {7} ({8})\n\n" +
+                    "Matewiaws: {9} ({10})\n" +
+                    "Shadews: {11} \n\n"+
+                    "Dynyamic Bonye Twansfowms: {12} ({13})\n" +
+                    "Dynyamic Bonye Cowwidews: {14} ({15})\n" +
+                    "Cowwidew Affected Twansfowms: {16} ({17})\n\n" +
+                    "Pawticwe Systems: {18} ({19})\n" +
+                    "Max Pawticwes: {20} ({21})\n\n" +
+                    "owos: 12000 (42000)"
+                },
 
-                //UI Transforms
-                {"ui_copier_transforms", "Twansfowms! º^º" },
+                #region Buttons
+                {"buttons_selectFromScene", "Sewect fwom Scenye x3" },
+                {"buttons_copySelected" , "Copy Sewected (´• ω •`)" },
+                {"buttons_refresh", "Wefwesh (ﾟωﾟ;)" },
+                {"buttons_apply", "Appwy （>﹏<）" },
+                {"buttons_cancel", "Cancew ; o;" },
+                #endregion
+
+                #endregion
+                #region Tools
+                //UI Toows                
+                {"ui_tools_fillVisemes", "Fiww Visemes ;~;" },
+                {"ui_tools_editViewpoint", "Edit Viewpoint o-o" },
+                {"ui_tools_resetBlendShapes", "Weset Bwendshapes uwu" },
+                {"ui_tools_resetPose", "Weset Pose ;3" },
+
+                #endregion
+                #region Copier
+                //UI Copier
+                {"ui_copier_copyFrom", "Copy fwom~" },                
+
+                //UI Copier Transforms
+                {"ui_copier_transforms", "Twansfowms!" },
                 {"ui_copier_transforms_position", "Position~" },
-                {"ui_copier_transforms_rotation", "Wotation~" },
-                {"ui_copier_transforms_scale", "Scawe~" },
-            
-                //UI Dynamic Bones
-                {"ui_copier_dynamicBones", "Dynyamic Bonyes +w+" },
-                {"ui_copier_dynamicBones_settings", "Settings~" },
-                {"ui_copier_dynamicBones_colliders", "Cowwidews~" },
-                {"ui_copier_dynamicBones_removeOld", "Wemuv Owd Bonyes~" },
-                {"ui_copier_dynamicBones_removeOldColliders", "Wemuv Owd Cowwidews~" },
-                {"ui_copier_dynamicBones_createMissing", "Cweate Missing Bonyes~" },
+                {"ui_copier_transforms_wotation", "Wotation @~@" },
+                {"ui_copier_transforms_scawe", "Scawe www" },
 
-                //UI Colliders
-                {"ui_copier_colliders", "Cowwidews! >w<" },
-                {"ui_copier_colliders_box", "Box Cowwidews! :o" },
-                {"ui_copier_colliders_capsule", "Capsule Cowwidews! :0" },
-                {"ui_copier_colliders_sphere", "Sphere Cowwidews! :O" },
-                {"ui_copier_colliders_mesh", "Mesh Cowwidews! :C" },
-                {"ui_copier_colliders_removeOld", "Wemuv Owd Cowwidews" },
+                //UI Copier Dynamic Bones
+                {"ui_copier_dynamicBones", "Dynyamic Bonyes~" },
+                {"ui_copier_dynamicBones_settings", "Settings º ^º" },
+                {"ui_copier_dynamicBones_colliders", "Dynyamic Bonye Cowwidews~" },
+                {"ui_copier_dynamicBones_removeOld", "Wemuv Owd Bonyes uwu" },
+                {"ui_copier_dynamicBones_removeOldColliders", "Wemuv Owd Cowwidews ;w;" },
+                {"ui_copier_dynamicBones_createMissing", "Cweate Missing Bonyes!" },
 
-                //UI Avatar Descriptor
-                {"ui_copier_descriptor", "Avataw Descwiptow! =w=" },
-                {"ui_copier_descriptor_settings", "Settings~" },
-                {"ui_copier_descriptor_pipelineId", "Pipewinye Id uwu" },
-                {"ui_copier_descriptor_animationOverrides", "Anyimation Ovewwides!" },
+                //UI Copier Colliders
+                {"ui_copier_colliders", "Cowwidews ;o;" },
+                {"ui_copier_colliders_box", "Box Cowwidews!" },
+                {"ui_copier_colliders_capsule", "Capsuwe Cowwidews o-o" },
+                {"ui_copier_colliders_sphere", "Sphewe Cowwidews O~O" },
+                {"ui_copier_colliders_mesh", "Mesh Cowwidews zzz" },
+                {"ui_copier_colliders_removeOld", "Wemuv Owd Cowwidews uwu" },
 
-                //UI Skinned Mesh Renderer
-                {"ui_copier_skinMeshRender", "Skinnyed Mesh Wendewews o-o" },
-                {"ui_copier_skinMeshRender_settings", "Settings agen!" },
-                {"ui_copier_skinMeshRender_materials", "Matewials owo" },
-                {"ui_copier_skinMeshRender_blendShapeValues", "BwendShape Vawues (⁰д⁰ )" },
-                {"ui_copier_skinMeshRender_resetBlendShapes", "Weset BwendShapes òwó" }, 
+                //UI Copier Avatar Descriptor
+                {"ui_copier_descriptor", "Avataw Descwiptow~" },
+                {"ui_copier_descriptor_settings", "Settings agen" },
+                {"ui_copier_descriptor_pipelineId", "Pipewinye Id!" },
+                {"ui_copier_descriptor_animationOverrides", "Anyimation Ovewwides :o" },
 
+                //UI Copier Skinned Mesh Renderer
+                {"ui_copier_skinMeshRender", "Skinnyed Mesh Wendewews ;w;" },
+                {"ui_copier_skinMeshRender_settings", "Settings ageeen" },
+                {"ui_copier_skinMeshRender_materials", "Matewiaws uwu" },
+                {"ui_copier_skinMeshRender_blendShapeValues", "BwendShape Vawues ùwú" },
+                #endregion
+
+                #region Log
                 //Log
-                { "log_copyAttempt", "Attempting to copy {0} fwom {1} to {2} OwO" },
-                { "log_copyToAndFromInvalid", "Can't copy Componyents because 'Copy Fwom' & 'Copy To' awe invawid~" },
-                { "log_copyFwomInvalid" , "Can't copy Componyents because 'Copy Fwom' is invawid~" },
-                { "log_copyToInvalid" , "Can't copy Componyents because 'Copy To' is invawid~" },
-                { "log_done" , "Donye. Check Unyity Consowe fow fuww Output Wog uwu" },
-                { "log_cancelled", "Cancewed ; o ;" },
+                { "log_failed", "Faiwed ùwú" },
+                { "log_cancelled", "Cancewwed .-." },
+                { "log_success", "Success OWO" },
+                { "log_done", "Donye. Check Unyity Consowe fow fuww Output Wog uwus" },
+                { "log_copyAttempt", "Attempting to copy {0} fwom {1} to {2} o-o" },
+                { "log_remuveAttempt", "Attempting to wemuv {0} fwom {1} ;-;" },
+                { "log_copyFromInvalid", "Can't copy Componyents because 'Copy Fwom' is invawid ; o ;" },
+                { "log_cantCopyToSelf", "Can't copy Componyents fwom an object to itsewf. What awe you doing? ;     w     ;" },
+                { "log_viewpointApplied", "Set Viewposition to {0}!" },
+                { "log_viewpointCancelled", "Cancewwed Viewposition changes uwu" },
+                { "log_tryFixVisemes", "Attempting to fiww visemes on {0}!" },
+                { "log_noSkinnedMeshFound", "Faiwed: Nyo skinnyed mesh found ;o;" },
+                { "log_descriptorIsNull", "Avataw descwiptow is nyuww humpf"},
+                { "log_meshHasNoVisemes", "Faiwed. Mesh has nyo Visemes. Set to Defauwt ;w;" },
+                { "log_tryRemoveUnsupportedComponent", "Attempted to wemuv unsuppowted componyent {0} fwom {1} uwu7" },
+                #endregion
 
+                #region Warnings
                 //Warnings
-                { "warn_warning", "O no~" },
-                { "warn_copyToPrefab", "You awe twying to copy componyents to a pwefab!\nThis cannyot be undonye.\nAwe you suwe you want to continyue ; o;?" },
-                { "warn_pwefabOverwriteYes", "Mhm, uwu" },
-                { "warn_pwefabOverwriteNyo", "Nyo, ;w;" },
+                { "log_warning", "Wawnying! unu" },
+                { "warn_selectSceneObject" , "Pwease sewect an object fwom the scenye!!" },
+                //{ "warn_copyToPrefab", "You awe twying to copy componyents to a pwefab.\nThis cannyot be undonye.\nAwe you suwe you want to continyue?" },
+                //{ "warn_prefabOverwriteYes", "Yes, Ovewwwite" },
+                //{ "warn_prefabOverwriteNo", "Nyo, Cancew" },
+                #endregion
 
+                #region Credits
                 //Credits
-                { "credits_line1", "Pumkin's Avataw Toows~"},
+                { "credits_line1", "Pumkin's Avataw Awoos~ :3"},
                 { "credits_line2", "Vewsion" + " " + version },
                 { "credits_line3", "Nyow with 0W0% mowe noticin things~"},
                 { "credits_line4", "I'ww add mowe stuff to this eventuawwy >w<" },
                 { "credits_line5", "Poke me! But on Discowd at Pumkin#2020~ uwus" },
+                #endregion
 
                 //Misc                
                 { "misc_uwu", "OwO" },
