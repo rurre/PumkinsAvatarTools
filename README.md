@@ -1,7 +1,7 @@
 # PumkinsAvatarTools
 This editor script tool allows you to copy components from existing avatars to new ones, making it much faster to reimport avatars from blender or setup new ones.
 
-## New this version:
+## New this version (v0.5b):
 - **Select Avatar from Scene Button** - Gone are the days of manually dragging things around
 - **A brand new Tools menu** - Bunch of never-before-seen-tools-that-nobody-has-done-before to do things with including, dragging your avatar's viewpoint around, auto filling in visemes and resetting your avatar's transform, as well as quickly removing dynamic bones and colliders from your avatar
 - **An even newer Avatar Info Menu** - For when you want to know exactly how unoptimized your avatar is
