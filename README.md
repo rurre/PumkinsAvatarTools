@@ -1,16 +1,26 @@
 # PumkinsAvatarTools
 This editor script tool allows you to copy components from existing avatars to new ones, making it much faster to reimport avatars from blender or setup new ones.
 
-Screenshot: [Here](https://puu.sh/C18OC/53ff07874f.png)
+## New this version:
+- **Select Avatar from Scene Button** - Gone are the days of manually dragging things around
+- **A brand new Tools menu** - Bunch of never-before-seen-tools-that-nobody-has-done-before to do things with including, dragging your avatar's viewpoint around, auto filling in visemes and resetting your avatar's transform, as well as quickly removing dynamic bones and colliders from your avatar
+- **An even newer Avatar Info Menu** - For when you want to know exactly how unoptimized your avatar is
+- **More Untested changes** - Even more Hype! (Please give feedback)
 
-Video Example: [Here](https://puu.sh/BZMGY/53e5dad7c3.mp4)
+Screenshot: [Here](https://puu.sh/C3GGb/5d96267e73.png)
 
-## Supported Components:
+(Very) Outdated Video Example: [Here](https://puu.sh/BZMGY/53e5dad7c3.mp4)
+
+- **Tools menu** - Allows you to do stuff including dragging your avatar's viewpoint around, auto filling in visemes and resetting your avatar's transform, as well as quickly removing dynamic bones and colliders from your avatar
+- **Component Copier** - Allows you to copy over components from one avatar to another
+- **Avatar Info** - Gives you a short rundown of your avatar stats, including trinagles, materials, shaders, dynamic bones and so on.
+
+## Components Supported by the Copier:
 - **Transforms** - Can fix broken poses left behind after animating an avatar
 - **Dynamic Bones** - Can copy Dynamic Bones from one avatar to another, if the bone and parent names are the same
 - **Avatar Descriptors** - Avatar descriptors, their viseme setup, animation override controllers and pipeline IDs
 - **Colliders** - Box, Capsule, Sphere and Mesh Colliders
-- **Skinned Mesh Rendereds** - Can copy Settings, Materials and BlendShape settings
+- **SkinnedMeshRenderers** - Copy materials, BlendShape values and Settings between SkinnedMeshRenderers
 
 ### Not yet supported:
 - **Particle Systems**
