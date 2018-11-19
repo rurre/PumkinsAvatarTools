@@ -31,3 +31,4 @@ Screenshot: [Here](https://puu.sh/C3GGb/5d96267e73.png)
 To launch the tool go to `Tools > Pumkin > Avatar Tools`
 
 **Important:** Since this is an editor script it needs to be in a folder called `Editor`anywhere in your project.
+**Disclaimer:** This tool is in beta and could *break everything*. Please backup your avatars. Als use at your own risk.
