@@ -2757,7 +2757,7 @@ namespace Pumkin
 
                 foreach(var mat in r.sharedMaterials)
                 {
-                    if(shaders.IndexOf(mat.shader) == -1)
+                    if(mat != null && shaders.IndexOf(mat.shader) == -1)
                         shaders.Add(mat.shader);
                 }
             }
