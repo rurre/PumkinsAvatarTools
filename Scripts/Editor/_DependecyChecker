@@ -1,0 +1,84 @@
+using UnityEngine;
+using UnityEditor;
+using System;
+using System.IO;
+
+namespace Pumkin
+{
+    [InitializeOnLoad]
+    public class _DependecyChecker
+    {
+        static void Awake()
+        {
+            Check();
+        }
+
+        static _DependecyChecker()
+        {
+            Check();
+        }
+
+        public static void Check()
+        {
+            Type boneType = GetType("DynamicBone");
+            var script = Directory.GetFiles(Application.dataPath, "PumkinsAvatarTools.cs", SearchOption.AllDirectories)[0];
+
+            if(!string.IsNullOrEmpty(script))
+            {
+                string file = File.ReadAllText(script);                
+                string s = file.Substring(0, file.IndexOf("using"));
+
+                int index = s.IndexOf("#define NO_DBONES");
+
+                if(boneType == null)
+                {                    
+                    if(index == -1)
+                    {
+                        s = "#define NO_DBONES\r\n";
+                        s += file;
+                        File.WriteAllText(script, s);
+                        AssetDatabase.ImportAsset(RelativePath(script));
+                    }
+                }
+                else
+                {
+                    if(index != -1)
+                    {
+                        s = file.Substring(file.IndexOf(s) + s.Length);
+                        File.WriteAllText(script, s);
+                        AssetDatabase.ImportAsset(RelativePath(script));
+                    }
+                }
+            }
+        }
+
+        [UnityEditor.Callbacks.DidReloadScripts]
+        private static void OnScriptsReloaded()
+        {
+            Check();
+        }
+
+        static Type GetType(string typeName)
+        {
+            var type = Type.GetType(typeName);
+            if(type != null)
+                return type;
+            foreach(var a in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                type = a.GetType(typeName);
+                if(type != null)
+                    return type;
+            }
+            return null;
+        }
+
+        static string RelativePath(string path)
+        {            
+            if(path.StartsWith(Application.dataPath))
+            {
+                path = "Assets" + path.Substring(Application.dataPath.Length);
+            }
+            return path;
+        }
+    }
+}
