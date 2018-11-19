@@ -1,3 +1,4 @@
+#define NO_DBONES
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -13,12 +14,12 @@ using System.IO;
 /// </summary>
 
 namespace Pumkin
-{    
+{
     [ExecuteInEditMode, CanEditMultipleObjects]
     public class PumkinsAvatarTools : EditorWindow
     {
-        #region Variables
-
+#region Variables
+        
         //Tools
         static GameObject selectedAvatar;        
 
@@ -65,7 +66,8 @@ namespace Pumkin
 
         bool _tools_expand = true;
         bool _avatarInfo_expand = false;
-        
+        bool _misc_expand = true;
+
         //Misc
         bool _openedInfo = false;
         Vector2 vertScroll = Vector2.zero;
@@ -78,7 +80,7 @@ namespace Pumkin
 
         static AvatarInfo avatarInfo = null;
         static string _avatarInfoStringTemplate;
-        static string _avatarInfoString;
+        static string _avatarInfoString;        
 
         enum ToolMenuActions
         {
@@ -90,14 +92,16 @@ namespace Pumkin
             FixRandomMouth,
             DisableBlinking,
             EditViewpoint,
-            FillVisemes
+            FillVisemes            
         };        
 
         static readonly Type[] supportedComponents =
-        {            
-            typeof(DynamicBone),            
+        {
+#if !NO_DBONES
+            typeof(DynamicBone),
             typeof(DynamicBoneCollider),
             typeof(DynamicBoneColliderBase),
+#endif
             typeof(Collider),
             typeof(BoxCollider),
             typeof(CapsuleCollider),
@@ -109,9 +113,9 @@ namespace Pumkin
             typeof(PipelineManager)
         };
 
-        #endregion        
+#endregion
 
-        #region Unity GUI
+#region Unity GUI
 
         void OnEnable()
         {
@@ -184,7 +188,9 @@ namespace Pumkin
             editorWindow.autoRepaintOnSceneChange = true;            
 
             editorWindow.Show();
-            editorWindow.titleContent = new GUIContent(Strings.Main.WindowName);           
+            editorWindow.titleContent = new GUIContent(Strings.Main.WindowName);
+
+            _DependecyChecker.Check();
         }
         
         /// <summary>
@@ -198,7 +204,7 @@ namespace Pumkin
                 //Shouldn't be possible with disable group
                 Debug.LogWarning("_No avatar selected");
                 return;
-            }
+            }            
 
             //Record Undo
             Undo.RegisterFullObjectHierarchyUndo(selectedAvatar, "Tools menu: " + action.ToString());
@@ -210,11 +216,15 @@ namespace Pumkin
                 case ToolMenuActions.RemoveColliders:                    
                     DestroyAllComponentsOfType(selectedAvatar, typeof(Collider));
                     break;
-                case ToolMenuActions.RemoveDynamicBoneColliders:                    
+                case ToolMenuActions.RemoveDynamicBoneColliders:
+#if !NO_DBONES
                     DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBoneCollider));
+#endif
                     break;
-                case ToolMenuActions.RemoveDynamicBones:                    
+                case ToolMenuActions.RemoveDynamicBones:
+#if !NO_DBONES
                     DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBone));
+#endif
                     break;
                 case ToolMenuActions.ResetPose:
                     ResetPose(selectedAvatar);
@@ -430,8 +440,15 @@ namespace Pumkin
                 {
                     if(Selection.activeObject != null)
                     {
-                        selectedAvatar = Selection.activeGameObject.transform.root.gameObject;
-                        avatarInfo = null;
+                        try
+                        {
+                            selectedAvatar = Selection.activeGameObject.transform.root.gameObject;
+                            avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);
+                        }
+                        catch
+                        {
+                                                       
+                        }
                     }
                 }
 
@@ -501,21 +518,33 @@ namespace Pumkin
                         EditorGUILayout.BeginHorizontal();
 
                         EditorGUILayout.BeginVertical();
+#if NO_DBONES
+                        EditorGUI.BeginDisabledGroup(true);
+#endif
                         if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones, Icons.DefaultAsset)))
                         {
                             ActionButton(ToolMenuActions.RemoveDynamicBones);
                         }
+#if NO_DBONES
+                        EditorGUI.EndDisabledGroup();
+#endif
                         if(GUILayout.Button(new GUIContent(Strings.Copier.Colliders, Icons.ColliderBox)))
                         {
                             ActionButton(ToolMenuActions.RemoveColliders);
                         }
                         EditorGUILayout.EndVertical();
 
+#if NO_DBONES
+                        EditorGUI.BeginDisabledGroup(true);
+#endif
                         EditorGUILayout.BeginVertical();
                         if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones_colliders, Icons.DefaultAsset)))
                         {
                             ActionButton(ToolMenuActions.RemoveDynamicBoneColliders);
                         }
+#if NO_DBONES
+                        EditorGUI.EndDisabledGroup();
+#endif
                         EditorGUILayout.EndVertical();
 
                         EditorGUILayout.EndHorizontal();
@@ -563,9 +592,16 @@ namespace Pumkin
                         }
 
                         //DynamicBones menu
+#if NO_DBONES
+                        EditorGUI.BeginDisabledGroup(true);
+#endif
                         EditorGUILayout.BeginHorizontal();
                         _copier_expand_dynamicBones = GUILayout.Toggle(_copier_expand_dynamicBones, Icons.CsScript, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+#if NO_DBONES
+                        bCopier_dynamicBones_copy = GUILayout.Toggle(false, Strings.Copier.DynamicBones + " " + Strings.Warning.NotFound, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+#else
                         bCopier_dynamicBones_copy = GUILayout.Toggle(bCopier_dynamicBones_copy, Strings.Copier.DynamicBones, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+#endif
                         EditorGUILayout.EndHorizontal();
 
                         if(_copier_expand_dynamicBones)
@@ -582,6 +618,9 @@ namespace Pumkin
                             EditorGUILayout.Space();
                             EditorGUI.EndDisabledGroup();
                         }
+#if NO_DBONES
+                        EditorGUI.EndDisabledGroup();
+#endif
 
                         //AvatarDescriptor menu
                         EditorGUILayout.BeginHorizontal();
@@ -731,13 +770,23 @@ namespace Pumkin
                 }
                 EditorGUI.EndDisabledGroup();
 
+#if NO_DBONES
+                if(_misc_expand = GUILayout.Toggle(_misc_expand, Strings.Main.Misc, Styles.Foldout_title))
+                {
+                    if(GUILayout.Button(Strings.Misc.SearchForBones))
+                    {
+                        _DependecyChecker.Check();
+                    }
+
+                }
+#endif
                 EditorGUILayout.EndScrollView();
             }
         }
 
-        #endregion
+#endregion
 
-        #region Main Functions
+#region Main Functions
 
         /// <summary>
         /// Copies Components and Values from one object to another.
@@ -880,6 +929,7 @@ namespace Pumkin
         /// </summary>
         void CopyDynamicBoneColliders(GameObject from, GameObject to, bool removeOld = false)
         {
+#if !NO_DBONES
             string[] logFormat = { "DynamicBoneCollider", from.name, to.name };
             string log = Strings.Log.CopyAttempt;
             List<DynamicBoneCollider> dFromList = new List<DynamicBoneCollider>();
@@ -955,13 +1005,15 @@ namespace Pumkin
                     Log(log, LogType.Log, logFormat);                    
                 }
             }
+#endif
         }
 
         /// <summary>
         /// Copies DynamicBone components. 
         /// </summary>
         void CopyDynamicBones(GameObject from, GameObject to, bool createMissing = true)
-        {            
+        {
+#if !NO_DBONES
             string log = Strings.Log.CopyAttempt;
             string[] logFormat = {  "DynamicBoneCollider", from.name, to.name };
 
@@ -1156,6 +1208,7 @@ namespace Pumkin
                 log += "Success: Copied {0} from {1} to {2}";
                 Log(log, LogType.Log, logFormat);                
             }
+#endif
         }
 
         /// <summary>
@@ -1603,7 +1656,7 @@ namespace Pumkin
         void FixRandomMouthOpening(GameObject avatar)
         {
             throw new Exception("Don't. It doesn't work and will mess up your mesh.");
-            var renders = avatar.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            /*var renders = avatar.GetComponentsInChildren<SkinnedMeshRenderer>(true);
 
             foreach(var r in renders)
             {
@@ -1639,7 +1692,7 @@ namespace Pumkin
                 {
                     Debug.Log(string.Format("_{0} doesn't have blinking visemes. Nothing to fix", r.gameObject.name));
                 }
-            }
+            }*/
         }
         
         /// <summary>
@@ -1704,9 +1757,9 @@ namespace Pumkin
             }
         }
 
-        #endregion
+#endregion
 
-        #region Destroy Functions    
+#region Destroy Functions    
 
         /// <summary>
         /// Destroys all Collider components from object and all of it's children.
@@ -1726,11 +1779,13 @@ namespace Pumkin
         /// </summary>    
         void DestroyAllDynamicBones(GameObject from)
         {
+#if !NO_DBONES
             var bones = from.GetComponentsInChildren<DynamicBone>(true);
             foreach(var b in bones)
             {
                 DestroyImmediate(b);
             }
+#endif
         }
 
         /// <summary>
@@ -1739,6 +1794,8 @@ namespace Pumkin
         /// </summary>    
         void DestroyAllDynamicBoneColliders(GameObject from)
         {
+
+#if !NO_DBONES
             List<DynamicBoneColliderBase> cl = new List<DynamicBoneColliderBase>();
             cl.AddRange(from.GetComponentsInChildren<DynamicBoneColliderBase>(true));
 
@@ -1755,6 +1812,7 @@ namespace Pumkin
                 if(d.m_Colliders != null)
                     d.m_Colliders.Clear();
             }
+#endif
         }
 
         /// <summary>
@@ -1795,9 +1853,9 @@ namespace Pumkin
             }
         }
         
-        #endregion
+#endregion
 
-        #region Helper Functions
+#region Helper Functions
 
         static bool IsSupportedComponentType(Type type)
         {
@@ -1926,10 +1984,10 @@ namespace Pumkin
             return new Vector3((float)Math.Round(v.x, decimals), (float)Math.Round(v.y, decimals), (float)Math.Round(v.z, decimals));
         }        
 
-        #endregion
+#endregion
     }
 
-    #region Data Structures
+#region Data Structures
 
     public class BlendShapeFrame
     {
@@ -2044,6 +2102,7 @@ namespace Pumkin
             public static string RemoveAll { get; private set; }
             public static string AvatarInfo { get; private set; }
             public static string AvatarInfo_template { get; private set; }
+            public static string Misc { get; private set; }
 
             static Main()
             {
@@ -2060,6 +2119,7 @@ namespace Pumkin
                 Copier = GetString("ui_copier") ?? "_Copy Components";
                 AvatarInfo = GetString("ui_avatarInfo") ?? "_Avatar Info";
                 RemoveAll = GetString("ui_removeAll") ?? "_Remove All";
+                Misc = GetString("ui_misc") ?? "_Misc";
 
                 AvatarInfo_template = GetString("ui_avatarInfo_template") ??
                     "_{0}\n-------------------- -\n" +
@@ -2225,6 +2285,7 @@ namespace Pumkin
         public static class Warning
         {
             public static string Warn { get; private set; }
+            public static string NotFound { get; private set; }
             public static string SelectSceneObject { get; private set; }
 
             static Warning()
@@ -2235,6 +2296,7 @@ namespace Pumkin
             public static void Reload()
             {
                 Warn = GetString("warn_warning") ?? "_Warning";
+                NotFound = GetString("warn_notFound") ?? "_(Not Found)";
                 SelectSceneObject = GetString("warn_selectSceneObject") ?? "_Please select an object from the scene";
             }
         };
@@ -2262,7 +2324,10 @@ namespace Pumkin
         };        
         public static class Misc
         {
-            public static string uwu { get; set; }
+            public static string uwu { get; private set; }
+            public static string SearchForBones { get; private set; }
+
+            private static string searchForBones;
 
             static Misc()
             {
@@ -2272,6 +2337,7 @@ namespace Pumkin
             public static void Reload()
             {
                 uwu = GetString("misc_uwu") ?? "_uwu";
+                SearchForBones = GetString("misc_searchForBones") ?? "_Search for DynamicBones";
             }
         }
         
@@ -2280,7 +2346,7 @@ namespace Pumkin
             //Language Dictionaries
             dictionary_english = new Dictionary<string, string>
             {
-                #region Main
+#region Main
                 //Main
                 {"ui_main_title", "Pumkin's Avatar Tools (Beta)" },
                 {"ui_main_windowName", "Avatar Tools" },
@@ -2289,6 +2355,7 @@ namespace Pumkin
                 {"ui_tools", "Tools" },
                 {"ui_copier", "Copy Components" },
                 {"ui_avatarInfo", "Avatar Info" },
+                {"ui_misc", "Misc" },
                 {"ui_removeAll", "Remove All" },
                 {
                     "ui_avatarInfo_template",
@@ -2307,24 +2374,24 @@ namespace Pumkin
                     "Max Particles: {20} ({21})"
                 },
 
-                #region Buttons
+#region Buttons
                 {"buttons_selectFromScene", "Select from Scene" },
                 {"buttons_copySelected" , "Copy Selected" },
                 {"buttons_refresh", "Refresh" },
                 {"buttons_apply", "Apply" },
                 {"buttons_cancel", "Cancel" },
-                #endregion
+#endregion
 
-                #endregion
-                #region Tools
+#endregion
+#region Tools
                 //UI Tools                
                 {"ui_tools_fillVisemes", "Fill Visemes" },
                 {"ui_tools_editViewpoint", "Edit Viewpoint" },
                 {"ui_tools_resetBlendShapes", "Reset Blendshapes" },
                 {"ui_tools_resetPose", "Reset Pose" },
                 
-                #endregion
-                #region Copier
+#endregion
+#region Copier
                 //UI Copier
                 {"ui_copier_copyFrom", "Copy from" },                
 
@@ -2361,9 +2428,9 @@ namespace Pumkin
                 {"ui_copier_skinMeshRender_settings", "Settings" },
                 {"ui_copier_skinMeshRender_materials", "Materials" },
                 {"ui_copier_skinMeshRender_blendShapeValues", "BlendShape Values" },
-                #endregion
+#endregion
 
-                #region Log
+#region Log
                 //Log
                 { "log_failed", "Failed" },
                 { "log_cancelled", "Cancelled" },
@@ -2380,34 +2447,36 @@ namespace Pumkin
                 { "log_descriptorIsNull", "Avatar descriptor is null"},
                 { "log_meshHasNoVisemes", "Failed. Mesh has no Visemes. Set to Default" },
                 { "log_tryRemoveUnsupportedComponent", "Attempted to remove unsupported component {0} from {1}" },
-                #endregion
+#endregion
 
-                #region Warnings
+#region Warnings
                 //Warnings
                 { "log_warning", "Warning" },
                 { "warn_selectSceneObject" , "Please select an object from the scene" },
+                { "warn_notFound", "(Not Found)" },
                 //{ "warn_copyToPrefab", "You are trying to copy components to a prefab.\nThis cannot be undone.\nAre you sure you want to continue?" },
                 //{ "warn_prefabOverwriteYes", "Yes, Overwrite" },
                 //{ "warn_prefabOverwriteNo", "No, Cancel" },
-                #endregion
+#endregion
 
-                #region Credits
+#region Credits
                 //Credits
                 { "credits_line1", "Pumkin's Avatar Tools"},
                 { "credits_line2", "Version" + " " + version },
                 { "credits_line3", "Now with 100% more redundant strings"},
                 { "credits_line4", "I'll add more stuff to this eventually" },
                 { "credits_line5", "Poke me on Discord at Pumkin#2020" },
-                #endregion
+#endregion
 
                 //Misc                
                 { "misc_uwu", "uwu" },
+                { "misc_searchForBones", "Search for DynamicBones" },
             };
 
             //Mistakes
             dictionary_uwu = new Dictionary<string, string>
             {
-                #region Main
+#region Main
                 //Main
                 {"ui_main_title", "Pumkin's Avataw Awoos! ÒwÓ" },
                 {"ui_main_windowName", "Avataw Awoos" },
@@ -2416,6 +2485,7 @@ namespace Pumkin
                 {"ui_tools", "Toows òwó" },
                 {"ui_copier", "Copy Componyents uwu" },
                 {"ui_avatarInfo", "Avataw Info 0w0" },
+                {"ui_misc", "Misc ;o" },
                 {"ui_removeAll", "Wemuv Aww (⁰д⁰ )" },
                 {
                     "ui_avatarInfo_template",
@@ -2435,24 +2505,24 @@ namespace Pumkin
                     "owos: 12000 (42000)"
                 },
 
-                #region Buttons
+#region Buttons
                 {"buttons_selectFromScene", "Sewect fwom Scenye x3" },
                 {"buttons_copySelected" , "Copy Sewected (´• ω •`)" },
                 {"buttons_refresh", "Wefwesh (ﾟωﾟ;)" },
                 {"buttons_apply", "Appwy （>﹏<）" },
                 {"buttons_cancel", "Cancew ; o;" },
-                #endregion
+#endregion
 
-                #endregion
-                #region Tools
+#endregion
+#region Tools
                 //UI Toows                
                 {"ui_tools_fillVisemes", "Fiww Visemes ;~;" },
                 {"ui_tools_editViewpoint", "Edit Viewpoint o-o" },
                 {"ui_tools_resetBlendShapes", "Weset Bwendshapes uwu" },
                 {"ui_tools_resetPose", "Weset Pose ;3" },
 
-                #endregion
-                #region Copier
+#endregion
+#region Copier
                 //UI Copier
                 {"ui_copier_copyFrom", "Copy fwom~" },                
 
@@ -2489,9 +2559,9 @@ namespace Pumkin
                 {"ui_copier_skinMeshRender_settings", "Settings ageeen" },
                 {"ui_copier_skinMeshRender_materials", "Matewiaws uwu" },
                 {"ui_copier_skinMeshRender_blendShapeValues", "BwendShape Vawues ùwú" },
-                #endregion
+#endregion
 
-                #region Log
+#region Log
                 //Log
                 { "log_failed", "Faiwed ùwú" },
                 { "log_cancelled", "Cancewwed .-." },
@@ -2508,28 +2578,27 @@ namespace Pumkin
                 { "log_descriptorIsNull", "Avataw descwiptow is nyuww humpf"},
                 { "log_meshHasNoVisemes", "Faiwed. Mesh has nyo Visemes. Set to Defauwt ;w;" },
                 { "log_tryRemoveUnsupportedComponent", "Attempted to wemuv unsuppowted componyent {0} fwom {1} uwu7" },
-                #endregion
+#endregion
 
-                #region Warnings
+#region Warnings
                 //Warnings
                 { "log_warning", "Wawnying! unu" },
                 { "warn_selectSceneObject" , "Pwease sewect an object fwom the scenye!!" },
-                //{ "warn_copyToPrefab", "You awe twying to copy componyents to a pwefab.\nThis cannyot be undonye.\nAwe you suwe you want to continyue?" },
-                //{ "warn_prefabOverwriteYes", "Yes, Ovewwwite" },
-                //{ "warn_prefabOverwriteNo", "Nyo, Cancew" },
-                #endregion
+                { "warn_notFound", "(Nyot Fownd ; ﻿﻿~;)" },
+#endregion
 
-                #region Credits
+#region Credits
                 //Credits
                 { "credits_line1", "Pumkin's Avataw Awoos~ :3"},
                 { "credits_line2", "Vewsion" + " " + version },
                 { "credits_line3", "Nyow with 0W0% mowe noticin things~"},
                 { "credits_line4", "I'ww add mowe stuff to this eventuawwy >w<" },
                 { "credits_line5", "Poke me! But on Discowd at Pumkin#2020~ uwus" },
-                #endregion
+#endregion
 
                 //Misc                
                 { "misc_uwu", "OwO" },
+                { "misc_searchForBones", "Seawch fow DynyamicBonyes" },
             };
 
             stringDictionary = dictionary_english;
@@ -2691,7 +2760,9 @@ namespace Pumkin
                     if(shaders.IndexOf(mat.shader) == -1)
                         shaders.Add(mat.shader);
                 }
-            }            
+            }
+
+#if !NO_DBONES
 
             var dbColliders = o.GetComponentsInChildren<DynamicBoneCollider>(true);
             foreach(var c in dbColliders)
@@ -2754,6 +2825,8 @@ namespace Pumkin
                     dynamicBoneTransforms_total += affected_total;
                 }
             }
+
+#endif
 
             var ptc = o.GetComponentsInChildren<ParticleSystem>(true);
             foreach(var p in ptc)
@@ -2825,5 +2898,5 @@ namespace Pumkin
             }            
         }        
     }
-    #endregion
+#endregion
 }
