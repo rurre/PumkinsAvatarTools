@@ -2308,6 +2308,7 @@ namespace Pumkin
             public static string Warn { get; private set; }
             public static string NotFound { get; private set; }
             public static string SelectSceneObject { get; private set; }
+			public static string OldVersion { get; private set; }
 
             static Warning()
             {
