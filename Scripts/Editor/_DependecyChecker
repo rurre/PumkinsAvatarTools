@@ -8,49 +8,73 @@ namespace Pumkin
     [InitializeOnLoad]
     public class _DependecyChecker
     {
-        static void Awake()
+        static string noBones = "#define NO_BONES\r\n";
+        static string oldBones = "#define OLD_BONES\r\n";
+        
+        static _DependecyChecker()
         {
             Check();
         }
 
-        static _DependecyChecker()
+        void Awake()
         {
             Check();
         }
 
         public static void Check()
         {
-            Type boneType = GetType("DynamicBone");
-            var script = Directory.GetFiles(Application.dataPath, "PumkinsAvatarTools.cs", SearchOption.AllDirectories)[0];
+            Type boneType = GetType("DynamicBoneCollider");
+            Type toolsType = GetType("Pumkin.PumkinsAvatarTools");
+            var toolScriptPath = Directory.GetFiles(Application.dataPath, "PumkinsAvatarTools.cs", SearchOption.AllDirectories)[0];
 
-            if(!string.IsNullOrEmpty(script))
+            if(!string.IsNullOrEmpty(toolScriptPath))
             {
-                string file = File.ReadAllText(script);                
-                string s = file.Substring(0, file.IndexOf("using"));
+                string toolsFile = File.ReadAllText(toolScriptPath);
+                string header = toolsFile.Substring(0, toolsFile.IndexOf("using"));
 
-                int index = s.IndexOf("#define NO_DBONES");
+                toolsFile = toolsFile.Substring(toolsFile.IndexOf("using"));
 
-                if(boneType == null)
-                {                    
-                    if(index == -1)
+                int noBonesIndex = header.IndexOf(noBones);
+                int noOldBonesIndex = header.IndexOf(oldBones);
+                                
+                if(toolsType == null || boneType == null) //DynamicBones Missing
+                {                       
+                    if(noBonesIndex == -1) //#define NO_BONES missing
                     {
-                        s = "#define NO_DBONES\r\n";
-                        s += file;
-                        File.WriteAllText(script, s);
-                        AssetDatabase.ImportAsset(RelativePath(script));
+                        header = noBones;
+                        header += toolsFile;
+                        File.WriteAllText(toolScriptPath, header);
+                        AssetDatabase.ImportAsset(RelativePath(toolScriptPath));
                     }
                 }
-                else
+                else //DynamicBones Present
                 {
-                    if(index != -1)
-                    {
-                        s = file.Substring(file.IndexOf(s) + s.Length);
-                        File.WriteAllText(script, s);
-                        AssetDatabase.ImportAsset(RelativePath(script));
+                    header = "";
+
+                    if(noOldBonesIndex == -1) //#define OLD_BONES not found
+                    {                        
+                        var colScriptPath = Directory.GetFiles(Application.dataPath, "DynamicBoneCollider.cs", SearchOption.AllDirectories)[0];
+
+                        if(!string.IsNullOrEmpty(colScriptPath))
+                        {
+                            string colFile = File.ReadAllText(colScriptPath);
+
+                            string colHeader = colFile.Substring(0, colFile.IndexOf('{'));
+                            colHeader = colHeader.Replace(" ", "");
+                            colHeader = colHeader.Replace("\t", "");
+
+                            if(colHeader.IndexOf(":DynamicBoneColliderBase") == -1)
+                            {
+                                header = oldBones;
+                            }
+
+                            File.WriteAllText(toolScriptPath, header + toolsFile);
+                            AssetDatabase.ImportAsset(RelativePath(toolScriptPath));
+                        }
                     }
                 }
             }
-        }
+        }                
 
         [UnityEditor.Callbacks.DidReloadScripts]
         private static void OnScriptsReloaded()
