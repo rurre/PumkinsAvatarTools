@@ -25,7 +25,7 @@ Screenshot: [Here](https://puu.sh/C3GGb/5d96267e73.png)
 
 ### Not yet supported:
 - **Particle Systems**
-- **Audio Sorces**
+- **Audio Sources**
 - **Some other things I need to decide to add**
 
 To launch the tool go to `Tools > Pumkin > Avatar Tools`
