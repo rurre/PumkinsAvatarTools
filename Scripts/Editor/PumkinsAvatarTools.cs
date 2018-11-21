@@ -1,12 +1,14 @@
-#define NO_DBONES
+#define NO_BONES
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEditor;
 using VRCSDK2;
 using VRC.Core;
 using UnityEditor.SceneManagement;
 using System;
 using System.IO;
+using UnityEngine;
+
+//Recompile 
 
 /// <summary>
 /// VRCAvatar tools by Pumkin
@@ -78,8 +80,7 @@ namespace Pumkin
         Vector3 _viewPosOld;
         VRC_AvatarDescriptor _viewPos_descriptor;
 
-        static AvatarInfo avatarInfo = null;
-        static string _avatarInfoStringTemplate;
+        static AvatarInfo avatarInfo = null;        
         static string _avatarInfoString;        
 
         enum ToolMenuActions
@@ -97,7 +98,7 @@ namespace Pumkin
 
         static readonly Type[] supportedComponents =
         {
-#if !NO_DBONES
+#if !NO_BONES
             typeof(DynamicBone),
             typeof(DynamicBoneCollider),
             typeof(DynamicBoneColliderBase),
@@ -217,12 +218,12 @@ namespace Pumkin
                     DestroyAllComponentsOfType(selectedAvatar, typeof(Collider));
                     break;
                 case ToolMenuActions.RemoveDynamicBoneColliders:
-#if !NO_DBONES
+#if !NO_BONES
                     DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBoneCollider));
 #endif
                     break;
                 case ToolMenuActions.RemoveDynamicBones:
-#if !NO_DBONES
+#if !NO_BONES
                     DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBone));
 #endif
                     break;
@@ -270,8 +271,7 @@ namespace Pumkin
             _viewPosOld = _viewPos_descriptor.ViewPosition;
 
             if(_viewPos == defaultView)
-            {
-                var render = selectedAvatar.GetComponentInChildren<SkinnedMeshRenderer>();
+            {                
                 var anim = selectedAvatar.GetComponent<Animator>();
 
                 if(anim != null && anim.isHuman)
@@ -518,14 +518,14 @@ namespace Pumkin
                         EditorGUILayout.BeginHorizontal();
 
                         EditorGUILayout.BeginVertical();
-#if NO_DBONES
+#if NO_BONES
                         EditorGUI.BeginDisabledGroup(true);
 #endif
                         if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones, Icons.DefaultAsset)))
                         {
                             ActionButton(ToolMenuActions.RemoveDynamicBones);
                         }
-#if NO_DBONES
+#if NO_BONES
                         EditorGUI.EndDisabledGroup();
 #endif
                         if(GUILayout.Button(new GUIContent(Strings.Copier.Colliders, Icons.ColliderBox)))
@@ -534,7 +534,7 @@ namespace Pumkin
                         }
                         EditorGUILayout.EndVertical();
 
-#if NO_DBONES
+#if NO_BONES
                         EditorGUI.BeginDisabledGroup(true);
 #endif
                         EditorGUILayout.BeginVertical();
@@ -542,7 +542,7 @@ namespace Pumkin
                         {
                             ActionButton(ToolMenuActions.RemoveDynamicBoneColliders);
                         }
-#if NO_DBONES
+#if NO_BONES
                         EditorGUI.EndDisabledGroup();
 #endif
                         EditorGUILayout.EndVertical();
@@ -592,12 +592,12 @@ namespace Pumkin
                         }
 
                         //DynamicBones menu
-#if NO_DBONES
+#if NO_BONES
                         EditorGUI.BeginDisabledGroup(true);
 #endif
                         EditorGUILayout.BeginHorizontal();
                         _copier_expand_dynamicBones = GUILayout.Toggle(_copier_expand_dynamicBones, Icons.CsScript, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-#if NO_DBONES
+#if NO_BONES
                         bCopier_dynamicBones_copy = GUILayout.Toggle(false, Strings.Copier.DynamicBones + " " + Strings.Warning.NotFound, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
 #else
                         bCopier_dynamicBones_copy = GUILayout.Toggle(bCopier_dynamicBones_copy, Strings.Copier.DynamicBones, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
@@ -618,7 +618,7 @@ namespace Pumkin
                             EditorGUILayout.Space();
                             EditorGUI.EndDisabledGroup();
                         }
-#if NO_DBONES
+#if NO_BONES
                         EditorGUI.EndDisabledGroup();
 #endif
 
@@ -748,7 +748,7 @@ namespace Pumkin
                         if(avatarInfo != null)
                         {
                             avatarInfo = null;
-                            _avatarInfoString = _avatarInfoStringTemplate;
+                            _avatarInfoString = Strings.Main.AvatarInfo_template;
                         }
                     }
                     else
@@ -770,7 +770,7 @@ namespace Pumkin
                 }
                 EditorGUI.EndDisabledGroup();
 
-#if NO_DBONES
+#if NO_BONES
                 if(_misc_expand = GUILayout.Toggle(_misc_expand, Strings.Main.Misc, Styles.Foldout_title))
                 {
                     if(GUILayout.Button(Strings.Misc.SearchForBones))
@@ -885,8 +885,6 @@ namespace Pumkin
 
             if(bCopier_descriptor_copyPipelineId)
             {
-                string id = pFrom.blueprintId ?? string.Empty;
-
                 pTo.blueprintId = pFrom.blueprintId;
                 pTo.enabled = pFrom.enabled;
                 pTo.completedSDKPipeline = true;
@@ -929,22 +927,27 @@ namespace Pumkin
         /// </summary>
         void CopyDynamicBoneColliders(GameObject from, GameObject to, bool removeOld = false)
         {
-#if !NO_DBONES
+#if !NO_BONES
+
             string[] logFormat = { "DynamicBoneCollider", from.name, to.name };
             string log = Strings.Log.CopyAttempt;
+
             List<DynamicBoneCollider> dFromList = new List<DynamicBoneCollider>();
             dFromList.AddRange(from.GetComponents<DynamicBoneCollider>());
+
+            List<DynamicBoneCollider> dToList = new List<DynamicBoneCollider>();
+            dToList.AddRange(to.GetComponents<DynamicBoneCollider>());
+
+#if !OLD_BONES
+            
             if(dFromList.Count == 0)
             {
                 var ar = from.GetComponents<DynamicBoneColliderBase>();
                 foreach(var obj in ar)
-                {
+                {                    
                     dFromList.Add((DynamicBoneCollider)obj);
                 }
             }
-
-            List<DynamicBoneCollider> dToList = new List<DynamicBoneCollider>();
-            dToList.AddRange(to.GetComponents<DynamicBoneCollider>());
 
             if(dToList.Count == 0)
             {
@@ -955,6 +958,7 @@ namespace Pumkin
                 }
             }
 
+#endif
             if(removeOld)
             {
                 foreach(var c in dToList)
@@ -1013,7 +1017,7 @@ namespace Pumkin
         /// </summary>
         void CopyDynamicBones(GameObject from, GameObject to, bool createMissing = true)
         {
-#if !NO_DBONES
+#if !NO_BONES
             string log = Strings.Log.CopyAttempt;
             string[] logFormat = {  "DynamicBoneCollider", from.name, to.name };
 
@@ -1027,7 +1031,12 @@ namespace Pumkin
             {
                 var dFrom = dFromList[i];
                 var garbageBones = new List<DynamicBone>();
+#if !OLD_BONES
                 var newCollList = new List<DynamicBoneColliderBase>();
+#else
+                var newCollList = new List<DynamicBoneCollider>();
+#endif
+            
 
                 DynamicBone dTo = null;
 
@@ -1045,7 +1054,12 @@ namespace Pumkin
                     if(createMissing)
                     {
                         dTo = to.AddComponent<DynamicBone>();
+
+#if !OLD_BONES
                         dTo.m_Colliders = new List<DynamicBoneColliderBase>();
+#else
+                        dTo.m_Colliders = new List<DynamicBoneCollider>();
+#endif
                     }
                     else
                         return;
@@ -1086,7 +1100,11 @@ namespace Pumkin
                                 if(c.m_Bound == fc.m_Bound && c.m_Center == fc.m_Center && c.m_Direction == fc.m_Direction && c.m_Height == fc.m_Height && c.m_Radius == fc.m_Radius)
                                 {
                                     isSame = true;
+#if OLD_BONES
+                                    DynamicBoneCollider tempC = c;
+#else
                                     DynamicBoneColliderBase tempC = c;
+#endif
                                     foreach(var cc in dTo.m_Colliders)
                                     {
                                         if(c == cc)
@@ -1096,7 +1114,9 @@ namespace Pumkin
                                         }
                                     }
                                     if(tempC != null)
+                                    {
                                         newCollList.Add(tempC);
+                                    }
                                     break;
                                 }
                             }
@@ -1779,7 +1799,7 @@ namespace Pumkin
         /// </summary>    
         void DestroyAllDynamicBones(GameObject from)
         {
-#if !NO_DBONES
+#if !NO_BONES
             var bones = from.GetComponentsInChildren<DynamicBone>(true);
             foreach(var b in bones)
             {
@@ -1795,7 +1815,7 @@ namespace Pumkin
         void DestroyAllDynamicBoneColliders(GameObject from)
         {
 
-#if !NO_DBONES
+#if !NO_BONES
             List<DynamicBoneColliderBase> cl = new List<DynamicBoneColliderBase>();
             cl.AddRange(from.GetComponentsInChildren<DynamicBoneColliderBase>(true));
 
@@ -1852,7 +1872,7 @@ namespace Pumkin
                 }
             }
         }
-        
+
 #endregion
 
 #region Helper Functions
@@ -2121,19 +2141,20 @@ namespace Pumkin
                 RemoveAll = GetString("ui_removeAll") ?? "_Remove All";
                 Misc = GetString("ui_misc") ?? "_Misc";
 
-                AvatarInfo_template = GetString("ui_avatarInfo_template") ??
-                    "_{0}\n-------------------- -\n" +
-                    "_GameObjects: {1} ({2})\n\n" +
-                    "_Skinned Mesh Renderers: {3} ({4})\n" +
-                    "_Mesh Renderers: {5} ({6})\n" +
-                    "_Triangles: {7} ({8})\n\n" +
-                    "_Materials: {9} ({10})\n" +
-                    "_Shaders: {11} \n\n" +
-                    "_Dynamic Bone Transforms: {12} ({13})\n" +
-                    "_Dynamic Bone Colliders: {14} ({15})\n" +
-                    "_Collider Affected Transforms: {16} ({17})\n\n" +
-                    "_Particle Systems: {18} ({19})\n" +
-                    "_Max Particles: {20} ({21})";
+				AvatarInfo_template = GetString ("ui_avatarInfo_template") ??
+				"_{0}\n---------------------\n" +
+				"_GameObjects: {1} ({2})\n\n" +
+				"_Skinned Mesh Renderers: {3} ({4})\n" +
+				"_Mesh Renderers: {5} ({6})\n" +
+				"_Triangles: {7} ({8})\n\n" +
+				"_Used Material Slots: {9} ({10})\n" +
+				"_Unique Materials: {11} ({12})\n" +
+				"_Shaders: {13} \n\n" +
+				"_Dynamic Bone Transforms: {14} ({15})\n" +
+				"_Dynamic Bone Colliders: {16} ({17})\n" +
+				"_Collider Affected Transforms: {17} ({19})\n\n" +
+				"_Particle Systems: {20} ({21})\n" +
+				"_Max Particles: {22} ({23})";
             }            
         };        
         public static class Buttons
@@ -2287,6 +2308,7 @@ namespace Pumkin
             public static string Warn { get; private set; }
             public static string NotFound { get; private set; }
             public static string SelectSceneObject { get; private set; }
+			public static string OldVersion { get; private set; }
 
             static Warning()
             {
@@ -2297,6 +2319,7 @@ namespace Pumkin
             {
                 Warn = GetString("warn_warning") ?? "_Warning";
                 NotFound = GetString("warn_notFound") ?? "_(Not Found)";
+				OldVersion = GetString("warn_oldVersion") ?? "_(Old Version)";
                 SelectSceneObject = GetString("warn_selectSceneObject") ?? "_Please select an object from the scene";
             }
         };
@@ -2365,13 +2388,14 @@ namespace Pumkin
                     "Skinned Mesh Renderers: {3} ({4})\n" +
                     "Mesh Renderers: {5} ({6})\n" +
                     "Triangles: {7} ({8})\n\n" +
-                    "Materials: {9} ({10})\n" +
-                    "Shaders: {11} \n\n"+
-                    "Dynamic Bone Transforms: {12} ({13})\n" +
-                    "Dynamic Bone Colliders: {14} ({15})\n" +
-                    "Collider Affected Transforms: {16} ({17})\n\n" +
-                    "Particle Systems: {18} ({19})\n" +
-                    "Max Particles: {20} ({21})"
+                    "Used Material Slots: {9} ({10})\n" +
+					"Unique Materials: {11} ({12})\n" +
+                    "Shaders: {13} \n\n"+
+                    "Dynamic Bone Transforms: {14} ({15})\n" +
+                    "Dynamic Bone Colliders: {16} ({17})\n" +
+                    "Collider Affected Transforms: {17} ({19})\n\n" +
+                    "Particle Systems: {20} ({21})\n" +
+                    "Max Particles: {22} ({23})"
                 },
 
 #region Buttons
@@ -2454,6 +2478,7 @@ namespace Pumkin
                 { "log_warning", "Warning" },
                 { "warn_selectSceneObject" , "Please select an object from the scene" },
                 { "warn_notFound", "(Not Found)" },
+				{ "warn_oldVersion", "(Old Version)" },
                 //{ "warn_copyToPrefab", "You are trying to copy components to a prefab.\nThis cannot be undone.\nAre you sure you want to continue?" },
                 //{ "warn_prefabOverwriteYes", "Yes, Overwrite" },
                 //{ "warn_prefabOverwriteNo", "No, Cancel" },
@@ -2494,15 +2519,17 @@ namespace Pumkin
                     "GameObjects: {1} ({2})\n\n" +
                     "Skinnyed Mesh Wendewews: {3} ({4})\n" +
                     "Mesh Wendewews: {5} ({6})\n" +
-                    "Twiangwes: {7} ({8})\n\n" +
-                    "Matewiaws: {9} ({10})\n" +
+                    "Twiangwes: {7} ({8})\n\n" +                    
+					"Used Matewiaw Swots: {9} ({10})\n" +
+					"Unyique Matewiaws: {11} ({12})\n" +
                     "Shadews: {11} \n\n"+
                     "Dynyamic Bonye Twansfowms: {12} ({13})\n" +
                     "Dynyamic Bonye Cowwidews: {14} ({15})\n" +
                     "Cowwidew Affected Twansfowms: {16} ({17})\n\n" +
                     "Pawticwe Systems: {18} ({19})\n" +
                     "Max Pawticwes: {20} ({21})\n\n" +
-                    "owos: 12000 (42000)"
+                    "owos: 12000 (42000)\n" +
+					"uwus: 10"
                 },
 
 #region Buttons
@@ -2584,7 +2611,8 @@ namespace Pumkin
                 //Warnings
                 { "log_warning", "Wawnying! unu" },
                 { "warn_selectSceneObject" , "Pwease sewect an object fwom the scenye!!" },
-                { "warn_notFound", "(Nyot Fownd ; ﻿﻿~;)" },
+                { "warn_notFound", "(Nyot Fownd ;~;)" },
+				{ "warn_oldVersion", "(Old Version)" },
 #endregion
 
 #region Credits
@@ -2642,32 +2670,29 @@ namespace Pumkin
         string name;
         string cachedInfo;
 
-        int skinnedMeshRenders;
-        int skinnedMeshRenders_total;
-
-        int meshRenderers;
-        int meshRenderers_total;
-
-        int dynamicBoneTransforms;
-        int dynamicBoneTransforms_total;
-        int dynamicBoneColliders;
-        int dynamicBoneColliders_total;
-        int dynamicBoneColliderTransforms;
-        int dynamicBoneColliderTransforms_total;
-
-        int triangles;
-        int triangles_total;
-        int materials;
-        int materials_total;
-        int shaderCount;        
-
-        int particleSystems;
-        int particleSystems_total;
-        int maxParticles;
-        int maxParticles_total;
-
-        int gameObjects;
-        int gameObjects_total;
+        int skinnedMeshRenders,
+        skinnedMeshRenders_total,
+        meshRenderers,
+        meshRenderers_total,
+        dynamicBoneTransforms,
+        dynamicBoneTransforms_total,
+        dynamicBoneColliders,
+        dynamicBoneColliders_total,
+        dynamicBoneColliderTransforms,
+        dynamicBoneColliderTransforms_total,
+        triangles,
+        triangles_total,
+        materialSlots,
+        materialSlots_total,
+        uniqueMaterials,
+        uniqueMaterials_total,
+        shaderCount,
+        particleSystems,
+        particleSystems_total,
+        maxParticles,
+        maxParticles_total,
+        gameObjects,
+        gameObjects_total;
 
         AvatarInfo()
         {
@@ -2688,8 +2713,10 @@ namespace Pumkin
 
             triangles = 0;
             triangles_total = 0;
-            materials = 0;
-            materials_total = 0;
+            materialSlots = 0;
+            materialSlots_total = 0;
+            uniqueMaterials = 0;
+            uniqueMaterials_total = 0;
             shaderCount = 0;            
 
             particleSystems = 0;
@@ -2707,8 +2734,11 @@ namespace Pumkin
                 return;
 
             name = o.name;
-            var shaders = new List<Shader>();
 
+            var shaderHash = new HashSet<Shader>();
+			var matList = new List<Material>();
+			var matList_total = new List<Material>();
+            
             var ts = o.GetComponentsInChildren<Transform>(true);
             foreach(var t in ts)
             {
@@ -2722,19 +2752,25 @@ namespace Pumkin
             {
                 skinnedMeshRenders_total += 1;
                 triangles_total += r.sharedMesh.triangles.Length/3;
-                materials_total += r.sharedMaterials.Length;
 
                 if(r.gameObject.activeInHierarchy && r.enabled)
                 {
                     skinnedMeshRenders += 1;
-                    triangles += r.sharedMesh.triangles.Length/3;
-                    materials += r.sharedMaterials.Length;                    
+                    triangles += r.sharedMesh.triangles.Length/3;                    
                 }
 
                 foreach(var mat in r.sharedMaterials)
                 {
-                    if(shaders.IndexOf(mat.shader) == -1)
-                        shaders.Add(mat.shader);
+					if(mat != null)
+					{
+						shaderHash.Add(mat.shader);
+						matList_total.Add(mat);
+
+						if(r.gameObject.activeInHierarchy && r.enabled)
+						{							
+							matList.Add(mat);
+						}
+					}
                 }
             }
 
@@ -2757,12 +2793,26 @@ namespace Pumkin
 
                 foreach(var mat in r.sharedMaterials)
                 {
-                    if(shaders.IndexOf(mat.shader) == -1)
-                        shaders.Add(mat.shader);
+                    if(mat != null)
+                    {
+                        shaderHash.Add(mat.shader);
+                        matList_total.Add(mat);
+
+                        if(r.gameObject.activeInHierarchy && r.enabled)
+                        {
+                            matList.Add(mat);
+                        }
+                    }
                 }
             }
 
-#if !NO_DBONES
+			materialSlots = matList.Count;
+			materialSlots_total = matList_total.Count;
+
+            uniqueMaterials = new HashSet<Material>(matList).Count;
+            uniqueMaterials_total = new HashSet<Material>(matList_total).Count;
+
+#if !NO_BONES
 
             var dbColliders = o.GetComponentsInChildren<DynamicBoneCollider>(true);
             foreach(var c in dbColliders)
@@ -2841,7 +2891,7 @@ namespace Pumkin
                 }
             }
 
-            shaderCount = shaders.Count;
+            shaderCount = shaderHash.Count;
         }
 
         public static AvatarInfo GetInfo(GameObject o, out string toString)
@@ -2875,8 +2925,10 @@ namespace Pumkin
                         meshRenderers_total,
                         triangles,
                         triangles_total,
-                        materials,
-                        materials_total,
+                        materialSlots,
+                        materialSlots_total,
+                        uniqueMaterials,
+                        uniqueMaterials_total,
                         shaderCount,
                         dynamicBoneTransforms,
                         dynamicBoneTransforms_total,
