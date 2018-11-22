@@ -8,11 +8,9 @@ using System;
 using System.IO;
 using UnityEngine;
 
-//Recompile 
-
 /// <summary>
 /// VRCAvatar tools by Pumkin
-/// https://github.com/rurre/VRCAvatarTools
+/// https://github.com/rurre/PumkinsAvatarTools
 /// </summary>
 
 namespace Pumkin
@@ -1420,19 +1418,19 @@ namespace Pumkin
         /// Copies SkinnedMeshRenderer settings. Note that only one can exist on an object.
         /// </summary>                
         void CopySkinMeshRenderer(GameObject from, GameObject to)
-        {            
-            if(!(bCopier_skinMeshRender_copyBlendShapeValues || bCopier_skinMeshRender_copyMaterials || bCopier_skinMeshRender_copySettings))// || bCopier_skinMeshRender_resetBlendShapeValues))
+        {
+            if(!(bCopier_skinMeshRender_copyBlendShapeValues || bCopier_skinMeshRender_copyMaterials || bCopier_skinMeshRender_copySettings))
                 return;
 
-            string log = Strings.Log.CopyAttempt;
+            string log = Strings.Log.CopyAttempt + " - ";
             string[] logFormat = { "SkinnedMeshRenderer", from.name, to.name };
 
             SkinnedMeshRenderer rFrom = from.GetComponent<SkinnedMeshRenderer>();
             SkinnedMeshRenderer rTo = to.GetComponent<SkinnedMeshRenderer>();
 
             if(rFrom == null)
-            {
-                log += "Failed: {1} is null. Ignoring";
+            {                
+                log += Strings.Log.FailedIsNull;
                 Log(log, LogType.Warning, logFormat);
                 return;
             }
@@ -1442,32 +1440,46 @@ namespace Pumkin
                 rTo.enabled = rFrom.enabled;
                 rTo.quality = rFrom.quality;
                 rTo.updateWhenOffscreen = rFrom.updateWhenOffscreen;
-                rTo.skinnedMotionVectors = rFrom.skinnedMotionVectors;                
-                rTo.rootBone = rFrom.rootBone;
+                rTo.skinnedMotionVectors = rFrom.skinnedMotionVectors;
                 rTo.lightProbeUsage = rFrom.lightProbeUsage;
                 rTo.reflectionProbeUsage = rFrom.reflectionProbeUsage;
-                rTo.probeAnchor = rFrom.probeAnchor;
                 rTo.shadowCastingMode = rFrom.shadowCastingMode;
-                rTo.receiveShadows = rFrom.receiveShadows;                
-                rTo.motionVectorGenerationMode = rFrom.motionVectorGenerationMode;                
+                rTo.receiveShadows = rFrom.receiveShadows;
+                rTo.motionVectorGenerationMode = rFrom.motionVectorGenerationMode;
+
+                string path = null;
+                if(rFrom.probeAnchor != null)
+                    path = GetGameObjectPath(rFrom.probeAnchor.gameObject);
+
+                if(!string.IsNullOrEmpty(path))
+                    rTo.probeAnchor = rTo.transform.root.Find(path);
+
+                path = null;
+                if(rFrom.rootBone != null)
+                    path = GetGameObjectPath(rFrom.rootBone.gameObject);
+
+                if(!string.IsNullOrEmpty(path))
+                    rTo.rootBone = rTo.transform.root.Find(path);
             }
 
             if(bCopier_skinMeshRender_copyBlendShapeValues)
             {
                 for(int i = 0; i < rFrom.sharedMesh.blendShapeCount; i++)
-                {                    
+                {
                     int index = rFrom.sharedMesh.GetBlendShapeIndex(rFrom.sharedMesh.GetBlendShapeName(i));
                     if(index != -1)
-                    {                        
-                        rTo.SetBlendShapeWeight(index, rFrom.GetBlendShapeWeight(index)); 
+                    {
+                        rTo.SetBlendShapeWeight(index, rFrom.GetBlendShapeWeight(index));
                     }
                 }
             }
 
             if(bCopier_skinMeshRender_copyMaterials)
             {
-                rTo.sharedMaterials = rFrom.sharedMaterials;                
+                rTo.sharedMaterials = rFrom.sharedMaterials;
             }
+
+            rTo.sharedMesh.RecalculateBounds();
 
             log += "Success: Copied {0} from {1} to {2}";
             Log(log, LogType.Log, logFormat);
@@ -2006,7 +2018,6 @@ namespace Pumkin
 
 #endregion
     }
-
 #region Data Structures
 
     public class BlendShapeFrame
@@ -2079,7 +2090,7 @@ namespace Pumkin
 
     public static class Strings
     {
-        public static readonly string version = "0.5b";
+        public static readonly string version = "0.5.3b";
         readonly static Dictionary<string, string> dictionary_english, dictionary_uwu;
         static Dictionary<string, string> stringDictionary;
         static DictionaryLanguage language;        
@@ -2278,6 +2289,7 @@ namespace Pumkin
             public static string TryFillVisemes { get; private set; }
             public static string TryRemoveUnsupportedComponent { get; private set; }
             public static string MeshHasNoVisemes { get; private set; }
+            public static string FailedIsNull { get; private set; }
 
             static Log()
             {
@@ -2301,6 +2313,7 @@ namespace Pumkin
                 MeshHasNoVisemes = GetString("log_meshHasNoVisemes") ?? "_Failed. Mesh has no Visemes. Set to Default";
                 TryRemoveUnsupportedComponent = GetString("log_tryRemoveUnsupportedComponent") ?? "_Attempted to remove unsupported component {0} from {1}";
                 Failed = GetString("log_failed") ?? "_Failed";
+                FailedIsNull = GetString("log_failedIsNull") ?? "_Failed {1} is null";
             }
         };        
         public static class Warning
@@ -2471,6 +2484,7 @@ namespace Pumkin
                 { "log_descriptorIsNull", "Avatar descriptor is null"},
                 { "log_meshHasNoVisemes", "Failed. Mesh has no Visemes. Set to Default" },
                 { "log_tryRemoveUnsupportedComponent", "Attempted to remove unsupported component {0} from {1}" },
+                { "log_failedIsNull" , "Failed {1} is null. Ignoring." },
 #endregion
 
 #region Warnings
@@ -2605,6 +2619,7 @@ namespace Pumkin
                 { "log_descriptorIsNull", "Avataw descwiptow is nyuww humpf"},
                 { "log_meshHasNoVisemes", "Faiwed. Mesh has nyo Visemes. Set to Defauwt ;w;" },
                 { "log_tryRemoveUnsupportedComponent", "Attempted to wemuv unsuppowted componyent {0} fwom {1} uwu7" },
+                { "log_failedIsNull" , "Faiwed {1} is nyull /w\\. Ignyowing uwu" },
 #endregion
 
 #region Warnings
