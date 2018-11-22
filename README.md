@@ -1,7 +1,15 @@
 # PumkinsAvatarTools
 This editor script tool allows you to copy components from existing avatars to new ones, making it much faster to reimport avatars from blender or setup new ones.
 
-## New this version (v0.5.1b):
+## New this version (v0.5.3b):
+- **Fixed dependency checker being stuck in a read-write loop** - Should no longer lag and freeze unity for no reason.
+- **Fixed SkinnedMeshRenderer breaking avatar bounds** - Root bones are now correctly assigned.
+
+## New that version (v0.5.2b):
+- **Fixed OldVersion not existing** - Should no longer break everything, yet again.
+- **Empty Material Slots no longer break Avatar Info** - Finally!
+
+## New that other version (v0.5.1b):
 - **Removed DynamicBone** - ...dependencies. It's okay if you don't have them now. It's also okay if you do.
 - **Select Avatar from Scene Button** - Gone are the days of manually dragging things around
 - **A brand new Tools menu** - Bunch of never-before-seen-tools-that-nobody-has-done-before to do things with including, dragging your avatar's viewpoint around, auto filling in visemes and resetting your avatar's transform, as well as quickly removing dynamic bones and colliders from your avatar
