@@ -14,9 +14,10 @@ namespace Pumkin
         static _DependecyChecker()
         {
             Check();
-        }
+        }        
 
-        void Awake()
+        [UnityEditor.Callbacks.DidReloadScripts]
+        private static void OnScriptsReloaded()
         {
             Check();
         }
@@ -25,11 +26,11 @@ namespace Pumkin
         {
             Type boneType = GetType("DynamicBoneCollider");
             Type toolsType = GetType("Pumkin.PumkinsAvatarTools");
-            var toolScriptPath = Directory.GetFiles(Application.dataPath, "PumkinsAvatarTools.cs", SearchOption.AllDirectories)[0];
+            var toolScriptPath = Directory.GetFiles(Application.dataPath, "PumkinsAvatarTools.cs", SearchOption.AllDirectories);
 
-            if(!string.IsNullOrEmpty(toolScriptPath))
+            if(toolScriptPath.Length > 0 && !string.IsNullOrEmpty(toolScriptPath[0]))
             {
-                string toolsFile = File.ReadAllText(toolScriptPath);
+                string toolsFile = File.ReadAllText(toolScriptPath[0]);
                 string header = toolsFile.Substring(0, toolsFile.IndexOf("using"));
 
                 toolsFile = toolsFile.Substring(toolsFile.IndexOf("using"));
@@ -37,50 +38,50 @@ namespace Pumkin
                 int noBonesIndex = header.IndexOf(noBones);
                 int noOldBonesIndex = header.IndexOf(oldBones);
                                 
-                if(toolsType == null || boneType == null) //DynamicBones Missing
-                {                       
-                    if(noBonesIndex == -1) //#define NO_BONES missing
+                if(toolsType == null || boneType == null)
+                {
+                    if(noBonesIndex == -1) //#define NO_BONES missing, add
                     {
                         header = noBones;
-                        header += toolsFile;
-                        File.WriteAllText(toolScriptPath, header);
-                        AssetDatabase.ImportAsset(RelativePath(toolScriptPath));
+
+                        File.WriteAllText(toolScriptPath[0], header + toolsFile);
+                        AssetDatabase.ImportAsset(RelativePath(toolScriptPath[0]));
                     }
                 }
                 else //DynamicBones Present
-                {
-                    header = "";
+                {                    
+                    var colScriptPath = Directory.GetFiles(Application.dataPath, "DynamicBoneCollider.cs", SearchOption.AllDirectories);                    
 
-                    if(noOldBonesIndex == -1) //#define OLD_BONES not found
-                    {                        
-                        var colScriptPath = Directory.GetFiles(Application.dataPath, "DynamicBoneCollider.cs", SearchOption.AllDirectories)[0];
+                    if(colScriptPath.Length > 0 && !string.IsNullOrEmpty(colScriptPath[0]))
+                    {
+                        string colFile = File.ReadAllText(colScriptPath[0]);
 
-                        if(!string.IsNullOrEmpty(colScriptPath))
+                        string colHeader = colFile.Substring(0, colFile.IndexOf('{'));
+                        colHeader = colHeader.Replace(" ", "");
+                        colHeader = colHeader.Replace("\t", "");
+
+                        if(colHeader.IndexOf(":DynamicBoneColliderBase") == -1) //Old version of DynamicBone
                         {
-                            string colFile = File.ReadAllText(colScriptPath);
-
-                            string colHeader = colFile.Substring(0, colFile.IndexOf('{'));
-                            colHeader = colHeader.Replace(" ", "");
-                            colHeader = colHeader.Replace("\t", "");
-
-                            if(colHeader.IndexOf(":DynamicBoneColliderBase") == -1)
+                            if(noOldBonesIndex == -1) //#define OLD_BONES not found, add
                             {
                                 header = oldBones;
-                            }
 
-                            File.WriteAllText(toolScriptPath, header + toolsFile);
-                            AssetDatabase.ImportAsset(RelativePath(toolScriptPath));
+                                File.WriteAllText(toolScriptPath[0], header + toolsFile);
+                                AssetDatabase.ImportAsset(RelativePath(toolScriptPath[0]));
+                            }                            
+                        }
+                        else //New Version of DynamicBone
+                        {
+                            if(noOldBonesIndex != -1 || noBonesIndex != -1) //#define OLD_BONES found, remove
+                            {
+                                File.WriteAllText(toolScriptPath[0], toolsFile);
+                                AssetDatabase.ImportAsset(RelativePath(toolScriptPath[0]));
+                            }
                         }
                     }
                 }
             }
         }                
-
-        [UnityEditor.Callbacks.DidReloadScripts]
-        private static void OnScriptsReloaded()
-        {
-            Check();
-        }
 
         static Type GetType(string typeName)
         {
