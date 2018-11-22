@@ -1,5 +1,5 @@
 # PumkinsAvatarTools (BETA)
-This editor script tool allows you to copy components from existing avatars to new ones, making it much faster to reimport avatars from blender or setup new ones.
+This editor script has a bunch of tools that allows you setup avatars easier, as well as to copy components from existing avatars to new ones, making it much faster to reimport avatars from blender or setup new ones.
 
 ## New this version (v0.5.3b):
 - **Fixed dependency checker being stuck in a read-write loop** - Should no longer lag and freeze unity for no reason.
