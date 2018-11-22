@@ -1,4 +1,4 @@
-# PumkinsAvatarTools
+# PumkinsAvatarTools (BETA)
 This editor script tool allows you to copy components from existing avatars to new ones, making it much faster to reimport avatars from blender or setup new ones.
 
 ## New this version (v0.5.3b):
