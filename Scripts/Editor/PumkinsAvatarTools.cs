@@ -7,10 +7,11 @@ using UnityEditor.SceneManagement;
 using System;
 using System.IO;
 using UnityEngine;
+using System.Linq;
 
 /// <summary>
 /// VRCAvatar tools by Pumkin
-/// https://github.com/rurre/PumkinsAvatarTools
+/// https://github.com/rurre/VRCAvatarTools
 /// </summary>
 
 namespace Pumkin
@@ -91,7 +92,9 @@ namespace Pumkin
             FixRandomMouth,
             DisableBlinking,
             EditViewpoint,
-            FillVisemes            
+            FillVisemes,       
+            RemoveEmptyGameObjects,
+            RemoveEmptyBones,
         };        
 
         static readonly Type[] supportedComponents =
@@ -125,59 +128,6 @@ namespace Pumkin
         {
             SceneView.onSceneGUIDelegate -= this.OnSceneGUI;
         }
-        
-        //Scene GUI
-        void OnSceneGUI(SceneView sceneView)
-        {            
-            if(_edittingView)
-            {                
-                if(selectedAvatar == null)
-                {
-                    EndEditingViewpoint(null, true);
-                    return;
-                }
-
-                Vector2 windowSize = new Vector2(200, 50);
-
-                Handles.BeginGUI();
-                {                    
-                    var r = SceneView.currentDrawingSceneView.camera.pixelRect;                    
-                    GUILayout.BeginArea(new Rect(10, r.height - 10 - windowSize.y, windowSize.x, windowSize.y), new GUIStyle("box"));
-                    {
-                        GUILayout.Label(Strings.Tools.EditViewpoint);
-                        GUILayout.BeginHorizontal();
-                        {
-                            if(GUILayout.Button(Strings.Buttons.Cancel, GUILayout.MinWidth(80)))
-                            {
-                                EndEditingViewpoint(selectedAvatar, true);
-                            }
-
-                            if(GUILayout.Button(Strings.Buttons.Apply, GUILayout.MinWidth(80)))
-                            {
-                                EndEditingViewpoint(selectedAvatar, false);
-                            }
-                        }
-                        GUILayout.EndHorizontal();                        
-                    }
-                    GUILayout.EndArea();                 
-                }
-                Handles.EndGUI();
-
-                Vector3 pos = _viewPos;
-                Tools.current = Tool.None;
-                Selection.activeGameObject = selectedAvatar.transform.root.gameObject;
-
-                EditorGUI.BeginChangeCheck();
-                {
-                    pos = Handles.PositionHandle(_viewPos, Quaternion.identity) + selectedAvatar.transform.position;                    
-                }
-                if(EditorGUI.EndChangeCheck())
-                {                    
-                    _viewPos = pos;
-                    _viewPos_descriptor.ViewPosition = _viewPos + selectedAvatar.transform.position;
-                }
-            }            
-        }
 
         [MenuItem("Tools/Pumkin/Avatar Tools")]
         public static void ShowWindow()
@@ -191,199 +141,7 @@ namespace Pumkin
 
             _DependecyChecker.Check();
         }
-        
-        /// <summary>
-        /// Function for all the actions in the tool menu. Use this instead of calling
-        /// button functions directly.
-        /// </summary>        
-        void ActionButton(ToolMenuActions action)
-        {
-            if(selectedAvatar == null)
-            {
-                //Shouldn't be possible with disable group
-                Debug.LogWarning("_No avatar selected");
-                return;
-            }            
-
-            //Record Undo
-            Undo.RegisterFullObjectHierarchyUndo(selectedAvatar, "Tools menu: " + action.ToString());
-            if(selectedAvatar.gameObject.scene.name == null) //In case it's a prefab instance, which it probably is
-                PrefabUtility.RecordPrefabInstancePropertyModifications(selectedAvatar);
-            
-            switch(action)
-            {
-                case ToolMenuActions.RemoveColliders:                    
-                    DestroyAllComponentsOfType(selectedAvatar, typeof(Collider));
-                    break;
-                case ToolMenuActions.RemoveDynamicBoneColliders:
-#if !NO_BONES
-                    DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBoneCollider));
-#endif
-                    break;
-                case ToolMenuActions.RemoveDynamicBones:
-#if !NO_BONES
-                    DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBone));
-#endif
-                    break;
-                case ToolMenuActions.ResetPose:
-                    ResetPose(selectedAvatar);
-                    break;
-                case ToolMenuActions.ResetBlendShapes:
-                    ResetBlendShapes(selectedAvatar);
-                    break;
-                case ToolMenuActions.FixRandomMouth:
-                    FixRandomMouthOpening(selectedAvatar);
-                    break;
-                case ToolMenuActions.DisableBlinking:
-                    DisableBlinking(selectedAvatar);
-                    break;
-                case ToolMenuActions.FillVisemes:
-                    FillVisemes(selectedAvatar);
-                    break;
-                case ToolMenuActions.EditViewpoint:
-                    BeginEditViewpoint(selectedAvatar);
-                    break;
-                default:
-                    break;
-            }
-
-            avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);
-
-            EditorUtility.SetDirty(selectedAvatar);
-            EditorSceneManager.MarkSceneDirty(selectedAvatar.scene);
-        }
-        
-        /// <summary>
-        /// Begin Editing Viewposition
-        /// </summary>        
-        private void BeginEditViewpoint(GameObject avatar)
-        {
-            _viewPos_descriptor = avatar.GetComponent<VRC_AvatarDescriptor>();
-            if(_viewPos_descriptor == null)
-            {                
-                _viewPos_descriptor = avatar.AddComponent<VRC_AvatarDescriptor>();                
-            }
-
-            Vector3 defaultView = new Vector3(0, 1.6f, 0.2f);
-            _viewPos = _viewPos_descriptor.ViewPosition;
-            _viewPosOld = _viewPos_descriptor.ViewPosition;
-
-            if(_viewPos == defaultView)
-            {                
-                var anim = selectedAvatar.GetComponent<Animator>();
-
-                if(anim != null && anim.isHuman)
-                {
-                    _viewPos = anim.GetBoneTransform(HumanBodyBones.Head).position + new Vector3(0, 0, defaultView.z);
-                    float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y;                    
-                    _viewPos.y = eyeHeight;
-
-                    _viewPos_descriptor.ViewPosition = _viewPos + selectedAvatar.transform.position;
-                }
-            }
-            _edittingView = true;
-        }        
-        
-        /// <summary>
-        /// End editing Viewposition
-        /// </summary>        
-        /// <param name="cancelled">If cancelled revert viewposition to old value, if not leave it</param>
-        private void EndEditingViewpoint(GameObject avatar, bool cancelled)
-        {
-            if(avatar == null)
-            {
-                _edittingView = false;                
-            }
-            else
-            {                
-                if(_viewPos_descriptor == null)
-                {
-                    Log(Strings.Log.DescriptorIsNull, LogType.Error);                    
-                    return;
-                }
-
-                _edittingView = false;
-                if(!cancelled)
-                {
-                    _viewPos_descriptor.ViewPosition = RoundVectorValues(_viewPos_descriptor.gameObject.transform.position + _viewPos, 3);
-                    Log(Strings.Log.ViewpointApplied, LogType.Log, _viewPos_descriptor.ViewPosition.ToString());
-                    _viewPos_descriptor = null;
-                }
-                else
-                {
-                    _viewPos_descriptor.ViewPosition = _viewPosOld;
-                    Log(Strings.Log.ViewpointCancelled, LogType.Log);
-                    _viewPos_descriptor = null;
-                }
-            }
-            this.Repaint();
-        }
-
-        /// <summary>
-        /// Fill viseme tree on avatar descriptor
-        /// </summary>        
-        private void FillVisemes(GameObject avatar)
-        {
-            string log = Strings.Log.TryFillVisemes + " - ";
-            string logFormat = avatar.name;
-
-            string[] visemes =
-                {
-                    "vrc.v_sil",
-                    "vrc.v_pp",
-                    "vrc.v_ff",
-                    "vrc.v_th",
-                    "vrc.v_dd",
-                    "vrc.v_kk",
-                    "vrc.v_ch",
-                    "vrc.v_ss",
-                    "vrc.v_nn",
-                    "vrc.v_rr",
-                    "vrc.v_aa",
-                    "vrc.v_e",
-                    "vrc.v_ih",
-                    "vrc.v_oh",
-                    "vrc.v_ou",
-                };
-
-            var d = avatar.GetComponent<VRC_AvatarDescriptor>();
-            if(d == null)
-            {                
-                d = avatar.AddComponent<VRC_AvatarDescriptor>();
-                d.VisemeBlendShapes = new string[visemes.Length];
-            }
-
-            var render = avatar.GetComponentInChildren<SkinnedMeshRenderer>();
-
-            if(render == null)
-            {
-                log += Strings.Log.NoSkinnedMeshFound; 
-                Log(log, LogType.Error, logFormat);
-            }
-
-            d.VisemeSkinnedMesh = render;
-
-            if(render.sharedMesh.blendShapeCount > 0)
-            {   
-                d.lipSync = VRC_AvatarDescriptor.LipSyncStyle.VisemeBlendShape;
-                for(int z = 0; z < visemes.Length; z++)
-                {
-                    string s = "-none-";
-                    if(render.sharedMesh.GetBlendShapeIndex(visemes[z]) != -1)
-                        s = visemes[z];
-                    d.VisemeBlendShapes[z] = s;
-                }
-                log += Strings.Log.Success;
-                Log(log, LogType.Log, logFormat);
-            }
-            else
-            {
-                d.lipSync = VRC_AvatarDescriptor.LipSyncStyle.Default;
-                log += Strings.Log.MeshHasNoVisemes;
-                Log(log, LogType.Warning, logFormat);
-            }
-        }        
-
+               
         void OnGUI()
         {
             int tempSize = Styles.Label_mainTitle.fontSize + 6;
@@ -530,6 +288,10 @@ namespace Pumkin
                         {
                             ActionButton(ToolMenuActions.RemoveColliders);
                         }
+                        if(GUILayout.Button(new GUIContent("_Empty Bones (Slow)", Icons.DefaultAsset)))
+                        {
+                            ActionButton(ToolMenuActions.RemoveEmptyBones);                            
+                        }
                         EditorGUILayout.EndVertical();
 
 #if NO_BONES
@@ -542,6 +304,11 @@ namespace Pumkin
                         }
 #if NO_BONES
                         EditorGUI.EndDisabledGroup();
+
+                        if(GUILayout.Button(new GUIContent("_Empty GameObjects", Icons.DefaultAsset)))
+                        {
+                            ActionButton(ToolMenuActions.RemoveEmptyGameObjects);
+                        }
 #endif
                         EditorGUILayout.EndVertical();
 
@@ -782,9 +549,260 @@ namespace Pumkin
             }
         }
 
-#endregion
+        //Scene GUI
+        void OnSceneGUI(SceneView sceneView)
+        {
+            if(_edittingView)
+            {
+                if(selectedAvatar == null)
+                {
+                    EndEditingViewpoint(null, true);
+                    return;
+                }
 
-#region Main Functions
+                Vector2 windowSize = new Vector2(200, 50);
+
+                Handles.BeginGUI();
+                {
+                    var r = SceneView.currentDrawingSceneView.camera.pixelRect;
+                    GUILayout.BeginArea(new Rect(10, r.height - 10 - windowSize.y, windowSize.x, windowSize.y), new GUIStyle("box"));
+                    {
+                        GUILayout.Label(Strings.Tools.EditViewpoint);
+                        GUILayout.BeginHorizontal();
+                        {
+                            if(GUILayout.Button(Strings.Buttons.Cancel, GUILayout.MinWidth(80)))
+                            {
+                                EndEditingViewpoint(selectedAvatar, true);
+                            }
+
+                            if(GUILayout.Button(Strings.Buttons.Apply, GUILayout.MinWidth(80)))
+                            {
+                                EndEditingViewpoint(selectedAvatar, false);
+                            }
+                        }
+                        GUILayout.EndHorizontal();
+                    }
+                    GUILayout.EndArea();
+                }
+                Handles.EndGUI();
+
+                Vector3 pos = _viewPos;
+                Tools.current = Tool.None;
+                Selection.activeGameObject = selectedAvatar.transform.root.gameObject;
+
+                EditorGUI.BeginChangeCheck();
+                {
+                    pos = Handles.PositionHandle(_viewPos, Quaternion.identity) + selectedAvatar.transform.position;
+                }
+                if(EditorGUI.EndChangeCheck())
+                {
+                    _viewPos = pos;
+                    _viewPos_descriptor.ViewPosition = _viewPos + selectedAvatar.transform.position;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Main Functions
+
+        /// <summary>
+        /// Function for all the actions in the tool menu. Use this instead of calling
+        /// button functions directly.
+        /// </summary>        
+        void ActionButton(ToolMenuActions action)
+        {
+            if(selectedAvatar == null)
+            {
+                //Shouldn't be possible with disable group
+                Debug.LogWarning("_No avatar selected");
+                return;
+            }
+
+            //Record Undo
+            Undo.RegisterFullObjectHierarchyUndo(selectedAvatar, "Tools menu: " + action.ToString());
+            if(selectedAvatar.gameObject.scene.name == null) //In case it's a prefab instance, which it probably is
+                PrefabUtility.RecordPrefabInstancePropertyModifications(selectedAvatar);
+
+            switch(action)
+            {
+                case ToolMenuActions.RemoveColliders:
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(Collider));
+                    break;
+                case ToolMenuActions.RemoveDynamicBoneColliders:
+#if !NO_BONES
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBoneCollider));
+#endif
+                    break;
+                case ToolMenuActions.RemoveDynamicBones:
+#if !NO_BONES
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBone));
+#endif
+                    break;
+                case ToolMenuActions.ResetPose:
+                    ResetPose(selectedAvatar);
+                    break;
+                case ToolMenuActions.ResetBlendShapes:
+                    ResetBlendShapes(selectedAvatar);
+                    break;
+                case ToolMenuActions.FixRandomMouth:
+                    FixRandomMouthOpening(selectedAvatar);
+                    break;
+                case ToolMenuActions.DisableBlinking:
+                    DisableBlinking(selectedAvatar);
+                    break;
+                case ToolMenuActions.FillVisemes:
+                    FillVisemes(selectedAvatar);
+                    break;
+                case ToolMenuActions.EditViewpoint:
+                    BeginEditViewpoint(selectedAvatar);
+                    break;
+                case ToolMenuActions.RemoveEmptyBones:
+                    DestroyEmptyBonesNew(selectedAvatar);
+                    break;
+                case ToolMenuActions.RemoveEmptyGameObjects:
+                    DestroyEmptyGameObjects(selectedAvatar);
+                    break;
+                default:
+                    break;
+            }
+
+            avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);
+
+            EditorUtility.SetDirty(selectedAvatar);
+            EditorSceneManager.MarkSceneDirty(selectedAvatar.scene);
+        }
+
+        /// <summary>
+        /// Begin Editing Viewposition
+        /// </summary>        
+        private void BeginEditViewpoint(GameObject avatar)
+        {
+            _viewPos_descriptor = avatar.GetComponent<VRC_AvatarDescriptor>();
+            if(_viewPos_descriptor == null)
+            {
+                _viewPos_descriptor = avatar.AddComponent<VRC_AvatarDescriptor>();
+            }
+
+            Vector3 defaultView = new Vector3(0, 1.6f, 0.2f);
+            _viewPos = _viewPos_descriptor.ViewPosition;
+            _viewPosOld = _viewPos_descriptor.ViewPosition;
+
+            if(_viewPos == defaultView)
+            {
+                var anim = selectedAvatar.GetComponent<Animator>();
+
+                if(anim != null && anim.isHuman)
+                {
+                    _viewPos = anim.GetBoneTransform(HumanBodyBones.Head).position + new Vector3(0, 0, defaultView.z);
+                    float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y;
+                    _viewPos.y = eyeHeight;
+
+                    _viewPos_descriptor.ViewPosition = _viewPos + selectedAvatar.transform.position;
+                }
+            }
+            _edittingView = true;
+        }
+
+        /// <summary>
+        /// End editing Viewposition
+        /// </summary>        
+        /// <param name="cancelled">If cancelled revert viewposition to old value, if not leave it</param>
+        private void EndEditingViewpoint(GameObject avatar, bool cancelled)
+        {
+            if(avatar == null)
+            {
+                _edittingView = false;
+            }
+            else
+            {
+                if(_viewPos_descriptor == null)
+                {
+                    Log(Strings.Log.DescriptorIsNull, LogType.Error);
+                    return;
+                }
+
+                _edittingView = false;
+                if(!cancelled)
+                {
+                    _viewPos_descriptor.ViewPosition = RoundVectorValues(_viewPos_descriptor.gameObject.transform.position + _viewPos, 3);
+                    Log(Strings.Log.ViewpointApplied, LogType.Log, _viewPos_descriptor.ViewPosition.ToString());
+                    _viewPos_descriptor = null;
+                }
+                else
+                {
+                    _viewPos_descriptor.ViewPosition = _viewPosOld;
+                    Log(Strings.Log.ViewpointCancelled, LogType.Log);
+                    _viewPos_descriptor = null;
+                }
+            }
+            this.Repaint();
+        }
+
+        /// <summary>
+        /// Fill viseme tree on avatar descriptor
+        /// </summary>        
+        private void FillVisemes(GameObject avatar)
+        {
+            string log = Strings.Log.TryFillVisemes + " - ";
+            string logFormat = avatar.name;
+
+            string[] visemes =
+                {
+                    "vrc.v_sil",
+                    "vrc.v_pp",
+                    "vrc.v_ff",
+                    "vrc.v_th",
+                    "vrc.v_dd",
+                    "vrc.v_kk",
+                    "vrc.v_ch",
+                    "vrc.v_ss",
+                    "vrc.v_nn",
+                    "vrc.v_rr",
+                    "vrc.v_aa",
+                    "vrc.v_e",
+                    "vrc.v_ih",
+                    "vrc.v_oh",
+                    "vrc.v_ou",
+                };
+
+            var d = avatar.GetComponent<VRC_AvatarDescriptor>();
+            if(d == null)
+            {
+                d = avatar.AddComponent<VRC_AvatarDescriptor>();
+                d.VisemeBlendShapes = new string[visemes.Length];
+            }
+
+            var render = avatar.GetComponentInChildren<SkinnedMeshRenderer>();
+
+            if(render == null)
+            {
+                log += Strings.Log.NoSkinnedMeshFound;
+                Log(log, LogType.Error, logFormat);
+            }
+
+            d.VisemeSkinnedMesh = render;
+
+            if(render.sharedMesh.blendShapeCount > 0)
+            {
+                d.lipSync = VRC_AvatarDescriptor.LipSyncStyle.VisemeBlendShape;
+                for(int z = 0; z < visemes.Length; z++)
+                {
+                    string s = "-none-";
+                    if(render.sharedMesh.GetBlendShapeIndex(visemes[z]) != -1)
+                        s = visemes[z];
+                    d.VisemeBlendShapes[z] = s;
+                }
+                log += Strings.Log.Success;
+                Log(log, LogType.Log, logFormat);
+            }
+            else
+            {
+                d.lipSync = VRC_AvatarDescriptor.LipSyncStyle.Default;
+                log += Strings.Log.MeshHasNoVisemes;
+                Log(log, LogType.Warning, logFormat);
+            }
+        }
 
         /// <summary>
         /// Copies Components and Values from one object to another.
@@ -1075,6 +1093,9 @@ namespace Pumkin
                     var colls = dFrom.m_Colliders;
                     for(int z = 0; z < colls.Count; z++)
                     {
+						if(colls[z] == null)
+							continue;
+						
                         string tFromPath = GetGameObjectPath(colls[z].gameObject);
                         var tTo = to.transform.root.Find(tFromPath);
 
@@ -1789,9 +1810,139 @@ namespace Pumkin
             }
         }
 
-#endregion
+        #endregion
 
-#region Destroy Functions    
+        #region Destroy Functions    
+        
+        /// <summary>
+        /// Destroys GameObjects in object and all children, if it has no children and if it's not a bone
+        /// </summary>        
+        void DestroyEmptyGameObjects(GameObject from)
+        {
+            var obj = from.GetComponentsInChildren<Transform>();
+            var renders = from.GetComponentsInChildren<SkinnedMeshRenderer>();
+
+            var bones = new List<Transform>();            
+
+            foreach(var r in renders)
+            {
+                var weights = r.sharedMesh.boneWeights;
+                foreach(var b in r.bones)
+                {
+                    if(!bones.Contains(b))
+                        bones.Add(b);
+                }
+            }
+
+            for(int i = obj.Length - 1; i >= 0; i--)
+            {
+                if(obj[i] != obj[i].root && obj[i].GetComponents<Component>().Length == 1 && !bones.Contains(obj[i]) && obj[i].childCount == 0)
+                {
+                    Log("_{0} is empty and has no children. Destroying", LogType.Log, obj[i].name);
+                    DestroyImmediate(obj[i].gameObject);
+                }
+            }
+        }
+
+
+        void DestroyEmptyBonesNew(GameObject from)
+        {
+            var renders = from.GetComponentsInChildren<SkinnedMeshRenderer>();
+
+            var weights = new Dictionary<Transform, bool>();
+
+            foreach(var r in renders)
+            {
+                foreach(var b in r.bones)
+                {
+                    if(b != null && !weights.ContainsKey(b))
+                        weights.Add(b, false);
+                }
+
+                foreach(var w in r.sharedMesh.boneWeights)
+                {                    
+                    if(w.weight3 != 0 && r.bones[w.boneIndex3] != null)
+                    {
+                        Transform t = r.bones[w.boneIndex3];
+                        if(weights.ContainsKey(t))
+                            weights[t] = true;
+                        else
+                            weights.Add(t, true);
+                    }
+                    if(w.weight2 != 0 && r.bones[w.boneIndex2] != null)
+                    {
+                        Transform t = r.bones[w.boneIndex2];
+                        if(weights.ContainsKey(t))
+                            weights[t] = true;
+                        else
+                            weights.Add(t, true);
+                    }
+                    if(w.weight1 != 0 && r.bones[w.boneIndex1] != null)
+                    {
+                        Transform t = r.bones[w.boneIndex1];
+                        if(weights.ContainsKey(t))
+                            weights[t] = true;
+                        else
+                            weights.Add(t, true);
+                    }
+                    if(w.weight0 != 0 && r.bones[w.boneIndex0] != null)
+                    {
+                        Transform t = r.bones[w.boneIndex0];
+                        if(weights.ContainsKey(t))
+                            weights[t] = true;
+                        else
+                            weights.Add(t, true);
+                    }
+                }
+            }
+
+            foreach(var kv in weights.Reverse())
+            {
+                if(kv.Key != null)
+                    if(!kv.Value)
+                        if(kv.Key.childCount == 0)
+                        {
+                            Log("_Removing bone {0}", LogType.Log, kv.Key.name);
+                            DestroyImmediate(kv.Key.gameObject);
+                        }
+            }
+        }
+
+        /// <summary>
+        /// Destroys empty GameObjects that are bone transforms with no weights
+        /// </summary>
+        /// <param name="from"></param>
+        void DestroyEmptyBones(GameObject from)
+        {
+            var renders = from.GetComponentsInChildren<SkinnedMeshRenderer>();          
+
+            foreach(var r in renders)
+            {
+                foreach(var b in r.bones)
+                {
+                    if(b.childCount > 0)
+                        continue; 
+
+                    bool empty = true;
+                    foreach(var w in r.sharedMesh.boneWeights)
+                    {
+                        if((b == r.bones[w.boneIndex0] && w.weight0 > 0) || (b == r.bones[w.boneIndex1] && w.weight1 > 0) ||
+                                (b == r.bones[w.boneIndex2] && w.weight2 > 0) || (b == r.bones[w.boneIndex3] && w.weight3 > 0))
+                        {
+                            empty = false;
+                            break;
+                        }                        
+                    }
+
+                    if(empty)
+                    {
+                        Log("_Bone {0} in {1} is empty. Removing", LogType.Log, b.name, r.gameObject.name);
+                        DestroyImmediate(b.gameObject);
+                    }
+                }
+
+            }            
+        }
 
         /// <summary>
         /// Destroys all Collider components from object and all of it's children.
@@ -1801,7 +1952,7 @@ namespace Pumkin
             var col = from.GetComponentsInChildren<Collider>(true);
             foreach(var c in col)
             {
-                Log(string.Format("Removing collider {0} from {1}", c, from.name));
+                Log(Strings.Log.RemoveAttempt, LogType.Log, c.ToString(), from.name);                
                 DestroyImmediate(c);
             }
         }
@@ -1885,9 +2036,44 @@ namespace Pumkin
             }
         }
 
-#endregion
+        #endregion
 
-#region Helper Functions
+        #region Helper Functions
+
+        static bool IsBoneHasWeights(Transform t, SkinnedMeshRenderer r)
+        {
+            if(t == r.rootBone)
+            {
+                return true;
+            }
+
+            bool isBone = false;
+            foreach(var b in r.bones)
+            {
+                if(t == b)
+                {
+                    isBone = true;
+                    break;
+                }
+            }
+
+            if(isBone)
+            {                
+                foreach(var b in r.sharedMesh.boneWeights)
+                {
+                    if((t == r.bones[b.boneIndex0] && b.weight0 > 0) || (t == r.bones[b.boneIndex1] && b.weight1 > 0)
+                            || (t == r.bones[b.boneIndex2] && b.weight2 > 0) || (t == r.bones[b.boneIndex3] && b.weight3 > 0))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            else
+            {
+                return false;
+            }            
+        }
 
         static bool IsSupportedComponentType(Type type)
         {
@@ -2289,7 +2475,7 @@ namespace Pumkin
             public static string TryFillVisemes { get; private set; }
             public static string TryRemoveUnsupportedComponent { get; private set; }
             public static string MeshHasNoVisemes { get; private set; }
-            public static string FailedIsNull { get; private set; }
+            public static string FailedIsNull { get; private set; }            
 
             static Log()
             {
@@ -2313,7 +2499,7 @@ namespace Pumkin
                 MeshHasNoVisemes = GetString("log_meshHasNoVisemes") ?? "_Failed. Mesh has no Visemes. Set to Default";
                 TryRemoveUnsupportedComponent = GetString("log_tryRemoveUnsupportedComponent") ?? "_Attempted to remove unsupported component {0} from {1}";
                 Failed = GetString("log_failed") ?? "_Failed";
-                FailedIsNull = GetString("log_failedIsNull") ?? "_Failed {1} is null";
+                FailedIsNull = GetString("log_failedIsNull") ?? "_Failed {1} is null";                
             }
         };        
         public static class Warning
@@ -2484,7 +2670,7 @@ namespace Pumkin
                 { "log_descriptorIsNull", "Avatar descriptor is null"},
                 { "log_meshHasNoVisemes", "Failed. Mesh has no Visemes. Set to Default" },
                 { "log_tryRemoveUnsupportedComponent", "Attempted to remove unsupported component {0} from {1}" },
-                { "log_failedIsNull" , "Failed {1} is null. Ignoring." },
+                { "log_failedIsNull" , "Failed {1} is null. Ignoring." },                
 #endregion
 
 #region Warnings
