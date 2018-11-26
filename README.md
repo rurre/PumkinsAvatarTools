@@ -3,6 +3,10 @@ This editor script has a bunch of tools that allows you setup avatars easier, as
 
 Check out the [Wiki](https://github.com/rurre/PumkinsAvatarTools/wiki) for a more detailed explanation of what everything does.
 
+Screenshot: [Here](https://puu.sh/C3GGb/5d96267e73.png)
+
+(Very) Outdated Video Example: [Here](https://puu.sh/BZMGY/53e5dad7c3.mp4)
+
 ## New this version (v0.5.3b):
 - **Fixed dependency checker being stuck in a read-write loop** - Should no longer lag and freeze unity for no reason.
 - **Fixed SkinnedMeshRenderer breaking avatar bounds** - Root bones are now correctly assigned.
@@ -18,9 +22,7 @@ Check out the [Wiki](https://github.com/rurre/PumkinsAvatarTools/wiki) for a mor
 - **An even newer Avatar Info Menu** - For when you want to know exactly how unoptimized your avatar is
 - **More Untested changes** - Even more Hype! (Please give feedback)
 
-Screenshot: [Here](https://puu.sh/C3GGb/5d96267e73.png)
-
-(Very) Outdated Video Example: [Here](https://puu.sh/BZMGY/53e5dad7c3.mp4)
+==============================
 
 - **Tools menu** - Allows you to do stuff including dragging your avatar's viewpoint around, auto filling in visemes and resetting your avatar's transform, as well as quickly removing dynamic bones and colliders from your avatar
 - **Component Copier** - Allows you to copy over components from one avatar to another
