@@ -1,4 +1,4 @@
-#define NO_BONES
+#define OLD_BONES
 using System.Collections.Generic;
 using UnityEditor;
 using VRCSDK2;
@@ -10,7 +10,7 @@ using UnityEngine;
 using System.Linq;
 using Pumkin.DependencyChecker;
 using Pumkin.PoseEditor;
-using Pumkin.AvatarStats;
+using Pumkin.Helpers;
 using UnityEngine.UI;
 
 /// <summary>
@@ -31,10 +31,7 @@ namespace Pumkin.AvatarTools
 
         //Component Copier
         public static GameObject copierSelectedFrom;
-
-        bool bCopier_gameObjects_copy = true;
-        bool bCopier_gameObjects_createMissing = true;
-
+        
         bool bCopier_transforms_copy = true;
         bool bCopier_transforms_copyPosition = true;
         bool bCopier_transforms_copyRotation = true;
@@ -59,6 +56,7 @@ namespace Pumkin.AvatarTools
         bool bCopier_colliders_copyCapsule = true;
         bool bCopier_colliders_copySphere = true;
         bool bCopier_colliders_copyMesh = true;
+        bool bCopier_colliders_createObjects = true;
 
         bool bCopier_skinMeshRender_copy = true;
         bool bCopier_skinMeshRender_copySettings = true;
@@ -75,6 +73,7 @@ namespace Pumkin.AvatarTools
 
         bool bCopier_particleSystems_copy = true;
         bool bCopier_particleSystems_replace = false;
+        bool bCopier_particleSystems_createObjects = true;
 
         //Editor
         bool _copier_expand = false;
@@ -146,7 +145,7 @@ namespace Pumkin.AvatarTools
         //Thumbnail Stuff
 
         int _animationId = 0;
-        Animator _animator;
+        Animator _animator;        
 
         enum ToolMenuActions
         {
@@ -160,7 +159,7 @@ namespace Pumkin.AvatarTools
             DisableBlinking,
             EditViewpoint,
             FillVisemes,       
-            //RemoveEmptyGameObjects,
+            RemoveEmptyGameObjects,
             //RemoveEmptyBones,
             RemoveParticleSystems,
             SetTPose,
@@ -386,10 +385,10 @@ namespace Pumkin.AvatarTools
                             ActionButton(ToolMenuActions.RemoveParticleSystems);
                         }
 
-                        /*if(GUILayout.Button(new GUIContent("_Empty GameObjects", Icons.DefaultAsset)))
+                        if(GUILayout.Button(new GUIContent("_Empty GameObjects", Icons.DefaultAsset)))
                         {
                             ActionButton(ToolMenuActions.RemoveEmptyGameObjects);
-                        }*/
+                        }
 
                         EditorGUILayout.EndVertical();
 
@@ -545,6 +544,7 @@ namespace Pumkin.AvatarTools
                             bCopier_colliders_copyMesh = EditorGUILayout.Toggle(Strings.Copier.Colliders_mesh, bCopier_colliders_copyMesh, GUILayout.ExpandWidth(false));
 
                             bCopier_colliders_removeOld = EditorGUILayout.Toggle(Strings.Copier.Colliders_removeOld, bCopier_colliders_removeOld, GUILayout.ExpandWidth(false));
+                            bCopier_colliders_createObjects = EditorGUILayout.Toggle("Copy GameObjects", bCopier_colliders_createObjects, GUILayout.ExpandWidth(false));
 
                             EditorGUILayout.Space();
                             EditorGUI.EndDisabledGroup();
@@ -965,7 +965,7 @@ namespace Pumkin.AvatarTools
             Undo.RegisterFullObjectHierarchyUndo(selectedAvatar, "Tools menu: " + action.ToString());
             if(selectedAvatar.gameObject.scene.name == null) //In case it's a prefab instance, which it probably is
                 PrefabUtility.RecordPrefabInstancePropertyModifications(selectedAvatar);
-
+                                    
             switch(action)
             {
                 case ToolMenuActions.RemoveColliders:
@@ -1002,9 +1002,9 @@ namespace Pumkin.AvatarTools
                 //case ToolMenuActions.RemoveEmptyBones:
                 //    DestroyEmptyBonesNew(selectedAvatar);
                 //    break;
-                //case ToolMenuActions.RemoveEmptyGameObjects:
-                //    DestroyEmptyGameObjects(selectedAvatar);
-                //    break;
+                case ToolMenuActions.RemoveEmptyGameObjects:
+                    DestroyEmptyGameObjects(selectedAvatar);
+                    break;
                 case ToolMenuActions.RemoveParticleSystems:
                     DestroyParticleSystems(selectedAvatar);
                     break;
@@ -1036,7 +1036,7 @@ namespace Pumkin.AvatarTools
             }
 
             Vector3 defaultView = new Vector3(0, 1.6f, 0.2f);
-            _viewPosOld = _viewPos_descriptor.ViewPosition;            
+            _viewPosOld = _viewPos_descriptor.ViewPosition;
 
             if(_viewPos_descriptor.ViewPosition == defaultView)
             {
@@ -1044,13 +1044,18 @@ namespace Pumkin.AvatarTools
 
                 if(anim != null && anim.isHuman)
                 {
-                    _viewPos_descriptor.ViewPosition = anim.GetBoneTransform(HumanBodyBones.Head).position + new Vector3(0, 0, defaultView.z);
-                    float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y;
-                    _viewPos_descriptor.ViewPosition.y = eyeHeight;                    
+                    _viewPosTemp = anim.GetBoneTransform(HumanBodyBones.Head).position;
+                    float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y - 0.05f;
+                    _viewPosTemp.y = eyeHeight;
+                    _viewPosTemp.z = defaultView.z;
                 }
             }
+            else
+            {
+                _viewPosTemp = _viewPos_descriptor.ViewPosition + avatar.transform.root.position;
+            }
             _editingView = true;
-            _viewPosTemp = _viewPos_descriptor.ViewPosition + _viewPos_descriptor.gameObject.transform.position;
+            //_viewPosTemp += _viewPos_descriptor.gameObject.transform.position;
 
             Tools.current = Tool.None;
             Selection.activeGameObject = selectedAvatar.transform.root.gameObject;
@@ -1213,10 +1218,21 @@ namespace Pumkin.AvatarTools
                 {
                     objTo.transform.localScale = objFrom.transform.localScale;
                 }
+                
+                //The fact that this runs only once on all children from within the function is quite inconsistent, I agree.
+                //But I guess this is a better way of doing things.
+                if(bCopier_particleSystems_copy)
+                {
+                    CopyParticleSystems(objFrom, objTo, bCopier_particleSystems_createObjects);
+                }
+                if(bCopier_colliders_copy)
+                {
+                    CopyAllColliders(objFrom, objTo, bCopier_colliders_createObjects);
+                }
             }
             //End run once
             
-            if(bCopier_transforms_copy)
+            if(bCopier_transforms_copy && (bCopier_transforms_copyPosition || bCopier_transforms_copyRotation || bCopier_transforms_copyScale))
             {
                 CopyTransforms(objFrom, objTo);
             }
@@ -1227,10 +1243,11 @@ namespace Pumkin.AvatarTools
                     CopyDynamicBones(objFrom, objTo, bCopier_dynamicBones_createMissingBones);
                 }
             }
-            if(bCopier_colliders_copy)
-            {                
-                CopyColliders(objFrom, objTo);
-            }
+            //Using CopyAllCollidersInstead
+            //if(bCopier_colliders_copy)
+            //{                
+            //    CopyColliders(objFrom, objTo);
+            //}
             if(bCopier_skinMeshRender_copy)
             {                
                 CopySkinMeshRenderer(objFrom, objTo);
@@ -1243,10 +1260,6 @@ namespace Pumkin.AvatarTools
             //{
             //    CopyConstraints(objFrom, objTo);
             //}
-            if(bCopier_particleSystems_copy)
-            {
-                CopyParticleSystems(objFrom, objTo);
-            }
 
             //Copy Components in Children
             for(int i = 0; i < objFrom.transform.childCount; i++)
@@ -1257,7 +1270,7 @@ namespace Pumkin.AvatarTools
                 if(fromChild == null)
                     continue;
 
-                var t = GetSameChild(objTo, fromChild, (bCopier_gameObjects_copy && bCopier_gameObjects_createMissing));
+                var t = GetSameChild(objTo, fromChild);
 
                 GameObject toChild = null;
 
@@ -1315,11 +1328,14 @@ namespace Pumkin.AvatarTools
                 dTo.ViewPosition = dFrom.ViewPosition;
                 dTo.VisemeBlendShapes = dFrom.VisemeBlendShapes;
 
-                string s = GetGameObjectPath(dFrom.VisemeSkinnedMesh.gameObject, true);
-                Transform t = dTo.transform.Find(s);
-                if(t != null)
+                if(dFrom.VisemeSkinnedMesh != null)
                 {
-                    dTo.VisemeSkinnedMesh = t.GetComponent<SkinnedMeshRenderer>();
+                    string s = Functions.GetGameObjectPath(dFrom.VisemeSkinnedMesh.gameObject, true);
+                    Transform t = dTo.transform.Find(s);
+                    if(t != null)
+                    {
+                        dTo.VisemeSkinnedMesh = t.GetComponent<SkinnedMeshRenderer>();
+                    }
                 }
 
                 if(bCopier_descriptor_copyAnimationOverrides)
@@ -1488,7 +1504,7 @@ namespace Pumkin.AvatarTools
 						if(colls[z] == null)
 							continue;
 						
-                        string tFromPath = GetGameObjectPath(colls[z].gameObject);
+                        string tFromPath = Functions.GetGameObjectPath(colls[z].gameObject);
                         var tTo = to.transform.root.Find(tFromPath);
 
                         DynamicBoneCollider fc = null;
@@ -1604,7 +1620,7 @@ namespace Pumkin.AvatarTools
                 {
                     if(dFrom.m_Exclusions[z] != null)
                     {
-                        string p = GetGameObjectPath(dFrom.m_Exclusions[z].gameObject, true);
+                        string p = Functions.GetGameObjectPath(dFrom.m_Exclusions[z].gameObject, true);
                         var t = to.transform.root.Find(p);
 
                         if(t != null && dFrom.m_Exclusions[z].name == t.name)
@@ -1615,7 +1631,7 @@ namespace Pumkin.AvatarTools
 
                 if(dFrom.m_Root != null)
                 {
-                    string rootPath = GetGameObjectPath(dFrom.m_Root.gameObject, true);
+                    string rootPath = Functions.GetGameObjectPath(dFrom.m_Root.gameObject, true);
                     if(!string.IsNullOrEmpty(rootPath))
                     {
                         var toRoot = dTo.transform.root.Find(rootPath);
@@ -1626,7 +1642,7 @@ namespace Pumkin.AvatarTools
 
                 if(dFrom.m_ReferenceObject != null)
                 {
-                    string refPath = GetGameObjectPath(dFrom.m_ReferenceObject.gameObject, true);
+                    string refPath = Functions.GetGameObjectPath(dFrom.m_ReferenceObject.gameObject, true);
                     if(!string.IsNullOrEmpty(refPath))
                     {
                         var toRef = dTo.transform.root.Find(refPath);
@@ -1639,6 +1655,38 @@ namespace Pumkin.AvatarTools
                 Log(log, LogType.Log, logFormat);                
             }
 #endif
+        }
+
+        /// <summary>
+        /// Copies Box, Capsule, Sphere and Mesh colliders from one object to another AND ALL OF IT'S CHILDREN AT ONCE.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        void CopyAllColliders(GameObject from, GameObject to, bool createGameObjects)
+        {
+            if(from == null || to == null)
+                return;
+            if(!(bCopier_colliders_copyBox || bCopier_colliders_copyCapsule || bCopier_colliders_copyMesh || bCopier_colliders_copySphere))
+                return;
+
+            var arr = from.GetComponentsInChildren<Collider>();
+
+            for(int i = 0; i < arr.Length; i++)
+            {
+                //if(arr[i] is BoxCollider || arr[i] is MeshCollider || arr[i] is SphereCollider || arr[i] is CapsuleCollider)
+                var t = arr[i].GetType();
+                if(supportedComponents.Contains(t))
+                {
+                    var cc = arr[i];
+                    var cFromPath = Functions.GetGameObjectPath(cc.gameObject);
+
+                    if(cFromPath != null)
+                    {
+                        GameObject cToObj = to.transform.root.Find(cFromPath, createGameObjects, cc.transform).gameObject;
+                        CopyColliders(arr[i].gameObject, cToObj);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -1785,7 +1833,7 @@ namespace Pumkin.AvatarTools
                     Log(log, LogType.Warning, logFormat);
                     return;
                 }
-                log += "_Success - Added {0} to {2}";
+                log += "_Success: Added {0} to {2}";
                 Log(log, LogType.Log, logFormat);                
             }
         }
@@ -1794,11 +1842,11 @@ namespace Pumkin.AvatarTools
         /// Copies Transform component settings. Note that only one can exist on an object, and every object should have one already.
         /// </summary>    
         void CopyTransforms(GameObject from, GameObject to)
-        {
+        {            
             var tFrom = from.transform;
             var tTo = to.transform;
 
-            string log = Strings.Log.CopyAttempt;
+            string log = Strings.Log.CopyAttempt + " ";
             string[] logFormat = { "Transforms", from.name, to.name };
 
             if(tTo == null || tFrom == null)
@@ -1864,14 +1912,14 @@ namespace Pumkin.AvatarTools
 
                 string path = null;
                 if(rFrom.probeAnchor != null)
-                    path = GetGameObjectPath(rFrom.probeAnchor.gameObject);
+                    path = Functions.GetGameObjectPath(rFrom.probeAnchor.gameObject);
 
                 if(!string.IsNullOrEmpty(path))
                     rTo.probeAnchor = rTo.transform.root.Find(path);
 
                 path = null;
                 if(rFrom.rootBone != null)
-                    path = GetGameObjectPath(rFrom.rootBone.gameObject);
+                    path = Functions.GetGameObjectPath(rFrom.rootBone.gameObject);
 
                 if(!string.IsNullOrEmpty(path))
                     rTo.rootBone = rTo.transform.root.Find(path);
@@ -1992,10 +2040,10 @@ namespace Pumkin.AvatarTools
 
             //renderer.sharedMesh = m;
 
-            //string path = GetGameObjectPath(renderer.transform.root.gameObject, false);
+            //string path = Functions.GetGameObjectPath(renderer.transform.root.gameObject, false);
             //path += "/(No Blink)";                        
 
-            //string path = GetGameObjectPath(renderer.transform.root.gameObject, false);
+            //string path = Functions.GetGameObjectPath(renderer.transform.root.gameObject, false);
             //path += " (No Blink)";
 
             //AssetDatabase.CreateAsset(tmpMesh, );
@@ -2018,33 +2066,20 @@ namespace Pumkin.AvatarTools
 
             rFromList.AddRange(from.GetComponents<Rigidbody>());
             rToList.AddRange(to.GetComponents<Rigidbody>());
-
-
         }
 
-        bool ParticleSystemsAreIdentical(ParticleSystem p1, ParticleSystem p2)
-        {
-            if(p1 == p2)
-            {
-                Debug.Log(p1 + " is identical to " + p2);
-                return true;
-            }
-            Debug.Log(p1 + " is different from " + p2);
-            return false;
-        }
-
-        void CopyParticleSystems(GameObject from, GameObject to)
+        void CopyParticleSystems(GameObject from, GameObject to, bool createGameObjects)
         {
             var pFromArr = from.GetComponentsInChildren<ParticleSystem>(true);            
 
             for(int i = 0; i < pFromArr.Length; i++)
             {
                 var pp = pFromArr[i];
-                var pFromPath = GetGameObjectPath(pp.gameObject);
+                var pFromPath = Functions.GetGameObjectPath(pp.gameObject);
 
                 if(pFromPath != null)
                 {
-                    var pToObj = to.transform.Find(pFromPath);                    
+                    var pToObj = to.transform.root.Find(pFromPath, createGameObjects, pp.transform);                    
 
                     if(pToObj != null)
                     {                        
@@ -2053,7 +2088,7 @@ namespace Pumkin.AvatarTools
                         {
                             //I know there has to be a better way. Probably
                             #region Particle System 'Instantiation'
-                            var p = pToObj.gameObject.AddComponent<ParticleSystem>();
+                            var p = pToObj.gameObject.AddComponent<ParticleSystem>();                            
 
                             var pRend = p.GetComponent<ParticleSystemRenderer>();
                             var ppRend = pp.GetComponent<ParticleSystemRenderer>();
@@ -2418,7 +2453,7 @@ namespace Pumkin.AvatarTools
                         }
                         else
                         {
-                            Log("_Failed: {0}'s {1} already has a ParticleSystem. Ignored.", LogType.Log, selectedAvatar.name, pp.gameObject.name);
+                            Log("_Failed: {0}'s {1} already has a ParticleSystem. Ignoring.", LogType.Log, selectedAvatar.name, pp.gameObject.name);
                         }
                     }
                 }
@@ -2586,7 +2621,7 @@ namespace Pumkin.AvatarTools
             if(objTo == null)
                 return false;
 
-            string toPath = GetGameObjectPath(objTo);
+            string toPath = Functions.GetGameObjectPath(objTo);
             var pref = PrefabUtility.GetPrefabParent(objTo.transform.root.gameObject) as GameObject;
                        
             if(pref == null)
@@ -2710,21 +2745,12 @@ namespace Pumkin.AvatarTools
             return true;
         }
 
-        GameObject GetSameChild(GameObject parent, GameObject child, bool createIfMissing = false, bool copyEmpty = false)
+        GameObject GetSameChild(GameObject parent, GameObject child)
         {
+            if(parent == null || child == null)
+                return null;
+
             Transform newChild = parent.transform.Find(child.name);
-
-            if(newChild == null && createIfMissing)
-            {
-                newChild = new GameObject(child.name).transform;
-
-                newChild.localEulerAngles = child.transform.localEulerAngles;
-                newChild.localPosition = child.transform.localPosition;
-                newChild.localRotation = child.transform.localRotation;
-                newChild.localScale = child.transform.localScale;
-
-                newChild.parent = parent.transform;                
-            }
 
             if(newChild != null)
                 return newChild.gameObject;
@@ -2746,11 +2772,25 @@ namespace Pumkin.AvatarTools
 
             foreach(var p in sys)
             {
-                Log(Strings.Log.RemoveAttempt, LogType.Log, p.ToString(), from.name);
-                if(p.GetComponents<Component>().Length > 2)
-                    DestroyImmediate(p);
-                else
-                    DestroyImmediate(p.gameObject);
+                var rend = p.GetComponent<ParticleSystemRenderer>();
+
+                if(rend != null)
+                    DestroyImmediate(rend);
+
+                Log(Strings.Log.RemoveAttempt + " " + "_Success.", LogType.Log, p.ToString(), from.name);
+                DestroyImmediate(p);
+
+                //Dangerous if we put particles on bones. Almost nobody does but removed for now. Just in case.
+                //if(p.GetComponents<Component>().Length > 2)
+                //{
+                //    Log(Strings.Log.RemoveAttempt + " " + "_Success.", LogType.Log, p.ToString(), from.name);
+                //    DestroyImmediate(p);
+                //}                                
+                //else
+                //{
+                //    Log(Strings.Log.RemoveAttempt + "_Success. Removed ParticleSystem and destroyed empty GameObject.", LogType.Log, p.ToString(), from.name);
+                //    DestroyImmediate(p.gameObject);
+                //}                
             }
         }
 
@@ -2773,24 +2813,22 @@ namespace Pumkin.AvatarTools
                 }
             }
                         
-            /*string path = AssetDatabase.GetAssetPath((GameObject)PrefabUtility.GetPrefabParent(from).GetComponentInChildren<SkinnedMeshRenderer>().sharedMesh);
-
-            GameObject prefabParent = AssetDatabase.getassetpa;
-
-            var bonePaths = new HashSet<String>();
-            foreach(var t in prefabParent.GetComponentsInChildren<Transform>())
-            {
-                bonePaths.Add(GetGameObjectPath(t.gameObject, true));
-            }*/
-                        
-
             foreach(var t in obj.OrderBy(o => o.childCount))
-            {
-                //if(t != t.root && t.GetComponents<Component>().Length == 1 && !bonePaths.Contains(GetGameObjectPath(t.gameObject, true)) && t.childCount == 0)
-                if(t != t.root && t.GetComponents<Component>().Length == 1 && !bones.Contains(t) && t.childCount == 0)
+            {                
+                if(t!= null && t != t.root && t.GetComponents<Component>().Length == 1 && !bones.Contains(t))
                 {
-                    Log("_{0} has no components or children. Destroying", LogType.Log, t.name);
-                    DestroyImmediate(t.gameObject);
+                    int c = t.childCount;                    
+                    for(int i = 0; i < t.childCount; i++)
+                    {
+                        var n = t.GetChild(i);
+                        if(!bones.Contains(n))
+                            c--;
+                    }
+                    if(c <= 0)
+                    {
+                        Log("_{0} has no components or children. Destroying", LogType.Log, t.name);
+                        DestroyImmediate(t.gameObject);
+                    }
                 }
             }
         }
@@ -3039,25 +3077,7 @@ namespace Pumkin.AvatarTools
             }
             return false;
         }
-
-        public static string GetGameObjectPath(GameObject obj, bool skipRoot = true)
-        {
-            string path = null;
-            if(obj.transform != obj.transform.root)
-            {
-                if(!skipRoot)
-                    path = obj.transform.root.name + "/";
-                path += (AnimationUtility.CalculateTransformPath(obj.transform, obj.transform.root));
-            }
-            else
-            {
-                if(!skipRoot)
-                    path = obj.transform.root.name;
-            }
-
-            return path;
-        }
-
+        
         public static void Log(string message, LogType logType = LogType.Log, params string[] logFormat)
         {
             if(logFormat.Length > 0)
@@ -3207,7 +3227,7 @@ namespace Pumkin.AvatarTools
             if(t == null)
                 return false;
 
-            string tPath = GetGameObjectPath(t.gameObject);
+            string tPath = Functions.GetGameObjectPath(t.gameObject);
             var pref = PrefabUtility.GetPrefabParent(t.root.gameObject) as GameObject;
 
             if(pref == null)
