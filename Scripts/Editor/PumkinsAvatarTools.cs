@@ -101,7 +101,12 @@ namespace Pumkin.AvatarTools
         GameObject cameraOverlay = null;
         RawImage cameraOverlayImage = null;
 
-        GameObject _vrcCam = null;
+        Color skyboxCameraColor = new Color(0.235f, 0.22f, 0.22f);
+        bool bSetBackgroundColor = false;
+
+        Camera _vrcCam = null;
+        Color _vrcCamOldColor = Color.blue;
+        CameraClearFlags _vrcCamOldClearFlags = CameraClearFlags.Skybox;
 
 
         bool _tools_expand = true;
@@ -115,7 +120,6 @@ namespace Pumkin.AvatarTools
         bool _openedInfo = false;
         Vector2 vertScroll = Vector2.zero;
         static string _mainScriptPath = null;
-               
 
         static Avatar _tposeAvatar = null;
 
@@ -151,12 +155,7 @@ namespace Pumkin.AvatarTools
         static AvatarInfo avatarInfo = null;                
         static string _avatarInfoSpace = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
         static string _avatarInfoString = Strings.AvatarInfo.SelectAvatarFirst + _avatarInfoSpace; //Please don't hurt me for this
-
-        //Thumbnail Stuff
-
-        int _animationId = 0;
-        Animator _animator;        
-
+         
         enum ToolMenuActions
         {
             RemoveDynamicBones,
@@ -367,7 +366,7 @@ namespace Pumkin.AvatarTools
 #if NO_BONES
                         EditorGUI.BeginDisabledGroup(true);
 #endif
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones, Icons.DefaultAsset)))
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones, Icons.BoneIcon)))
                         {
                             ActionButton(ToolMenuActions.RemoveDynamicBones);
                         }
@@ -392,7 +391,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.BeginDisabledGroup(true);
 #endif
                         EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones_colliders, Icons.DefaultAsset)))
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones_colliders, Icons.BoneColliderIcon)))
                         {
                             ActionButton(ToolMenuActions.RemoveDynamicBoneColliders);
                         }
@@ -438,24 +437,6 @@ namespace Pumkin.AvatarTools
 
                     EditorGUI.BeginDisabledGroup(copierSelectedFrom == null || selectedAvatar == null);
                     {
-                        /*//GameObject menu
-
-                        EditorGUILayout.BeginHorizontal();
-                        _copier_expand_gameObjects = GUILayout.Toggle(_copier_expand_gameObjects, Icons.Star, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-                        bCopier_gameObjects_copy = GUILayout.Toggle(bCopier_gameObjects_copy, Strings.Copier.GameObjects, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
-                        EditorGUILayout.EndHorizontal();
-
-                        if(_copier_expand_gameObjects)
-                        {
-                            EditorGUI.BeginDisabledGroup(!bCopier_gameObjects_copy);
-                            EditorGUILayout.Space();
-
-                            bCopier_gameObjects_createMissing = EditorGUILayout.Toggle(Strings.Copier.GameObjects_createMissing, bCopier_gameObjects_createMissing, GUILayout.ExpandWidth(false));
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }*/
-
                         //Transforms menu
                         EditorGUILayout.BeginHorizontal();
                         _copier_expand_transforms = GUILayout.Toggle(_copier_expand_transforms, Icons.Transform, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
@@ -482,7 +463,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.BeginDisabledGroup(true);
 #endif
                         EditorGUILayout.BeginHorizontal();
-                        _copier_expand_dynamicBones = GUILayout.Toggle(_copier_expand_dynamicBones, Icons.CsScript, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                        _copier_expand_dynamicBones = GUILayout.Toggle(_copier_expand_dynamicBones, Icons.BoneIcon, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
 #if NO_BONES
                         bCopier_dynamicBones_copy = GUILayout.Toggle(false, Strings.Copier.DynamicBones + " " + Strings.Warning.NotFound, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
 #else
@@ -816,11 +797,8 @@ namespace Pumkin.AvatarTools
                             if(bThumbnails_override_camera_image)
                             {
                                 if(cameraOverrideTexture != null)
-                                {
-                                    if(_vrcCam == null)
-                                        _vrcCam = GameObject.Find("VRCCam");
-
-                                    if(cameraOverlay == null && _vrcCam != null)
+                                {                                    
+                                    if(cameraOverlay == null && FindVRCCam())
                                     {
                                         cameraOverlay = new GameObject("_PumkinsCameraOverlay");
                                         Canvas c = cameraOverlay.AddComponent<Canvas>();
@@ -845,15 +823,71 @@ namespace Pumkin.AvatarTools
                     }
                     EditorGUI.EndDisabledGroup();
 
+                    //if(GUILayout.Button(Strings.Buttons.OpenPoseEditor))
+                    //{
+                    //    PumkinsPoseEditor.ShowWindow();
+                    //}      
+
+                    EditorGUILayout.Space();
+                    EditorGUI.BeginDisabledGroup(!EditorApplication.isPlaying);
+                    {
+                        EditorGUI.BeginChangeCheck();
+                        {
+                            bSetBackgroundColor = GUILayout.Toggle(bSetBackgroundColor, "_Set Background Color");
+                        }
+                        if(EditorGUI.EndChangeCheck())
+                        {                            
+                            if(FindVRCCam())
+                            {
+                                if(bSetBackgroundColor)
+                                {
+                                    _vrcCamOldClearFlags = _vrcCam.clearFlags;
+                                    _vrcCamOldColor = _vrcCam.backgroundColor;
+                                    _vrcCam.clearFlags = CameraClearFlags.SolidColor;
+                                    _vrcCam.backgroundColor = skyboxCameraColor;
+                                }
+                                else
+                                {
+                                    _vrcCam.clearFlags = _vrcCamOldClearFlags;
+                                    _vrcCam.backgroundColor = _vrcCamOldColor;
+                                }
+                            }
+                        }
+                    }
+                    EditorGUI.EndDisabledGroup();
+                    EditorGUI.BeginDisabledGroup(!bSetBackgroundColor);
+                    {
+                        EditorGUI.BeginChangeCheck();
+                        {
+                            skyboxCameraColor = EditorGUILayout.ColorField("_New Color", skyboxCameraColor);
+                        }
+                        if(EditorGUI.EndChangeCheck())
+                        {
+                            if(FindVRCCam())
+                            {                                
+                                _vrcCam.backgroundColor = skyboxCameraColor;                                
+                            }
+                        }
+                    }
+                    EditorGUI.EndDisabledGroup();
+
+                    EditorGUILayout.Space();
+
+                    EditorGUI.BeginDisabledGroup(!EditorApplication.isPlaying);
+                    {
+                        if(GUILayout.Button("_Center Thumbnail on face"))
+                        {
+                            CenterCameraOnFace(selectedAvatar);
+                        }
+                    }
+                    EditorGUI.EndDisabledGroup();
+
+                    EditorGUILayout.Space();
+
                     if(!EditorApplication.isPlaying)
                     {
                         EditorGUILayout.HelpBox(Strings.Thumbnails.StartUploadingFirst, MessageType.Info);
                     }
-
-                    //if(GUILayout.Button(Strings.Buttons.OpenPoseEditor))
-                    //{
-                    //    PumkinsPoseEditor.ShowWindow();
-                    //}                    
                 }                
 
                 if(!EditorApplication.isPlaying)
@@ -883,7 +917,7 @@ namespace Pumkin.AvatarTools
                     GUILayout.BeginHorizontal();
                     {
 
-                        if(GUILayout.Button(new GUIContent(Strings.Buttons.OpenGithubPage, Icons.Star)))
+                        if(GUILayout.Button(new GUIContent(Strings.Buttons.OpenGithubPage, Icons.GithubIcon)))
                         {
                             Application.OpenURL(Strings.toolsPage);
                         }
@@ -894,14 +928,35 @@ namespace Pumkin.AvatarTools
                         }
                     }
                     GUILayout.EndHorizontal();
-                    if(GUILayout.Button(new GUIContent(Strings.Buttons.OpenDonationPage, Icons.Star)))
+
+                    if(GUILayout.Button(new GUIContent(Strings.Buttons.JoinDiscordServer, Icons.DiscordIcon)))
+                    {
+                        Application.OpenURL(Strings.discordLink);
+                    }
+                    if(GUILayout.Button(new GUIContent(Strings.Buttons.OpenDonationPage, Icons.KofiIcon)))
                     {
                         Application.OpenURL(Strings.donationLink);
                     }
                 }
 
+                EditorGUILayout.Space();
+
                 EditorGUILayout.EndScrollView();
             }
+        }
+
+        private bool FindVRCCam()
+        {
+            if(_vrcCam == null)
+            {
+                var c = GameObject.Find("VRCCam");
+                if(c != null)
+                {
+                    _vrcCam = c.GetComponent<Camera>();
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static void SelectAvatarFromScene_callback()
@@ -1906,7 +1961,6 @@ namespace Pumkin.AvatarTools
         }
 
 
-
         /// <summary>
         /// Copies all RigidBodies in object and in its children.
         /// </summary>        
@@ -2299,6 +2353,49 @@ namespace Pumkin.AvatarTools
                 Log("_Rig avatar missing or not humanoid", LogType.Error);
                 return;
             }
+        }
+
+        void CenterCameraOnFace(GameObject avatarOverride = null)
+        {
+            if(!FindVRCCam())
+                return;
+
+            VRC_AvatarDescriptor desc;
+            if(avatarOverride == null)
+            {
+                var pm = FindObjectOfType<RuntimeBlueprintCreation>();
+                if(pm == null)
+                {
+                    Debug.Log("_RuntimeBlueprintCreation script not found. Start uploading an avatar to use this");
+                    return;
+                }
+                desc = pm.pipelineManager.GetComponent<VRC_AvatarDescriptor>();
+            }
+            else
+            {
+                desc = avatarOverride.GetComponent<VRC_AvatarDescriptor>();
+            }                       
+
+            if(desc == null)
+            {
+                Debug.Log("_Failed to center camera on face. Avatar descriptor not found");
+                return;
+            }
+
+            GameObject focusObj = new GameObject("FocusDummy");
+            focusObj.transform.position = desc.transform.position + desc.ViewPosition;
+            focusObj.transform.rotation = desc.transform.rotation;            
+
+            Transform oldParent = _vrcCam.transform.parent;
+            _vrcCam.transform.parent = focusObj.transform;
+
+            focusObj.transform.localEulerAngles = focusObj.transform.localEulerAngles + new Vector3(5, -14, 0);
+            
+            _vrcCam.transform.localPosition = Vector3.zero + new Vector3(0, desc.ViewPosition.z * 0.05f, desc.ViewPosition.y * 0.21f);
+
+            _vrcCam.transform.parent = oldParent;
+
+            Destroy(focusObj);
         }
 
         #endregion
@@ -2929,9 +3026,14 @@ namespace Pumkin.AvatarTools
         public static Texture2D DefaultAsset { get; private set; }
         public static Texture2D Help { get; private set; }
         public static Texture2D ParticleSystem { get; private set; }
-        public static Texture2D RigidBody { get; internal set; }
-        public static Texture2D Prefab { get; internal set; }
-        public static Texture2D TrailRenderer { get; internal set; }
+        public static Texture2D RigidBody { get; private set; }
+        public static Texture2D Prefab { get; private set; }
+        public static Texture2D TrailRenderer { get; private set; }
+        public static Texture2D BoneIcon { get; private set; }
+        public static Texture2D BoneColliderIcon { get; private set; }
+        public static Texture2D DiscordIcon { get; private set; }
+        public static Texture2D GithubIcon { get; private set; }
+        public static Texture2D KofiIcon { get; private set; }
 
         static Icons()
         {
@@ -2947,6 +3049,12 @@ namespace Pumkin.AvatarTools
             RigidBody = EditorGUIUtility.FindTexture("Rigidbody Icon");
             Prefab = EditorGUIUtility.FindTexture("Prefab Icon");
             TrailRenderer = EditorGUIUtility.FindTexture("TrailRenderer Icon");
+
+            BoneIcon = Resources.Load("icons/bone-icon") as Texture2D ?? CsScript;
+            BoneColliderIcon = Resources.Load("icons/bonecollider-icon") as Texture2D ?? DefaultAsset;            
+            DiscordIcon = Resources.Load("icons/discord-logo") as Texture2D ?? Star;
+            GithubIcon = Resources.Load("icons/github-logo") as Texture2D ?? Star;
+            KofiIcon = Resources.Load("icons/kofi-logo") as Texture2D ?? Star;
         }             
     }
 
@@ -2957,7 +3065,8 @@ namespace Pumkin.AvatarTools
     {        
         public static readonly string version = "0.6b";
         public static readonly string toolsPage = "https://github.com/rurre/PumkinsAvatarTools/";
-        public static readonly string donationLink ="https://ko-fi.com/notpumkin";
+        public static readonly string donationLink = "https://ko-fi.com/notpumkin";
+        public static readonly string discordLink = "https://discord.gg/7vyekJv";
         readonly static Dictionary<string, string> dictionary_english, dictionary_uwu;
         static Dictionary<string, string> stringDictionary;
         static DictionaryLanguage language;        
@@ -3085,6 +3194,7 @@ namespace Pumkin.AvatarTools
             public static string OpenGithubPage { get; private set; }
             public static string OpenDonationPage { get; private set; }
             public static string OpenPoseEditor { get; private set; }
+            public static string JoinDiscordServer { get; private set; }
                        
             static Buttons()
             {
@@ -3103,6 +3213,7 @@ namespace Pumkin.AvatarTools
                 OpenGithubPage = GetString("buttons_openGithubPage") ?? "_Open Github Page";
                 OpenDonationPage = GetString("buttons_openDonationPage") ?? "_Buy me a Ko-Fi~";
                 OpenPoseEditor = GetString("buttons_openPoseEditor") ?? "_Open Pose Editor";
+                JoinDiscordServer = GetString("buttons_joinDiscordServer") ?? "_Join Discord Server!";
             }
         };
         public static class Tools
@@ -3376,6 +3487,7 @@ namespace Pumkin.AvatarTools
                 SceneOverrideLights = GetString("ui_poseEditor_scene_overrideLights") ?? "_Override Lights";
                 AvatarPosition = GetString("ui_poseEditor_avatarPosition") ?? "_Avatar Position";
                 AvatarPositionOverridePose = GetString("ui_poseEditor_avatarPosition_overridePose") ?? "_Override Pose";
+                AvatarPositionOverrideBlendshapes = GetString("ui_poseEditor_avatarPositionOverrideBlendshapes") ?? "_Override Blendshapes";
                 SceneSaveChanges = GetString("ui_poseEditor_scene_saveChanges") ?? "_Save Scene Changes";
                 UnloadScene = GetString("ui_poseEditor_scene_unload") ?? "_Unload Scene";
                 ResetPosition = GetString("ui_poseEditor_resetPosition") ?? "_Reset Position";
@@ -3442,6 +3554,7 @@ namespace Pumkin.AvatarTools
                 {"buttons_openGithubPage", "Open Github Page" },
                 {"buttons_openDonationPage", "Buy me a Ko-Fi~" },
                 {"buttons_openPoseEditor", "Open Pose Editor" },
+                {"buttons_joinDiscordServer", "Join Discord Server!" },
             #endregion
 
             #endregion
