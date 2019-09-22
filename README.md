@@ -1,7 +1,11 @@
 # PumkinsAvatarTools (BETA)
-This editor script has a bunch of tools that allows you setup avatars easier, as well as to copy components from existing avatars to new ones, making it much faster to reimport avatars from blender or setup new ones. 
-Check out the new [Wiki](https://github.com/rurre/PumkinsAvatarTools/wiki) for a more detailed explanation of what everything does. (Not yet updated to v0.6) 
-I now have a [Discord Server](https://discord.gg/7vyekJv)! Join it to stay up to date with this tool's updates. At least until I make an auto updater. 
+An editor script that adds tools to help you setup avatars faster and easier. It includes a component copier that makes it a lot easier to reimport your avatars, and tools to make your thumbnails nicer.
+
+To launch the tool go to `Tools > Pumkin > Avatar Tools` 
+
+Also check out the new [Wiki](https://github.com/rurre/PumkinsAvatarTools/wiki) for a more detailed explanation of what everything does. (Not yet updated to v0.6) 
+I now have a [Discord Server](https://discord.gg/7vyekJv)! Join it to stay up to date with this tool's updates. At least until I make an auto updater.
+
 ## New this version (v0.6b):
 Lost of stuff! Now where to begin.. 
 **Component Copier:**
@@ -51,8 +55,10 @@ Screenshot: [Here](https://puu.sh/C3GGb/5d96267e73.png)
 - **Avatar Descriptors** - Avatar descriptors, their viseme setup, animation override controllers and pipeline IDs
 - **Colliders** - Box, Capsule, Sphere and Mesh Colliders
 - **SkinnedMesh Renderers** - Copy materials, BlendShape values and Settings between SkinnedMeshRenderers
+
 **And more!** (Most components you might want are supported. Not Joints tho.) 
-To launch the tool go to `Tools > Pumkin > Avatar Tools` 
+
 If you like this project and would like to give something back, consider [buying me a ko-fi!](https://ko-fi.com/notpumkin). Thanks~ 
+
 **Important:** Since this is an editor script it needs to be in a folder called `Editor`anywhere in your project.
 **Disclaimer:** This tool is in beta and could *break everything*. Please backup your avatars. And use at your own risk.
