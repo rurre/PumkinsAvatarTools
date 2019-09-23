@@ -1,9 +1,9 @@
 # PumkinsAvatarTools (BETA)
 An editor script that adds tools to help you setup avatars faster and easier. It includes a component copier that makes it a lot easier to reimport your avatars, and tools to make your thumbnails nicer.
 
-- To install head over to [releases](https://github.com/rurre/PumkinsAvatarTools/releases/) and grab the latest `unity package` at the bottom of the top post. Make sure you have the latest VRChat SDK and the right Unity version. If you do, just run the package to import it!
+- To install head over to [releases](https://github.com/rurre/PumkinsAvatarTools/releases/) and grab the latest `unity package` at the bottom of the top post. Make sure you have the latest VRChat SDK and the right Unity version. If you do, just run the package to import it to your currently open project!
 
-- To launch the tool go to `Tools > Pumkin > Avatar Tools` 
+- To launch the tool go to `Tools > Pumkin > Avatar Tools` in your Unity project.
 
 Also check out the new [Wiki](https://github.com/rurre/PumkinsAvatarTools/wiki) for a more detailed explanation of what everything does. (Not yet updated to v0.6) 
 I now have a [Discord Server](https://discord.gg/7vyekJv)! Join it to stay up to date with this tool's updates. At least until I make an auto updater.
@@ -41,7 +41,9 @@ Lost of stuff! Now where to begin..
 - Added buttons to: `Open Github page`, `Open Help page` and `Join Discord Server`.
 - Made a Discord sever. This Discord server. Our Discord server.
 - Added a button to buy a me a ko-fi. No pressure~ 
+
 ============================================= 
+
 ## New that version (v0.5.3b):
 - **Fixed dependency checker being stuck in a read-write loop** - Should no longer lag and freeze unity for no reason.
 - **Fixed SkinnedMeshRenderer breaking avatar bounds** - Root bones are now correctly assigned. 
