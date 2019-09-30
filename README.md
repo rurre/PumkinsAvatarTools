@@ -17,6 +17,7 @@ Lost of stuff! Now where to begin..
 - Added the long requested ability to **copy Game Objects when copying around most components.** Finally!
 - **Added the ability to copy avatar scale to the transforms menu.** Don't ask why it took so long.
 - Added `Select All` and `Select None` buttons as there was too much clicking. 
+
 **Tools:**
 - Fixed `Edit Viewpoint` breaking if your avatar is not at 0,0,0 in the scene. Rookie mistake.
 - Fixed `Edit Viewpoint` being really laggy if you moved around the viewpoint quickly. The view ball has also been upgraded to yellow!
@@ -28,14 +29,17 @@ Lost of stuff! Now where to begin..
 - Added a `Reset to T-Pose` button which will force your avatar into a T-Pose. Might not work for all avatars.
 - Added buttons to remove even more components. Everything that's supported by the copier should be here.
 - **Added a button to remove empty Game Objects**. A lot more useful than it might seem. 
+
 **Avatar Stats:**
 - Added performance ranks for most stats. The ranks are the same as the SDK, but the numbers can differ.
 - Added a `Copy to Clipboard` button to the avatar stats panel. Now you don't need to screenshot it anymore! But you can, if you want. I won't judge. You weirdo. 
+
 **Thumbnails:**
 - Added a new thumbnail menu with some cool stuff.
 - Added the ability to overlay or replace the thumbnail with an image of your choice.
 - Added ability to easily change the camera background color. No more default unity skybox thumbnails. Please.
 - Added button to center the thumbnail on your face. No more thumbnails looking at your characters crotch. Unless you're into that. Weirdo. 
+
 **UI and Misc:**
 - Added a `Select from Scene` checkbox that lets you select an avatar but just selecting something in the scene. Doesn't seem to work if you click it inside the hierarchy though.
 - Prettyfied the UI by adding icons and separator lines. Woah! The buttons are still not properly centered tho, sorry.
