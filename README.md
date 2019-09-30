@@ -11,6 +11,7 @@ I now have a [Discord Server](https://discord.gg/7vyekJv)! Join it to stay up to
 
 ## New this version (v0.6b):
 Lost of stuff! Now where to begin.. 
+
 **Component Copier:**
 - Added support for more components! Including: `Mesh Renderers`, `Trail Renderers`, `Particle Systems`, `Rigid Bodies`, `Audio Sources` and more! No Joints yet though, sorry.
 - Added the long requested ability to **copy Game Objects when copying around most components.** Finally!
