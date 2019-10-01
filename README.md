@@ -70,5 +70,6 @@ Screenshot: [Here](https://puu.sh/C3GGb/5d96267e73.png)
 
 If you like this project and would like to give something back, consider [buying me a ko-fi!](https://ko-fi.com/notpumkin). Thanks~ 
 
-**Important:** Since this is an editor script it needs to be in a folder called `Editor`anywhere in your project.
+**Important:** Since this is an editor script it needs to be in a folder called `Editor` anywhere in your project.
+
 **Disclaimer:** This tool is in beta and could *break everything*. Please backup your avatars. And use at your own risk.
