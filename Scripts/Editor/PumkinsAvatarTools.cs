@@ -22,161 +22,172 @@ using VRCSDK2.Validation.Performance;
 
 namespace Pumkin.AvatarTools
 {
-    [ExecuteInEditMode, CanEditMultipleObjects]
+    [ExecuteInEditMode, CanEditMultipleObjects, Serializable]
     public class PumkinsAvatarTools : EditorWindow
     {
-#region Variables
+        #region Variables
 
         //Tools
-        public static GameObject selectedAvatar;
-        static bool _useSceneSelectionAvatar = false;
+        [SerializeField] public static GameObject selectedAvatar;
+        [SerializeField] static bool _useSceneSelectionAvatar = false;
 
         //Component Copier
-        public static GameObject copierSelectedFrom;
+        [SerializeField] public static GameObject copierSelectedFrom;
 
-        bool bCopier_transforms_copy = true;
-        bool bCopier_transforms_copyPosition = false;
-        bool bCopier_transforms_copyRotation = false;
-        bool bCopier_transforms_copyScale = false;
-        bool bCopier_transforms_copyAvatarScale = true;
+        [SerializeField] bool bCopier_transforms_copy = true;
+        [SerializeField] bool bCopier_transforms_copyPosition = false;
+        [SerializeField] bool bCopier_transforms_copyRotation = false;
+        [SerializeField] bool bCopier_transforms_copyScale = false;
+        [SerializeField] bool bCopier_transforms_copyAvatarScale = true;
 
-        bool bCopier_dynamicBones_copy = true;
-        bool bCopier_dynamicBones_copySettings = true;
-        bool bCopier_dynamicBones_createMissingBones = true;
-        bool bCopier_dynamicBones_copyColliders = true;
-        bool bCopier_dynamicBones_removeOldColliders = false;
-        bool bCopier_dynamicBones_removeOldBones = false;
+        [SerializeField] bool bCopier_dynamicBones_copy = true;
+        [SerializeField] bool bCopier_dynamicBones_copySettings = true;
+        [SerializeField] bool bCopier_dynamicBones_createMissing = true;
+        [SerializeField] bool bCopier_dynamicBones_copyColliders = true;
+        [SerializeField] bool bCopier_dynamicBones_removeOldColliders = false;
+        [SerializeField] bool bCopier_dynamicBones_removeOldBones = false;
 
-        bool bCopier_descriptor_copy = true;
-        bool bCopier_descriptor_copySettings = true;
-        bool bCopier_descriptor_copyPipelineId = false;
-        bool bCopier_descriptor_copyAnimationOverrides = true;
+        [SerializeField] bool bCopier_descriptor_copy = true;
+        [SerializeField] bool bCopier_descriptor_copySettings = true;
+        [SerializeField] bool bCopier_descriptor_copyPipelineId = false;
+        [SerializeField] bool bCopier_descriptor_copyAnimationOverrides = true;
 
-        bool bCopier_colliders_copy = true;
-        bool bCopier_colliders_removeOld = false;
-        bool bCopier_colliders_copyBox = true;
-        bool bCopier_colliders_copyCapsule = true;
-        bool bCopier_colliders_copySphere = true;
-        bool bCopier_colliders_copyMesh = false;
-        bool bCopier_colliders_createObjects = true;
+        [SerializeField] bool bCopier_colliders_copy = true;
+        [SerializeField] bool bCopier_colliders_removeOld = false;
+        [SerializeField] bool bCopier_colliders_copyBox = true;
+        [SerializeField] bool bCopier_colliders_copyCapsule = true;
+        [SerializeField] bool bCopier_colliders_copySphere = true;
+        [SerializeField] bool bCopier_colliders_copyMesh = false;
+        [SerializeField] bool bCopier_colliders_createObjects = true;
 
-        bool bCopier_skinMeshRender_copy = true;
-        bool bCopier_skinMeshRender_copySettings = false;
-        bool bCopier_skinMeshRender_copyBlendShapeValues = true;
-        bool bCopier_skinMeshRender_copyMaterials = false;
+        [SerializeField] bool bCopier_skinMeshRender_copy = true;
+        [SerializeField] bool bCopier_skinMeshRender_copySettings = false;
+        [SerializeField] bool bCopier_skinMeshRender_copyBlendShapeValues = true;
+        [SerializeField] bool bCopier_skinMeshRender_copyMaterials = false;
 
-        bool bCopier_particleSystems_copy = true;
-        bool bCopier_particleSystems_replace = false;
-        bool bCopier_particleSystems_createObjects = true;
+        [SerializeField] bool bCopier_particleSystems_copy = true;
+        [SerializeField] bool bCopier_particleSystems_replace = false;
+        [SerializeField] bool bCopier_particleSystems_createObjects = true;
 
-        bool bCopier_rigidBodies_copy = true;
-        bool bCopier_rigidBodies_copySettings = true;
-        bool bCopier_rigidBodies_createMissing = true;
-        bool bCopier_rigidBodies_createObjects = true;
+        [SerializeField] bool bCopier_rigidBodies_copy = true;
+        [SerializeField] bool bCopier_rigidBodies_copySettings = true;
+        [SerializeField] bool bCopier_rigidBodies_createMissing = true;
+        [SerializeField] bool bCopier_rigidBodies_createObjects = true;
 
-        bool bCopier_trailRenderers_copy = true;
-        bool bCopier_trailRenderers_copySettings = true;
-        bool bCopier_trailRenderers_createMissing = true;
-        bool bCopier_trailRenderers_createObjects = true;
+        [SerializeField] bool bCopier_trailRenderers_copy = true;
+        [SerializeField] bool bCopier_trailRenderers_copySettings = true;
+        [SerializeField] bool bCopier_trailRenderers_createMissing = true;
+        [SerializeField] bool bCopier_trailRenderers_createObjects = true;
 
-        bool bCopier_meshRenderers_copy = true;
-        bool bCopier_meshRenderers_copySettings = true;
-        bool bCopier_meshRenderers_createMissing = true;
-        bool bCopier_meshRenderers_createObjects = true;
+        [SerializeField] bool bCopier_meshRenderers_copy = true;
+        [SerializeField] bool bCopier_meshRenderers_copySettings = true;
+        [SerializeField] bool bCopier_meshRenderers_createMissing = true;
+        [SerializeField] bool bCopier_meshRenderers_createObjects = true;
 
-        bool bCopier_lights_copy = true;
-        bool bCopier_lights_copySettings = true;
-        bool bCopier_lights_createMissing = true;
-        bool bCopier_lights_createObjects = true;
+        [SerializeField] bool bCopier_lights_copy = true;
+        [SerializeField] bool bCopier_lights_copySettings = true;
+        [SerializeField] bool bCopier_lights_createMissing = true;
+        [SerializeField] bool bCopier_lights_createObjects = true;
 
-        bool bCopier_animators_copy = true;
-        bool bCopier_animators_copySettings = true;
-        bool bCopier_animators_createMissing = false;
-        bool bCopier_animators_createObjects = false;
-        bool bCopier_animators_copyMainAnimator = false;
+        [SerializeField] bool bCopier_animators_copy = true;
+        [SerializeField] bool bCopier_animators_copySettings = true;
+        [SerializeField] bool bCopier_animators_createMissing = false;
+        [SerializeField] bool bCopier_animators_createObjects = false;
+        [SerializeField] bool bCopier_animators_copyMainAnimator = false;
 
-        bool bCopier_joints_copy = true;
-        //bool bCopier_joints_copySettings = true;
-        //bool bCopier_joints_fixed = true;
-        //bool bCopier_joints_character = true;
-        //bool bCopier_joints_configurable = true;
-        //bool bCopier_joints_sprint = true;
-        //bool bCopier_joints_hinge = true;
-        //bool bCopier_joints_createMissing = true;
-        //bool bCopier_joints_createObjects = true;
+        [SerializeField] bool bCopier_joints_copy = true;
+        //[SerializeField] bool bCopier_joints_copySettings = true;
+        //[SerializeField] bool bCopier_joints_fixed = true;
+        //[SerializeField] bool bCopier_joints_character = true;
+        //[SerializeField] bool bCopier_joints_configurable = true;
+        //[SerializeField] bool bCopier_joints_sprint = true;
+        //[SerializeField] bool bCopier_joints_hinge = true;
+        //[SerializeField] bool bCopier_joints_createMissing = true;
+        //[SerializeField] bool bCopier_joints_createObjects = true;
 
-        bool bCopier_audioSources_copy = true;
-        bool bCopier_audioSources_copySettings = true;
-        bool bCopier_audioSources_createMissing = true;
-        bool bCopier_audioSources_createObjects = true;
+        [SerializeField] bool bCopier_audioSources_copy = true;
+        [SerializeField] bool bCopier_audioSources_copySettings = true;
+        [SerializeField] bool bCopier_audioSources_createMissing = true;
+        [SerializeField] bool bCopier_audioSources_createObjects = true;
 
         //Editor
-        bool _copier_expand = false;
-        bool _copier_expand_transforms = false;
-        bool _copier_expand_dynamicBones = false;
-        bool _copier_expand_avatarDescriptor = false;
-        bool _copier_expand_skinnedMeshRenderer = false;
-        bool _copier_expand_colliders = false;
-        bool _copier_expand_particleSystems = false;
-        bool _copier_expand_rigidBodies = false;
-        bool _copier_expand_trailRenderers = false;
-        bool _copier_expand_meshRenderers = false;
-        bool _copier_expand_lights = false;
-        bool _copier_expand_animators = false;
-        bool _copier_expand_joints = false;
-        bool _copier_expand_audioSources = false;
+        [SerializeField] bool _copier_expand = false;
+        [SerializeField] bool _copier_expand_transforms = false;
+        [SerializeField] bool _copier_expand_dynamicBones = false;
+        [SerializeField] bool _copier_expand_avatarDescriptor = false;
+        [SerializeField] bool _copier_expand_skinnedMeshRenderer = false;
+        [SerializeField] bool _copier_expand_colliders = false;
+        [SerializeField] bool _copier_expand_particleSystems = false;
+        [SerializeField] bool _copier_expand_rigidBodies = false;
+        [SerializeField] bool _copier_expand_trailRenderers = false;
+        [SerializeField] bool _copier_expand_meshRenderers = false;
+        [SerializeField] bool _copier_expand_lights = false;
+        [SerializeField] bool _copier_expand_animators = false;
+        [SerializeField] bool _copier_expand_joints = false;
+        [SerializeField] bool _copier_expand_audioSources = false;
 
         //Thumbnails        
-        bool bThumbnails_override_camera_image = false;
+        [SerializeField] bool bThumbnails_override_camera_image = false;
+        [SerializeField] bool hideAvatarsOnStart = true;
         GameObject cameraOverlay = null;
+        GameObject cameraBackground = null;
         RawImage cameraOverlayImage = null;
+        RawImage cameraBackgroundImage = null;
 
-        Texture2D _emptyTexture;        
+        Texture2D _emptyTexture;
 
+        Texture2D cameraBackgroundTexture;
         Texture2D cameraOverrideTexture;
-        string cameraOverrideTexturePath = "";
-                
+        string _lastOpenFilePath = "";
+        string _backgroundPathText = "";
+        string _overlayPathText = "";
+
         CameraBackgroundOverrideType camBgOverrideType = CameraBackgroundOverrideType.None;
 
         bool vrcCamSetBgColor = false;
         bool vrcCamSetSkybox = false;
-        Color _vrcCamBgColor = new Color(0.235f, 0.22f, 0.22f);
-        Color _vrcCamColorOld = new Color(0.192f, 0.302f, 0.475f);
-        Material _thumbsSkyboxOld = null;        
-        CameraClearFlags _vrcCamClearFlagsOld = CameraClearFlags.Skybox;
+        bool vrcCamSetBackground = false;
+        [SerializeField] Color _vrcCamBgColor = new Color(0.235f, 0.22f, 0.22f);
+        [SerializeField] Color _vrcCamColorOld = new Color(0.192f, 0.302f, 0.475f);
+        [SerializeField, HideInInspector] Material _thumbsSkyboxOld = null;
+        [SerializeField] CameraClearFlags _vrcCamClearFlagsOld = CameraClearFlags.Skybox;
 
-        public enum CameraBackgroundOverrideType { None, Color, Material };        
+        public enum CameraBackgroundOverrideType { None, Color, Image, Material };
 
         //UI
-        bool _tools_expand = true;
-        bool _tools_avatar_expand = true;
-        bool _tools_removeAll_expand = true;
-        
-        bool _avatarInfo_expand = false;
-        bool _thumbnails_expand = false;        
-        Vector2 _avatarInfo_scroll = Vector2.zero;
-        
-        bool _misc_expand = true;
+        [SerializeField] bool _tools_expand = true;
+        [SerializeField] bool _tools_avatar_expand = true;
+        [SerializeField] bool _tools_removeAll_expand = true;
+
+        [SerializeField] bool _avatarInfo_expand = false;
+        [SerializeField] bool _thumbnails_expand = false;
+        [SerializeField] Vector2 _avatarInfo_scroll = Vector2.zero;
+
+        [SerializeField] bool _misc_expand = true;
 
         //Misc
-        bool _openedInfo = false;
-        Vector2 vertScroll = Vector2.zero;
+        [SerializeField] bool _openedInfo = false;
+        [SerializeField] Vector2 vertScroll = Vector2.zero;
         static string _mainScriptPath = null;
 
         private static Camera _vrcCam = null; //use property
 
+        static bool _eventsAdded = false;
+
         //Editing Viewpoint        
-        bool _editingView = false;                
+        bool _editingView = false;
         Vector3 _viewPosOld;
 		Vector3 _viewPosTemp;
-        Tool _viewPosToolOld = Tool.None;        
+        Tool _viewPosToolOld = Tool.None;
 
-        VRC_AvatarDescriptor _viewPos_descriptor;
+        [SerializeField, HideInInspector] VRC_AvatarDescriptor _viewPos_descriptor;
 
         static AvatarInfo avatarInfo = null;                
         static string _avatarInfoSpace = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
         static string _avatarInfoString = Strings.AvatarInfo.SelectAvatarFirst + _avatarInfoSpace; //Please don't hurt me for this        
 
+        PlayModeStateChange _oldPlayState = PlayModeStateChange.EnteredEditMode;
+        
         enum ToolMenuActions
         {
             RemoveDynamicBones,
@@ -279,31 +290,81 @@ namespace Pumkin.AvatarTools
 
         #endregion
 
-        #region Unity GUI
+        #region Unity GUI             
 
         void OnEnable()
         {
-            SceneView.onSceneGUIDelegate += this.OnSceneGUI;
-            EditorApplication.playModeStateChanged += (PlayModeStateChange mode) =>
-            {
-                if(mode == PlayModeStateChange.EnteredPlayMode)
-                {
-                    _emptyTexture = new Texture2D(2, 2);
-                    cameraOverrideTexture = new Texture2D(2, 2);
-                    _thumbsSkyboxOld = RenderSettings.skybox;
-                }
-            };
+            Debug.Log("OnEnable()");
+            SceneView.onSceneGUIDelegate += OnSceneGUI;
+            if(!_eventsAdded)
+            {                
+                EditorApplication.playModeStateChanged += HandlePlayModeStateChange;
+                Selection.selectionChanged += HandleSelectionChanged;
+                _eventsAdded = true;
+            }
 
-            Selection.selectionChanged += () =>
-            {
-                if(_useSceneSelectionAvatar)
-                    SelectAvatarFromScene();
-            };            
+            _emptyTexture = new Texture2D(2, 2);
+            cameraOverrideTexture = new Texture2D(2, 2);
+            _thumbsSkyboxOld = RenderSettings.skybox;
+
+            LoadPrefs();
         }
 
         void OnDisable()
         {
-            SceneView.onSceneGUIDelegate -= this.OnSceneGUI;
+            Debug.Log("OnDisable()");
+            SceneView.onSceneGUIDelegate -= OnSceneGUI;
+            Selection.selectionChanged -= HandleSelectionChanged;
+            EditorApplication.playModeStateChanged -= HandlePlayModeStateChange;
+            _eventsAdded = false;
+
+            SavePrefs();
+        }
+
+        void HandlePlayModeStateChange(PlayModeStateChange mode)
+        {
+            if(mode == PlayModeStateChange.ExitingEditMode || mode == PlayModeStateChange.ExitingPlayMode)
+            {
+                SavePrefs();
+            }
+            else if(mode == PlayModeStateChange.EnteredEditMode)
+            {
+                LoadPrefs();
+            }
+            else if(mode == PlayModeStateChange.EnteredPlayMode)
+            {
+                _editingView = false;
+
+                LoadPrefs();
+                _emptyTexture = new Texture2D(2, 2);
+                cameraOverrideTexture = new Texture2D(2, 2);
+                _thumbsSkyboxOld = RenderSettings.skybox;
+
+                if(hideAvatarsOnStart)
+                {
+                    var pm = FindObjectOfType<RuntimeBlueprintCreation>();
+                    if(pm != null)
+                    {
+                        var desc = pm.pipelineManager.GetComponent<VRC_AvatarDescriptor>();
+                        var av = GameObject.FindObjectsOfType<VRC_AvatarDescriptor>();
+                        if(desc != null)
+                        {
+                            for(int i = 0; i < av.Length; i++)
+                            {
+                                if(av[i] != desc)
+                                    av[i].transform.root.gameObject.SetActive(false);
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        void HandleSelectionChanged()
+        {            
+            if(_useSceneSelectionAvatar)
+                SelectAvatarFromScene();
         }
 
         //[MenuItem("Tools/Pumkin/Avatar Tools")] //New window is responsible for calling this, for now
@@ -318,19 +379,21 @@ namespace Pumkin.AvatarTools
 
             _DependecyChecker.Check();
         }
-               
+
         public void OnGUI()
-        {            
+        {
             int tempSize = Styles.Label_mainTitle.fontSize + 6;
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField(Strings.Main.Title, Styles.Label_mainTitle, GUILayout.MinHeight(tempSize));            
-
-            EditorGUIUtility.SetIconSize(new Vector2(tempSize - 3, tempSize - 3));
-                        
-            if(GUILayout.Button(Icons.Star, "IconButton", GUILayout.MaxWidth(tempSize + 3)))
             {
-                _openedInfo = !_openedInfo;
-            }            
+                EditorGUILayout.LabelField(Strings.Main.Title, Styles.Label_mainTitle, GUILayout.MinHeight(tempSize));
+
+                EditorGUIUtility.SetIconSize(new Vector2(tempSize - 3, tempSize - 3));
+
+                if(GUILayout.Button(Icons.Star, "IconButton", GUILayout.MaxWidth(tempSize + 3)))
+                {
+                    _openedInfo = !_openedInfo;
+                }
+            }
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.LabelField(Strings.Credits.Version);
@@ -367,7 +430,7 @@ namespace Pumkin.AvatarTools
                     PumkinsPoseEditor.ShowWindow();
                 }
 
-                GUILayout.FlexibleSpace();                
+                GUILayout.FlexibleSpace();
 
                 if(GUILayout.Button(Strings.Misc.uwu, "IconButton", GUILayout.ExpandWidth(false)))
                 {
@@ -379,11 +442,10 @@ namespace Pumkin.AvatarTools
             }
             else
             {
-                EditorGUIUtility.SetIconSize(new Vector2(15,15));
+                EditorGUIUtility.SetIconSize(new Vector2(15, 15));
 
                 EditorGUILayout.Space();
 
-                EditorGUILayout.Space();
                 selectedAvatar = (GameObject)EditorGUILayout.ObjectField(Strings.Main.Avatar, selectedAvatar, typeof(GameObject), true);
 
                 if(_useSceneSelectionAvatar)
@@ -399,730 +461,827 @@ namespace Pumkin.AvatarTools
                         SelectAvatarFromScene();
                     }
                 }
-                
+
                 _useSceneSelectionAvatar = GUILayout.Toggle(_useSceneSelectionAvatar, Strings.Main.UseSceneSelection);
 
                 EditorGUILayout.Space();
 
-                vertScroll = EditorGUILayout.BeginScrollView(vertScroll);                                
-
-                //Tools menu
-                if(_tools_expand = GUILayout.Toggle(_tools_expand, Strings.Main.Tools, Styles.Foldout_title))
+                vertScroll = EditorGUILayout.BeginScrollView(vertScroll);
                 {
-                    EditorGUI.BeginDisabledGroup(selectedAvatar == null);
-                    {
-                        EditorGUILayout.Space();
 
-                        if(_tools_avatar_expand = GUILayout.Toggle(_tools_avatar_expand, Strings.Main.Avatar, Styles.Foldout))
+                    //Tools menu
+                    if(_tools_expand = GUILayout.Toggle(_tools_expand, Strings.Main.Tools, Styles.Foldout_title))
+                    {
+                        EditorGUI.BeginDisabledGroup(selectedAvatar == null);
                         {
-                            GUILayout.BeginHorizontal(); //Row
+                            EditorGUILayout.Space();
+
+                            if(_tools_avatar_expand = GUILayout.Toggle(_tools_avatar_expand, Strings.Main.Avatar, Styles.Foldout))
                             {
-                                GUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
+                                GUILayout.BeginHorizontal(); //Row
                                 {
-                                    if(GUILayout.Button(Strings.Tools.FillVisemes))
-                                        ActionButton(ToolMenuActions.FillVisemes);
-                                    if(GUILayout.Button(Strings.Tools.RevertBlendshapes))
-                                        ActionButton(ToolMenuActions.RevertBlendshapes);
-                                    if(GUILayout.Button(Strings.Tools.ResetPose))
-                                        ActionButton(ToolMenuActions.ResetPose);
+                                    GUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
+                                    {
+                                        if(GUILayout.Button(Strings.Tools.FillVisemes))
+                                            ActionButton(ToolMenuActions.FillVisemes);
+                                        if(GUILayout.Button(Strings.Tools.RevertBlendshapes))
+                                            ActionButton(ToolMenuActions.RevertBlendshapes);
+                                        if(GUILayout.Button(Strings.Tools.ResetPose))
+                                            ActionButton(ToolMenuActions.ResetPose);
+                                    }
+                                    GUILayout.EndVertical();
+
+                                    GUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
+                                    {
+                                        if(GUILayout.Button(Strings.Tools.EditViewpoint))
+                                            ActionButton(ToolMenuActions.EditViewpoint);
+
+                                        if(GUILayout.Button(Strings.Tools.ZeroBlendshapes))
+                                            ActionButton(ToolMenuActions.ZeroBlendshapes);
+
+                                        if(GUILayout.Button(Strings.Tools.ResetToTPose))
+                                            ActionButton(ToolMenuActions.SetTPose);
+                                    }
+                                    GUILayout.EndVertical();
                                 }
-                                GUILayout.EndVertical();
-
-                                GUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
-                                {
-                                    if(GUILayout.Button(Strings.Tools.EditViewpoint))
-                                        ActionButton(ToolMenuActions.EditViewpoint);
-
-                                    if(GUILayout.Button(Strings.Tools.ZeroBlendshapes))
-                                        ActionButton(ToolMenuActions.ZeroBlendshapes);
-
-                                    if(GUILayout.Button(Strings.Tools.ResetToTPose))
-                                        ActionButton(ToolMenuActions.SetTPose);
-                                }
-                                GUILayout.EndVertical();
+                                GUILayout.EndHorizontal();
                             }
-                            GUILayout.EndHorizontal();                            
-                        }
 
-                        EditorGUILayout.Space();
+                            EditorGUILayout.Space();
 
-                        if(_tools_removeAll_expand = GUILayout.Toggle(_tools_removeAll_expand, Strings.Main.RemoveAll, Styles.Foldout))                        
-                        {
+                            if(_tools_removeAll_expand = GUILayout.Toggle(_tools_removeAll_expand, Strings.Main.RemoveAll, Styles.Foldout))
+                            {
 
-                            EditorGUILayout.BeginHorizontal();
+                                EditorGUILayout.BeginHorizontal();
 
-                            EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
+                                EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
 #if NO_BONES
                             EditorGUI.BeginDisabledGroup(true);
 #endif
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones, Icons.BoneIcon)))
-                                ActionButton(ToolMenuActions.RemoveDynamicBones);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones, Icons.BoneIcon)))
+                                    ActionButton(ToolMenuActions.RemoveDynamicBones);
 #if NO_BONES
                             EditorGUI.EndDisabledGroup();
 #endif
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.ParticleSystems, Icons.ParticleSystem)))
-                                ActionButton(ToolMenuActions.RemoveParticleSystems);
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.Lights, Icons.Light)))
-                                ActionButton(ToolMenuActions.RemoveLights);
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.Joints, Icons.Joint)))
-                                ActionButton(ToolMenuActions.RemoveJoints);
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.Animators_inChildren, Icons.Animator)))
-                                ActionButton(ToolMenuActions.RemoveAnimatorsInChildren);
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.Colliders, Icons.ColliderBox)))
-                                ActionButton(ToolMenuActions.RemoveColliders);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.ParticleSystems, Icons.ParticleSystem)))
+                                    ActionButton(ToolMenuActions.RemoveParticleSystems);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.Lights, Icons.Light)))
+                                    ActionButton(ToolMenuActions.RemoveLights);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.Joints, Icons.Joint)))
+                                    ActionButton(ToolMenuActions.RemoveJoints);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.Animators_inChildren, Icons.Animator)))
+                                    ActionButton(ToolMenuActions.RemoveAnimatorsInChildren);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.Colliders, Icons.ColliderBox)))
+                                    ActionButton(ToolMenuActions.RemoveColliders);
 
-                            EditorGUILayout.EndVertical();
+                                EditorGUILayout.EndVertical();
 
 #if NO_BONES
                             EditorGUI.BeginDisabledGroup(true);
 #endif
-                            EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones_colliders, Icons.BoneColliderIcon)))
-                                ActionButton(ToolMenuActions.RemoveDynamicBoneColliders);
+                                EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones_colliders, Icons.BoneColliderIcon)))
+                                    ActionButton(ToolMenuActions.RemoveDynamicBoneColliders);
 #if NO_BONES
                             EditorGUI.EndDisabledGroup();
 #endif
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.TrailRenderers, Icons.TrailRenderer)))
-                                ActionButton(ToolMenuActions.RemoveTrailRenderers);
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.AudioSources, Icons.AudioSource)))
-                                ActionButton(ToolMenuActions.RemoveAudioSources);
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.RigidBodies, Icons.RigidBody)))
-                                ActionButton(ToolMenuActions.RemoveRigidBodies);
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.MeshRenderers, Icons.MeshRenderer)))
-                                ActionButton(ToolMenuActions.RemoveMeshRenderers);
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.EmptyGameObjects, Icons.Prefab)))
-                                ActionButton(ToolMenuActions.RemoveEmptyGameObjects);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.TrailRenderers, Icons.TrailRenderer)))
+                                    ActionButton(ToolMenuActions.RemoveTrailRenderers);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.AudioSources, Icons.AudioSource)))
+                                    ActionButton(ToolMenuActions.RemoveAudioSources);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.RigidBodies, Icons.RigidBody)))
+                                    ActionButton(ToolMenuActions.RemoveRigidBodies);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.MeshRenderers, Icons.MeshRenderer)))
+                                    ActionButton(ToolMenuActions.RemoveMeshRenderers);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.EmptyGameObjects, Icons.Prefab)))
+                                    ActionButton(ToolMenuActions.RemoveEmptyGameObjects);
 
-                            EditorGUILayout.EndVertical();
+                                EditorGUILayout.EndVertical();
 
-                            EditorGUILayout.EndHorizontal();
+                                EditorGUILayout.EndHorizontal();
+                            }
+                            EditorGUI.EndDisabledGroup();
+                            EditorGUILayout.Space();
                         }
-                        EditorGUI.EndDisabledGroup();
-                        EditorGUILayout.Space();
                     }
-                }
 
-                DrawGuiLine();
-                
-                //Component Copier menu
-                if(_copier_expand = GUILayout.Toggle(_copier_expand, Strings.Main.Copier, Styles.Foldout_title))
-                {
-                    EditorGUILayout.Space();
-                    
-                    copierSelectedFrom = (GameObject)EditorGUILayout.ObjectField(Strings.Copier.CopyFrom + ":", copierSelectedFrom, typeof(GameObject), true);
+                    DrawGuiLine();
 
-                    EditorGUILayout.BeginHorizontal();                    
-                    if(GUILayout.Button(Strings.Buttons.SelectFromScene))
-                    {                         
-                        if(Selection.activeGameObject != null)
-                            copierSelectedFrom = Selection.activeGameObject.transform.root.gameObject;
-                    }
-                    EditorGUILayout.EndHorizontal();
-
-                    EditorGUILayout.Space();
-
-                    EditorGUI.BeginDisabledGroup(copierSelectedFrom == null || selectedAvatar == null);
+                    //Component Copier menu
+                    if(_copier_expand = GUILayout.Toggle(_copier_expand, Strings.Main.Copier, Styles.Foldout_title))
                     {
-                        //Transforms menu
+                        EditorGUILayout.Space();
+
+                        copierSelectedFrom = (GameObject)EditorGUILayout.ObjectField(Strings.Copier.CopyFrom + ":", copierSelectedFrom, typeof(GameObject), true);
+
                         EditorGUILayout.BeginHorizontal();
-                        _copier_expand_transforms = GUILayout.Toggle(_copier_expand_transforms, Icons.Transform, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-                        bCopier_transforms_copy = GUILayout.Toggle(bCopier_transforms_copy, Strings.Copier.Transforms, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                        if(GUILayout.Button(Strings.Buttons.SelectFromScene))
+                        {
+                            if(Selection.activeGameObject != null)
+                                copierSelectedFrom = Selection.activeGameObject.transform.root.gameObject;
+                        }
                         EditorGUILayout.EndHorizontal();
 
-                        if(_copier_expand_transforms)
+                        EditorGUILayout.Space();
+
+                        EditorGUI.BeginDisabledGroup(copierSelectedFrom == null || selectedAvatar == null);
                         {
-                            EditorGUI.BeginDisabledGroup(!bCopier_transforms_copy);
-                            EditorGUILayout.Space();
+                            //Transforms menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_transforms = GUILayout.Toggle(_copier_expand_transforms, Icons.Transform, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_transforms_copy = GUILayout.Toggle(bCopier_transforms_copy, Strings.Copier.Transforms, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
 
-                            bCopier_transforms_copyPosition = EditorGUILayout.Toggle(Strings.Copier.Transforms_position, bCopier_transforms_copyPosition, GUILayout.ExpandWidth(false));
-                            bCopier_transforms_copyRotation = EditorGUILayout.Toggle(Strings.Copier.Transforms_rotation, bCopier_transforms_copyRotation, GUILayout.ExpandWidth(false));
-                            bCopier_transforms_copyScale = EditorGUILayout.Toggle(Strings.Copier.Transforms_scale, bCopier_transforms_copyScale);
+                            if(_copier_expand_transforms)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_transforms_copy);
+                                EditorGUILayout.Space();
 
-                            bCopier_transforms_copyAvatarScale = EditorGUILayout.Toggle(Strings.Copier.Transforms_avatarScale, bCopier_transforms_copyAvatarScale);
+                                bCopier_transforms_copyPosition = EditorGUILayout.Toggle(Strings.Copier.Transforms_position, bCopier_transforms_copyPosition, GUILayout.ExpandWidth(false));
+                                bCopier_transforms_copyRotation = EditorGUILayout.Toggle(Strings.Copier.Transforms_rotation, bCopier_transforms_copyRotation, GUILayout.ExpandWidth(false));
+                                bCopier_transforms_copyScale = EditorGUILayout.Toggle(Strings.Copier.Transforms_scale, bCopier_transforms_copyScale);
 
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
+                                bCopier_transforms_copyAvatarScale = EditorGUILayout.Toggle(Strings.Copier.Transforms_avatarScale, bCopier_transforms_copyAvatarScale);
 
-                        //DynamicBones menu
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //DynamicBones menu
 #if NO_BONES
                         EditorGUI.BeginDisabledGroup(true);
+                        {
 #endif
-                        EditorGUILayout.BeginHorizontal();
-                        _copier_expand_dynamicBones = GUILayout.Toggle(_copier_expand_dynamicBones, Icons.BoneIcon, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_dynamicBones = GUILayout.Toggle(_copier_expand_dynamicBones, Icons.BoneIcon, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
 #if NO_BONES
+                        }
                         bCopier_dynamicBones_copy = GUILayout.Toggle(false, Strings.Copier.DynamicBones + " " + Strings.Warning.NotFound, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
 #else
-                        bCopier_dynamicBones_copy = GUILayout.Toggle(bCopier_dynamicBones_copy, Strings.Copier.DynamicBones, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            bCopier_dynamicBones_copy = GUILayout.Toggle(bCopier_dynamicBones_copy, Strings.Copier.DynamicBones, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
 #endif
-                        EditorGUILayout.EndHorizontal();
+                            EditorGUILayout.EndHorizontal();
 
-                        if(_copier_expand_dynamicBones)
-                        {
-                            EditorGUI.BeginDisabledGroup(!bCopier_dynamicBones_copy);
-                            EditorGUILayout.Space();
+                            if(_copier_expand_dynamicBones)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_dynamicBones_copy);
+                                EditorGUILayout.Space();
 
-                            bCopier_dynamicBones_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_dynamicBones_copySettings, GUILayout.ExpandWidth(false));
-                            bCopier_dynamicBones_copyColliders = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_colliders, bCopier_dynamicBones_copyColliders, GUILayout.ExpandWidth(false));
-                            bCopier_dynamicBones_createMissingBones = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_createMissingBones, bCopier_dynamicBones_createMissingBones, GUILayout.ExpandWidth(false));
-                            bCopier_dynamicBones_removeOldBones = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_removeOldBones, bCopier_dynamicBones_removeOldBones, GUILayout.ExpandWidth(false));
-                            bCopier_dynamicBones_removeOldColliders = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_removeOldColliders, bCopier_dynamicBones_removeOldColliders, GUILayout.ExpandWidth(false));
+                                bCopier_dynamicBones_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_dynamicBones_copySettings, GUILayout.ExpandWidth(false));
+                                bCopier_dynamicBones_createMissing = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_createMissing, bCopier_dynamicBones_createMissing, GUILayout.ExpandWidth(false));
+                                bCopier_dynamicBones_removeOldBones = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_removeOldBones, bCopier_dynamicBones_removeOldBones, GUILayout.ExpandWidth(false));
+                                EditorGUILayout.Space();
+                                bCopier_dynamicBones_copyColliders = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_colliders, bCopier_dynamicBones_copyColliders, GUILayout.ExpandWidth(false));                                                                
+                                bCopier_dynamicBones_removeOldColliders = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_removeOldColliders, bCopier_dynamicBones_removeOldColliders, GUILayout.ExpandWidth(false));
 
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
 #if NO_BONES
                         EditorGUI.EndDisabledGroup();
 #endif
 
-                        //AvatarDescriptor menu
-                        EditorGUILayout.BeginHorizontal();
-                        _copier_expand_avatarDescriptor = GUILayout.Toggle(_copier_expand_avatarDescriptor, Icons.Avatar, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-                        bCopier_descriptor_copy = GUILayout.Toggle(bCopier_descriptor_copy, Strings.Copier.Descriptor, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
-                        EditorGUILayout.EndHorizontal();
-
-                        if(_copier_expand_avatarDescriptor)
-                        {
-                            EditorGUI.BeginDisabledGroup(!bCopier_descriptor_copy);
-                            EditorGUILayout.Space();
-
-                            bCopier_descriptor_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_descriptor_copySettings, GUILayout.ExpandWidth(false));
-                            bCopier_descriptor_copyPipelineId = EditorGUILayout.Toggle(Strings.Copier.Descriptor_pipelineId, bCopier_descriptor_copyPipelineId, GUILayout.ExpandWidth(false));
-                            bCopier_descriptor_copyAnimationOverrides = EditorGUILayout.Toggle(Strings.Copier.Descriptor_animationOverrides, bCopier_descriptor_copyAnimationOverrides, GUILayout.ExpandWidth(false));
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
-
-                        //SkinnedMeshRenderer menu
-                        EditorGUILayout.BeginHorizontal();
-                        _copier_expand_skinnedMeshRenderer = GUILayout.Toggle(_copier_expand_skinnedMeshRenderer, Icons.SkinnedMeshRenderer, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-                        bCopier_skinMeshRender_copy = GUILayout.Toggle(bCopier_skinMeshRender_copy, Strings.Copier.SkinMeshRender, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
-                        EditorGUILayout.EndHorizontal();
-
-                        if(_copier_expand_skinnedMeshRenderer)
-                        {
-                            EditorGUI.BeginDisabledGroup(!bCopier_skinMeshRender_copy);
-                            EditorGUILayout.Space();
-
-                            bCopier_skinMeshRender_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_skinMeshRender_copySettings, GUILayout.ExpandWidth(false));
-                            bCopier_skinMeshRender_copyMaterials = EditorGUILayout.Toggle(Strings.Copier.SkinMeshRender_materials, bCopier_skinMeshRender_copyMaterials, GUILayout.ExpandWidth(false));
-                            bCopier_skinMeshRender_copyBlendShapeValues = EditorGUILayout.Toggle(Strings.Copier.SkinMeshRender_blendShapeValues, bCopier_skinMeshRender_copyBlendShapeValues, GUILayout.ExpandWidth(false));
-                            
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
-
-                        //MeshRenderers menu
-                        EditorGUILayout.BeginHorizontal();
-                        _copier_expand_meshRenderers = GUILayout.Toggle(_copier_expand_meshRenderers, Icons.MeshRenderer, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-                        bCopier_meshRenderers_copy = GUILayout.Toggle(bCopier_meshRenderers_copy, Strings.Copier.MeshRenderers, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
-                        EditorGUILayout.EndHorizontal();
-
-                        if(_copier_expand_meshRenderers)
-                        {
-                            EditorGUI.BeginDisabledGroup(!bCopier_meshRenderers_copy);
-                            EditorGUILayout.Space();
-
-                            bCopier_meshRenderers_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_meshRenderers_copySettings);
-                            bCopier_meshRenderers_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_meshRenderers_createMissing);
-                            bCopier_meshRenderers_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_meshRenderers_createObjects);
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
-
-                        //Particles menu
-                        EditorGUILayout.BeginHorizontal();
-                        _copier_expand_particleSystems = GUILayout.Toggle(_copier_expand_particleSystems, Icons.ParticleSystem, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-                        bCopier_particleSystems_copy = GUILayout.Toggle(bCopier_particleSystems_copy, Strings.Copier.ParticleSystems, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
-                        EditorGUILayout.EndHorizontal();
-
-                        if(_copier_expand_particleSystems)
-                        {
-                            EditorGUI.BeginDisabledGroup(!bCopier_particleSystems_copy);
-                            EditorGUILayout.Space();
-
-                            bCopier_particleSystems_replace = EditorGUILayout.Toggle(Strings.Copier.ReplaceOld, bCopier_particleSystems_replace);
-                            bCopier_particleSystems_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_particleSystems_createObjects);
-
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
-
-                        //TrailRenderers menu
-                        EditorGUILayout.BeginHorizontal();
-                        _copier_expand_trailRenderers = GUILayout.Toggle(_copier_expand_trailRenderers, Icons.TrailRenderer, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-                        bCopier_trailRenderers_copy = GUILayout.Toggle(bCopier_trailRenderers_copy, Strings.Copier.TrailRenderers, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
-                        EditorGUILayout.EndHorizontal();
-
-                        if(_copier_expand_trailRenderers)
-                        {
-                            EditorGUI.BeginDisabledGroup(!bCopier_trailRenderers_copy);
-                            EditorGUILayout.Space();
-
-                            bCopier_trailRenderers_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_trailRenderers_copySettings);
-                            bCopier_trailRenderers_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_trailRenderers_createMissing);
-                            bCopier_trailRenderers_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_trailRenderers_createObjects);
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
-
-                        //AudioSources menu
-                        EditorGUILayout.BeginHorizontal();
-                        _copier_expand_audioSources = GUILayout.Toggle(_copier_expand_audioSources, Icons.AudioSource, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-                        bCopier_audioSources_copy = GUILayout.Toggle(bCopier_audioSources_copy, Strings.Copier.AudioSources, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
-                        EditorGUILayout.EndHorizontal();
-
-                        if(_copier_expand_audioSources)
-                        {
-                            EditorGUI.BeginDisabledGroup(!bCopier_audioSources_copy);
-                            EditorGUILayout.Space();
-
-                            bCopier_audioSources_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_audioSources_copySettings);
-                            bCopier_audioSources_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_audioSources_createMissing);
-                            bCopier_audioSources_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_audioSources_createObjects);
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
-
-                        //Lights menu
-                        EditorGUILayout.BeginHorizontal();
-                        _copier_expand_lights = GUILayout.Toggle(_copier_expand_lights, Icons.Light, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-                        bCopier_lights_copy = GUILayout.Toggle(bCopier_lights_copy, Strings.Copier.Lights, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
-                        EditorGUILayout.EndHorizontal();
-
-                        if(_copier_expand_lights)
-                        {
-                            EditorGUI.BeginDisabledGroup(!bCopier_lights_copy);
-                            EditorGUILayout.Space();
-
-                            bCopier_lights_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_lights_copySettings);
-                            bCopier_lights_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_lights_createMissing);
-                            bCopier_lights_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_lights_createObjects);
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
-
-                        //RidigBodies menu
-                        EditorGUILayout.BeginHorizontal();
-                        _copier_expand_rigidBodies = GUILayout.Toggle(_copier_expand_rigidBodies, Icons.RigidBody, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-                        bCopier_rigidBodies_copy = GUILayout.Toggle(bCopier_rigidBodies_copy, Strings.Copier.RigidBodies, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
-                        EditorGUILayout.EndHorizontal();
-
-                        if(_copier_expand_rigidBodies)
-                        {
-                            EditorGUI.BeginDisabledGroup(!bCopier_rigidBodies_copy);
-                            EditorGUILayout.Space();
-
-                            bCopier_rigidBodies_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_rigidBodies_copySettings);
-                            bCopier_rigidBodies_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_rigidBodies_createMissing);
-                            bCopier_rigidBodies_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_rigidBodies_createObjects);
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
-
-                        //Collider menu
-                        EditorGUILayout.BeginHorizontal();
-                        _copier_expand_colliders = GUILayout.Toggle(_copier_expand_colliders, Icons.ColliderBox, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-                        bCopier_colliders_copy = GUILayout.Toggle(bCopier_colliders_copy, Strings.Copier.Colliders, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
-                        EditorGUILayout.EndHorizontal();
-
-                        if(_copier_expand_colliders)
-                        {
-                            EditorGUI.BeginDisabledGroup(!bCopier_colliders_copy);
-                            EditorGUILayout.Space();                            
-
-                            bCopier_colliders_copyBox = EditorGUILayout.Toggle(Strings.Copier.Colliders_box, bCopier_colliders_copyBox, GUILayout.ExpandWidth(false));
-                            bCopier_colliders_copyCapsule = EditorGUILayout.Toggle(Strings.Copier.Colliders_capsule, bCopier_colliders_copyCapsule, GUILayout.ExpandWidth(false));
-                            bCopier_colliders_copySphere = EditorGUILayout.Toggle(Strings.Copier.Colliders_sphere, bCopier_colliders_copySphere, GUILayout.ExpandWidth(false));
-                            bCopier_colliders_copyMesh = EditorGUILayout.Toggle(Strings.Copier.Colliders_mesh, bCopier_colliders_copyMesh, GUILayout.ExpandWidth(false));
-
-                            bCopier_colliders_removeOld = EditorGUILayout.Toggle(Strings.Copier.Colliders_removeOld, bCopier_colliders_removeOld, GUILayout.ExpandWidth(false));
-                            bCopier_colliders_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_colliders_createObjects, GUILayout.ExpandWidth(false));
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
-
-                        //Animators menu
-                        EditorGUILayout.BeginHorizontal();
-                        _copier_expand_animators = GUILayout.Toggle(_copier_expand_animators, Icons.Animator, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-                        bCopier_animators_copy = GUILayout.Toggle(bCopier_animators_copy, Strings.Copier.Animators, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
-                        EditorGUILayout.EndHorizontal();
-
-                        if(_copier_expand_animators)
-                        {
-                            EditorGUI.BeginDisabledGroup(!bCopier_animators_copy);
-                            EditorGUILayout.Space();
-
-                            bCopier_animators_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_animators_copySettings);
-                            bCopier_animators_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_animators_createMissing);
-                            bCopier_animators_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_animators_createObjects);
-                            bCopier_animators_copyMainAnimator = EditorGUILayout.Toggle(Strings.Copier.CopyMainAnimator, bCopier_animators_copyMainAnimator);
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
-
-                        EditorGUILayout.Space();
-
-                        EditorGUI.BeginDisabledGroup(
-                            !(
-                            bCopier_dynamicBones_copyColliders || bCopier_dynamicBones_copy || bCopier_colliders_copy || bCopier_particleSystems_copy ||
-                            bCopier_descriptor_copy || bCopier_skinMeshRender_copy || bCopier_meshRenderers_copy || bCopier_lights_copy ||
-                            bCopier_rigidBodies_copy || bCopier_trailRenderers_copy || bCopier_animators_copy
-                            ));
-                        {
+                            //AvatarDescriptor menu
                             EditorGUILayout.BeginHorizontal();
-                            {
-                                if(GUILayout.Button(Strings.Buttons.SelectNone, GUILayout.MinWidth(100)))
-                                {
-#if !NO_BONES
-                                    bCopier_dynamicBones_copy = false;
-#endif
-                                    bCopier_colliders_copy = false;
-                                    bCopier_joints_copy = false;
-                                    bCopier_descriptor_copy = false;                                    
-                                    bCopier_lights_copy = false;
-                                    bCopier_meshRenderers_copy = false;
-                                    bCopier_particleSystems_copy = false;
-                                    bCopier_rigidBodies_copy = false;
-                                    bCopier_skinMeshRender_copy = false;
-                                    bCopier_trailRenderers_copy = false;
-                                    bCopier_transforms_copy = false;
-                                    bCopier_animators_copy = false;
-                                    bCopier_audioSources_copy = false;
-                                }
-                                if(GUILayout.Button(Strings.Buttons.SelectAll, GUILayout.MinWidth(100)))
-                                {
-#if !NO_BONES
-                                    bCopier_dynamicBones_copy = true;
-#endif
-                                    bCopier_colliders_copy = true;
-                                    bCopier_joints_copy = true;
-                                    bCopier_descriptor_copy = true;
-                                    bCopier_lights_copy = true;
-                                    bCopier_meshRenderers_copy = true;
-                                    bCopier_particleSystems_copy = true;
-                                    bCopier_rigidBodies_copy = true;
-                                    bCopier_skinMeshRender_copy = true;
-                                    bCopier_trailRenderers_copy = true;
-                                    bCopier_transforms_copy = true;
-                                    bCopier_animators_copy = true;
-                                    bCopier_audioSources_copy = true;
-                                }
-                            }
+                            _copier_expand_avatarDescriptor = GUILayout.Toggle(_copier_expand_avatarDescriptor, Icons.Avatar, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_descriptor_copy = GUILayout.Toggle(bCopier_descriptor_copy, Strings.Copier.Descriptor, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
                             EditorGUILayout.EndHorizontal();
 
-                            EditorGUI.BeginDisabledGroup(!CopierHasSelections());
+                            if(_copier_expand_avatarDescriptor)
                             {
-                                if(GUILayout.Button(Strings.Buttons.CopySelected, GUILayout.MinHeight(25)))
+                                EditorGUI.BeginDisabledGroup(!bCopier_descriptor_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_descriptor_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_descriptor_copySettings, GUILayout.ExpandWidth(false));
+                                bCopier_descriptor_copyPipelineId = EditorGUILayout.Toggle(Strings.Copier.Descriptor_pipelineId, bCopier_descriptor_copyPipelineId, GUILayout.ExpandWidth(false));
+                                bCopier_descriptor_copyAnimationOverrides = EditorGUILayout.Toggle(Strings.Copier.Descriptor_animationOverrides, bCopier_descriptor_copyAnimationOverrides, GUILayout.ExpandWidth(false));
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //SkinnedMeshRenderer menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_skinnedMeshRenderer = GUILayout.Toggle(_copier_expand_skinnedMeshRenderer, Icons.SkinnedMeshRenderer, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_skinMeshRender_copy = GUILayout.Toggle(bCopier_skinMeshRender_copy, Strings.Copier.SkinMeshRender, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_skinnedMeshRenderer)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_skinMeshRender_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_skinMeshRender_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_skinMeshRender_copySettings, GUILayout.ExpandWidth(false));
+                                bCopier_skinMeshRender_copyMaterials = EditorGUILayout.Toggle(Strings.Copier.SkinMeshRender_materials, bCopier_skinMeshRender_copyMaterials, GUILayout.ExpandWidth(false));
+                                bCopier_skinMeshRender_copyBlendShapeValues = EditorGUILayout.Toggle(Strings.Copier.SkinMeshRender_blendShapeValues, bCopier_skinMeshRender_copyBlendShapeValues, GUILayout.ExpandWidth(false));
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //MeshRenderers menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_meshRenderers = GUILayout.Toggle(_copier_expand_meshRenderers, Icons.MeshRenderer, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_meshRenderers_copy = GUILayout.Toggle(bCopier_meshRenderers_copy, Strings.Copier.MeshRenderers, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_meshRenderers)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_meshRenderers_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_meshRenderers_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_meshRenderers_copySettings);
+                                bCopier_meshRenderers_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_meshRenderers_createMissing);
+                                bCopier_meshRenderers_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_meshRenderers_createObjects);
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //Particles menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_particleSystems = GUILayout.Toggle(_copier_expand_particleSystems, Icons.ParticleSystem, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_particleSystems_copy = GUILayout.Toggle(bCopier_particleSystems_copy, Strings.Copier.ParticleSystems, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_particleSystems)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_particleSystems_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_particleSystems_replace = EditorGUILayout.Toggle(Strings.Copier.ReplaceOld, bCopier_particleSystems_replace);
+                                bCopier_particleSystems_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_particleSystems_createObjects);
+
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //TrailRenderers menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_trailRenderers = GUILayout.Toggle(_copier_expand_trailRenderers, Icons.TrailRenderer, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_trailRenderers_copy = GUILayout.Toggle(bCopier_trailRenderers_copy, Strings.Copier.TrailRenderers, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_trailRenderers)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_trailRenderers_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_trailRenderers_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_trailRenderers_copySettings);
+                                bCopier_trailRenderers_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_trailRenderers_createMissing);
+                                bCopier_trailRenderers_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_trailRenderers_createObjects);
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //AudioSources menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_audioSources = GUILayout.Toggle(_copier_expand_audioSources, Icons.AudioSource, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_audioSources_copy = GUILayout.Toggle(bCopier_audioSources_copy, Strings.Copier.AudioSources, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_audioSources)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_audioSources_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_audioSources_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_audioSources_copySettings);
+                                bCopier_audioSources_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_audioSources_createMissing);
+                                bCopier_audioSources_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_audioSources_createObjects);
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //Lights menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_lights = GUILayout.Toggle(_copier_expand_lights, Icons.Light, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_lights_copy = GUILayout.Toggle(bCopier_lights_copy, Strings.Copier.Lights, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_lights)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_lights_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_lights_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_lights_copySettings);
+                                bCopier_lights_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_lights_createMissing);
+                                bCopier_lights_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_lights_createObjects);
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //RidigBodies menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_rigidBodies = GUILayout.Toggle(_copier_expand_rigidBodies, Icons.RigidBody, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_rigidBodies_copy = GUILayout.Toggle(bCopier_rigidBodies_copy, Strings.Copier.RigidBodies, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_rigidBodies)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_rigidBodies_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_rigidBodies_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_rigidBodies_copySettings);
+                                bCopier_rigidBodies_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_rigidBodies_createMissing);
+                                bCopier_rigidBodies_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_rigidBodies_createObjects);
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //Collider menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_colliders = GUILayout.Toggle(_copier_expand_colliders, Icons.ColliderBox, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_colliders_copy = GUILayout.Toggle(bCopier_colliders_copy, Strings.Copier.Colliders, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_colliders)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_colliders_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_colliders_copyBox = EditorGUILayout.Toggle(Strings.Copier.Colliders_box, bCopier_colliders_copyBox, GUILayout.ExpandWidth(false));
+                                bCopier_colliders_copyCapsule = EditorGUILayout.Toggle(Strings.Copier.Colliders_capsule, bCopier_colliders_copyCapsule, GUILayout.ExpandWidth(false));
+                                bCopier_colliders_copySphere = EditorGUILayout.Toggle(Strings.Copier.Colliders_sphere, bCopier_colliders_copySphere, GUILayout.ExpandWidth(false));
+                                bCopier_colliders_copyMesh = EditorGUILayout.Toggle(Strings.Copier.Colliders_mesh, bCopier_colliders_copyMesh, GUILayout.ExpandWidth(false));
+
+                                bCopier_colliders_removeOld = EditorGUILayout.Toggle(Strings.Copier.Colliders_removeOld, bCopier_colliders_removeOld, GUILayout.ExpandWidth(false));
+                                bCopier_colliders_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_colliders_createObjects, GUILayout.ExpandWidth(false));
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //Animators menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_animators = GUILayout.Toggle(_copier_expand_animators, Icons.Animator, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_animators_copy = GUILayout.Toggle(bCopier_animators_copy, Strings.Copier.Animators, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_animators)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_animators_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_animators_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_animators_copySettings);
+                                bCopier_animators_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_animators_createMissing);
+                                bCopier_animators_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_animators_createObjects);
+                                bCopier_animators_copyMainAnimator = EditorGUILayout.Toggle(Strings.Copier.CopyMainAnimator, bCopier_animators_copyMainAnimator);
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            EditorGUILayout.Space();
+
+                            EditorGUI.BeginDisabledGroup(
+                                !(
+                                bCopier_dynamicBones_copyColliders || bCopier_dynamicBones_copy || bCopier_colliders_copy || bCopier_particleSystems_copy ||
+                                bCopier_descriptor_copy || bCopier_skinMeshRender_copy || bCopier_meshRenderers_copy || bCopier_lights_copy ||
+                                bCopier_rigidBodies_copy || bCopier_trailRenderers_copy || bCopier_animators_copy
+                                ));
+                            {
+                                EditorGUILayout.BeginHorizontal();
                                 {
-                                    string log = "";
-                                    if(copierSelectedFrom == null)
+                                    if(GUILayout.Button(Strings.Buttons.SelectNone, GUILayout.MinWidth(100)))
                                     {
-                                        log += Strings.Log.CopyFromInvalid;
-                                        Log(log, LogType.Warning);
+#if !NO_BONES
+                                        bCopier_dynamicBones_copy = false;
+#endif
+                                        bCopier_colliders_copy = false;
+                                        bCopier_joints_copy = false;
+                                        bCopier_descriptor_copy = false;
+                                        bCopier_lights_copy = false;
+                                        bCopier_meshRenderers_copy = false;
+                                        bCopier_particleSystems_copy = false;
+                                        bCopier_rigidBodies_copy = false;
+                                        bCopier_skinMeshRender_copy = false;
+                                        bCopier_trailRenderers_copy = false;
+                                        bCopier_transforms_copy = false;
+                                        bCopier_animators_copy = false;
+                                        bCopier_audioSources_copy = false;
                                     }
-                                    else
+                                    if(GUILayout.Button(Strings.Buttons.SelectAll, GUILayout.MinWidth(100)))
                                     {
-                                        //Cancel Checks
-                                        if(copierSelectedFrom == selectedAvatar)
-                                        {
-                                            Log(log + Strings.Log.CantCopyToSelf, LogType.Warning);
-                                            return;
-                                        }
-
-                                        //Figure out how to prevent undo from adding multiple copies of the same component on
-                                        /*//Record Undo
-                                        Undo.RegisterFullObjectHierarchyUndo(selectedAvatar, "Copy Components");
-                                        if(selectedAvatar.gameObject.scene.name == null) //In case it's a prefab instance, which it probably is
-                                            PrefabUtility.RecordPrefabInstancePropertyModifications(selectedAvatar);*/
-
-                                        CopyComponents(copierSelectedFrom, selectedAvatar);
-
-                                        EditorUtility.SetDirty(selectedAvatar);
-                                        EditorSceneManager.MarkSceneDirty(selectedAvatar.scene);
-
-                                        avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);
-
-                                        log += Strings.Log.Done;
-                                        Log(log, LogType.Log);
+#if !NO_BONES
+                                        bCopier_dynamicBones_copy = true;
+#endif
+                                        bCopier_colliders_copy = true;
+                                        bCopier_joints_copy = true;
+                                        bCopier_descriptor_copy = true;
+                                        bCopier_lights_copy = true;
+                                        bCopier_meshRenderers_copy = true;
+                                        bCopier_particleSystems_copy = true;
+                                        bCopier_rigidBodies_copy = true;
+                                        bCopier_skinMeshRender_copy = true;
+                                        bCopier_trailRenderers_copy = true;
+                                        bCopier_transforms_copy = true;
+                                        bCopier_animators_copy = true;
+                                        bCopier_audioSources_copy = true;
                                     }
                                 }
+                                EditorGUILayout.EndHorizontal();
+
+                                EditorGUI.BeginDisabledGroup(!CopierHasSelections());
+                                {
+                                    if(GUILayout.Button(Strings.Buttons.CopySelected, GUILayout.MinHeight(25)))
+                                    {
+                                        string log = "";
+                                        if(copierSelectedFrom == null)
+                                        {
+                                            log += Strings.Log.CopyFromInvalid;
+                                            Log(log, LogType.Warning);
+                                        }
+                                        else
+                                        {
+                                            //Cancel Checks
+                                            if(copierSelectedFrom == selectedAvatar)
+                                            {
+                                                Log(log + Strings.Log.CantCopyToSelf, LogType.Warning);
+                                                return;
+                                            }
+
+                                            //Figure out how to prevent undo from adding multiple copies of the same component on
+                                            /*//Record Undo
+                                            Undo.RegisterFullObjectHierarchyUndo(selectedAvatar, "Copy Components");
+                                            if(selectedAvatar.gameObject.scene.name == null) //In case it's a prefab instance, which it probably is
+                                                PrefabUtility.RecordPrefabInstancePropertyModifications(selectedAvatar);*/
+
+                                            CopyComponents(copierSelectedFrom, selectedAvatar);
+
+                                            EditorUtility.SetDirty(selectedAvatar);
+                                            EditorSceneManager.MarkSceneDirty(selectedAvatar.scene);
+
+                                            avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);
+
+                                            log += Strings.Log.Done;
+                                            Log(log, LogType.Log);
+                                        }
+                                    }
+                                }
+                                EditorGUI.EndDisabledGroup();
                             }
                             EditorGUI.EndDisabledGroup();
                         }
                         EditorGUI.EndDisabledGroup();
+                        EditorGUILayout.Space();
                     }
-                    EditorGUI.EndDisabledGroup();                    
-                    EditorGUILayout.Space();                    
-                }
 
-                DrawGuiLine();
+                    DrawGuiLine();
 
-                //Avatar Info menu
-                if(_avatarInfo_expand = GUILayout.Toggle(_avatarInfo_expand, Strings.Main.AvatarInfo, Styles.Foldout_title))
-                {
-                    if(selectedAvatar == null)
+                    //Avatar Info menu
+                    if(_avatarInfo_expand = GUILayout.Toggle(_avatarInfo_expand, Strings.Main.AvatarInfo, Styles.Foldout_title))
                     {
-                        if(avatarInfo != null)
+                        if(selectedAvatar == null)
                         {
-                            avatarInfo = null;
-                            _avatarInfoString = Strings.AvatarInfo.SelectAvatarFirst + _avatarInfoSpace; //Please don't hurt me
-                        }
-                    }
-                    else
-                    {
-                        if(avatarInfo == null)
-                        {
-                            avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);                            
-                        }                        
-                    }
-                    _avatarInfo_scroll = EditorGUILayout.BeginScrollView(_avatarInfo_scroll, GUILayout.MinHeight(250));
-                    EditorGUILayout.HelpBox(_avatarInfoString, MessageType.None, true);                    
-                    EditorGUILayout.EndScrollView();
-
-                    EditorGUI.BeginDisabledGroup(selectedAvatar == null);
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        {
-                            if(GUILayout.Button(Strings.Buttons.Copy))
+                            if(avatarInfo != null)
                             {
-                                EditorGUIUtility.systemCopyBuffer = _avatarInfoString;
+                                avatarInfo = null;
+                                _avatarInfoString = Strings.AvatarInfo.SelectAvatarFirst;
                             }
-                            if(GUILayout.Button(Strings.Buttons.Refresh))
+                        }
+                        else
+                        {
+                            if(avatarInfo == null)
                             {
                                 avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);
                             }
                         }
-                        EditorGUILayout.EndHorizontal();
+                        _avatarInfo_scroll = EditorGUILayout.BeginScrollView(_avatarInfo_scroll, GUILayout.MinHeight(250));
+                        EditorGUILayout.TextArea(_avatarInfoString, Styles.HelpBox, GUILayout.MinHeight(240));
+                        EditorGUILayout.EndScrollView();
+
+                        EditorGUI.BeginDisabledGroup(selectedAvatar == null);
+                        {
+                            EditorGUILayout.BeginHorizontal();
+                            {
+                                if(GUILayout.Button(Strings.Buttons.Copy))
+                                {
+                                    EditorGUIUtility.systemCopyBuffer = _avatarInfoString;
+                                }
+                                if(GUILayout.Button(Strings.Buttons.Refresh))
+                                {
+                                    avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);
+                                }
+                            }
+                            EditorGUILayout.EndHorizontal();
+                        }
+                        EditorGUI.EndDisabledGroup();
                     }
-                }
-                EditorGUI.EndDisabledGroup();
 
-                DrawGuiLine();
+                    DrawGuiLine();
 
-                //Thumbnails menu                
-                if(_thumbnails_expand = GUILayout.Toggle(_thumbnails_expand, Strings.Main.Thumbnails, Styles.Foldout_title))
-                {
-                    //Camera Override Image
-                    EditorGUI.BeginDisabledGroup(!EditorApplication.isPlaying);
+                    //Thumbnails menu                
+                    if(_thumbnails_expand = GUILayout.Toggle(_thumbnails_expand, Strings.Main.Thumbnails, Styles.Foldout_title))
                     {
-                        GUILayout.BeginHorizontal();
+                        if(!EditorApplication.isPlaying)
                         {
-                            EditorGUI.BeginChangeCheck();
-                            {
-                                EditorGUILayout.LabelField(Strings.Thumbnails.OverlayCameraImage);
-                                //bThumbnails_override_camera_image = GUILayout.Toggle(bThumbnails_override_camera_image, Strings.Thumbnails.OverlayCameraImage);                           
-
-                                if(GUILayout.Button("Browse") && VRCCam)
-                                {
-                                    var path = EditorUtility.OpenFilePanel("Pick an Image", cameraOverrideTexturePath, "png,jpg,jpeg");
-                                    if(File.Exists(path))
-                                    {
-                                        byte[] data = File.ReadAllBytes(path);
-                                        cameraOverrideTexture.LoadImage(data);
-                                        cameraOverrideTexturePath = path;
-                                        cameraOverrideTexture.alphaIsTransparency = true;
-                                        cameraOverrideTexture.name = path;
-                                        Log(Strings.Log.LoadedCameraOverlay, LogType.Log, path);
-                                    }
-                                }
-                                if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
-                                {
-                                    if(cameraOverlayImage != null)
-                                        cameraOverlayImage.color = Color.clear;
-                                }
-                            }
-
-                            if(EditorGUI.EndChangeCheck() && cameraOverrideTexture != null)
-                            {
-                                if(cameraOverrideTexture.name != _emptyTexture.name)
-                                {
-                                    if(VRCCam)
-                                    {
-                                        if(cameraOverlay == null)
-                                        {
-                                            cameraOverlay = GameObject.Find("_PumkinsCameraOverlay");
-                                            if(cameraOverlay == null)
-                                                cameraOverlay = new GameObject("_PumkinsCameraOverlay");
-
-                                            Canvas c = cameraOverlay.GetComponent<Canvas>();
-                                            if(c == null)
-                                                c = cameraOverlay.AddComponent<Canvas>();
-
-                                            c.worldCamera = VRCCam;
-                                            c.renderMode = RenderMode.ScreenSpaceCamera;
-                                            c.planeDistance = VRCCam.nearClipPlane + 0.01f;
-                                        }
-
-                                        cameraOverlayImage = cameraOverlay.GetComponent<RawImage>();
-                                        if(cameraOverlayImage == null)
-                                            cameraOverlayImage = cameraOverlay.AddComponent<RawImage>();
-
-                                        cameraOverlayImage.texture = cameraOverrideTexture;
-                                        cameraOverlayImage.color = Color.white;
-                                        cameraOverrideTexture.name = _emptyTexture.name;
-                                    }
-                                }
-                                else
-                                {
-                                    if(cameraOverlay != null)
-                                        Destroy(cameraOverlay);
-                                }
-                            }
-                        }
-                        GUILayout.EndHorizontal();
-                    }
-                    EditorGUI.EndDisabledGroup();
-
-                    //if(GUILayout.Button(Strings.Buttons.OpenPoseEditor))
-                    //{
-                    //    PumkinsPoseEditor.ShowWindow();
-                    //}      
-
-                    EditorGUILayout.Space();
-
-                    EditorGUI.BeginDisabledGroup(!EditorApplication.isPlaying);
-                    {
-                        EditorGUI.BeginChangeCheck();
-                        {
-                            camBgOverrideType = (CameraBackgroundOverrideType)EditorGUILayout.EnumPopup(Strings.Thumbnails.BackgroundType, camBgOverrideType);
-                        }
-                        if(EditorGUI.EndChangeCheck())
-                        {
-                            if(VRCCam)
-                            {
-                                vrcCamSetBgColor = false;
-                                vrcCamSetSkybox = false;
-
-                                VRCCam.clearFlags = _vrcCamClearFlagsOld;
-                                VRCCam.backgroundColor = _vrcCamColorOld;
-                                RenderSettings.skybox = _thumbsSkyboxOld;
-
-                                switch(camBgOverrideType)
-                                {
-                                    case CameraBackgroundOverrideType.Color:
-                                        vrcCamSetBgColor = true;
-                                        VRCCam.clearFlags = CameraClearFlags.SolidColor;
-                                        VRCCam.backgroundColor = _vrcCamBgColor;
-                                        break;
-                                    case CameraBackgroundOverrideType.Material:
-                                        vrcCamSetSkybox = true;
-                                        VRCCam.clearFlags = CameraClearFlags.Skybox;
-                                        break;
-                                    case CameraBackgroundOverrideType.None:
-                                    default:
-                                        break;
-                                }
-                            }
-                            else
-                            {
-                                Log(Strings.Warning.VRCCamNotFound, LogType.Warning);
-                            }
-                        }
-
-                        if(VRCCam)
-                        {
-                            if(vrcCamSetBgColor)
-                            {
-                                EditorGUI.BeginChangeCheck();
-                                _vrcCamBgColor = EditorGUILayout.ColorField(Strings.Thumbnails.BackgroundType_Color, _vrcCamBgColor);
-
-                                if(EditorGUI.EndChangeCheck())
-                                    if(VRCCam)
-                                        VRCCam.backgroundColor = _vrcCamBgColor;
-                            }
-                            if(vrcCamSetSkybox)
-                            {
-                                EditorGUI.BeginChangeCheck();
-                                RenderSettings.skybox = (Material)EditorGUILayout.ObjectField(Strings.Thumbnails.BackgroundType_Material, RenderSettings.skybox, typeof(Material), false);
-
-                                if(EditorGUI.EndChangeCheck())
-                                    if(VRCCam)
-                                        VRCCam.backgroundColor = _vrcCamBgColor;
-                            }
+                            EditorGUILayout.TextArea(Strings.Thumbnails.StartUploadingFirst, Styles.HelpBox);
+                            hideAvatarsOnStart = GUILayout.Toggle(hideAvatarsOnStart, Strings.Thumbnails.HideOtherAvatars);
                         }
 
                         EditorGUILayout.Space();
 
-                        if(GUILayout.Button(Strings.Thumbnails.CenterCameraOnViewpoint, GUILayout.MinHeight(25)))
+                        //Camera Override Image
+                        EditorGUI.BeginDisabledGroup(!EditorApplication.isPlaying);
                         {
+                            GUILayout.BeginHorizontal();
+                            {
+                                EditorGUI.BeginChangeCheck();
+                                {
+                                    EditorGUILayout.LabelField(Strings.Thumbnails.OverlayCameraImage, GUILayout.MaxWidth(100));
+                                    EditorGUILayout.LabelField(_overlayPathText, Styles.HelpBox, GUILayout.ExpandHeight(false));                                    
+
+                                    if(GUILayout.Button(Strings.Buttons.Browse, GUILayout.MaxWidth(60)) && VRCCam)
+                                    {
+                                        cameraOverrideTexture = OpenImageTexture(ref _lastOpenFilePath);
+                                        _overlayPathText = _lastOpenFilePath;
+                                    }
+                                    if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
+                                    {
+                                        if(cameraOverlayImage != null)
+                                            cameraOverlayImage.color = Color.clear;
+                                        _overlayPathText = null;
+                                    }
+                                }
+                                if(EditorGUI.EndChangeCheck() && cameraOverrideTexture != null)
+                                {
+                                    if(cameraOverrideTexture.name != _emptyTexture.name)
+                                    {
+                                        if(VRCCam)
+                                        {
+                                            if(cameraOverlay == null)
+                                            {
+                                                cameraOverlay = GameObject.Find("_PumkinsCameraOverlay");
+                                                if(cameraOverlay == null)
+                                                    cameraOverlay = new GameObject("_PumkinsCameraOverlay");
+
+                                                Canvas c = cameraOverlay.GetComponent<Canvas>();
+                                                if(c == null)
+                                                    c = cameraOverlay.AddComponent<Canvas>();
+
+                                                c.worldCamera = VRCCam;
+                                                c.renderMode = RenderMode.ScreenSpaceCamera;
+                                                c.planeDistance = VRCCam.nearClipPlane + 0.01f;
+                                            }
+
+                                            cameraOverlayImage = cameraOverlay.GetComponent<RawImage>();
+                                            if(cameraOverlayImage == null)
+                                                cameraOverlayImage = cameraOverlay.AddComponent<RawImage>();
+
+                                            cameraOverlayImage.texture = cameraOverrideTexture;
+                                            cameraOverlayImage.color = Color.white;
+                                            cameraOverrideTexture.name = _emptyTexture.name;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if(cameraOverlay != null)
+                                            Destroy(cameraOverlay);
+                                    }
+                                }
+                            }
+                            GUILayout.EndHorizontal();
+                        }
+                        EditorGUI.EndDisabledGroup();
+
+                        EditorGUILayout.Space();
+
+                        //Background Type
+                        EditorGUI.BeginDisabledGroup(!EditorApplication.isPlaying);
+                        {
+                            EditorGUI.BeginChangeCheck();
+                            {
+                                camBgOverrideType = (CameraBackgroundOverrideType)EditorGUILayout.EnumPopup(Strings.Thumbnails.BackgroundType, camBgOverrideType);
+                            }
+                            if(EditorGUI.EndChangeCheck())
+                            {
+                                if(VRCCam)
+                                {
+                                    vrcCamSetBgColor = false;
+                                    vrcCamSetSkybox = false;
+                                    vrcCamSetBackground = false;
+
+                                    VRCCam.clearFlags = _vrcCamClearFlagsOld;
+                                    VRCCam.backgroundColor = _vrcCamColorOld;
+                                    RenderSettings.skybox = _thumbsSkyboxOld;
+                                    if(cameraBackgroundImage != null)
+                                        cameraBackgroundImage.enabled = false;
+
+                                    switch(camBgOverrideType)
+                                    {
+                                        case CameraBackgroundOverrideType.Color:
+                                            vrcCamSetBgColor = true;
+                                            VRCCam.clearFlags = CameraClearFlags.SolidColor;
+                                            VRCCam.backgroundColor = _vrcCamBgColor;
+                                            break;
+                                        case CameraBackgroundOverrideType.Image:
+                                            vrcCamSetBackground = true;
+                                            if(cameraBackgroundImage != null)
+                                                cameraBackgroundImage.enabled = true;
+                                            break;
+                                        case CameraBackgroundOverrideType.Material:
+                                            vrcCamSetSkybox = true;
+                                            VRCCam.clearFlags = CameraClearFlags.Skybox;
+                                            break;
+                                        case CameraBackgroundOverrideType.None:
+                                        default:
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    Log(Strings.Warning.VRCCamNotFound, LogType.Warning);
+                                }
+                            }
+
                             if(VRCCam)
-                                CenterCameraOnFace(selectedAvatar);
-                            else
-                                Log(Strings.Warning.VRCCamNotFound, LogType.Warning);
+                            {
+                                if(vrcCamSetBgColor)
+                                {
+                                    EditorGUI.BeginChangeCheck();
+                                    {
+                                        _vrcCamBgColor = EditorGUILayout.ColorField(Strings.Thumbnails.BackgroundType_Color, _vrcCamBgColor);
+                                    }
+                                    if(EditorGUI.EndChangeCheck())
+                                    {
+                                        if(VRCCam)
+                                            VRCCam.backgroundColor = _vrcCamBgColor;
+                                    }
+                                }
+                                else if(vrcCamSetSkybox)
+                                {
+                                    EditorGUI.BeginChangeCheck();
+                                    {
+                                        RenderSettings.skybox = (Material)EditorGUILayout.ObjectField(Strings.Thumbnails.BackgroundType_Material, RenderSettings.skybox, typeof(Material), false);
+                                    }
+                                    if(EditorGUI.EndChangeCheck())
+                                    {
+                                        if(VRCCam)
+                                            VRCCam.backgroundColor = _vrcCamBgColor;
+                                    }
+                                }
+                                else if(vrcCamSetBackground)
+                                {
+                                    GUILayout.BeginHorizontal();
+                                    {
+                                        EditorGUILayout.LabelField(Strings.Thumbnails.BackgroundType_Image, GUILayout.MaxWidth(100));
+                                        EditorGUILayout.LabelField(_backgroundPathText, Styles.HelpBox, GUILayout.ExpandHeight(false));
+
+                                        EditorGUI.BeginChangeCheck();
+                                        {
+                                            if(GUILayout.Button(Strings.Buttons.Browse, GUILayout.MaxWidth(60)))
+                                            {
+                                                cameraBackgroundTexture = OpenImageTexture(ref _lastOpenFilePath);
+                                                _backgroundPathText = _lastOpenFilePath;
+                                            }
+                                            if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
+                                            {
+                                                if(cameraBackgroundImage != null)
+                                                    cameraBackgroundImage.color = Color.clear;
+                                                _backgroundPathText = null;
+                                            }
+                                        }
+                                        if(EditorGUI.EndChangeCheck() && cameraBackgroundTexture != null)
+                                        {
+                                            if(cameraBackgroundTexture.name != _emptyTexture.name)
+                                            {
+                                                if(VRCCam)
+                                                {
+                                                    if(cameraBackground == null)
+                                                    {
+                                                        cameraBackground = GameObject.Find("_PumkinsCameraBackground");
+                                                        if(cameraBackground == null)
+                                                            cameraBackground = new GameObject("_PumkinsCameraBackground");
+
+                                                        Canvas c = cameraBackground.GetComponent<Canvas>();
+                                                        if(c == null)
+                                                            c = cameraBackground.AddComponent<Canvas>();
+
+                                                        c.worldCamera = VRCCam;
+                                                        c.renderMode = RenderMode.ScreenSpaceCamera;
+                                                        c.planeDistance = VRCCam.farClipPlane - 0.01f;
+                                                    }
+
+                                                    cameraBackgroundImage = cameraBackground.GetComponent<RawImage>();
+                                                    if(cameraBackgroundImage == null)
+                                                        cameraBackgroundImage = cameraBackground.AddComponent<RawImage>();
+
+                                                    cameraBackgroundImage.texture = cameraBackgroundTexture;
+                                                    cameraBackgroundImage.color = Color.white;
+                                                    cameraBackgroundTexture.name = _emptyTexture.name;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if(cameraBackground != null)
+                                                    Destroy(cameraBackground);
+                                            }
+                                        }
+                                    }
+                                    GUILayout.EndHorizontal();
+                                }
+
+                                EditorGUILayout.Space();
+
+                                if(GUILayout.Button(Strings.Thumbnails.CenterCameraOnViewpoint, GUILayout.MinHeight(25)))
+                                {
+                                    if(VRCCam)
+                                        CenterCameraOnFace(selectedAvatar);
+                                    else
+                                        Log(Strings.Warning.VRCCamNotFound, LogType.Warning);
+                                }
+                            }
+                        }
+                        EditorGUI.EndDisabledGroup();
+
+                        if(!EditorApplication.isPlaying)
+                        {
+                            if(bThumbnails_override_camera_image)
+                            {
+                                cameraOverrideTexture = null;
+                                bThumbnails_override_camera_image = false;
+                            }
+
+                            if(cameraOverlay != null)
+                                GameObject.Destroy(cameraOverlay);
                         }                        
                     }
-                    EditorGUI.EndDisabledGroup();
 
-                    if(!EditorApplication.isPlaying)
+                    DrawGuiLine();
+
+                    //Misc menu
+                    if(_misc_expand = GUILayout.Toggle(_misc_expand, Strings.Main.Misc, Styles.Foldout_title))
                     {
-                        EditorGUILayout.HelpBox(Strings.Thumbnails.StartUploadingFirst, MessageType.Info);
-                    }
-                }           
-
-                if(!EditorApplication.isPlaying)
-                {
-                    if(bThumbnails_override_camera_image)
-                    {
-                        cameraOverrideTexture = null;
-                        bThumbnails_override_camera_image = false;
-                    }
-
-                    if(cameraOverlay != null)
-                        GameObject.Destroy(cameraOverlay);
-                }
-
-                DrawGuiLine();
-
-                //Misc menu
-                if(_misc_expand = GUILayout.Toggle(_misc_expand, Strings.Main.Misc, Styles.Foldout_title))
-                {
-                    EditorGUILayout.Space();
+                        EditorGUILayout.Space();
 #if NO_BONES
-                    if(GUILayout.Button(Strings.Misc.SearchForBones, GUILayout.MinHeight(25)))
-                    {
-                        _DependecyChecker.Check();
-                    }
-                    EditorGUILayout.Space();
+                        if(GUILayout.Button(Strings.Misc.SearchForBones, GUILayout.MinHeight(25)))
+                        {
+                            _DependecyChecker.Check();
+                        }
+                        EditorGUILayout.Space();
 #endif
-                    GUILayout.BeginHorizontal();
-                    {
-
-                        if(GUILayout.Button(new GUIContent(Strings.Buttons.OpenGithubPage, Icons.GithubIcon)))
+                        GUILayout.BeginHorizontal();
                         {
-                            Application.OpenURL(Strings.toolsPage);
-                        }
-                        if(GUILayout.Button(new GUIContent(Strings.Buttons.OpenHelpPage, Icons.Help)))
-                        {
-                            Application.OpenURL(Strings.toolsPage + "wiki");
-                            //GUILayout.MaxWidth(tempSize + 3), GUILayout.MaxHeight(tempSize + 3)
-                        }
-                    }
-                    GUILayout.EndHorizontal();
 
-                    if(GUILayout.Button(new GUIContent(Strings.Buttons.JoinDiscordServer, Icons.DiscordIcon)))
-                    {
-                        Application.OpenURL(Strings.discordLink);
+                            if(GUILayout.Button(new GUIContent(Strings.Buttons.OpenGithubPage, Icons.GithubIcon)))
+                            {
+                                Application.OpenURL(Strings.toolsPage);
+                            }
+                            if(GUILayout.Button(new GUIContent(Strings.Buttons.OpenHelpPage, Icons.Help)))
+                            {
+                                Application.OpenURL(Strings.toolsPage + "wiki");
+                            }
+                        }
+                        GUILayout.EndHorizontal();
+
+                        if(GUILayout.Button(new GUIContent(Strings.Buttons.JoinDiscordServer, Icons.DiscordIcon)))
+                        {
+                            Application.OpenURL(Strings.discordLink);
+                        }
+                        if(GUILayout.Button(new GUIContent(Strings.Buttons.OpenDonationPage, Icons.KofiIcon)))
+                        {
+                            Application.OpenURL(Strings.donationLink);
+                        }
                     }
-                    if(GUILayout.Button(new GUIContent(Strings.Buttons.OpenDonationPage, Icons.KofiIcon)))
-                    {
-                        Application.OpenURL(Strings.donationLink);
-                    }
+
+                    EditorGUILayout.Space();
                 }
-
-                EditorGUILayout.Space();
-
                 EditorGUILayout.EndScrollView();
+
+
+                if(GUI.changed)
+                {
+                    EditorUtility.SetDirty(this);
+                }
             }
+        }
+
+        Texture2D OpenImageTexture(ref string startPath)
+        {            
+            Texture2D tex = null;            
+            string path = EditorUtility.OpenFilePanel("Pick an Image", startPath, "png,jpg,jpeg");
+            if(File.Exists(path))
+            {
+                byte[] data = File.ReadAllBytes(path);
+                try
+                {
+                    tex = new Texture2D(2, 2);
+                    tex.LoadImage(data);
+                    tex.alphaIsTransparency = true;
+                    tex.name = path;
+                }
+                catch
+                {
+                    tex = null;                    
+                }                
+            }
+            startPath = path;
+            return tex;
         }
 
         bool CopierHasSelections()
@@ -1134,23 +1293,6 @@ namespace Pumkin.AvatarTools
                 return false;
             return true;
         }
-
-        //private bool FindVRCCam()
-        //{
-        //    if(_vrcCam == null)
-        //    {
-        //        var c = GameObject.Find("VRCCam");
-        //        if(c != null)
-        //        {
-        //            _vrcCam = c.GetComponent<Camera>();
-        //            return true;
-        //        }
-        //    }
-        //    else
-        //        return true;
-
-        //    return false;
-        //}
 
         private static void SelectAvatarFromScene()
         {
@@ -1182,7 +1324,7 @@ namespace Pumkin.AvatarTools
 
         //Scene GUI
         void OnSceneGUI(SceneView sceneView)
-        {
+        {            
             if(_editingView)
             {
                 if(selectedAvatar == null)
@@ -1196,7 +1338,7 @@ namespace Pumkin.AvatarTools
                 Handles.BeginGUI();
                 {
                     var r = SceneView.currentDrawingSceneView.camera.pixelRect;
-                    GUILayout.BeginArea(new Rect(10, r.height - 10 - windowSize.y, windowSize.x, windowSize.y), new GUIStyle("box"));
+                    GUILayout.BeginArea(new Rect(10, r.height - 10 - windowSize.y, windowSize.x, windowSize.y), Styles.Box);
                     {
                         GUILayout.Label(Strings.Tools.EditViewpoint);
                         GUILayout.BeginHorizontal();
@@ -1585,6 +1727,11 @@ namespace Pumkin.AvatarTools
                 {
                     CopyAllAudioSources(objFrom, objTo, bCopier_audioSources_createObjects);
                 }
+                if(bCopier_dynamicBones_copy)
+                {
+                    if(bCopier_dynamicBones_copyColliders)
+                        CopyAllDynamicBoneColliders(objFrom, objTo);
+                }
             }
             //End run once
 
@@ -1596,7 +1743,7 @@ namespace Pumkin.AvatarTools
             {
                 if(bCopier_dynamicBones_copySettings || bCopier_dynamicBones_copyColliders)
                 {
-                    CopyDynamicBones(objFrom, objTo, bCopier_dynamicBones_createMissingBones);
+                    //CopyDynamicBones(objFrom, objTo, bCopier_dynamicBones_createMissingBones);
                 }
             }
 
@@ -2013,6 +2160,62 @@ namespace Pumkin.AvatarTools
                 }
             }
 #endif
+        }
+
+        /// <summary>
+        /// Copies all DynamicBoneColliders from object and it's children to another object.
+        /// </summary>        
+        /// <param name="removeOldColliders">Whether to remove all DynamicBoneColliders from target before copying</param>
+        void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool removeOldColliders = false)
+        {
+#if NO_BONES
+            Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
+            return;
+#else
+            if(from == null || to == null)
+                return;            
+
+            var dbcFromArr = from.GetComponentsInChildren<DynamicBoneCollider>();
+            if(dbcFromArr == null || dbcFromArr.Length == 0)
+                return;
+
+            if(removeOldColliders)            
+                DestroyAllComponentsOfType(to, typeof(DynamicBoneCollider));            
+
+            for(int i = 0; i < dbcFromArr.Length; i++)
+            {
+                var dbcFrom = dbcFromArr[i];                                
+                var tTo = FindChildInAnotherHierarchy(dbcFrom.gameObject, to, false);
+
+                var dbcToArr = tTo.GetComponentsInChildren<DynamicBoneCollider>();
+                if(tTo != null)
+                {
+                    bool found = false;
+                    for(int z = 0; z < dbcToArr.Length; z++)
+                    {
+                        var d = dbcToArr[z];
+                        if(d.m_Bound == dbcFrom.m_Bound && d.m_Center == dbcFrom.m_Center &&
+                            d.m_Direction == dbcFrom.m_Direction && d.m_Height == dbcFrom.m_Height && d.m_Radius == dbcFrom.m_Radius)
+                        {                            
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if(!found)
+                    {                        
+                        ComponentUtility.CopyComponent(dbcFrom);
+                        ComponentUtility.PasteComponentAsNew(tTo.gameObject);
+                    }
+                }
+            }
+#endif
+        }
+
+        void CopyAllDynamicBones(GameObject from, GameObject to)
+        {
+            var dFromList = new List<DynamicBone>();
+            var dToList = new List<DynamicBone>();
         }
 
         /// <summary>
@@ -2829,33 +3032,6 @@ namespace Pumkin.AvatarTools
         }
 
         /// <summary>
-        /// Meant to apply a humanoid TPose, not done.
-        /// </summary>
-        /// <param name="objTo"></param>
-        public static void ApplyTPose(GameObject objTo)
-        {
-            throw new NotImplementedException();
-
-            //if(objTo == null)
-            //    return;
-
-            //Animator oldAnim = objTo.GetComponent<Animator>();
-            //Avatar av = objTo.GetComponent<Avatar>();
-            //if(av != null && av.isHuman)
-            //{
-            //    if(_tposeAvatar == null)
-            //    {
-
-            //    }
-            //}
-            //else
-            //{
-            //    Log("_Rig avatar missing or not humanoid", LogType.Error);
-            //    return;
-            //}
-        }
-
-        /// <summary>
         /// This will move the VRCCam thumbnail camera on the avatar's face, with an offset
         /// </summary>
         /// <param name="avatarOverride">If this is null, get the avatar we're currently uploading</param>
@@ -3125,7 +3301,7 @@ namespace Pumkin.AvatarTools
         }
 
         /// <summary>
-        /// Destroy all components of type, if the type is in supportedComponents
+        /// Destroy all components of type, if the type is in supportedComponents.
         /// Not sure if it's even necessary to check but we'll keep it for now
         /// </summary>        
         void DestroyAllComponentsOfType(GameObject obj, Type type, bool ignoreRoot = true)
@@ -3169,6 +3345,50 @@ namespace Pumkin.AvatarTools
 #endregion
 
 #region Helper Functions
+
+        void SavePrefs()
+        {
+            //if(!_canSavePrefs)
+            //    return;
+            //EditorCoroutine.Start(SavePrefsCooldown(0.5f));
+
+            var data = JsonUtility.ToJson(this, false);
+            EditorPrefs.SetString("PumkinToolsWindow", data);
+            Log("Saved tool window preferences");
+        }
+
+        void LoadPrefs()
+        {
+            //if(!_canLoadPrefs)
+            //    return;
+            //EditorCoroutine.Start(LoadPrefsCooldown(0.5f));
+
+            var data = EditorPrefs.GetString("PumkinToolsWindow", JsonUtility.ToJson(this, false));
+            JsonUtility.FromJsonOverwrite(data, this);
+            Log("Loaded tool window preferences");
+        }
+
+        //IEnumerator SavePrefsCooldown(float time)
+        //{
+        //    _canSavePrefs = false;
+        //    var data = JsonUtility.ToJson(this, false);
+        //    EditorPrefs.SetString("PumkinToolsWindow", data);
+        //    Log("Loaded tools window preferences");
+
+        //    yield return new WaitForSeconds(time);
+        //    _canSavePrefs = true;
+        //}
+
+        //IEnumerator LoadPrefsCooldown(float time)
+        //{
+        //    _canLoadPrefs = false;
+        //    var data = EditorPrefs.GetString("PumkinToolsWindow", JsonUtility.ToJson(this, false));
+        //    JsonUtility.FromJsonOverwrite(data, this);
+        //    Log("Saved tools window preferences");
+
+        //    yield return new WaitForSeconds(time);
+        //    _canLoadPrefs = true;
+        //}
 
         public static string GetGameObjectPath(GameObject obj, bool skipRoot = true)
         {
@@ -3326,40 +3546,40 @@ namespace Pumkin.AvatarTools
         {
             throw new NotImplementedException();
 
-            if(j1 == null && j2 == null)
-                return true;
-            else if(j1.GetType() != j2.GetType())
-                return false;            
+            //if(j1 == null && j2 == null)
+            //    return true;
+            //else if(j1.GetType() != j2.GetType())
+            //    return false;            
 
-            if(j1 is FixedJoint)
-            {
-                var j = (FixedJoint)j1;
-                var jj = (FixedJoint)j2;                
-            }
+            //if(j1 is FixedJoint)
+            //{
+            //    var j = (FixedJoint)j1;
+            //    var jj = (FixedJoint)j2;                
+            //}
 
-            if(j1 is HingeJoint)
-            {
-                var j = (HingeJoint)j1;
-                var jj = (HingeJoint)j2;
-            }
+            //if(j1 is HingeJoint)
+            //{
+            //    var j = (HingeJoint)j1;
+            //    var jj = (HingeJoint)j2;
+            //}
 
-            if(j1 is SpringJoint)
-            {
-                var j = (SpringJoint)j1;
-                var jj = (SpringJoint)j2;
-            }
+            //if(j1 is SpringJoint)
+            //{
+            //    var j = (SpringJoint)j1;
+            //    var jj = (SpringJoint)j2;
+            //}
 
-            if(j1 is CharacterJoint)
-            {
-                var j = (CharacterJoint)j1;
-                var jj = (CharacterJoint)j2;
-            }
+            //if(j1 is CharacterJoint)
+            //{
+            //    var j = (CharacterJoint)j1;
+            //    var jj = (CharacterJoint)j2;
+            //}
 
-            if(j1 is ConfigurableJoint)
-            {
-                var j = (ConfigurableJoint)j1;
-                var jj = (ConfigurableJoint)j2;
-            }            
+            //if(j1 is ConfigurableJoint)
+            //{
+            //    var j = (ConfigurableJoint)j1;
+            //    var jj = (ConfigurableJoint)j2;
+            //}            
         }
 
         public static bool CollidersAreIdentical(Collider col1, Collider col2)
@@ -3530,12 +3750,14 @@ namespace Pumkin.AvatarTools
 
     public static class Styles
     {
-        public static GUIStyle Foldout_title { get; private set; }
-        public static GUIStyle Label_mainTitle { get; private set; }
-        public static GUIStyle Label_centered { get; private set; }
-        public static GUIStyle Editor_line { get; private set; }
-        public static GUIStyle Label_rightAligned { get; private set; }
-        public static GUIStyle Foldout { get; private set; }
+        public static GUIStyle Foldout_title { get; internal set; }
+        public static GUIStyle Label_mainTitle { get; internal set; }
+        public static GUIStyle Label_centered { get; internal set; }
+        public static GUIStyle Editor_line { get; internal set; }
+        public static GUIStyle Label_rightAligned { get; internal set; }
+        public static GUIStyle Foldout { get; internal set; }
+        public static GUIStyle HelpBox { get; internal set; }
+        public static GUIStyle Box { get; internal set; }
 
         static Styles()
         {
@@ -3570,34 +3792,36 @@ namespace Pumkin.AvatarTools
             };
 
             Foldout = new GUIStyle("Foldout");
+            HelpBox = new GUIStyle("HelpBox");
+            Box = new GUIStyle("box");
         }
     }
 
     public struct Icons
     {
-        public static Texture2D Star { get; private set; }
-        public static Texture2D CsScript { get; private set; }
-        public static Texture2D Transform { get; private set; }
-        public static Texture2D Avatar { get; private set; }
-        public static Texture2D SkinnedMeshRenderer { get; private set; }
-        public static Texture2D ColliderBox { get; private set; }
-        public static Texture2D DefaultAsset { get; private set; }
-        public static Texture2D Help { get; private set; }
-        public static Texture2D ParticleSystem { get; private set; }
-        public static Texture2D RigidBody { get; private set; }
-        public static Texture2D Prefab { get; private set; }
-        public static Texture2D TrailRenderer { get; private set; }
-        public static Texture2D BoneIcon { get; private set; }
-        public static Texture2D BoneColliderIcon { get; private set; }
-        public static Texture2D MeshRenderer { get; private set; }
-        public static Texture2D Light { get; private set; }
-        public static Texture2D Animator { get; private set; }
-        public static Texture2D AudioSource { get; private set; }
-        public static Texture2D Joint { get; private set; }
+        public static Texture2D Star { get; internal set; }
+        public static Texture2D CsScript { get; internal set; }
+        public static Texture2D Transform { get; internal set; }
+        public static Texture2D Avatar { get; internal set; }
+        public static Texture2D SkinnedMeshRenderer { get; internal set; }
+        public static Texture2D ColliderBox { get; internal set; }
+        public static Texture2D DefaultAsset { get; internal set; }
+        public static Texture2D Help { get; internal set; }
+        public static Texture2D ParticleSystem { get; internal set; }
+        public static Texture2D RigidBody { get; internal set; }
+        public static Texture2D Prefab { get; internal set; }
+        public static Texture2D TrailRenderer { get; internal set; }
+        public static Texture2D BoneIcon { get; internal set; }
+        public static Texture2D BoneColliderIcon { get; internal set; }
+        public static Texture2D MeshRenderer { get; internal set; }
+        public static Texture2D Light { get; internal set; }
+        public static Texture2D Animator { get; internal set; }
+        public static Texture2D AudioSource { get; internal set; }
+        public static Texture2D Joint { get; internal set; }
 
-        public static Texture2D DiscordIcon { get; private set; }
-        public static Texture2D GithubIcon { get; private set; }
-        public static Texture2D KofiIcon { get; private set; }        
+        public static Texture2D DiscordIcon { get; internal set; }
+        public static Texture2D GithubIcon { get; internal set; }
+        public static Texture2D KofiIcon { get; internal set; }        
 
         static Icons()
         {
@@ -3669,24 +3893,24 @@ namespace Pumkin.AvatarTools
 
         public static class AvatarInfo
         {            
-            public static string SelectAvatarFirst { get; private set; }
+            public static string SelectAvatarFirst { get; internal set; }
 
-            public static string Name { get; private set; }
-            public static string GameObjects { get; private set; }
-            public static string Bones { get; private set; }
-            public static string SkinnedMeshRenderers { get; private set; }
-            public static string MeshRenderers { get; private set; }
-            public static string Polygons { get; private set; }
-            public static string UsedMaterialSlots { get; private set; }
-            public static string UniqueMaterials { get; private set; }
-            public static string Shaders { get; private set; }
-            public static string DynamicBoneTransforms { get; private set; }
-            public static string DynamicBoneColliders { get; private set; }
-            public static string DynamicBoneColliderTransforms { get; private set; }
-            public static string ParticleSystems { get; private set; }
-            public static string MaxParticles { get; private set; }
-            public static string OverallPerformance { get; private set; }
-            public static string Line { get; private set; }
+            public static string Name { get; internal set; }
+            public static string GameObjects { get; internal set; }
+            public static string Bones { get; internal set; }
+            public static string SkinnedMeshRenderers { get; internal set; }
+            public static string MeshRenderers { get; internal set; }
+            public static string Polygons { get; internal set; }
+            public static string UsedMaterialSlots { get; internal set; }
+            public static string UniqueMaterials { get; internal set; }
+            public static string Shaders { get; internal set; }
+            public static string DynamicBoneTransforms { get; internal set; }
+            public static string DynamicBoneColliders { get; internal set; }
+            public static string DynamicBoneColliderTransforms { get; internal set; }
+            public static string ParticleSystems { get; internal set; }
+            public static string MaxParticles { get; internal set; }
+            public static string OverallPerformance { get; internal set; }
+            public static string Line { get; internal set; }
 
             static AvatarInfo()
             {
@@ -3717,18 +3941,18 @@ namespace Pumkin.AvatarTools
 
         public static class Main
         {
-            public static string Title { get; private set; }
-            public static string WindowName { get; private set; }
-            public static string Version { get; private set; }
-            public static string Avatar { get; private set; }
-            public static string Tools { get; private set; }
-            public static string Copier { get; private set; }
-            public static string RemoveAll { get; private set; }
-            public static string AvatarInfo { get; private set; }   
-            public static string Thumbnails { get; private set; }
+            public static string Title { get; internal set; }
+            public static string WindowName { get; internal set; }
+            public static string Version { get; internal set; }
+            public static string Avatar { get; internal set; }
+            public static string Tools { get; internal set; }
+            public static string Copier { get; internal set; }
+            public static string RemoveAll { get; internal set; }
+            public static string AvatarInfo { get; internal set; }   
+            public static string Thumbnails { get; internal set; }
             
-            public static string Misc { get; private set; }
-            public static string UseSceneSelection { get; private set; }
+            public static string Misc { get; internal set; }
+            public static string UseSceneSelection { get; internal set; }
 
             static Main()
             {
@@ -3740,7 +3964,7 @@ namespace Pumkin.AvatarTools
                 Avatar = GetString("ui_main_avatar") ?? "_Avatar";
                 Title = GetString("ui_main_title") ?? "_Pumkin's Avatar Tools";
                 Version = GetString("ui_main_version") ?? "_Version";
-                WindowName = GetString("ui_main_windowName") ?? "_Avatar Tools";
+                WindowName = GetString("ui_main_windowName") ?? "_Pumkin Tools";
                 Tools = GetString("ui_tools") ?? "_Tools";
                 Copier = GetString("ui_copier") ?? "_Copy Components";
                 AvatarInfo = GetString("ui_avatarInfo") ?? "_Avatar Info";
@@ -3753,19 +3977,20 @@ namespace Pumkin.AvatarTools
         };        
         public static class Buttons
         {
-            public static string SelectFromScene { get; private set; }
-            public static string CopySelected { get; private set; }
-            public static string Cancel { get; private set; }
-            public static string Apply { get; private set; }
-            public static string Refresh { get; private set; }
-            public static string Copy { get; private set; }
-            public static string OpenHelpPage { get; private set; }
-            public static string OpenGithubPage { get; private set; }
-            public static string OpenDonationPage { get; private set; }
-            public static string OpenPoseEditor { get; private set; }
-            public static string JoinDiscordServer { get; private set; }
-            public static string SelectNone { get; private set; }
-            public static string SelectAll { get; private set; }
+            public static string SelectFromScene { get; internal set; }
+            public static string CopySelected { get; internal set; }
+            public static string Cancel { get; internal set; }
+            public static string Apply { get; internal set; }
+            public static string Refresh { get; internal set; }
+            public static string Copy { get; internal set; }
+            public static string OpenHelpPage { get; internal set; }
+            public static string OpenGithubPage { get; internal set; }
+            public static string OpenDonationPage { get; internal set; }
+            public static string OpenPoseEditor { get; internal set; }
+            public static string JoinDiscordServer { get; internal set; }
+            public static string SelectNone { get; internal set; }
+            public static string SelectAll { get; internal set; }
+            public static string Browse { get; internal set; }
 
             static Buttons()
             {
@@ -3787,16 +4012,17 @@ namespace Pumkin.AvatarTools
                 JoinDiscordServer = GetString("buttons_joinDiscordServer") ?? "_Join Discord Server!";
                 SelectNone = GetString("buttons_selectNone") ?? "_Select None";
                 SelectAll = GetString("buttons_selectAll") ?? "_Select All";
+                Browse = GetString("buttons_browse") ?? "_Browse";
             }
         };
         public static class Tools
         {
-            public static string FillVisemes { get; private set; }
-            public static string EditViewpoint { get; private set; }
-            public static string RevertBlendshapes { get; private set; }
-            public static string ZeroBlendshapes { get; private set; }
-            public static string ResetPose { get; private set; }
-            public static string ResetToTPose { get; private set; }
+            public static string FillVisemes { get; internal set; }
+            public static string EditViewpoint { get; internal set; }
+            public static string RevertBlendshapes { get; internal set; }
+            public static string ZeroBlendshapes { get; internal set; }
+            public static string ResetPose { get; internal set; }
+            public static string ResetToTPose { get; internal set; }
             
             static Tools()
             {
@@ -3815,14 +4041,16 @@ namespace Pumkin.AvatarTools
         };
         public static class Thumbnails
         {
-            public static string OverlayCameraImage { get; private set; }
-            public static string OverlayTexture { get; private set; }
-            public static string StartUploadingFirst { get; private set; }            
-            public static string CenterCameraOnViewpoint { get; private set; }
-            public static string BackgroundType { get; private set; }
-            public static string BackgroundType_None { get; private set; }
-            public static string BackgroundType_Material { get; private set; }
-            public static string BackgroundType_Color { get; private set; }            
+            public static string OverlayCameraImage { get; internal set; }            
+            public static string OverlayTexture { get; internal set; }
+            public static string StartUploadingFirst { get; internal set; }            
+            public static string CenterCameraOnViewpoint { get; internal set; }
+            public static string BackgroundType { get; internal set; }
+            public static string BackgroundType_None { get; internal set; }
+            public static string BackgroundType_Material { get; internal set; }
+            public static string BackgroundType_Color { get; internal set; }
+            public static string HideOtherAvatars { get; internal set; }
+            public static string BackgroundType_Image { get; internal set; }
 
             static Thumbnails()
             {
@@ -3831,7 +4059,7 @@ namespace Pumkin.AvatarTools
 
             public static void Reload()
             {
-                OverlayCameraImage = GetString("ui_thumbnails_overlayCameraImage") ?? "_Overlay Camera Image";
+                OverlayCameraImage = GetString("ui_thumbnails_overlayCameraImage") ?? "_Overlay Image";                
                 OverlayTexture = GetString("ui_thumbnails_overlayTexture") ?? "_Overlay Texture";
                 StartUploadingFirst = GetString("ui_thumbnails_startUploadingFirst") ?? "_Start uploading an Avatar first";                
                 CenterCameraOnViewpoint = GetString("ui_thumbnails_centerCameraOnViewpoint") ?? "_Center Camera on Viewpoint";
@@ -3840,50 +4068,53 @@ namespace Pumkin.AvatarTools
 
                 BackgroundType_None = GetString("ui_thumbnails_backgroundType_none") ?? "_None";
                 BackgroundType_Material = GetString("ui_thumbnails_backgroundType_material") ?? "_Material";
-                BackgroundType_Color = GetString("ui_thumbnails_backgroundType_color") ?? "_Color";                
+                BackgroundType_Color = GetString("ui_thumbnails_backgroundType_color") ?? "_Color";
+                BackgroundType_Image = GetString("ui_thumbnails_backgroundType_image") ?? "_Image";
+
+                HideOtherAvatars = GetString("ui_thumbnails_hideOtherAvatars") ?? "_Hide Other Avatars when Uploading";
             }
         }
         public static class Copier
         {
-            public static string CopyFrom { get; private set; }
-            public static string CopyGameObjects { get; private set; }
-            public static string CopySettings { get; private set; }
-            public static string CreateMissing { get; private set; }
+            public static string CopyFrom { get; internal set; }
+            public static string CopyGameObjects { get; internal set; }
+            public static string CopySettings { get; internal set; }
+            public static string CreateMissing { get; internal set; }
 
-            public static string Transforms { get; private set; }
-            public static string Transforms_position { get; private set; }
-            public static string Transforms_rotation { get; private set; }
-            public static string Transforms_scale { get; private set; }
-            public static string Transforms_avatarScale { get; private set; }
-            public static string DynamicBones { get; private set; }            
-            public static string DynamicBones_colliders { get; private set; }
-            public static string DynamicBones_removeOldBones { get; private set; }
-            public static string DynamicBones_removeOldColliders { get; private set; }
-            public static string DynamicBones_createMissingBones { get; private set; }
-            public static string Colliders { get; private set; }
-            public static string Colliders_box { get; private set; }
-            public static string Colliders_capsule { get; private set; }
-            public static string Colliders_sphere { get; private set; }
-            public static string Colliders_mesh { get; private set; }
-            public static string Colliders_removeOld { get; private set; }
-            public static string Descriptor { get; private set; }            
-            public static string Descriptor_pipelineId { get; private set; }
-            public static string Descriptor_animationOverrides { get; private set; }
-            public static string SkinMeshRender { get; private set; }            
-            public static string SkinMeshRender_materials { get; private set; }
-            public static string SkinMeshRender_blendShapeValues { get; private set; }
-            public static string ParticleSystems { get; private set; }
-            public static string RigidBodies { get; private set; }
-            public static string TrailRenderers { get; private set; }
-            public static string EmptyGameObjects { get; private set; }
-            public static string MeshRenderers { get; private set; }
-            public static string Lights { get; private set; }
-            public static string Animators { get; private set; }
-            public static string CopyMainAnimator { get; private set; }
-            public static string ReplaceOld { get; private set; }
-            public static string Animators_inChildren { get; private set; }
-            public static string AudioSources { get; private set; }
-            public static string Joints { get; private set; }
+            public static string Transforms { get; internal set; }
+            public static string Transforms_position { get; internal set; }
+            public static string Transforms_rotation { get; internal set; }
+            public static string Transforms_scale { get; internal set; }
+            public static string Transforms_avatarScale { get; internal set; }
+            public static string DynamicBones { get; internal set; }            
+            public static string DynamicBones_colliders { get; internal set; }
+            public static string DynamicBones_removeOldBones { get; internal set; }
+            public static string DynamicBones_removeOldColliders { get; internal set; }
+            public static string DynamicBones_createMissing { get; internal set; }
+            public static string Colliders { get; internal set; }
+            public static string Colliders_box { get; internal set; }
+            public static string Colliders_capsule { get; internal set; }
+            public static string Colliders_sphere { get; internal set; }
+            public static string Colliders_mesh { get; internal set; }
+            public static string Colliders_removeOld { get; internal set; }
+            public static string Descriptor { get; internal set; }            
+            public static string Descriptor_pipelineId { get; internal set; }
+            public static string Descriptor_animationOverrides { get; internal set; }
+            public static string SkinMeshRender { get; internal set; }            
+            public static string SkinMeshRender_materials { get; internal set; }
+            public static string SkinMeshRender_blendShapeValues { get; internal set; }
+            public static string ParticleSystems { get; internal set; }
+            public static string RigidBodies { get; internal set; }
+            public static string TrailRenderers { get; internal set; }
+            public static string EmptyGameObjects { get; internal set; }
+            public static string MeshRenderers { get; internal set; }
+            public static string Lights { get; internal set; }
+            public static string Animators { get; internal set; }
+            public static string CopyMainAnimator { get; internal set; }
+            public static string ReplaceOld { get; internal set; }
+            public static string Animators_inChildren { get; internal set; }
+            public static string AudioSources { get; internal set; }
+            public static string Joints { get; internal set; }
 
             static Copier()
             {
@@ -3908,7 +4139,7 @@ namespace Pumkin.AvatarTools
                 DynamicBones_colliders = GetString("ui_copier_dynamicBones_colliders") ?? "_Colliders";
                 DynamicBones_removeOldBones = GetString("ui_copier_dynamicBones_removeOld") ?? "_Remove Old Bones";
                 DynamicBones_removeOldColliders = GetString("ui_copier_dynamicBones_removeOldColliders") ?? "_Remove Old Colliders";
-                DynamicBones_createMissingBones = GetString("ui_copier_dynamicBones_createMissing") ?? "_Create Missing Bones";
+                DynamicBones_createMissing = GetString("ui_copier_dynamicBones_createMissing") ?? "_Create Missing Bones";
                 Colliders = GetString("ui_copier_colliders") ?? "_Colliders";                
                 Colliders_box = GetString("ui_copier_colliders_box") ?? "_Box Colliders";
                 Colliders_capsule = GetString("ui_copier_colliders_capsule") ?? "_Capsule Colliders";
@@ -3936,31 +4167,31 @@ namespace Pumkin.AvatarTools
         };
         public static class Log
         {
-            public static string CopyAttempt { get; private set; }
-            public static string RemoveAttempt { get; private set; }
-            public static string CopyFromInvalid { get; private set; }
-            public static string Done { get; private set; }
-            public static string Failed { get; private set; }
-            public static string CantCopyToSelf { get; private set; }
-            public static string ViewpointApplied { get; private set; }
-            public static string ViewpointCancelled { get; private set; }
-            public static string Cancelled { get; private set; }
-            public static string NoSkinnedMeshFound { get; private set; }
-            public static string DescriptorIsNull { get; private set; }
-            public static string Success { get; private set; }
-            public static string TryFillVisemes { get; private set; }
-            public static string TryRemoveUnsupportedComponent { get; private set; }
-            public static string MeshHasNoVisemes { get; private set; }
-            public static string FailedIsNull { get; private set; }       
-            public static string NameIsEmpty { get; private set; }
-            public static string LoadedPose { get; private set; }
-            public static string LoadedBlendshapePreset { get; private set; }
-            public static string NothingSelected { get; private set; }
-            public static string FailedDoesntHave { get; private set; }
-            public static string FailedNotSupported { get; private set; }
-            public static string FailedAlreadyHas { get; private set; }
-            public static string LoadedCameraOverlay { get; private set; }
-            public static string FailedHasNo { get; private set; }
+            public static string CopyAttempt { get; internal set; }
+            public static string RemoveAttempt { get; internal set; }
+            public static string CopyFromInvalid { get; internal set; }
+            public static string Done { get; internal set; }
+            public static string Failed { get; internal set; }
+            public static string CantCopyToSelf { get; internal set; }
+            public static string ViewpointApplied { get; internal set; }
+            public static string ViewpointCancelled { get; internal set; }
+            public static string Cancelled { get; internal set; }
+            public static string NoSkinnedMeshFound { get; internal set; }
+            public static string DescriptorIsNull { get; internal set; }
+            public static string Success { get; internal set; }
+            public static string TryFillVisemes { get; internal set; }
+            public static string TryRemoveUnsupportedComponent { get; internal set; }
+            public static string MeshHasNoVisemes { get; internal set; }
+            public static string FailedIsNull { get; internal set; }       
+            public static string NameIsEmpty { get; internal set; }
+            public static string LoadedPose { get; internal set; }
+            public static string LoadedBlendshapePreset { get; internal set; }
+            public static string NothingSelected { get; internal set; }
+            public static string FailedDoesntHave { get; internal set; }
+            public static string FailedNotSupported { get; internal set; }
+            public static string FailedAlreadyHas { get; internal set; }
+            public static string LoadedCameraOverlay { get; internal set; }
+            public static string FailedHasNo { get; internal set; }
 
             static Log()
             {
@@ -3998,10 +4229,10 @@ namespace Pumkin.AvatarTools
         };        
         public static class Warning
         {
-            public static string Warn { get; private set; }
-            public static string NotFound { get; private set; }
-            public static string SelectSceneObject { get; private set; }
-			public static string OldVersion { get; private set; }
+            public static string Warn { get; internal set; }
+            public static string NotFound { get; internal set; }
+            public static string SelectSceneObject { get; internal set; }
+			public static string OldVersion { get; internal set; }
             public static string VRCCamNotFound { get; internal set; }
 
             static Warning()
@@ -4020,12 +4251,12 @@ namespace Pumkin.AvatarTools
         };
         public static class Credits
         {
-            public static string Title { get; private set; }
-            public static string Version { get; private set; }
-            public static string RedundantStrings { get; private set; }
-            public static string JsonDotNetCredit { get; private set; }
-            public static string AddMoreStuff { get; private set; }
-            public static string PokeOnDiscord { get; private set; }
+            public static string Title { get; internal set; }
+            public static string Version { get; internal set; }
+            public static string RedundantStrings { get; internal set; }
+            public static string JsonDotNetCredit { get; internal set; }
+            public static string AddMoreStuff { get; internal set; }
+            public static string PokeOnDiscord { get; internal set; }
 
             static Credits()
             {
@@ -4044,9 +4275,9 @@ namespace Pumkin.AvatarTools
         };        
         public static class Misc
         {
-            public static string uwu { get; private set; }
-            public static string SearchForBones { get; private set; }
-            public static string SuperExperimental { get; private set; }
+            public static string uwu { get; internal set; }
+            public static string SearchForBones { get; internal set; }
+            public static string SuperExperimental { get; internal set; }
 
             private static string searchForBones;
 
@@ -4061,37 +4292,37 @@ namespace Pumkin.AvatarTools
                 SearchForBones = GetString("misc_searchForBones") ?? "_Search for DynamicBones";
                 SuperExperimental = GetString("misc_superExperimental") ?? "_Super Experimental Stuff:";
             }
-        }
+        }        
 
         public static class PoseEditor
         {
-            public static string Title { get; private set; }
+            public static string Title { get; internal set; }
 
-            public static string Scene { get; private set; }            
-            public static string SceneLoadAdditive { get; private set; }
-            public static string SceneOverrideLights { get; private set; }
+            public static string Scene { get; internal set; }            
+            public static string SceneLoadAdditive { get; internal set; }
+            public static string SceneOverrideLights { get; internal set; }
 
-            public static string AvatarPosition { get; private set; }
-            public static string AvatarPositionOverridePose { get; private set; }
-            public static string AvatarPositionOverrideBlendshapes { get; private set; }
+            public static string AvatarPosition { get; internal set; }
+            public static string AvatarPositionOverridePose { get; internal set; }
+            public static string AvatarPositionOverrideBlendshapes { get; internal set; }
 
-            public static string SceneSaveChanges { get; private set; }
-            public static string UnloadScene { get; private set; }
-            public static string ResetPosition { get; private set; }
+            public static string SceneSaveChanges { get; internal set; }
+            public static string UnloadScene { get; internal set; }
+            public static string ResetPosition { get; internal set; }
 
-            public static string Pose { get; private set; }
-            public static string NewPose { get; private set; }
-            public static string OnlySavePoseChanges { get; private set; }
-            public static string LoadPose { get; private set; }
+            public static string Pose { get; internal set; }
+            public static string NewPose { get; internal set; }
+            public static string OnlySavePoseChanges { get; internal set; }
+            public static string LoadPose { get; internal set; }
 
-            public static string Blendshapes { get; private set; }
-            public static string NewPreset { get; private set; }
-            public static string LoadPreset { get; private set; }
+            public static string Blendshapes { get; internal set; }
+            public static string NewPreset { get; internal set; }
+            public static string LoadPreset { get; internal set; }
 
-            public static string SaveButton { get; private set; }
-            public static string ReloadButton { get; private set; }
+            public static string SaveButton { get; internal set; }
+            public static string ReloadButton { get; internal set; }
 
-            public static string BodyPositionYTooSmall { get; private set; }            
+            public static string BodyPositionYTooSmall { get; internal set; }            
 
             static PoseEditor()
             {
@@ -4131,7 +4362,7 @@ namespace Pumkin.AvatarTools
 #region Main
                 //Main
                 {"ui_main_title", "Pumkin's Avatar Tools" },
-                {"ui_main_windowName", "Avatar Tools" },
+                {"ui_main_windowName", "Pumkin Tools" },
                 {"ui_main_version", "Version" },
                 {"ui_main_avatar", "Avatar" },
                 {"ui_tools", "Tools" },
@@ -4176,6 +4407,7 @@ namespace Pumkin.AvatarTools
                 {"buttons_joinDiscordServer", "Join Discord Server!" },
                 {"buttons_selectAll", "Select All" },
                 {"buttons_selectNone", "Select None" },
+                {"buttons_browse", "Browse" },
 #endregion
 
 #endregion
@@ -4262,7 +4494,7 @@ namespace Pumkin.AvatarTools
 
 #region Thumbnails
                 //Thumbnails                
-                {"ui_thumbnails_overlayCameraImage", "Overlay Camera Image" },
+                {"ui_thumbnails_overlayCameraImage", "Overlay Image" },
                 {"ui_thumbnails_overlayTexture",  "Overlay Texture"},
                 {"ui_thumbnails_startUploadingFirst", "Begin uploading an Avatar first" },
                 {"ui_thumbnails_backgroundColor", "Background Color" },                
@@ -4272,6 +4504,8 @@ namespace Pumkin.AvatarTools
                 {"ui_thumbnails_backgroundType_none", "None" },
                 {"ui_thumbnails_backgroundType_material", "Material" },
                 {"ui_thumbnails_backgroundType_color", "Color" },
+                {"ui_thumbnails_backgroundType_image", "Image" },
+                {"ui_thumbnails_hideOtherAvatars" , "Hide Other Avatars when Uploading"},
 #endregion
 #region PoseEditor
                 //Pose Editor
@@ -4355,7 +4589,7 @@ namespace Pumkin.AvatarTools
 #region Main
                 //Main
                 {"ui_main_title", "Pumkin's Avataw Awoos! ÒwÓ" },
-                {"ui_main_windowName", "Avataw Awoos" },
+                {"ui_main_windowName", "Pumkin Awoos" },
                 {"ui_main_version", "Vewsion~" },
                 {"ui_main_avatar", "Avataw :o" },
                 {"ui_thumbnails", "Thumbnyaiws >:3" },
