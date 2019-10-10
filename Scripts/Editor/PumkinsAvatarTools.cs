@@ -1,4 +1,3 @@
-#define BONES
 using System.Collections.Generic;
 using UnityEditor;
 using VRCSDK2;
