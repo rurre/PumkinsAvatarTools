@@ -1,3 +1,4 @@
+#define BONES
 using System.Collections.Generic;
 using UnityEditor;
 using VRCSDK2;
@@ -2263,24 +2264,35 @@ namespace Pumkin.AvatarTools
 
                     if(dFrom.m_ReferenceObject)
                         newDynBone.m_ReferenceObject = FindObjectInAnotherHierarchy(dFrom.m_ReferenceObject.gameObject, newDynBone.transform.root.gameObject, false);
-
+#if OLD_BONES
                     var newColliders = new List<DynamicBoneCollider>();
-
+#elif BONES
+                    var newColliders = new List<DynamicBoneColliderBase>();
+#endif
                     for(int i = 0; i < newDynBone.m_Colliders.Count; i++)
                     {
                         var badRefCollider = newDynBone.m_Colliders[i];
 
                         if(!badRefCollider)
                             continue;
-
+#if OLD_BONES
                         DynamicBoneCollider fixedRefCollider = null;
+#elif BONES
+                        DynamicBoneColliderBase fixedRefCollider = null;
+#endif
                         var t = FindObjectInAnotherHierarchy(newDynBone.m_Colliders[i].gameObject, to, false);
                         var toColls = t.GetComponents<DynamicBoneCollider>();
                         foreach(var c in toColls)
                         {
+#if OLD_BONES
                             if(c.m_Bound == badRefCollider.m_Bound && c.m_Center == badRefCollider.m_Center && c.m_Direction == badRefCollider.m_Direction &&
-                               c.m_Height == badRefCollider.m_Height && c.m_Radius == badRefCollider.m_Radius && !newDynBone.m_Colliders.Contains(c))
+                            c.m_Height == badRefCollider.m_Height && c.m_Radius == badRefCollider.m_Radius && !newDynBone.m_Colliders.Contains(c))
                                 fixedRefCollider = c;
+#elif BONES
+                            if(c.m_Bound == badRefCollider.m_Bound && c.m_Center == badRefCollider.m_Center && c.m_Direction == badRefCollider.m_Direction &&
+                               !newDynBone.m_Colliders.Contains(c))                            
+                                fixedRefCollider = c;
+#endif
                         }
 
                         if(fixedRefCollider)
@@ -2315,14 +2327,14 @@ namespace Pumkin.AvatarTools
                 }
             }
 #endif
-        }       
+                    }
 
-        /// <summary>
-        /// Copies Box, Capsule, Sphere and Mesh colliders from one object to another AND ALL OF IT'S CHILDREN AT ONCE.
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        void CopyAllColliders(GameObject from, GameObject to, bool createGameObjects)
+                /// <summary>
+                /// Copies Box, Capsule, Sphere and Mesh colliders from one object to another AND ALL OF IT'S CHILDREN AT ONCE.
+                /// </summary>
+                /// <param name="from"></param>
+                /// <param name="to"></param>
+                void CopyAllColliders(GameObject from, GameObject to, bool createGameObjects)
         {
             if(from == null || to == null)
                 return;
