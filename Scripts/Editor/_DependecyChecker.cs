@@ -10,17 +10,20 @@ namespace Pumkin.DependencyChecker
     {
         static readonly float checkCooldown = 0.5f;
 
-        static string hasBonesString = "#define BONES\r\n";        
+        static string hasBonesString = "#define BONES\r\n";
+        static string hasOldBonesString = "#define OLD_BONES\r\n";
 
         public static string MainScriptPath { get; private set; }
 
         static bool needRewrite = false;
         static bool needCheck = true;
 
+        static bool bonesAreOld = false;
+        
         static float _now = 0f;
         static float _canCheckNext = 0f;
 
-        public enum CheckerStatus { DEFAULT, NO_BONES, NO_SDK, OK };
+        public enum CheckerStatus { DEFAULT, NO_BONES, NO_SDK, OK, OK_OLDBONES };
         public static CheckerStatus Status
         {
             get; private set;
@@ -78,13 +81,14 @@ namespace Pumkin.DependencyChecker
 
                 toolsFile = toolsFile.Substring(toolsFile.IndexOf("using"));
 
-                int hasBonesIndex = header.IndexOf(hasBonesString);                
+                int hasBonesIndex = header.IndexOf(hasBonesString);
+                int hasOldBonesIndex = header.IndexOf(hasOldBonesString);
                                 
                 if(boneType == null) //No bones in project
                 {
                     Status = CheckerStatus.NO_BONES;
                     Debug.Log("<color=blue>PumkinsAvatarTools</color>: DynamicBones not found in project.");                    
-                    if(hasBonesIndex != -1) //#define BONES present, remove
+                    if(hasBonesIndex != -1 || hasOldBonesIndex != -1) //#define BONES present, remove
                     {
                         header = "";
                         needRewrite = true;                        
@@ -92,13 +96,31 @@ namespace Pumkin.DependencyChecker
                 }
                 else //DynamicBones Present
                 {
-                    Status = CheckerStatus.OK;
-                    Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found DynamicBones in project!");
-                    if(hasBonesIndex == -1)
+                    if(typeof(DynamicBoneCollider).IsSubclassOf(typeof(DynamicBoneColliderBase)))
+                        bonesAreOld = false;
+                    else
+                        bonesAreOld = true;
+
+                    if(bonesAreOld)
                     {
-                        header = hasBonesString;
-                        needRewrite = true;                        
-                    }                          
+                        Status = CheckerStatus.OK_OLDBONES;
+                        Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found old version of DynamicBones in project!");
+                        if(hasOldBonesIndex == -1)
+                        {
+                            header = hasOldBonesString;
+                            needRewrite = true;
+                        }
+                    }
+                    else
+                    {
+                        Status = CheckerStatus.OK;
+                        Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found DynamicBones in project!");
+                        if(hasBonesIndex == -1)
+                        {
+                            header = hasBonesString;
+                            needRewrite = true;
+                        }
+                    }
                 }
                 if(needRewrite)
                 {
