@@ -3774,7 +3774,7 @@ namespace Pumkin.AvatarTools
     /// </summary>
     public static class Strings
     {        
-        public static readonly string version = "0.7b";
+        public static readonly string version = "0.7b - Work in Progress";
         public static readonly string toolsPage = "https://github.com/rurre/PumkinsAvatarTools/";
         public static readonly string donationLink = "https://ko-fi.com/notpumkin";
         public static readonly string discordLink = "https://discord.gg/7vyekJv";
