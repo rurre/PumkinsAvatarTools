@@ -6,9 +6,11 @@ using Pumkin.DependencyChecker;
 
 namespace Pumkin.AvatarTools
 {
+    [System.Serializable]
     public class _PumkinsAvatarToolsWindow : EditorWindow
     {
-        static PumkinsAvatarTools tools;
+        [SerializeField, HideInInspector] static PumkinsAvatarTools tools;
+
         [MenuItem("Tools/Pumkin/Avatar Tools")]
         public static void ShowWindow()
         {
@@ -20,14 +22,33 @@ namespace Pumkin.AvatarTools
             editorWindow.titleContent = new GUIContent(Strings.Main.WindowName);
         }
 
+        //private void OnEnable()
+        //{
+        //    Application.logMessageReceived += (string log, string stack, LogType type) =>
+        //    {
+        //        if(type == LogType.Error)
+        //        {
+        //            if(log.Contains("The type or namespace name `DynamicBone' could not be found.") ||
+        //                log.Contains("The type or namespace name `DynamicBoneCollider' could not be found."))
+        //            {
+
+        //            }
+        //        }
+        //    };
+        //}
+
         public void OnGUI()
         {
             if(tools == null)
-                tools = CreateInstance<PumkinsAvatarTools>();
+            {
+                tools = FindObjectOfType(typeof(PumkinsAvatarTools)) as PumkinsAvatarTools ?? CreateInstance<PumkinsAvatarTools>();
+                //tools = CreateInstance<PumkinsAvatarTools>();
+            }
 
             switch(_DependecyChecker.Status)
             {
                 case _DependecyChecker.CheckerStatus.OK:
+                case _DependecyChecker.CheckerStatus.NO_BONES:
                     {
                         tools.OnGUI();
                         break;
@@ -39,7 +60,7 @@ namespace Pumkin.AvatarTools
 
                         EditorGUILayout.HelpBox("VRChat SDK not found.\nPlease install the SDK and try again.", MessageType.Warning, true);
                         if(GUILayout.Button("Search again"))
-                            _DependecyChecker.Check();
+                            _DependecyChecker.ForceCheck();
                     }
                     break;
                 default:
@@ -49,10 +70,10 @@ namespace Pumkin.AvatarTools
                         EditorGUILayout.Space();
 
                         if(GUILayout.Button("Try again"))
-                            _DependecyChecker.Check();
+                            _DependecyChecker.ForceCheck();
                     }
                     break;
-            }            
+            }
         }
     }
 }
