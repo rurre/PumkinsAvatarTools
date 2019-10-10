@@ -49,6 +49,7 @@ namespace Pumkin.AvatarTools
             {
                 case _DependecyChecker.CheckerStatus.OK:
                 case _DependecyChecker.CheckerStatus.NO_BONES:
+                case _DependecyChecker.CheckerStatus.OK_OLDBONES:
                     {
                         tools.OnGUI();
                         break;
