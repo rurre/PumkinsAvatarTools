@@ -1,4 +1,3 @@
-#define NO_BONES
 using System.Collections.Generic;
 using UnityEditor;
 using VRCSDK2;
@@ -129,10 +128,10 @@ namespace Pumkin.AvatarTools
         //Thumbnails        
         [SerializeField] bool bThumbnails_override_camera_image = false;
         [SerializeField] bool hideAvatarsOnStart = true;
-        GameObject cameraOverlay = null;
-        GameObject cameraBackground = null;
-        RawImage cameraOverlayImage = null;
-        RawImage cameraBackgroundImage = null;
+        GameObject _cameraOverlay = null;
+        GameObject _cameraBackground = null;
+        RawImage _cameraOverlayImage = null;
+        RawImage _cameraBackgroundImage = null;        
 
         Texture2D _emptyTexture;
 
@@ -148,11 +147,11 @@ namespace Pumkin.AvatarTools
         bool vrcCamSetSkybox = false;
         bool vrcCamSetBackground = false;
         [SerializeField] Color _vrcCamBgColor = new Color(0.235f, 0.22f, 0.22f);
-        [SerializeField] Color _vrcCamColorOld = new Color(0.192f, 0.302f, 0.475f);
-        [SerializeField, HideInInspector] Material _thumbsSkyboxOld = null;
+        [SerializeField] Color _vrcCamColorOld = new Color(0.192f, 0.302f, 0.475f);        
         [SerializeField] CameraClearFlags _vrcCamClearFlagsOld = CameraClearFlags.Skybox;
+        Material _thumbsSkyboxOld = null;
 
-        public enum CameraBackgroundOverrideType { None, Color, Image, Material };
+        public enum CameraBackgroundOverrideType { None, Color, Material, Image };
 
         //UI
         [SerializeField] bool _tools_expand = true;
@@ -160,8 +159,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool _tools_removeAll_expand = true;
 
         [SerializeField] bool _avatarInfo_expand = false;
-        [SerializeField] bool _thumbnails_expand = false;
-        [SerializeField] Vector2 _avatarInfo_scroll = Vector2.zero;
+        [SerializeField] bool _thumbnails_expand = false;        
 
         [SerializeField] bool _misc_expand = true;
 
@@ -180,14 +178,19 @@ namespace Pumkin.AvatarTools
 		Vector3 _viewPosTemp;
         Tool _viewPosToolOld = Tool.None;
 
-        [SerializeField, HideInInspector] VRC_AvatarDescriptor _viewPos_descriptor;
+        VRC_AvatarDescriptor _viewPos_descriptor;
 
         static AvatarInfo avatarInfo = null;                
         static string _avatarInfoSpace = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
         static string _avatarInfoString = Strings.AvatarInfo.SelectAvatarFirst + _avatarInfoSpace; //Please don't hurt me for this        
 
         PlayModeStateChange _oldPlayState = PlayModeStateChange.EnteredEditMode;
-        
+
+        readonly string cameraOverlayName = "_PumkinsCameraOverlay";
+        readonly string cameraBackgroundName = "_PumkinsCameraBackground";
+
+        static bool verboseLoggingEnabled = false;
+
         enum ToolMenuActions
         {
             RemoveDynamicBones,
@@ -214,7 +217,7 @@ namespace Pumkin.AvatarTools
 
         static readonly Type[] supportedComponents =
         {
-#if !NO_BONES
+#if BONES
             typeof(DynamicBone),
             typeof(DynamicBoneCollider),
             typeof(DynamicBoneColliderBase),
@@ -245,6 +248,10 @@ namespace Pumkin.AvatarTools
             typeof(ConfigurableJoint),
             typeof(SpringJoint),            
         };
+
+        #endregion
+
+        #region Properties
 
         public static string MainScriptPath
         {
@@ -288,6 +295,68 @@ namespace Pumkin.AvatarTools
             }
         }
 
+        public GameObject CameraOverlay
+        {
+            get
+            {
+                if(!_cameraOverlay)
+                    _cameraOverlay = GameObject.Find(cameraOverlayName) ?? new GameObject(cameraOverlayName);
+
+                return _cameraOverlay;
+            }
+        }
+
+        public RawImage CameraOverlayRawImage
+        {
+            get
+            {
+                if(!_cameraOverlayImage)
+                {                       
+                    _cameraOverlayImage = CameraOverlay.GetComponent<RawImage>() ?? CameraOverlay.AddComponent<RawImage>();
+
+                    Canvas c = CameraOverlay.GetComponent<Canvas>();
+                    if(!c)
+                        c = CameraOverlay.AddComponent<Canvas>();                                   
+                    c.worldCamera = VRCCam;
+                    c.renderMode = RenderMode.ScreenSpaceCamera;
+                    c.planeDistance = VRCCam.nearClipPlane + 0.01f;
+
+                }
+                return _cameraOverlayImage;
+            }
+        }
+
+        public GameObject CameraBackground
+        {
+            get
+            {
+                if(!_cameraBackground)
+                    _cameraBackground = GameObject.Find(cameraBackgroundName) ?? new GameObject(cameraBackgroundName);
+                return _cameraBackground;
+            }
+        }
+
+        public RawImage CameraBackgroundRawImage
+        {
+            get
+            {
+                if(_cameraBackgroundImage == null)
+                {                                           
+                    _cameraBackgroundImage = CameraBackground.GetComponent<RawImage>();
+                    if(_cameraBackgroundImage == null)
+                        _cameraBackgroundImage = CameraBackground.AddComponent<RawImage>();
+
+                    Canvas c = CameraBackground.GetComponent<Canvas>();
+                    if(!c)
+                        c = CameraBackground.AddComponent<Canvas>();
+                    c.worldCamera = VRCCam;
+                    c.renderMode = RenderMode.ScreenSpaceCamera;
+                    c.planeDistance = VRCCam.farClipPlane - 0.01f;
+                }
+                return _cameraBackgroundImage;
+            }            
+        }      
+        
         #endregion
 
         #region Unity GUI             
@@ -515,12 +584,12 @@ namespace Pumkin.AvatarTools
                                 EditorGUILayout.BeginHorizontal();
 
                                 EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
-#if NO_BONES
+#if !BONES
                             EditorGUI.BeginDisabledGroup(true);
 #endif
                                 if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones, Icons.BoneIcon)))
                                     ActionButton(ToolMenuActions.RemoveDynamicBones);
-#if NO_BONES
+#if !BONES
                             EditorGUI.EndDisabledGroup();
 #endif
                                 if(GUILayout.Button(new GUIContent(Strings.Copier.ParticleSystems, Icons.ParticleSystem)))
@@ -536,13 +605,13 @@ namespace Pumkin.AvatarTools
 
                                 EditorGUILayout.EndVertical();
 
-#if NO_BONES
+#if !BONES
                             EditorGUI.BeginDisabledGroup(true);
 #endif
                                 EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
                                 if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones_colliders, Icons.BoneColliderIcon)))
                                     ActionButton(ToolMenuActions.RemoveDynamicBoneColliders);
-#if NO_BONES
+#if !BONES
                             EditorGUI.EndDisabledGroup();
 #endif
                                 if(GUILayout.Button(new GUIContent(Strings.Copier.TrailRenderers, Icons.TrailRenderer)))
@@ -608,13 +677,13 @@ namespace Pumkin.AvatarTools
                             }
 
                             //DynamicBones menu
-#if NO_BONES
+#if !BONES
                         EditorGUI.BeginDisabledGroup(true);
                         {
 #endif
                             EditorGUILayout.BeginHorizontal();
                             _copier_expand_dynamicBones = GUILayout.Toggle(_copier_expand_dynamicBones, Icons.BoneIcon, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
-#if NO_BONES
+#if !BONES
                         }
                         bCopier_dynamicBones_copy = GUILayout.Toggle(false, Strings.Copier.DynamicBones + " " + Strings.Warning.NotFound, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
 #else
@@ -637,7 +706,7 @@ namespace Pumkin.AvatarTools
                                 EditorGUILayout.Space();
                                 EditorGUI.EndDisabledGroup();
                             }
-#if NO_BONES
+#if !BONES
                         EditorGUI.EndDisabledGroup();
 #endif
 
@@ -849,7 +918,7 @@ namespace Pumkin.AvatarTools
                                 {
                                     if(GUILayout.Button(Strings.Buttons.SelectNone, GUILayout.MinWidth(100)))
                                     {
-#if !NO_BONES
+#if BONES
                                         bCopier_dynamicBones_copy = false;
 #endif
                                         bCopier_colliders_copy = false;
@@ -867,7 +936,7 @@ namespace Pumkin.AvatarTools
                                     }
                                     if(GUILayout.Button(Strings.Buttons.SelectAll, GUILayout.MinWidth(100)))
                                     {
-#if !NO_BONES
+#if BONES
                                         bCopier_dynamicBones_copy = true;
 #endif
                                         bCopier_colliders_copy = true;
@@ -951,9 +1020,8 @@ namespace Pumkin.AvatarTools
                                 avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);
                             }
                         }
-                        _avatarInfo_scroll = EditorGUILayout.BeginScrollView(_avatarInfo_scroll, GUILayout.MinHeight(250));
-                        EditorGUILayout.TextArea(_avatarInfoString, Styles.HelpBox, GUILayout.MinHeight(240));
-                        EditorGUILayout.EndScrollView();
+
+                        EditorGUILayout.SelectableLabel(_avatarInfoString, Styles.HelpBox, GUILayout.MinHeight(240));                        
 
                         EditorGUI.BeginDisabledGroup(selectedAvatar == null);
                         {
@@ -980,7 +1048,7 @@ namespace Pumkin.AvatarTools
                     {
                         if(!EditorApplication.isPlaying)
                         {
-                            EditorGUILayout.TextArea(Strings.Thumbnails.StartUploadingFirst, Styles.HelpBox);
+                            EditorGUILayout.SelectableLabel(Strings.Thumbnails.StartUploadingFirst, Styles.HelpBox_OneLine);
                             hideAvatarsOnStart = GUILayout.Toggle(hideAvatarsOnStart, Strings.Thumbnails.HideOtherAvatars);
                         }
 
@@ -991,11 +1059,11 @@ namespace Pumkin.AvatarTools
                         {
                             GUILayout.BeginHorizontal();
                             {
+                                EditorGUILayout.LabelField(Strings.Thumbnails.OverlayCameraImage, GUILayout.MaxWidth(100));
+                                EditorGUILayout.SelectableLabel(_overlayPathText, Styles.HelpBox_OneLine);
+
                                 EditorGUI.BeginChangeCheck();
                                 {
-                                    EditorGUILayout.LabelField(Strings.Thumbnails.OverlayCameraImage, GUILayout.MaxWidth(100));
-                                    EditorGUILayout.LabelField(_overlayPathText, Styles.HelpBox, GUILayout.ExpandHeight(false));                                    
-
                                     if(GUILayout.Button(Strings.Buttons.Browse, GUILayout.MaxWidth(60)) && VRCCam)
                                     {
                                         cameraOverrideTexture = OpenImageTexture(ref _lastOpenFilePath);
@@ -1003,54 +1071,34 @@ namespace Pumkin.AvatarTools
                                     }
                                     if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
                                     {
-                                        if(cameraOverlayImage != null)
-                                            cameraOverlayImage.color = Color.clear;
+                                        if(!CameraOverlayRawImage)
+                                            CameraOverlayRawImage.color = Color.clear;
                                         _overlayPathText = null;
                                     }
                                 }
                                 if(EditorGUI.EndChangeCheck() && cameraOverrideTexture != null)
                                 {
+                                    Repaint();
                                     if(cameraOverrideTexture.name != _emptyTexture.name)
                                     {
                                         if(VRCCam)
                                         {
-                                            if(cameraOverlay == null)
-                                            {
-                                                cameraOverlay = GameObject.Find("_PumkinsCameraOverlay");
-                                                if(cameraOverlay == null)
-                                                    cameraOverlay = new GameObject("_PumkinsCameraOverlay");
-
-                                                Canvas c = cameraOverlay.GetComponent<Canvas>();
-                                                if(c == null)
-                                                    c = cameraOverlay.AddComponent<Canvas>();
-
-                                                c.worldCamera = VRCCam;
-                                                c.renderMode = RenderMode.ScreenSpaceCamera;
-                                                c.planeDistance = VRCCam.nearClipPlane + 0.01f;
-                                            }
-
-                                            cameraOverlayImage = cameraOverlay.GetComponent<RawImage>();
-                                            if(cameraOverlayImage == null)
-                                                cameraOverlayImage = cameraOverlay.AddComponent<RawImage>();
-
-                                            cameraOverlayImage.texture = cameraOverrideTexture;
-                                            cameraOverlayImage.color = Color.white;
+                                            CameraOverlayRawImage.texture = cameraOverrideTexture;
+                                            CameraOverlayRawImage.color = Color.white;
                                             cameraOverrideTexture.name = _emptyTexture.name;
                                         }
                                     }
                                     else
                                     {
-                                        if(cameraOverlay != null)
-                                            Destroy(cameraOverlay);
+                                        if(CameraOverlay != null)
+                                            Destroy(CameraOverlay);
                                     }
                                 }
                             }
                             GUILayout.EndHorizontal();
                         }
                         EditorGUI.EndDisabledGroup();
-
-                        EditorGUILayout.Space();
-
+                        
                         //Background Type
                         EditorGUI.BeginDisabledGroup(!EditorApplication.isPlaying);
                         {
@@ -1069,8 +1117,8 @@ namespace Pumkin.AvatarTools
                                     VRCCam.clearFlags = _vrcCamClearFlagsOld;
                                     VRCCam.backgroundColor = _vrcCamColorOld;
                                     RenderSettings.skybox = _thumbsSkyboxOld;
-                                    if(cameraBackgroundImage != null)
-                                        cameraBackgroundImage.enabled = false;
+                                    if(CameraBackgroundRawImage)
+                                        CameraBackgroundRawImage.enabled = false;
 
                                     switch(camBgOverrideType)
                                     {
@@ -1081,8 +1129,8 @@ namespace Pumkin.AvatarTools
                                             break;
                                         case CameraBackgroundOverrideType.Image:
                                             vrcCamSetBackground = true;
-                                            if(cameraBackgroundImage != null)
-                                                cameraBackgroundImage.enabled = true;
+                                            if(CameraBackgroundRawImage)
+                                                CameraBackgroundRawImage.enabled = true;
                                             break;
                                         case CameraBackgroundOverrideType.Material:
                                             vrcCamSetSkybox = true;
@@ -1097,7 +1145,7 @@ namespace Pumkin.AvatarTools
                                 {
                                     Log(Strings.Warning.VRCCamNotFound, LogType.Warning);
                                 }
-                            }
+                            }                            
 
                             if(VRCCam)
                             {
@@ -1130,7 +1178,7 @@ namespace Pumkin.AvatarTools
                                     GUILayout.BeginHorizontal();
                                     {
                                         EditorGUILayout.LabelField(Strings.Thumbnails.BackgroundType_Image, GUILayout.MaxWidth(100));
-                                        EditorGUILayout.LabelField(_backgroundPathText, Styles.HelpBox, GUILayout.ExpandHeight(false));
+                                        EditorGUILayout.SelectableLabel(_backgroundPathText, Styles.HelpBox, GUILayout.MaxHeight(18), GUILayout.ExpandHeight(false));
 
                                         EditorGUI.BeginChangeCheck();
                                         {
@@ -1141,8 +1189,8 @@ namespace Pumkin.AvatarTools
                                             }
                                             if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
                                             {
-                                                if(cameraBackgroundImage != null)
-                                                    cameraBackgroundImage.color = Color.clear;
+                                                if(CameraBackgroundRawImage)
+                                                    CameraBackgroundRawImage.color = Color.clear;
                                                 _backgroundPathText = null;
                                             }
                                         }
@@ -1152,38 +1200,19 @@ namespace Pumkin.AvatarTools
                                             {
                                                 if(VRCCam)
                                                 {
-                                                    if(cameraBackground == null)
-                                                    {
-                                                        cameraBackground = GameObject.Find("_PumkinsCameraBackground");
-                                                        if(cameraBackground == null)
-                                                            cameraBackground = new GameObject("_PumkinsCameraBackground");
-
-                                                        Canvas c = cameraBackground.GetComponent<Canvas>();
-                                                        if(c == null)
-                                                            c = cameraBackground.AddComponent<Canvas>();
-
-                                                        c.worldCamera = VRCCam;
-                                                        c.renderMode = RenderMode.ScreenSpaceCamera;
-                                                        c.planeDistance = VRCCam.farClipPlane - 0.01f;
-                                                    }
-
-                                                    cameraBackgroundImage = cameraBackground.GetComponent<RawImage>();
-                                                    if(cameraBackgroundImage == null)
-                                                        cameraBackgroundImage = cameraBackground.AddComponent<RawImage>();
-
-                                                    cameraBackgroundImage.texture = cameraBackgroundTexture;
-                                                    cameraBackgroundImage.color = Color.white;
+                                                    CameraBackgroundRawImage.texture = cameraBackgroundTexture;
+                                                    CameraBackgroundRawImage.color = Color.white;
                                                     cameraBackgroundTexture.name = _emptyTexture.name;
                                                 }
                                             }
                                             else
                                             {
-                                                if(cameraBackground != null)
-                                                    Destroy(cameraBackground);
+                                                if(CameraBackground != null)
+                                                    Destroy(CameraBackground);
                                             }
                                         }
                                     }
-                                    GUILayout.EndHorizontal();
+                                    GUILayout.EndHorizontal();                                    
                                 }
 
                                 EditorGUILayout.Space();
@@ -1207,8 +1236,11 @@ namespace Pumkin.AvatarTools
                                 bThumbnails_override_camera_image = false;
                             }
 
-                            if(cameraOverlay != null)
-                                GameObject.Destroy(cameraOverlay);
+                            if(CameraOverlay)
+                                GameObject.DestroyImmediate(CameraOverlay);
+
+                            if(CameraBackground)
+                                GameObject.DestroyImmediate(CameraBackground);
                         }                        
                     }
 
@@ -1218,7 +1250,7 @@ namespace Pumkin.AvatarTools
                     if(_misc_expand = GUILayout.Toggle(_misc_expand, Strings.Main.Misc, Styles.Foldout_title))
                     {
                         EditorGUILayout.Space();
-#if NO_BONES
+#if !BONES
                         if(GUILayout.Button(Strings.Misc.SearchForBones, GUILayout.MinHeight(25)))
                         {
                             _DependecyChecker.Check();
@@ -1417,12 +1449,12 @@ namespace Pumkin.AvatarTools
                     DestroyAllComponentsOfType(selectedAvatar, typeof(Collider));
                     break;
                 case ToolMenuActions.RemoveDynamicBoneColliders:
-#if !NO_BONES
+#if BONES
                     DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBoneCollider));
 #endif
                     break;
                 case ToolMenuActions.RemoveDynamicBones:
-#if !NO_BONES
+#if BONES
                     DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBone));
 #endif
                     break;
@@ -1660,17 +1692,6 @@ namespace Pumkin.AvatarTools
             //Run statment only if root so only run this once
             if(objTo != null && objTo.transform == objTo.transform.root)
             {
-#if !NO_BONES
-                if(bCopier_dynamicBones_copy)
-                {
-
-                    if(bCopier_dynamicBones_removeOldColliders)
-                        DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBoneCollider));                        
-                    if(bCopier_dynamicBones_removeOldBones)                        
-                        DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBone));
-
-                }
-#endif
                 if(bCopier_colliders_copy)
                 {
                     if(bCopier_colliders_removeOld)
@@ -1684,9 +1705,6 @@ namespace Pumkin.AvatarTools
                 {
                     objTo.transform.localScale = objFrom.transform.localScale;
                 }
-
-                //New way of doing it with all child components being copied within the functions so we only run once.
-                //Will eventually replace running CopyComponents() on each child with this.
                 if(bCopier_particleSystems_copy)
                 {
                     CopyAllParticleSystems(objFrom, objTo, bCopier_particleSystems_createObjects);
@@ -1727,11 +1745,20 @@ namespace Pumkin.AvatarTools
                 {
                     CopyAllAudioSources(objFrom, objTo, bCopier_audioSources_createObjects);
                 }
+#if BONES
                 if(bCopier_dynamicBones_copy)
                 {
+                    if(bCopier_dynamicBones_removeOldColliders)
+                        DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBoneCollider));
                     if(bCopier_dynamicBones_copyColliders)
                         CopyAllDynamicBoneColliders(objFrom, objTo);
+
+                    if(bCopier_dynamicBones_removeOldBones)
+                        DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBone));
+                    if(bCopier_dynamicBones_copySettings)
+                        CopyAllDynamicBones(objFrom, objTo);
                 }
+#endif
             }
             //End run once
 
@@ -1739,13 +1766,13 @@ namespace Pumkin.AvatarTools
             {
                 CopyTransforms(objFrom, objTo);
             }
-            if(bCopier_dynamicBones_copy)
-            {
-                if(bCopier_dynamicBones_copySettings || bCopier_dynamicBones_copyColliders)
-                {
-                    //CopyDynamicBones(objFrom, objTo, bCopier_dynamicBones_createMissingBones);
-                }
-            }
+            //if(bCopier_dynamicBones_copy)
+            //{
+            //    if(bCopier_dynamicBones_copySettings || bCopier_dynamicBones_copyColliders)
+            //    {
+            //        CopyDynamicBones(objFrom, objTo, bCopier_dynamicBones_createMissingBones);
+            //    }
+            //}
 
             //Copy Components in Children. Not a good way of doing it, will eventually replace this.
             for(int i = 0; i < objFrom.transform.childCount; i++)
@@ -1833,7 +1860,7 @@ namespace Pumkin.AvatarTools
                 var aFrom = aFromArr[i];
                 var oFrom = aFromArr[i].GetComponent<ONSPAudioSource>();
 
-                var tTo = FindChildInAnotherHierarchy(aFrom.gameObject, to, createGameObjects);
+                var tTo = FindObjectInAnotherHierarchy(aFrom.gameObject, to, createGameObjects);
                 var aToObj = tTo.gameObject;
 
                 string log = String.Format(Strings.Log.CopyAttempt, aFromArr[i].GetType().ToString(), aFrom.gameObject, tTo.gameObject);
@@ -1890,7 +1917,7 @@ namespace Pumkin.AvatarTools
                 string log = Strings.Log.CopyAttempt;
 
                 var aFrom = aFromArr[i];
-                var tTo = FindChildInAnotherHierarchy(aFrom.gameObject, to, createGameObjects);
+                var tTo = FindObjectInAnotherHierarchy(aFrom.gameObject, to, createGameObjects);
                 var aToObj = tTo.gameObject;
 
                 if(aFrom != null)
@@ -1932,7 +1959,7 @@ namespace Pumkin.AvatarTools
                 string log = Strings.Log.CopyAttempt;
 
                 var lFrom = lFromArr[i];
-                var tTo = FindChildInAnotherHierarchy(lFrom.gameObject, to, createGameObjects);
+                var tTo = FindObjectInAnotherHierarchy(lFrom.gameObject, to, createGameObjects);
                 var lToObj = tTo.gameObject;                
 
                 if(lFrom != null)
@@ -1974,7 +2001,7 @@ namespace Pumkin.AvatarTools
                 string log = Strings.Log.CopyAttempt;
 
                 var rFrom = mFromArr[i];
-                var tTo = FindChildInAnotherHierarchy(rFrom.gameObject, to, createGameObjects);
+                var tTo = FindObjectInAnotherHierarchy(rFrom.gameObject, to, createGameObjects);
                 var rToObj = tTo.gameObject;
 
                 var fFrom = rFrom.GetComponent<MeshFilter>();
@@ -2077,7 +2104,7 @@ namespace Pumkin.AvatarTools
         /// </summary>
         void CopyDynamicBoneColliders(GameObject from, GameObject to, bool removeOld = false)
         {
-#if !NO_BONES
+#if BONES
 
             string[] logFormat = { "DynamicBoneCollider", from.name, to.name };
             string log = Strings.Log.CopyAttempt;
@@ -2088,27 +2115,6 @@ namespace Pumkin.AvatarTools
             List<DynamicBoneCollider> dToList = new List<DynamicBoneCollider>();
             dToList.AddRange(to.GetComponents<DynamicBoneCollider>());
 
-#if !OLD_BONES
-            
-            if(dFromList.Count == 0)
-            {
-                var ar = from.GetComponents<DynamicBoneColliderBase>();
-                foreach(var obj in ar)
-                {                    
-                    dFromList.Add((DynamicBoneCollider)obj);
-                }
-            }
-
-            if(dToList.Count == 0)
-            {
-                var ar = to.GetComponents<DynamicBoneColliderBase>();
-                foreach(var obj in ar)
-                {
-                    dToList.Add((DynamicBoneCollider)obj);
-                }
-            }
-
-#endif
             if(removeOld)
             {
                 foreach(var c in dToList)
@@ -2166,9 +2172,9 @@ namespace Pumkin.AvatarTools
         /// Copies all DynamicBoneColliders from object and it's children to another object.
         /// </summary>        
         /// <param name="removeOldColliders">Whether to remove all DynamicBoneColliders from target before copying</param>
-        void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool removeOldColliders = false)
+        void CopyAllDynamicBoneColliders(GameObject from, GameObject to)
         {
-#if NO_BONES
+#if !BONES
             Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
             return;
 #else
@@ -2177,15 +2183,12 @@ namespace Pumkin.AvatarTools
 
             var dbcFromArr = from.GetComponentsInChildren<DynamicBoneCollider>();
             if(dbcFromArr == null || dbcFromArr.Length == 0)
-                return;
-
-            if(removeOldColliders)            
-                DestroyAllComponentsOfType(to, typeof(DynamicBoneCollider));            
+                return;         
 
             for(int i = 0; i < dbcFromArr.Length; i++)
             {
                 var dbcFrom = dbcFromArr[i];                                
-                var tTo = FindChildInAnotherHierarchy(dbcFrom.gameObject, to, false);
+                var tTo = FindObjectInAnotherHierarchy(dbcFrom.gameObject, to, false);
 
                 var dbcToArr = tTo.GetComponentsInChildren<DynamicBoneCollider>();
                 if(tTo != null)
@@ -2212,232 +2215,107 @@ namespace Pumkin.AvatarTools
 #endif
         }
 
-        void CopyAllDynamicBones(GameObject from, GameObject to)
-        {
-            var dFromList = new List<DynamicBone>();
-            var dToList = new List<DynamicBone>();
-        }
-
         /// <summary>
-        /// Copies DynamicBone components. 
-        /// </summary>
-        void CopyDynamicBones(GameObject from, GameObject to, bool createMissing = true)
+        /// Copies all DynamicBones from one object and all of it's children to another
+        /// </summary>        
+        void CopyAllDynamicBones(GameObject from, GameObject to, bool createIfMissing = true)
         {
-#if !NO_BONES
-            string log = Strings.Log.CopyAttempt;
-            string[] logFormat = {  "DynamicBoneCollider", from.name, to.name };
-
-            var dFromList = new List<DynamicBone>();
-            var dToList = new List<DynamicBone>();
-
-            dFromList.AddRange(from.GetComponents<DynamicBone>());
-            dToList.AddRange(to.GetComponents<DynamicBone>());
-
-            for(int i = 0; i < dFromList.Count; i++)
-            {
-                var dFrom = dFromList[i];
-                var garbageBones = new List<DynamicBone>();
-#if !OLD_BONES
-                var newCollList = new List<DynamicBoneColliderBase>();
+#if !BONES
+            Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
+            return;
 #else
-                var newCollList = new List<DynamicBoneCollider>();
-#endif
-            
+            if(from == null || to == null)
+                return;
 
-                DynamicBone dTo = null;
+            var dFromArr = from.GetComponentsInChildren<DynamicBone>();
+            bool found = false;
 
-                foreach(var d in dToList)
+            foreach(var dFrom in dFromArr)
+            {
+                var tTo = FindObjectInAnotherHierarchy(dFrom.gameObject, to, false);
+                var dToArr = tTo.GetComponents<DynamicBone>();
+
+                if(!dFrom.m_Root)
                 {
-                    if(d.m_Root == null || (d.m_Root.name == dFrom.m_Root.name))
+                    LogVerbose("DynamicBone {0} of {1} doesn't have a root assigned. Ignoring", LogType.Warning, dFrom.transform.name, dFrom.transform.root.name);
+                    continue;
+                }
+
+                foreach(var d in dToArr)
+                {
+                    if(!d.m_Root)
+                        continue;
+
+                    if(d.m_Root.name == dFrom.m_Root.name)
                     {
-                        garbageBones.Add(d);
-                        dTo = d;
-                        break;
+                        LogVerbose("{0} already has this DynamicBone. Ignoring", LogType.Log, d.name);
+                        found = true;
                     }
                 }
 
-                if(dTo == null)
-                    if(createMissing)
-                    {
-                        dTo = to.AddComponent<DynamicBone>();
+                if(!found)
+                {                    
+                    var newDynBone = tTo.gameObject.AddComponent<DynamicBone>();
+                    ComponentUtility.CopyComponent(dFrom);
+                    ComponentUtility.PasteComponentValues(newDynBone);
+                    
+                    newDynBone.m_Root = FindObjectInAnotherHierarchy(dFrom.m_Root.gameObject, newDynBone.transform.root.gameObject, false);
 
-#if !OLD_BONES
-                        dTo.m_Colliders = new List<DynamicBoneColliderBase>();
-#else
-                        dTo.m_Colliders = new List<DynamicBoneCollider>();
-#endif
+                    if(dFrom.m_ReferenceObject)
+                        newDynBone.m_ReferenceObject = FindObjectInAnotherHierarchy(dFrom.m_ReferenceObject.gameObject, newDynBone.transform.root.gameObject, false);
+
+                    var newColliders = new List<DynamicBoneCollider>();
+
+                    for(int i = 0; i < newDynBone.m_Colliders.Count; i++)
+                    {
+                        var badRefCollider = newDynBone.m_Colliders[i];
+
+                        if(!badRefCollider)
+                            continue;
+
+                        DynamicBoneCollider fixedRefCollider = null;
+                        var t = FindObjectInAnotherHierarchy(newDynBone.m_Colliders[i].gameObject, to, false);
+                        var toColls = t.GetComponents<DynamicBoneCollider>();
+                        foreach(var c in toColls)
+                        {
+                            if(c.m_Bound == badRefCollider.m_Bound && c.m_Center == badRefCollider.m_Center && c.m_Direction == badRefCollider.m_Direction &&
+                               c.m_Height == badRefCollider.m_Height && c.m_Radius == badRefCollider.m_Radius && !newDynBone.m_Colliders.Contains(c))
+                                fixedRefCollider = c;
+                        }
+
+                        if(fixedRefCollider)
+                        {
+                            LogVerbose("Fixed reference for {0} in {1}", LogType.Log, fixedRefCollider.name, newDynBone.name);
+                            newColliders.Add(fixedRefCollider);
+                        }
+                    }
+
+                    newDynBone.m_Colliders = newColliders;
+
+                    var newExclusions = new List<Transform>();
+
+                    foreach(var ex in newDynBone.m_Exclusions)
+                    {
+                        var t = FindObjectInAnotherHierarchy(ex.gameObject, to, false);
+                        if(t && !newExclusions.Contains(t))
+                            newExclusions.Add(t);
+                    }
+
+                    newDynBone.m_Exclusions = newExclusions;
+
+                    if(!newDynBone.m_Root)
+                    {
+                        Log("_Couldn't set root {0} for new DynamicBone in {1}'s {2}. Removing.", LogType.Warning, newDynBone.m_Root.name, newDynBone.transform.root.name, newDynBone.transform.name);
+                        DestroyImmediate(newDynBone);
                     }
                     else
-                        return;
-
-                if(garbageBones != null)
-                {
-                    foreach(var d in garbageBones)
                     {
-                        dToList.Remove(d);
+                        Log("_Copied DynamicBone from {0}'s {1} to {2}'s", LogType.Log, dFrom.transform.root.name, dFrom.transform.name, tTo.name);
                     }
                 }
-
-                if(bCopier_dynamicBones_copyColliders)
-                {
-                    var colls = dFrom.m_Colliders;
-                    for(int z = 0; z < colls.Count; z++)
-                    {
-						if(colls[z] == null)
-							continue;
-						
-                        string tFromPath = GetGameObjectPath(colls[z].gameObject);
-                        var tTo = to.transform.root.Find(tFromPath);
-
-                        DynamicBoneCollider fc = null;
-                        if(fc == null)
-                        {
-                            var tempCol = colls[z].GetComponent<DynamicBoneCollider>();
-                            if(tempCol != null)
-                                fc = tempCol;
-                            else
-                                fc = (DynamicBoneCollider)colls[z];
-                        }
-
-                        if(tTo != null)
-                        {
-                            var oldColls = tTo.GetComponents<DynamicBoneCollider>();
-
-                            bool isSame = false;
-                            foreach(var c in oldColls)
-                            {
-                                if(c.m_Bound == fc.m_Bound && c.m_Center == fc.m_Center && c.m_Direction == fc.m_Direction && c.m_Height == fc.m_Height && c.m_Radius == fc.m_Radius)
-                                {
-                                    isSame = true;
-#if OLD_BONES
-                                    DynamicBoneCollider tempC = c;
-#else
-                                    DynamicBoneColliderBase tempC = c;
-#endif
-                                    foreach(var cc in dTo.m_Colliders)
-                                    {
-                                        if(c == cc)
-                                        {
-                                            tempC = null;
-                                            break;
-                                        }
-                                    }
-                                    if(tempC != null)
-                                    {
-                                        newCollList.Add(tempC);
-                                    }
-                                    break;
-                                }
-                            }
-                            if(!isSame)
-                            {
-                                var cTo = tTo.gameObject.AddComponent<DynamicBoneCollider>();
-                                cTo.m_Bound = fc.m_Bound;
-                                cTo.m_Center = fc.m_Center;
-                                cTo.m_Direction = fc.m_Direction;
-                                cTo.m_Height = fc.m_Height;
-                                cTo.m_Radius = fc.m_Radius;
-
-                                cTo.enabled = fc.enabled;
-
-                                newCollList.Add(cTo);
-                                log += "Success: Added {0} to {2}";
-                                Log(log, LogType.Log, logFormat);
-                            }
-                        }
-                    }
-                }
-
-                logFormat = new string[] { "_DynamicBone", from.name, to.name };
-                log = Strings.Log.CopyAttempt;
-
-                if(dFrom == null)
-                {
-                    log += "_Failed: {1} has no {0}. Ignoring";
-                    Log(log, LogType.Warning, logFormat);
-                    return;
-                }
-                else if(!bCopier_dynamicBones_copySettings)
-                {
-                    log += "_Failed: Not allowed to - Copy settings is unchecked";
-                    Log(log, LogType.Warning, logFormat);
-                    return;
-                }
-                else if(dFrom.m_Root == null)
-                {
-                    Log(log, LogType.Warning, logFormat);
-                    log += "_Failed: {2}'s {0} has no Root set. Ignoring";
-                    return;
-                }
-
-                dTo.enabled = dFrom.enabled;
-
-                dTo.m_Damping = dFrom.m_Damping;
-                dTo.m_DampingDistrib = dFrom.m_DampingDistrib;
-                dTo.m_DistanceToObject = dFrom.m_DistanceToObject;
-                dTo.m_DistantDisable = dFrom.m_DistantDisable;
-                dTo.m_Elasticity = dFrom.m_Elasticity;
-                dTo.m_ElasticityDistrib = dFrom.m_ElasticityDistrib;
-                dTo.m_EndLength = dFrom.m_EndLength;
-                dTo.m_EndOffset = dFrom.m_EndOffset;
-                dTo.m_Force = dFrom.m_Force;
-                dTo.m_FreezeAxis = dFrom.m_FreezeAxis;
-                dTo.m_Gravity = dFrom.m_Gravity;
-                dTo.m_Inert = dFrom.m_Inert;
-                dTo.m_InertDistrib = dFrom.m_InertDistrib;
-                dTo.m_Radius = dFrom.m_Radius;
-                dTo.m_RadiusDistrib = dFrom.m_RadiusDistrib;
-                dTo.m_ReferenceObject = dFrom.m_ReferenceObject;
-                dTo.m_Stiffness = dFrom.m_Stiffness;
-                dTo.m_StiffnessDistrib = dFrom.m_StiffnessDistrib;                
-                dTo.m_UpdateRate = dFrom.m_UpdateRate;
-
-                if(dTo.m_Colliders != null)
-                    dTo.m_Colliders.TrimExcess();
-
-                dTo.m_Colliders.AddRange(newCollList);
-
-                List<Transform> el = new List<Transform>();
-                for(int z = 0; z < dFrom.m_Exclusions.Count; z++)
-                {
-                    if(dFrom.m_Exclusions[z] != null)
-                    {
-                        string p = GetGameObjectPath(dFrom.m_Exclusions[z].gameObject, true);
-                        var t = to.transform.root.Find(p);
-
-                        if(t != null && dFrom.m_Exclusions[z].name == t.name)
-                            el.Add(t);
-                    }
-                }
-                dTo.m_Exclusions = el;
-
-                if(dFrom.m_Root != null)
-                {
-                    string rootPath = GetGameObjectPath(dFrom.m_Root.gameObject, true);
-                    if(!string.IsNullOrEmpty(rootPath))
-                    {
-                        var toRoot = dTo.transform.root.Find(rootPath);
-                        if(!string.IsNullOrEmpty(rootPath))
-                            dTo.m_Root = toRoot;
-                    }
-                }
-
-                if(dFrom.m_ReferenceObject != null)
-                {
-                    string refPath = GetGameObjectPath(dFrom.m_ReferenceObject.gameObject, true);
-                    if(!string.IsNullOrEmpty(refPath))
-                    {
-                        var toRef = dTo.transform.root.Find(refPath);
-                        if(!string.IsNullOrEmpty(refPath))
-                            dTo.m_ReferenceObject = toRef;
-                    }
-                }
-
-                log += "Success: Copied {0} from {1} to {2}";
-                Log(log, LogType.Log, logFormat);                
             }
 #endif
-        }
+        }       
 
         /// <summary>
         /// Copies Box, Capsule, Sphere and Mesh colliders from one object to another AND ALL OF IT'S CHILDREN AT ONCE.
@@ -2685,7 +2563,7 @@ namespace Pumkin.AvatarTools
             for(int i = 0; i < rFromArr.Length; i++)
             {
                 var rFrom = rFromArr[i];
-                var tTo = FindChildInAnotherHierarchy(rFrom.gameObject, to, createGameObjects);
+                var tTo = FindObjectInAnotherHierarchy(rFrom.gameObject, to, createGameObjects);
                 var rToObj = tTo.gameObject;
 
                 var rTo = rToObj.GetComponent<TrailRenderer>();
@@ -2716,7 +2594,7 @@ namespace Pumkin.AvatarTools
             for(int i = 0; i < rFromArr.Length; i++)
             {
                 var rFrom = rFromArr[i];
-                var tTo = FindChildInAnotherHierarchy(rFrom.gameObject, to, createGameObjects);
+                var tTo = FindObjectInAnotherHierarchy(rFrom.gameObject, to, createGameObjects);
                 var rToObj = tTo.gameObject;
 
                 var rTo = rToObj.GetComponent<Rigidbody>();
@@ -2744,7 +2622,7 @@ namespace Pumkin.AvatarTools
             for(int i = 0; i < pFromArr.Length; i++)
             {
                 var pp = pFromArr[i];
-                var tTo = FindChildInAnotherHierarchy(pp.gameObject, to, createGameObjects);                
+                var tTo = FindObjectInAnotherHierarchy(pp.gameObject, to, createGameObjects);                
 
                 if(tTo != null)
                 {
@@ -3264,7 +3142,7 @@ namespace Pumkin.AvatarTools
         /// </summary>    
         void DestroyAllDynamicBones(GameObject from)
         {
-#if !NO_BONES
+#if BONES
             var bones = from.GetComponentsInChildren<DynamicBone>(true);
             foreach(var b in bones)
             {
@@ -3280,7 +3158,7 @@ namespace Pumkin.AvatarTools
         void DestroyAllDynamicBoneColliders(GameObject from)
         {
 
-#if !NO_BONES
+#if BONES
             List<DynamicBoneColliderBase> cl = new List<DynamicBoneColliderBase>();
             cl.AddRange(from.GetComponentsInChildren<DynamicBoneColliderBase>(true));
 
@@ -3449,10 +3327,14 @@ namespace Pumkin.AvatarTools
             return path.Split('\\', '/');
         }
 
-        public Transform FindChildInAnotherHierarchy(GameObject child, GameObject parent, bool createIfMissing)
+        /// <summary>
+        /// Looks for object in another object's child hierarchy. Can create if missing.
+        /// </summary>                
+        /// <returns>Transform of found object</returns>
+        public Transform FindObjectInAnotherHierarchy(GameObject obj, GameObject otherHierarchy, bool createIfMissing)
         {
-            var childPath = GetGameObjectPath(child);
-            var childTrans = parent.transform.root.Find(childPath, createIfMissing, child.transform);
+            var childPath = GetGameObjectPath(obj);
+            var childTrans = otherHierarchy.transform.root.Find(childPath, createIfMissing, obj.transform);
 
             return childTrans;
         }
@@ -3503,7 +3385,36 @@ namespace Pumkin.AvatarTools
             }
             return false;
         }
-        
+
+        public static void LogVerbose(string message, LogType logType = LogType.Log, params string[] logFormat)
+        {
+            if(!verboseLoggingEnabled)
+                return;
+
+            if(logFormat.Length > 0)
+                message = string.Format(message, logFormat);
+            message = "<color=red>PumkinsAvatarTools</color>: " + message;
+
+            switch(logType)
+            {
+                case LogType.Error:
+                    Debug.Log(message);
+                    break;
+                case LogType.Warning:
+                    Debug.LogWarning(message);
+                    break;
+                case LogType.Exception:
+                    Debug.LogException(new Exception(message));
+                    break;
+                case LogType.Assert:
+                    Debug.LogAssertion(message);
+                    break;
+                default:
+                    Debug.Log(message);
+                    break;
+            }
+        }
+
         public static void Log(string message, LogType logType = LogType.Log, params string[] logFormat)
         {
             if(logFormat.Length > 0)
@@ -3757,7 +3668,8 @@ namespace Pumkin.AvatarTools
         public static GUIStyle Label_rightAligned { get; internal set; }
         public static GUIStyle Foldout { get; internal set; }
         public static GUIStyle HelpBox { get; internal set; }
-        public static GUIStyle Box { get; internal set; }
+        public static GUIStyle HelpBox_OneLine { get; internal set; }
+        public static GUIStyle Box { get; internal set; }        
 
         static Styles()
         {
@@ -3791,9 +3703,15 @@ namespace Pumkin.AvatarTools
                 padding = new RectOffset(1,1,1,1),
             };
 
+            HelpBox_OneLine = new GUIStyle("HelpBox")
+            {
+                fixedHeight = 17,
+                stretchHeight = false,                
+            };
+
             Foldout = new GUIStyle("Foldout");
             HelpBox = new GUIStyle("HelpBox");
-            Box = new GUIStyle("box");
+            Box = new GUIStyle("box");            
         }
     }
 
@@ -3856,7 +3774,7 @@ namespace Pumkin.AvatarTools
     /// </summary>
     public static class Strings
     {        
-        public static readonly string version = "0.6b";
+        public static readonly string version = "0.7b";
         public static readonly string toolsPage = "https://github.com/rurre/PumkinsAvatarTools/";
         public static readonly string donationLink = "https://ko-fi.com/notpumkin";
         public static readonly string discordLink = "https://discord.gg/7vyekJv";
@@ -5052,7 +4970,7 @@ namespace Pumkin.AvatarTools
             UniqueMaterials = new HashSet<Material>(matList).Count;
             UniqueMaterials_Total = new HashSet<Material>(matList_total).Count;
 
-#if !NO_BONES
+#if BONES
 
             var dbColliders = o.GetComponentsInChildren<DynamicBoneCollider>(true);
             foreach(var c in dbColliders)
