@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Pumkin.DependencyChecker
 {
@@ -23,21 +24,25 @@ namespace Pumkin.DependencyChecker
         static float _now = 0f;
         static float _canCheckNext = 0f;
 
+        static bool checkManually = true;
+        static bool missingBoneFiles = false;
+
         public enum CheckerStatus { DEFAULT, NO_BONES, NO_SDK, OK, OK_OLDBONES };
         public static CheckerStatus Status
         {
-            get; private set;
+            get; internal set;
         }        
-                
+
         static _DependecyChecker()
         {            
             Check();  
-        }        
+        }
 
         [UnityEditor.Callbacks.DidReloadScripts]
         private static void OnScriptsReloaded()
         {
-            Check();
+            if(!checkManually)
+                Check();
         }
 
         public static void ForceCheck()
@@ -50,8 +55,8 @@ namespace Pumkin.DependencyChecker
         public static void Check()
         {
             _now = Time.time;
-
-            if(!needCheck || _now < _canCheckNext)
+            
+            if(!checkManually && (!needCheck || _now < _canCheckNext))
                 return;
 
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for VRChat SDK in project...");
@@ -70,9 +75,16 @@ namespace Pumkin.DependencyChecker
 
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for DynamicBones in project...");
             Type boneType = GetType("DynamicBone");
+            Type boneColliderType = GetType("DynamicBoneCollider");
+            Type boneColliderBaseType = GetType("DynamicBoneColliderBase");
             //Type toolsType = GetType("Pumkin.AvatarTools.PumkinsAvatarTools");            
-
-            var toolScriptPath = Directory.GetFiles(Application.dataPath, "PumkinsAvatarTools.cs", SearchOption.AllDirectories);            
+                        
+            var dynPaths = new List<string>();
+            dynPaths.AddRange(Directory.GetFiles(Application.dataPath, "DynamicBone.cs", SearchOption.AllDirectories));
+            dynPaths.AddRange(Directory.GetFiles(Application.dataPath, "DynamicBoneCollider.cs"));
+            var toolScriptPath = Directory.GetFiles(Application.dataPath, "PumkinsAvatarTools.cs", SearchOption.AllDirectories);
+            
+            missingBoneFiles = dynPaths.Count == 0 ? true : false;            
 
             if(toolScriptPath.Length > 0 && !string.IsNullOrEmpty(toolScriptPath[0]))
             {
@@ -84,7 +96,7 @@ namespace Pumkin.DependencyChecker
                 int hasBonesIndex = header.IndexOf(hasBonesString);
                 int hasOldBonesIndex = header.IndexOf(hasOldBonesString);
                                 
-                if(boneType == null) //No bones in project
+                if(missingBoneFiles) //No bones in project
                 {
                     Status = CheckerStatus.NO_BONES;
                     Debug.Log("<color=blue>PumkinsAvatarTools</color>: DynamicBones not found in project.");                    
@@ -96,7 +108,7 @@ namespace Pumkin.DependencyChecker
                 }
                 else //DynamicBones Present
                 {
-                    if(typeof(DynamicBoneCollider).IsSubclassOf(typeof(DynamicBoneColliderBase)))
+                    if(boneColliderType.IsSubclassOf(boneColliderBaseType))
                         bonesAreOld = false;
                     else
                         bonesAreOld = true;
@@ -129,7 +141,8 @@ namespace Pumkin.DependencyChecker
                     needRewrite = false;
                 }
             }
-            _canCheckNext = _now + checkCooldown;
+            if(!checkManually)
+                _canCheckNext = _now + checkCooldown;
             needCheck = false;
         }                
 
