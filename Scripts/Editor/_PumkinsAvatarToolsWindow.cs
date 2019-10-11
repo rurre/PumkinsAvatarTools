@@ -10,6 +10,13 @@ namespace Pumkin.AvatarTools
     public class _PumkinsAvatarToolsWindow : EditorWindow
     {
         [SerializeField, HideInInspector] static PumkinsAvatarTools tools;
+                
+        string[] boneErrors =
+            {
+            "The type or namespace name `DynamicBoneCollider' could not be found.",
+            "The type or namespace name `DynamicBone' could not be found.",            
+            "Cannot implicitly convert type `System.Collections.Generic.List<DynamicBoneCollider>' to `System.Collections.Generic.List<DynamicBoneColliderBase>'",
+            };
 
         [MenuItem("Tools/Pumkin/Avatar Tools")]
         public static void ShowWindow()
@@ -22,20 +29,31 @@ namespace Pumkin.AvatarTools
             editorWindow.titleContent = new GUIContent(Strings.Main.WindowName);
         }
 
-        //private void OnEnable()
-        //{
-        //    Application.logMessageReceived += (string log, string stack, LogType type) =>
-        //    {
-        //        if(type == LogType.Error)
-        //        {
-        //            if(log.Contains("The type or namespace name `DynamicBone' could not be found.") ||
-        //                log.Contains("The type or namespace name `DynamicBoneCollider' could not be found."))
-        //            {
+        private void OnEnable()
+        {
+            Application.logMessageReceived -= HandleError;
+            Application.logMessageReceived += HandleError;            
+        }
 
-        //            }
-        //        }
-        //    };
-        //}
+        private void OnDisable()
+        {
+            Application.logMessageReceived -= HandleError;
+        }
+
+        void HandleError(string log, string stack, LogType type)
+        {            
+            if(type == LogType.Error)
+            {
+                for(int i = 0; i < boneErrors.Length; i++)
+                {
+                    if(log.Contains(boneErrors[i]))
+                    {
+                        _DependecyChecker.Status = _DependecyChecker.CheckerStatus.DEFAULT;
+                        break;
+                    }
+                }
+            }            
+        }
 
         public void OnGUI()
         {
@@ -56,6 +74,10 @@ namespace Pumkin.AvatarTools
                     }
                 case _DependecyChecker.CheckerStatus.NO_SDK:
                     {
+                        if(tools)
+                            tools.Repaint();
+
+                        Repaint();                        
                         EditorGUILayout.LabelField(Strings.Main.Title, Styles.Label_mainTitle, GUILayout.MinHeight(Styles.Label_mainTitle.fontSize + 6));
                         EditorGUILayout.Space();
 
@@ -66,6 +88,10 @@ namespace Pumkin.AvatarTools
                     break;
                 default:
                     {
+                        if(tools)
+                            tools.Repaint();
+
+                        Repaint();
                         EditorGUILayout.LabelField(Strings.Main.Title, Styles.Label_mainTitle, GUILayout.MinHeight(Styles.Label_mainTitle.fontSize + 6));
                         EditorGUILayout.HelpBox("Something went wrong", MessageType.Warning, true);
                         EditorGUILayout.Space();
