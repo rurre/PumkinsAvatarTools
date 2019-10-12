@@ -73,8 +73,7 @@ namespace Pumkin.DependencyChecker
                 Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found VRChat SDK.");                
             }
 
-            Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for DynamicBones in project...");
-            Type boneType = GetType("DynamicBone");
+            Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for DynamicBones in project...");            
             Type boneColliderType = GetType("DynamicBoneCollider");
             Type boneColliderBaseType = GetType("DynamicBoneColliderBase");
             //Type toolsType = GetType("Pumkin.AvatarTools.PumkinsAvatarTools");            
