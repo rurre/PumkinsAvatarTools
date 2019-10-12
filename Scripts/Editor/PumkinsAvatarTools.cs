@@ -32,7 +32,8 @@ namespace Pumkin.AvatarTools
 
         //Component Copier
         [SerializeField] public static GameObject copierSelectedFrom;
-        static List<GameObject> copierIgnoreList = new List<GameObject>();
+        [SerializeField] static Transform[] _copierIgnoreArray = new Transform[0];
+        [SerializeField] bool bCopier_ignoreList_includeChildren = false;
 
         [SerializeField] bool bCopier_transforms_copy = true;
         [SerializeField] bool bCopier_transforms_copyPosition = false;
@@ -46,6 +47,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool bCopier_dynamicBones_copyColliders = true;
         [SerializeField] bool bCopier_dynamicBones_removeOldColliders = false;
         [SerializeField] bool bCopier_dynamicBones_removeOldBones = false;
+        [SerializeField] bool bCopier_dynamicBones_createObjectsColliders = true;
 
         [SerializeField] bool bCopier_descriptor_copy = true;
         [SerializeField] bool bCopier_descriptor_copySettings = true;
@@ -167,10 +169,14 @@ namespace Pumkin.AvatarTools
         //Misc
         [SerializeField] bool _openedInfo = false;
         [SerializeField] Vector2 vertScroll = Vector2.zero;
+
+        //Ignore Set
+        [SerializeField] int _ignoreArraySize = _copierIgnoreArray.Length;
+        [SerializeField] bool _ignoreArray_expand = false;
+
+
         static string _mainScriptPath = null;
-
         private static Camera _vrcCam = null; //use property
-
         static bool _eventsAdded = false;
 
         //Editing Viewpoint        
@@ -218,7 +224,7 @@ namespace Pumkin.AvatarTools
 
         static readonly Type[] supportedComponents =
         {
-#if BONES
+#if BONES || OLD_BONES
             typeof(DynamicBone),
             typeof(DynamicBoneCollider),
             typeof(DynamicBoneColliderBase),
@@ -433,9 +439,14 @@ namespace Pumkin.AvatarTools
 
         void HandleSelectionChanged()
         {
-            if(_useSceneSelectionAvatar)
-                SelectAvatarFromScene();
+            if(_useSceneSelectionAvatar)            
+                SelectAvatarFromScene();                                        
         }
+
+        //private void OnInspectorUpdate()
+        //{
+        //    Repaint();
+        //}
 
         //[MenuItem("Tools/Pumkin/Avatar Tools")] //New window is responsible for calling this, for now
         public static void ShowWindow()
@@ -516,7 +527,14 @@ namespace Pumkin.AvatarTools
 
                 EditorGUILayout.Space();
 
-                selectedAvatar = (GameObject)EditorGUILayout.ObjectField(Strings.Main.Avatar, selectedAvatar, typeof(GameObject), true);
+                EditorGUI.BeginChangeCheck();
+                {
+                    selectedAvatar = (GameObject)EditorGUILayout.ObjectField(Strings.Main.Avatar, selectedAvatar, typeof(GameObject), true);
+                }
+                if(EditorGUI.EndChangeCheck())
+                {
+                    RefreshignoreArray();
+                }
 
                 if(_useSceneSelectionAvatar)
                 {
@@ -535,6 +553,8 @@ namespace Pumkin.AvatarTools
                 _useSceneSelectionAvatar = GUILayout.Toggle(_useSceneSelectionAvatar, Strings.Main.UseSceneSelection);
 
                 EditorGUILayout.Space();
+
+                DrawGuiLine();                
 
                 vertScroll = EditorGUILayout.BeginScrollView(vertScroll);
                 {
@@ -640,9 +660,8 @@ namespace Pumkin.AvatarTools
                     //Component Copier menu
                     if(_copier_expand = GUILayout.Toggle(_copier_expand, Strings.Main.Copier, Styles.Foldout_title))
                     {
-                        EditorGUILayout.Space();
-
-                        copierSelectedFrom = (GameObject)EditorGUILayout.ObjectField(Strings.Copier.CopyFrom + ":", copierSelectedFrom, typeof(GameObject), true);
+                        EditorGUILayout.Space();                        
+                        copierSelectedFrom = (GameObject)EditorGUILayout.ObjectField(Strings.Copier.CopyFrom, copierSelectedFrom, typeof(GameObject), true);                                                
 
                         EditorGUILayout.BeginHorizontal();
                         if(GUILayout.Button(Strings.Buttons.SelectFromScene))
@@ -704,6 +723,7 @@ namespace Pumkin.AvatarTools
                                 EditorGUILayout.Space();
                                 bCopier_dynamicBones_copyColliders = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_colliders, bCopier_dynamicBones_copyColliders, GUILayout.ExpandWidth(false));
                                 bCopier_dynamicBones_removeOldColliders = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_removeOldColliders, bCopier_dynamicBones_removeOldColliders, GUILayout.ExpandWidth(false));
+                                bCopier_dynamicBones_createObjectsColliders = EditorGUILayout.Toggle(Strings.Copier.CopyColliderObjects, bCopier_dynamicBones_createObjectsColliders, GUILayout.ExpandWidth(false));
 
                                 EditorGUILayout.Space();
                                 EditorGUI.EndDisabledGroup();
@@ -908,6 +928,31 @@ namespace Pumkin.AvatarTools
                             }
 
                             EditorGUILayout.Space();
+                                                        
+                            //_ignoreArray_expand = GUILayout.Toggle(_ignoreArray_expand, "_Ignore List", "Foldout", GUILayout.ExpandHeight(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+
+                            //if(_ignoreArray_expand)    
+                            //{
+                            //    EditorGUILayout.Space();
+                            //    EditorGUI.BeginChangeCheck();
+                            //    {
+                            //        _ignoreArraySize = EditorGUILayout.IntField("_Count:", _ignoreArraySize);
+                            //        bCopier_ignoreList_includeChildren = EditorGUILayout.Toggle("_Include Children", bCopier_ignoreList_includeChildren);
+                            //        EditorGUILayout.Space();
+                            //    }
+                            //    if(EditorGUI.EndChangeCheck())
+                            //    {
+                            //        Array.Resize(ref _copierIgnoreArray, _ignoreArraySize);
+                            //    }
+
+                            //    for(int i = 0; i < _ignoreArraySize; i++)
+                            //    {                                    
+                            //        EditorGUILayout.ObjectField(_copierIgnoreArray[i], typeof(Transform), true);
+                            //    }
+                            //    EditorGUILayout.Space();
+                            //}
+
+                            //EditorGUILayout.Space();
 
                             EditorGUI.BeginDisabledGroup(
                                 !(
@@ -959,7 +1004,7 @@ namespace Pumkin.AvatarTools
 
                                 EditorGUI.BeginDisabledGroup(!CopierHasSelections());
                                 {
-                                    if(GUILayout.Button(Strings.Buttons.CopySelected, GUILayout.MinHeight(25)))
+                                    if(GUILayout.Button(Strings.Buttons.CopySelected, Styles.BigButton))
                                     {
                                         string log = "";
                                         if(copierSelectedFrom == null)
@@ -1219,10 +1264,10 @@ namespace Pumkin.AvatarTools
 
                                 EditorGUILayout.Space();
 
-                                if(GUILayout.Button(Strings.Thumbnails.CenterCameraOnViewpoint, GUILayout.MinHeight(25)))
+                                if(GUILayout.Button(Strings.Thumbnails.CenterCameraOnViewpoint, Styles.BigButton))
                                 {
                                     if(VRCCam)
-                                        CenterCameraOnFace(selectedAvatar);
+                                        CenterCameraOnViewpoint(selectedAvatar);
                                     else
                                         Log(Strings.Warning.VRCCamNotFound, LogType.Warning);
                                 }
@@ -1253,7 +1298,7 @@ namespace Pumkin.AvatarTools
                     {
                         EditorGUILayout.Space();
 #if !BONES && !OLD_BONES
-                        if(GUILayout.Button(Strings.Misc.SearchForBones, GUILayout.MinHeight(25)))
+                        if(GUILayout.Button(Strings.Misc.SearchForBones, Styles.BigButton))
                         {
                             _DependecyChecker.Check();
                         }
@@ -1293,6 +1338,34 @@ namespace Pumkin.AvatarTools
                     EditorUtility.SetDirty(this);
                 }
             }
+        }
+
+        /// <summary>
+        /// Refreshes ignore list for the copier by making the transform references local to the selected avatar
+        /// </summary>
+        private void RefreshignoreArray()
+        {
+            if(_copierIgnoreArray == null)
+            {
+                _copierIgnoreArray = new Transform[0];
+                return;
+            }
+            else if(_copierIgnoreArray.Length == 0)
+                return;
+
+            var newList = new List<Transform>();
+
+            foreach(var t in _copierIgnoreArray)
+            {
+                if(!t)
+                    continue;
+
+                var tt = FindTransformInAnotherHierarchy(t, selectedAvatar.transform.root, false);
+                if(tt && !newList.Contains(tt))
+                    newList.Add(tt);
+            }
+
+            _copierIgnoreArray = newList.ToArray();
         }
 
         Texture2D OpenImageTexture(ref string startPath)
@@ -1694,68 +1767,64 @@ namespace Pumkin.AvatarTools
             //Run statment only if root so only run this once
             if(objTo != null && objTo.transform == objTo.transform.root)
             {
-                if(bCopier_descriptor_copy)
-                {
-                    CopyAvatarDescriptor(objFrom, objTo);
-                }
                 if(bCopier_transforms_copyAvatarScale)
                 {
                     objTo.transform.localScale = objFrom.transform.localScale;
                 }
+                if(bCopier_descriptor_copy)
+                {
+                    CopyAvatarDescriptor(objFrom, objTo, true);
+                }
                 if(bCopier_particleSystems_copy)
                 {
-                    CopyAllParticleSystems(objFrom, objTo, bCopier_particleSystems_createObjects);
+                    CopyAllParticleSystems(objFrom, objTo, bCopier_particleSystems_createObjects, true);
                 }
                 if(bCopier_colliders_copy)
                 {
                     if(bCopier_colliders_removeOld)
-                        DestroyAllComponentsOfType(objTo, typeof(Collider), false);
-                    CopyAllColliders(objFrom, objTo, bCopier_colliders_createObjects);
+                        DestroyAllComponentsOfType(objTo, typeof(Collider), false, true);
+                    CopyAllColliders(objFrom, objTo, bCopier_colliders_createObjects, true);
                 }
                 if(bCopier_rigidBodies_copy)
                 {
-                    CopyAllRigidBodies(objFrom, objTo, bCopier_rigidBodies_createObjects);
+                    CopyAllRigidBodies(objFrom, objTo, bCopier_rigidBodies_createObjects, true);
                 }
                 if(bCopier_trailRenderers_copy)
                 {
-                    CopyAllTrailRenderers(objFrom, objTo, bCopier_trailRenderers_createObjects);
+                    CopyAllTrailRenderers(objFrom, objTo, bCopier_trailRenderers_createObjects, true);
                 }
                 if(bCopier_meshRenderers_copy)
                 {
-                    CopyAllMeshRenderers(objFrom, objTo, bCopier_meshRenderers_createObjects);
+                    CopyAllMeshRenderers(objFrom, objTo, bCopier_meshRenderers_createObjects, true);
                 }
                 if(bCopier_lights_copy)
                 {
-                    CopyAllLights(objFrom, objTo, bCopier_lights_copy);
+                    CopyAllLights(objFrom, objTo, bCopier_lights_copy, true);
                 }
                 if(bCopier_skinMeshRender_copy)
                 {
-                    CopyAllSkinnedMeshRenderersSettings(objFrom, objTo);
+                    CopyAllSkinnedMeshRenderersSettings(objFrom, objTo, true);
                 }
                 if(bCopier_animators_copy)
                 {
-                    CopyAllAnimators(objFrom, objTo, bCopier_animators_createObjects, bCopier_animators_copyMainAnimator);
+                    CopyAllAnimators(objFrom, objTo, bCopier_animators_createObjects, bCopier_animators_copyMainAnimator, true);
                 }
-                //if(bCopier_joints_copy) //Coming soon
-                //{
-                //    CopyAllJoints(objFrom, objTo, bCopier_joints_createObjects);
-                //}
                 if(bCopier_audioSources_copy)
                 {
-                    CopyAllAudioSources(objFrom, objTo, bCopier_audioSources_createObjects);
+                    CopyAllAudioSources(objFrom, objTo, bCopier_audioSources_createObjects, true);
                 }
 #if BONES || OLD_BONES
                 if(bCopier_dynamicBones_copy)
                 {
                     if(bCopier_dynamicBones_removeOldColliders)
-                        DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBoneCollider));
+                        DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBoneCollider), true);
                     if(bCopier_dynamicBones_copyColliders)
-                        CopyAllDynamicBoneColliders(objFrom, objTo);
+                        CopyAllDynamicBoneColliders(objFrom, objTo, true);
 
                     if(bCopier_dynamicBones_removeOldBones)
-                        DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBone));
+                        DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBone), true);
                     if(bCopier_dynamicBones_copySettings)
-                        CopyAllDynamicBones(objFrom, objTo);
+                        CopyAllDynamicBones(objFrom, objTo, true);
                 }
 #endif
             }
@@ -1763,15 +1832,8 @@ namespace Pumkin.AvatarTools
 
             if(bCopier_transforms_copy && (bCopier_transforms_copyPosition || bCopier_transforms_copyRotation || bCopier_transforms_copyScale))
             {
-                CopyTransforms(objFrom, objTo);
+                CopyTransforms(objFrom, objTo, true);
             }
-            //if(bCopier_dynamicBones_copy)
-            //{
-            //    if(bCopier_dynamicBones_copySettings || bCopier_dynamicBones_copyColliders)
-            //    {
-            //        CopyDynamicBones(objFrom, objTo, bCopier_dynamicBones_createMissingBones);
-            //    }
-            //}
 
             //Copy Components in Children. Not a good way of doing it, will eventually replace this.
             for(int i = 0; i < objFrom.transform.childCount; i++)
@@ -1791,63 +1853,13 @@ namespace Pumkin.AvatarTools
 
                 CopyComponents(fromChild, toChild);
             }
-        }
-
-        //private void CopyAllJoints(GameObject from, GameObject to, bool createGameObjects)
-        //{
-        //    if((from == null || to == null) ||
-        //    (!(bCopier_joints_copySettings || bCopier_joints_fixed || bCopier_joints_character || bCopier_joints_createObjects ||
-        //    bCopier_joints_configurable || bCopier_joints_sprint || bCopier_joints_hinge || bCopier_joints_createMissing)))
-        //        return;
-
-        //    var jFromArr = from.GetComponentsInChildren<Joint>();
-
-        //    for(int i = 0; i < jFromArr.Length; i++)
-        //    {
-        //        string log = Strings.Log.CopyAttempt;
-        //        var t = jFromArr[i].GetType();
-
-        //        if(supportedComponents.Contains(t))
-        //        {
-        //            var jj = jFromArr[i];
-        //            var jFromPath = GetGameObjectPath(jj.gameObject);
-
-        //            if(jFromPath != null)
-        //            {
-        //                GameObject jToObj = to.transform.root.Find(jFromPath, createGameObjects, jj.transform).gameObject;
-        //                var jToArr = jToObj.GetComponents<Joint>();
-        //                bool found = false;
-
-        //                for(int z = 0; z < jToArr.Length; z++)
-        //                {
-        //                    if(JointsAreIdentical(jToArr[z], jFromArr[i]))
-        //                    {
-        //                        found = true;
-        //                        Log(log + Strings.Log.FailedAlreadyHas, LogType.Warning, jToObj.name, t.ToString());
-        //                        break;
-        //                    }
-        //                }
-        //                if(!found)
-        //                {
-        //                    ComponentUtility.CopyComponent(jFromArr[i]);
-        //                    ComponentUtility.PasteComponentAsNew(jToObj);
-
-        //                    Log(log + " - " + Strings.Log.Success, LogType.Log, t.ToString(), jToObj.name);
-        //                }
-        //            }
-        //        }
-        //        else
-        //        {
-        //            Log(log + Strings.Log.FailedNotSupported, LogType.Warning, t.ToString());
-        //        }
-        //    }
-        //}
+        }        
 
         /// <summary>
         /// Copies all audio sources on object and it's children.
         /// </summary>            
         /// <param name="createGameObjects">Whether to create missing objects</param>            
-        void CopyAllAudioSources(GameObject from, GameObject to, bool createGameObjects)
+        void CopyAllAudioSources(GameObject from, GameObject to, bool createGameObjects, bool useignoreList = false)
         {
             if(from == null || to == null)
                 return;
@@ -1859,7 +1871,11 @@ namespace Pumkin.AvatarTools
                 var aFrom = aFromArr[i];
                 var oFrom = aFromArr[i].GetComponent<ONSPAudioSource>();
 
-                var tTo = FindObjectInAnotherHierarchy(aFrom.gameObject, to, createGameObjects);
+                var tTo = FindTransformInAnotherHierarchy(aFrom.transform, to.transform, createGameObjects);
+
+                if((!tTo) || (useignoreList && !ShouldIgnoreObject(aFrom.transform, _copierIgnoreArray, bCopier_ignoreList_includeChildren)))
+                    continue;
+
                 var aToObj = tTo.gameObject;
 
                 string log = String.Format(Strings.Log.CopyAttempt, aFromArr[i].GetType().ToString(), aFrom.gameObject, tTo.gameObject);
@@ -1901,7 +1917,7 @@ namespace Pumkin.AvatarTools
         /// </summary>
         /// <param name="createGameObjects">Whether to create missing GameObjects</param>
         /// <param name="copyRootAnimator">Whether to copy the Animator on the root object. You don't usually want to.</param>
-        void CopyAllAnimators(GameObject from, GameObject to, bool createGameObjects, bool copyRootAnimator)
+        void CopyAllAnimators(GameObject from, GameObject to, bool createGameObjects, bool copyRootAnimator, bool useignoreList = false)
         {
             if(from == null || to == null)
                 return;
@@ -1916,7 +1932,11 @@ namespace Pumkin.AvatarTools
                 string log = Strings.Log.CopyAttempt;
 
                 var aFrom = aFromArr[i];
-                var tTo = FindObjectInAnotherHierarchy(aFrom.gameObject, to, createGameObjects);
+                var tTo = FindTransformInAnotherHierarchy(aFrom.transform, to.transform, createGameObjects);
+
+                if((!tTo) || (useignoreList && !ShouldIgnoreObject(aFrom.transform, _copierIgnoreArray, bCopier_ignoreList_includeChildren)))
+                    continue;
+
                 var aToObj = tTo.gameObject;
 
                 if(aFrom != null)
@@ -1946,7 +1966,7 @@ namespace Pumkin.AvatarTools
         /// Copies all lights in object and it's children to another object.
         /// </summary>        
         /// <param name="createGameObjects">Whether to create missing game objects</param>
-        void CopyAllLights(GameObject from, GameObject to, bool createGameObjects)
+        void CopyAllLights(GameObject from, GameObject to, bool createGameObjects, bool useignoreList = false)
         {
             if(from == null || to == null)
                 return;
@@ -1958,7 +1978,12 @@ namespace Pumkin.AvatarTools
                 string log = Strings.Log.CopyAttempt;
 
                 var lFrom = lFromArr[i];
-                var tTo = FindObjectInAnotherHierarchy(lFrom.gameObject, to, createGameObjects);
+                var tTo = FindTransformInAnotherHierarchy(lFrom.transform, to.transform, createGameObjects);
+
+                if((!tTo) || 
+                    (useignoreList && !ShouldIgnoreObject(lFrom.transform, _copierIgnoreArray, bCopier_ignoreList_includeChildren)))
+                    continue;
+
                 var lToObj = tTo.gameObject;
 
                 if(lFrom != null)
@@ -1988,7 +2013,7 @@ namespace Pumkin.AvatarTools
         /// Copies all MeshRenderers in object and it's children to another object.
         /// </summary>        
         /// <param name="createGameObjects">Whether to create missing game objects</param>
-        void CopyAllMeshRenderers(GameObject from, GameObject to, bool createGameObjects)
+        void CopyAllMeshRenderers(GameObject from, GameObject to, bool createGameObjects, bool useignoreList = false)
         {
             if(from == null || to == null)
                 return;
@@ -2000,7 +2025,12 @@ namespace Pumkin.AvatarTools
                 string log = Strings.Log.CopyAttempt;
 
                 var rFrom = mFromArr[i];
-                var tTo = FindObjectInAnotherHierarchy(rFrom.gameObject, to, createGameObjects);
+                var tTo = FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
+
+                if((!tTo) ||
+                    (useignoreList && !ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreList_includeChildren)))
+                    continue;                
+
                 var rToObj = tTo.gameObject;
 
                 var fFrom = rFrom.GetComponent<MeshFilter>();
@@ -2012,9 +2042,9 @@ namespace Pumkin.AvatarTools
 
                     if(rTo == null && bCopier_meshRenderers_createMissing)
                     {
-                        rTo = rToObj.AddComponent<MeshRenderer>();
+                        rTo = Undo.AddComponent<MeshRenderer>(tTo.gameObject);
                         if(fTo == null)
-                            fTo = rToObj.AddComponent<MeshFilter>();
+                            fTo = Undo.AddComponent<MeshFilter>(tTo.gameObject);                            
                     }
 
                     if((rTo != null && bCopier_meshRenderers_copySettings) || bCopier_meshRenderers_createMissing)
@@ -2036,11 +2066,13 @@ namespace Pumkin.AvatarTools
         /// <summary>
         /// Copies over the AvatarDescriptor and PipelineManager components.
         /// </summary>
-        void CopyAvatarDescriptor(GameObject from, GameObject to)
+        void CopyAvatarDescriptor(GameObject from, GameObject to, bool useignoreList = false)
         {
-            if(to == null)
+            if(to == null || from == null)
                 return;
 
+            if(useignoreList && !ShouldIgnoreObject(from.transform, _copierIgnoreArray))
+                return;
 
             var dFrom = from.GetComponent<VRC_AvatarDescriptor>();
             var pFrom = from.GetComponent<PipelineManager>();
@@ -2049,12 +2081,12 @@ namespace Pumkin.AvatarTools
             if(dFrom == null)
                 return;
             if(dTo == null)
-                dTo = to.AddComponent<VRC_AvatarDescriptor>();
+                dTo = Undo.AddComponent<VRC_AvatarDescriptor>(to);
 
             var pTo = to.GetComponent<PipelineManager>();
 
             if(pTo == null) //but it shouldn't be
-                pTo = to.AddComponent<PipelineManager>();
+                pTo = Undo.AddComponent<PipelineManager>(to);
 
             if(bCopier_descriptor_copyPipelineId)
             {
@@ -2096,82 +2128,13 @@ namespace Pumkin.AvatarTools
                     dTo.CustomStandingAnims = dFrom.CustomStandingAnims;
                 }
             }
-        }
-
-        /// <summary>
-        /// Copy over DynamicBoneCollider components.
-        /// </summary>
-        void CopyDynamicBoneColliders(GameObject from, GameObject to, bool removeOld = false)
-        {
-#if BONES || OLD_BONES
-
-            string[] logFormat = { "DynamicBoneCollider", from.name, to.name };
-            string log = Strings.Log.CopyAttempt;
-
-            List<DynamicBoneCollider> dFromList = new List<DynamicBoneCollider>();
-            dFromList.AddRange(from.GetComponents<DynamicBoneCollider>());
-
-            List<DynamicBoneCollider> dToList = new List<DynamicBoneCollider>();
-            dToList.AddRange(to.GetComponents<DynamicBoneCollider>());
-
-            if(removeOld)
-            {
-                foreach(var c in dToList)
-                {
-                    DestroyImmediate(c);
-                }
-            }
-
-            for(int i = 0; i < dFromList.Count; i++)
-            {
-                var dFrom = dFromList[i];
-                DynamicBoneCollider dTo = null;
-
-                if(dFrom == null)
-                {
-                    log += "Failed: {2} has no {1}";
-                    Log(log, LogType.Warning, logFormat);
-                    return;
-                }
-
-                log += "{2} has no {1}. Creating - ";
-                dTo = to.AddComponent<DynamicBoneCollider>();
-
-                dTo.m_Bound = dFrom.m_Bound;
-                dTo.m_Center = dFrom.m_Center;
-                dTo.m_Direction = dFrom.m_Direction;
-                dTo.m_Height = dFrom.m_Height;
-                dTo.m_Radius = dFrom.m_Radius;
-
-                dTo.enabled = dFrom.enabled;
-
-                if(!removeOld)
-                {
-                    foreach(var c in dToList)
-                    {
-                        if(c.m_Bound == dTo.m_Bound && c.m_Center == dTo.m_Center && c.m_Direction == dTo.m_Direction && c.m_Height == dTo.m_Height && c.m_Radius == dTo.m_Radius)
-                        {
-                            DestroyImmediate(dTo);
-                            break;
-                        }
-                    }
-                    log += "_Duplicate {1} with the same settings already exists. Removing duplicate.";
-                    Log(log, LogType.Warning, logFormat);
-                }
-                else
-                {
-                    log += "_Success: Added {0} to {2}.";
-                    Log(log, LogType.Log, logFormat);
-                }
-            }
-#endif
-        }
+        }        
 
         /// <summary>
         /// Copies all DynamicBoneColliders from object and it's children to another object.
         /// </summary>        
         /// <param name="removeOldColliders">Whether to remove all DynamicBoneColliders from target before copying</param>
-        void CopyAllDynamicBoneColliders(GameObject from, GameObject to)
+        void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool useignoreList = false)
         {
 #if !BONES && !OLD_BONES
             Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
@@ -2187,8 +2150,8 @@ namespace Pumkin.AvatarTools
             for(int i = 0; i < dbcFromArr.Length; i++)
             {
                 var dbcFrom = dbcFromArr[i];
-                var tTo = FindObjectInAnotherHierarchy(dbcFrom.gameObject, to, false);
-                if(tTo == null)
+                var tTo = FindTransformInAnotherHierarchy(dbcFrom.transform, to.transform, false);
+                if((!tTo) || (useignoreList && !ShouldIgnoreObject(dbcFrom.transform, _copierIgnoreArray, bCopier_ignoreList_includeChildren)))
                     continue;
 
                 var dbcToArr = tTo.GetComponentsInChildren<DynamicBoneCollider>();
@@ -2219,13 +2182,13 @@ namespace Pumkin.AvatarTools
         /// <summary>
         /// Copies all DynamicBones from one object and all of it's children to another
         /// </summary>        
-		void CopyAllDynamicBones(GameObject from, GameObject to, bool createIfMissing = true)
+		void CopyAllDynamicBones(GameObject from, GameObject to, bool createIfMissing = true, bool useignoreList = false)
         {
 #if !BONES && !OLD_BONES
             Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
             return;
 #else
-            if(from == null || to == null)
+            if(!from || !to)
                 return;
 
             var dFromArr = from.GetComponentsInChildren<DynamicBone>();
@@ -2233,8 +2196,11 @@ namespace Pumkin.AvatarTools
 
             foreach(var dFrom in dFromArr)
             {
-                var tTo = FindObjectInAnotherHierarchy(dFrom.gameObject, to, false);
-                var dToArr = tTo.GetComponents<DynamicBone>();
+                if(useignoreList && !ShouldIgnoreObject(dFrom.transform, _copierIgnoreArray, bCopier_ignoreList_includeChildren))
+                    continue;
+
+                var tTo = FindTransformInAnotherHierarchy(dFrom.transform, to.transform, false);
+                var dToArr = tTo.GetComponents<DynamicBone>();                
 
                 if(!dFrom.m_Root)
                 {
@@ -2260,10 +2226,10 @@ namespace Pumkin.AvatarTools
                     ComponentUtility.CopyComponent(dFrom);
                     ComponentUtility.PasteComponentValues(newDynBone);
 
-                    newDynBone.m_Root = FindObjectInAnotherHierarchy(dFrom.m_Root.gameObject, newDynBone.transform.root.gameObject, false);
+                    newDynBone.m_Root = FindTransformInAnotherHierarchy(dFrom.m_Root.transform, newDynBone.transform.root, false);
 
                     if(dFrom.m_ReferenceObject)
-                        newDynBone.m_ReferenceObject = FindObjectInAnotherHierarchy(dFrom.m_ReferenceObject.gameObject, newDynBone.transform.root.gameObject, false);
+                        newDynBone.m_ReferenceObject = FindTransformInAnotherHierarchy(dFrom.m_ReferenceObject, newDynBone.transform.root, false);
 
 #if BONES
                     var newColliders = new List<DynamicBoneColliderBase>();
@@ -2284,7 +2250,7 @@ namespace Pumkin.AvatarTools
 #elif OLD_BONES
                         DynamicBoneCollider fixedRefCollider = null;
 #endif
-                        var t = FindObjectInAnotherHierarchy(newDynBone.m_Colliders[i].gameObject, to, false);
+                        var t = FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
 
                         if(t == null)
                             continue;
@@ -2306,16 +2272,16 @@ namespace Pumkin.AvatarTools
 
                     newDynBone.m_Colliders = newColliders;
 
-                    var newExclusions = new List<Transform>();
+                    var newExclusions = new HashSet<Transform>();
 
                     foreach(var ex in newDynBone.m_Exclusions)
                     {
-                        var t = FindObjectInAnotherHierarchy(ex.gameObject, to, false);
-                        if(t && !newExclusions.Contains(t))
+                        var t = FindTransformInAnotherHierarchy(ex.transform, to.transform, false);
+                        if(t)
                             newExclusions.Add(t);
                     }
 
-                    newDynBone.m_Exclusions = newExclusions;
+                    newDynBone.m_Exclusions = newExclusions.ToList();
 
                     if(!newDynBone.m_Root)
                     {
@@ -2336,7 +2302,7 @@ namespace Pumkin.AvatarTools
         /// </summary>
         /// <param name="from"></param>
         /// <param name="to"></param>
-        void CopyAllColliders(GameObject from, GameObject to, bool createGameObjects)
+        void CopyAllColliders(GameObject from, GameObject to, bool createGameObjects, bool useignoreList = false)
         {
             if(from == null || to == null)
                 return;
@@ -2355,9 +2321,18 @@ namespace Pumkin.AvatarTools
                     var cc = cFromArr[i];
                     var cFromPath = GetGameObjectPath(cc.gameObject);
 
+                    if(useignoreList && !ShouldIgnoreObject(cc.transform, _copierIgnoreArray, bCopier_ignoreList_includeChildren))
+                        continue;
+
                     if(cFromPath != null)
                     {
-                        GameObject cToObj = to.transform.root.Find(cFromPath, createGameObjects, cc.transform).gameObject;
+                        var tTo = to.transform.root.Find(cFromPath, createGameObjects, cc.transform);
+
+                        if(!tTo)
+                            continue;
+
+                        GameObject cToObj = tTo.gameObject;                        
+
                         var cToArr = cToObj.GetComponents<Collider>();
                         bool found = false;
 
@@ -2366,7 +2341,7 @@ namespace Pumkin.AvatarTools
                             if(CollidersAreIdentical(cToArr[z], cFromArr[i]))
                             {
                                 found = true;
-                                Log(log + Strings.Log.FailedAlreadyHas, LogType.Warning, cToObj.name, t.ToString());
+                                Log(log + " - " + Strings.Log.FailedAlreadyHas, LogType.Warning, t.ToString(), cFromArr[i].gameObject.name, cToObj.name);
                                 break;
                             }
                         }
@@ -2375,7 +2350,7 @@ namespace Pumkin.AvatarTools
                             ComponentUtility.CopyComponent(cFromArr[i]);
                             ComponentUtility.PasteComponentAsNew(cToObj);
 
-                            Log(log + " - " + Strings.Log.Success, LogType.Log, t.ToString(), cToObj.name);
+                            Log(log + " - " + Strings.Log.Success, LogType.Log, t.ToString(), cFromArr[i].gameObject.name, cToObj.name);
                         }
                     }
                 }
@@ -2389,13 +2364,16 @@ namespace Pumkin.AvatarTools
         /// <summary>
         /// Copies Transform component settings. Note that only one can exist on an object, and every object should have one already.
         /// </summary>    
-        void CopyTransforms(GameObject from, GameObject to)
+        void CopyTransforms(GameObject from, GameObject to, bool useignoreList = false)
         {
             if(from == null || to == null)
                 return;
-
+            
             var tFrom = from.transform;
             var tTo = to.transform;
+
+            if(useignoreList && !ShouldIgnoreObject(tFrom, _copierIgnoreArray, bCopier_ignoreList_includeChildren))
+                return;
 
             string log = Strings.Log.CopyAttempt + " ";
             string[] logFormat = { "Transforms", from.name, to.name };
@@ -2432,7 +2410,7 @@ namespace Pumkin.AvatarTools
         /// Copies settings of all SkinnedMeshRenderers in object and children.
         /// Does NOT copy mesh, bounds and root bone settings.
         /// </summary>        
-        void CopyAllSkinnedMeshRenderersSettings(GameObject from, GameObject to)
+        void CopyAllSkinnedMeshRenderersSettings(GameObject from, GameObject to, bool useignoreList = false)
         {
             if((from == null || to == null) || (!(bCopier_skinMeshRender_copyBlendShapeValues || bCopier_skinMeshRender_copyMaterials || bCopier_skinMeshRender_copySettings)))
                 return;
@@ -2448,25 +2426,35 @@ namespace Pumkin.AvatarTools
 
                 if(rFromPath != null)
                 {
-                    GameObject rToObj = to.transform.root.Find(rFromPath).gameObject;
+                    var tTo = to.transform.root.Find(rFromPath);
+
+                    if((!tTo) ||
+                        (useignoreList && !ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreList_includeChildren)))
+                        continue;
+
+                    GameObject rToObj = tTo.gameObject;                    
+
                     var rTo = rToObj.GetComponent<SkinnedMeshRenderer>();
 
                     if(rTo != null)
                     {
-                        var bounds = rTo.localBounds;
-                        var mesh = rTo.sharedMesh;
-                        var root = rTo.rootBone;
-                        var mats = rTo.sharedMaterials;
-
                         if(bCopier_skinMeshRender_copySettings)
                         {
-                            ComponentUtility.CopyComponent(rFromArr[i]);
-                            ComponentUtility.PasteComponentValues(rTo);
+                            var t = FindTransformInAnotherHierarchy(rFrom.rootBone, rTo.transform, false);
+                            rTo.rootBone = t ?? rTo.rootBone;
+                            t = FindTransformInAnotherHierarchy(rFrom.probeAnchor, rTo.transform, false);
 
-                            rTo.localBounds = bounds;
-                            rTo.sharedMesh = mesh;
-                            rTo.rootBone = root;
-                            rTo.sharedMaterials = mats;
+                            rTo.allowOcclusionWhenDynamic = rFrom.allowOcclusionWhenDynamic;
+                            rTo.quality = rFrom.quality;
+                            rTo.probeAnchor = t ?? rTo.probeAnchor;
+                            rTo.lightProbeUsage = rFrom.lightProbeUsage;
+                            rTo.reflectionProbeUsage = rFrom.reflectionProbeUsage;
+                            rTo.shadowCastingMode = rFrom.shadowCastingMode;
+                            rTo.receiveShadows = rFrom.receiveShadows;
+                            rTo.motionVectorGenerationMode = rFrom.motionVectorGenerationMode;
+                            rTo.skinnedMotionVectors = rFrom.skinnedMotionVectors;
+                            rTo.allowOcclusionWhenDynamic = rFrom.allowOcclusionWhenDynamic;
+                            rTo.enabled = rFrom.enabled;
                         }
                         if(bCopier_skinMeshRender_copyBlendShapeValues)
                         {
@@ -2494,83 +2482,10 @@ namespace Pumkin.AvatarTools
         }
 
         /// <summary>
-        /// Copies SkinnedMeshRenderer settings. Note that only one can exist on an object.
-        /// </summary>                
-        void CopySkinMeshRenderer(GameObject from, GameObject to)
-        {
-
-            if((from == null || to == null) ||
-                (!(bCopier_skinMeshRender_copyBlendShapeValues || bCopier_skinMeshRender_copyMaterials || bCopier_skinMeshRender_copySettings)))
-                return;
-
-            string log = Strings.Log.CopyAttempt + " - ";
-            string[] logFormat = { "SkinnedMeshRenderer", from.name, to.name };
-
-            SkinnedMeshRenderer rFrom = from.GetComponent<SkinnedMeshRenderer>();
-            SkinnedMeshRenderer rTo = to.GetComponent<SkinnedMeshRenderer>();
-
-            if(rFrom == null)
-            {
-                log += Strings.Log.FailedIsNull;
-                Log(log, LogType.Warning, logFormat);
-                return;
-            }
-
-            if(bCopier_skinMeshRender_copySettings)
-            {
-                rTo.enabled = rFrom.enabled;
-                rTo.quality = rFrom.quality;
-                rTo.updateWhenOffscreen = rFrom.updateWhenOffscreen;
-                rTo.skinnedMotionVectors = rFrom.skinnedMotionVectors;
-                rTo.lightProbeUsage = rFrom.lightProbeUsage;
-                rTo.reflectionProbeUsage = rFrom.reflectionProbeUsage;
-                rTo.shadowCastingMode = rFrom.shadowCastingMode;
-                rTo.receiveShadows = rFrom.receiveShadows;
-                rTo.motionVectorGenerationMode = rFrom.motionVectorGenerationMode;
-
-                string path = null;
-                if(rFrom.probeAnchor != null)
-                    path = GetGameObjectPath(rFrom.probeAnchor.gameObject);
-
-                if(!string.IsNullOrEmpty(path))
-                    rTo.probeAnchor = rTo.transform.root.Find(path);
-
-                path = null;
-                if(rFrom.rootBone != null)
-                    path = GetGameObjectPath(rFrom.rootBone.gameObject);
-
-                if(!string.IsNullOrEmpty(path))
-                    rTo.rootBone = rTo.transform.root.Find(path);
-            }
-
-            if(bCopier_skinMeshRender_copyBlendShapeValues)
-            {
-                for(int i = 0; i < rFrom.sharedMesh.blendShapeCount; i++)
-                {
-                    int index = rFrom.sharedMesh.GetBlendShapeIndex(rFrom.sharedMesh.GetBlendShapeName(i));
-                    if(index != -1)
-                    {
-                        rTo.SetBlendShapeWeight(index, rFrom.GetBlendShapeWeight(index));
-                    }
-                }
-            }
-
-            if(bCopier_skinMeshRender_copyMaterials)
-            {
-                rTo.sharedMaterials = rFrom.sharedMaterials;
-            }
-
-            rTo.sharedMesh.RecalculateBounds();
-
-            log += "Success: Copied {0} from {1} to {2}";
-            Log(log, LogType.Log, logFormat);
-        }
-
-        /// <summary>
         /// Copies all TrailRenderers in object and it's children.
         /// </summary>        
         /// <param name="createGameObjects">Whether to create missing GameObjects</param>
-        void CopyAllTrailRenderers(GameObject from, GameObject to, bool createGameObjects)
+        void CopyAllTrailRenderers(GameObject from, GameObject to, bool createGameObjects, bool useignoreList = false)
         {
             if(from == null || to == null)
                 return;
@@ -2580,9 +2495,15 @@ namespace Pumkin.AvatarTools
             for(int i = 0; i < rFromArr.Length; i++)
             {
                 var rFrom = rFromArr[i];
-                var tTo = FindObjectInAnotherHierarchy(rFrom.gameObject, to, createGameObjects);
-                var rToObj = tTo.gameObject;
+                var tTo = FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
 
+                if(!tTo)
+                    continue;
+
+                if(useignoreList && !ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreList_includeChildren))
+                    continue;
+
+                var rToObj = tTo.gameObject;
                 var rTo = rToObj.GetComponent<TrailRenderer>();
 
                 if(rTo == null && bCopier_trailRenderers_createMissing)
@@ -2601,7 +2522,7 @@ namespace Pumkin.AvatarTools
         /// <summary>
         /// Copies all RigidBodies in object and in its children.
         /// </summary>        
-        void CopyAllRigidBodies(GameObject from, GameObject to, bool createGameObjects)
+        void CopyAllRigidBodies(GameObject from, GameObject to, bool createGameObjects, bool useignoreList = false)
         {
             if(from == null || to == null)
                 return;
@@ -2611,8 +2532,15 @@ namespace Pumkin.AvatarTools
             for(int i = 0; i < rFromArr.Length; i++)
             {
                 var rFrom = rFromArr[i];
-                var tTo = FindObjectInAnotherHierarchy(rFrom.gameObject, to, createGameObjects);
-                var rToObj = tTo.gameObject;
+                var tTo = FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
+
+                if(!tTo)
+                    continue;
+
+                if(useignoreList && !ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreList_includeChildren))
+                    continue;
+
+                var rToObj = tTo.gameObject;                
 
                 var rTo = rToObj.GetComponent<Rigidbody>();
 
@@ -2632,14 +2560,18 @@ namespace Pumkin.AvatarTools
         /// Copies all ParticleSystems in object and its children
         /// </summary>        
         /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        void CopyAllParticleSystems(GameObject from, GameObject to, bool createGameObjects)
+        void CopyAllParticleSystems(GameObject from, GameObject to, bool createGameObjects, bool useignoreList = false)
         {
             var pFromArr = from.GetComponentsInChildren<ParticleSystem>(true);
 
             for(int i = 0; i < pFromArr.Length; i++)
             {
                 var pp = pFromArr[i];
-                var tTo = FindObjectInAnotherHierarchy(pp.gameObject, to, createGameObjects);
+
+                if(useignoreList && !ShouldIgnoreObject(pp.transform, _copierIgnoreArray, bCopier_ignoreList_includeChildren))
+                    continue;
+
+                var tTo = FindTransformInAnotherHierarchy(pp.transform, to.transform, createGameObjects);
 
                 if(tTo != null)
                 {
@@ -2660,117 +2592,6 @@ namespace Pumkin.AvatarTools
                 }
 
             }
-        }
-
-        /// <summary>
-        /// Remove BlendShapes by name.
-        /// Copies over all blendshapes to a clone of the mesh with shapeNames excluded. Doesn't work yet
-        /// </summary>                
-        void RemoveBlendShapes(SkinnedMeshRenderer renderer, params string[] shapeNames)
-        {
-
-            Mesh myMesh = renderer.sharedMesh;
-            Mesh tmpMesh = Instantiate(myMesh);
-
-            myMesh = null;
-            tmpMesh.name += " (No Blink)";
-            tmpMesh.RecalculateBounds();
-
-            GameObject prefabParent = (GameObject)PrefabUtility.GetPrefabParent(renderer.gameObject);
-
-            string path = AssetDatabase.GetAssetPath(prefabParent.transform.root.gameObject);
-            string name = Path.GetFileName(path);
-
-            path = path.Substring(0, path.Length - name.Length);
-
-            AssetDatabase.AddObjectToAsset(tmpMesh, path + name);
-        }
-
-        /// <summary>
-        /// Disables blinking by removing blinking Visemes. Not quite working because "empty" visemes are needed instead
-        /// </summary>        
-        void DisableBlinking(GameObject avatar)
-        {
-            var renders = avatar.GetComponentsInChildren<SkinnedMeshRenderer>(true);
-
-            foreach(var r in renders)
-            {
-                RemoveBlendShapes(r, "vrc.blink_left", "vrc.blink_right", "vrc.lowerlid_left", "vrc.lowerlid_right");
-            }
-
-
-            /*var renders = avatar.GetComponentsInChildren<SkinnedMeshRenderer>(true);
-            foreach(var r in renders)
-            {
-                int blinkLeft = r.sharedMesh.GetBlendShapeIndex("vrc.blink_left");
-                int blinkRight = r.sharedMesh.GetBlendShapeIndex("vrc.blink_right");
-
-                int lowerLeft = r.sharedMesh.GetBlendShapeIndex("vrc.lowerlid_left");
-                int lowerRight = r.sharedMesh.GetBlendShapeIndex("vrc.lowerlid_right");
-
-                List<BlendShape> blends = GetBlendShapes(r);
-
-                if(blinkLeft == -1 && blinkRight != -1)
-                {
-                    Debug.Log("_Blinking visemes already missing. Ignoring");
-                }
-                else
-                {
-                    r.sharedMesh.ClearBlendShapes();
-                    if(blinkLeft != -1)
-                    {
-                        //blends[blinkLeft] = null;
-                    }
-                    if(blinkRight != -1)
-                    {
-                        //blends[blinkRight] = null;
-                    }
-                    if(lowerLeft != -1)
-                    {
-                        //blends[lowerLeft] = null;
-                    }
-                    if(lowerRight != -1)
-                    {
-                        //blends[lowerRight] = null;
-                    }
-                    foreach(var b in blends)
-                    {
-                        //if(b != null)                            
-                            r.sharedMesh.AddBlendShapeFrame(b.name, b.weight, b.deltaVertices, b.deltaNormals, b.deltaTangents);
-                    }
-                }
-
-            }*/
-        }
-
-        /// <summary>
-        /// Get list of BlendShapes from mesh. Applying blendshapes from this list doesn't seem to work.
-        /// </summary>        
-        List<BlendShapeFrame> GetBlendShapeFrames(SkinnedMeshRenderer renderer)
-        {
-            var shapes = new List<BlendShapeFrame>();
-
-            if(renderer != null)
-            {
-                Mesh myMesh = renderer.sharedMesh;
-
-                Vector3[] dVertices = new Vector3[myMesh.vertexCount];
-                Vector3[] dNormals = new Vector3[myMesh.vertexCount];
-                Vector3[] dTangents = new Vector3[myMesh.vertexCount];
-                for(int shape = 0; shape < myMesh.blendShapeCount; shape++)
-                {
-                    string shapeName = myMesh.GetBlendShapeName(shape);
-
-                    for(int frame = 0; frame < myMesh.GetBlendShapeFrameCount(shape); frame++)
-                    {
-                        float frameWeight = myMesh.GetBlendShapeFrameWeight(shape, frame);
-
-                        myMesh.GetBlendShapeFrameVertices(shape, frame, dVertices, dNormals, dTangents);
-                        shapes.Add(new BlendShapeFrame(shapeName, frameWeight, dVertices, dNormals, dTangents));
-                    }
-                }
-            }
-            return shapes;
         }
 
         /// <summary>
@@ -2930,7 +2751,7 @@ namespace Pumkin.AvatarTools
         /// This will move the VRCCam thumbnail camera on the avatar's face, with an offset
         /// </summary>
         /// <param name="avatarOverride">If this is null, get the avatar we're currently uploading</param>
-        void CenterCameraOnFace(GameObject avatarOverride = null)
+        void CenterCameraOnViewpoint(GameObject avatarOverride = null)
         {
             if(!VRCCam)
                 return;
@@ -3012,14 +2833,13 @@ namespace Pumkin.AvatarTools
             var obj = from.GetComponentsInChildren<Transform>();
             var renders = from.GetComponentsInChildren<SkinnedMeshRenderer>();
 
-            var bones = new List<Transform>();
+            var bones = new HashSet<Transform>();
 
             foreach(var r in renders)
             {
                 foreach(var b in r.bones)
-                {
-                    if(!bones.Contains(b))
-                        bones.Add(b);
+                {                    
+                    bones.Add(b);
                 }
             }
 
@@ -3043,163 +2863,11 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        void DestroyEmptyBonesNew(GameObject from)
-        {
-            var renders = from.GetComponentsInChildren<SkinnedMeshRenderer>();
-            var weights = new Dictionary<Transform, bool>();
-
-            foreach(var r in renders)
-            {
-                foreach(var b in r.bones)
-                {
-                    if(b != null && !weights.ContainsKey(b))
-                        weights.Add(b, false);
-                }
-
-                foreach(var w in r.sharedMesh.boneWeights)
-                {
-                    float vertWeight = 0;
-
-                    if(vertWeight < 1 && w.weight0 != 0 && r.bones[w.boneIndex0] != null)
-                    {
-                        vertWeight += w.weight0;
-
-                        Transform t = r.bones[w.boneIndex0];
-                        if(weights.ContainsKey(t))
-                            weights[t] = true;
-                    }
-                    if(vertWeight < 1 && w.weight1 != 0 && r.bones[w.boneIndex1] != null)
-                    {
-                        vertWeight += w.weight1;
-
-                        Transform t = r.bones[w.boneIndex1];
-                        if(weights.ContainsKey(t))
-                            weights[t] = true;
-                    }
-                    if(vertWeight < 1 && w.weight2 != 0 && r.bones[w.boneIndex2] != null)
-                    {
-                        vertWeight += w.weight2;
-
-                        Transform t = r.bones[w.boneIndex2];
-                        if(weights.ContainsKey(t))
-                            weights[t] = true;
-                    }
-                    if(vertWeight < 1 && w.weight3 != 0 && r.bones[w.boneIndex3] != null)
-                    {
-                        vertWeight += w.weight3;
-
-                        Transform t = r.bones[w.boneIndex3];
-                        if(weights.ContainsKey(t))
-                            weights[t] = true;
-                    }
-                }
-            }
-
-            var sortedBones = from pair in weights
-                              orderby pair.Key.childCount ascending
-                              select pair;
-
-            foreach(var kv in sortedBones)
-            {
-                if(kv.Key != null && !kv.Value && kv.Key.childCount == 0 && kv.Key.GetComponents<Component>().Length == 1)
-                {
-                    Log("_{0} has no bone weights, components or children. Destroying.", LogType.Log, kv.Key.name);
-                    DestroyImmediate(kv.Key.gameObject);
-                }
-            }
-        }
-
-        void DestroyEmptyBones(GameObject from)
-        {
-            var renders = from.GetComponentsInChildren<SkinnedMeshRenderer>();
-
-            foreach(var r in renders)
-            {
-                foreach(var b in r.bones)
-                {
-                    if(b.childCount > 0)
-                        continue;
-
-                    bool empty = true;
-                    foreach(var w in r.sharedMesh.boneWeights)
-                    {
-                        if((b == r.bones[w.boneIndex0] && w.weight0 > 0) || (b == r.bones[w.boneIndex1] && w.weight1 > 0) ||
-                                (b == r.bones[w.boneIndex2] && w.weight2 > 0) || (b == r.bones[w.boneIndex3] && w.weight3 > 0))
-                        {
-                            empty = false;
-                            break;
-                        }
-                    }
-
-                    if(empty)
-                    {
-                        Log("_Bone {0} in {1} is empty. Removing", LogType.Log, b.name, r.gameObject.name);
-                        DestroyImmediate(b.gameObject);
-                    }
-                }
-
-            }
-        }
-
-        /// <summary>
-        /// Destroys all Collider components from object and all of it's children.
-        /// </summary>    
-        void DestroyAllColliders(GameObject from)
-        {
-            var col = from.GetComponentsInChildren<Collider>(true);
-            foreach(var c in col)
-            {
-                Log(Strings.Log.RemoveAttempt, LogType.Log, c.ToString(), from.name);
-                DestroyImmediate(c);
-            }
-        }
-
-        /// <summary>
-        /// Destroys all DynamicBone components from object and all of it's children.
-        /// </summary>    
-        void DestroyAllDynamicBones(GameObject from)
-        {
-#if BONES
-            var bones = from.GetComponentsInChildren<DynamicBone>(true);
-            foreach(var b in bones)
-            {
-                DestroyImmediate(b);
-            }
-#endif
-        }
-
-        /// <summary>
-        /// Destroys all DynamicBoneCollider components from object and it's children 
-        /// and clears all DynamicBone collider lists.
-        /// </summary>    
-        void DestroyAllDynamicBoneColliders(GameObject from)
-        {
-
-#if BONES
-            List<DynamicBoneColliderBase> cl = new List<DynamicBoneColliderBase>();
-            cl.AddRange(from.GetComponentsInChildren<DynamicBoneColliderBase>(true));
-
-            foreach(var c in cl)
-            {
-                DestroyImmediate(c);
-            }
-
-            List<DynamicBone> dl = new List<DynamicBone>();
-            dl.AddRange(from.GetComponentsInChildren<DynamicBone>(true));
-
-            foreach(var d in dl)
-            {
-                if(d.m_Colliders != null)
-                    d.m_Colliders.Clear();
-            }
-#endif
-        }
-
         /// <summary>
         /// Destroy all components of type, if the type is in supportedComponents.
         /// Not sure if it's even necessary to check but we'll keep it for now
         /// </summary>        
-        void DestroyAllComponentsOfType(GameObject obj, Type type, bool ignoreRoot = true)
+        void DestroyAllComponentsOfType(GameObject obj, Type type, bool ignoreRoot = true, bool useignoreList = false)
         {
             string log = "";
             string[] logFormat = { type.ToString(), obj.name };
@@ -3216,11 +2884,9 @@ namespace Pumkin.AvatarTools
             {
                 for(int i = 0; i < comps.Length; i++)
                 {
-                    if(ignoreRoot && comps[i].transform.parent == null)
-                        continue;
-
-                    //if(CopierShouldIgnoreObject(comps[i].gameObject))
-                    //    continue;
+                    if((ignoreRoot && comps[i].transform.parent == null) || 
+                        (useignoreList && !ShouldIgnoreObject(comps[i].transform, _copierIgnoreArray, bCopier_ignoreList_includeChildren)))
+                        continue;                    
 
                     log = Strings.Log.RemoveAttempt + " - ";
                     string name = comps[i].name;
@@ -3240,16 +2906,33 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        private bool CopierShouldIgnoreObject(GameObject gameObject)
-        {
-            if(copierIgnoreList.Contains(gameObject))
-                return true;
-            return false;
-        }
-
         #endregion
 
         #region Helper Functions
+
+        /// <summary>
+        /// Check whether or not we should ignore the object based on it being in the set.
+        /// </summary>
+        static bool ShouldIgnoreObject(Transform trans, Transform[] ignoreArray, bool includeChildren = false)
+        {
+            if((!trans || ignoreArray == null) || trans == trans.root)
+                return false;
+
+            if(ignoreArray.Length > 0 && includeChildren)
+            {
+                var ch = trans.GetComponentsInChildren<Transform>();
+                foreach(var c in ch)
+                {
+                    if(ignoreArray.Contains(c))
+                        return true;
+                }
+                return false;
+            }
+            
+            if(ignoreArray.Contains(trans))
+                return true;            
+            return false;
+        }
 
         void SavePrefs()
         {
@@ -3259,7 +2942,7 @@ namespace Pumkin.AvatarTools
 
             var data = JsonUtility.ToJson(this, false);
             EditorPrefs.SetString("PumkinToolsWindow", data);
-            Log("Saved tool window preferences");
+            LogVerbose("Saved tool window preferences");
         }
 
         void LoadPrefs()
@@ -3270,7 +2953,7 @@ namespace Pumkin.AvatarTools
 
             var data = EditorPrefs.GetString("PumkinToolsWindow", JsonUtility.ToJson(this, false));
             JsonUtility.FromJsonOverwrite(data, this);
-            Log("Loaded tool window preferences");
+            LogVerbose("Loaded tool window preferences");
         }
 
         //IEnumerator SavePrefsCooldown(float time)
@@ -3295,8 +2978,18 @@ namespace Pumkin.AvatarTools
         //    _canLoadPrefs = true;
         //}
 
+        public static string GetGameObjectPath(Transform trans, bool skipRoot = true)
+        {
+            if(trans != null)
+                return GetGameObjectPath(trans.gameObject, skipRoot);
+            return null;
+        }
+
         public static string GetGameObjectPath(GameObject obj, bool skipRoot = true)
         {
+            if(!obj)
+                return null;
+
             string path = null;
             if(obj.transform != obj.transform.root)
             {
@@ -3358,47 +3051,15 @@ namespace Pumkin.AvatarTools
         /// Looks for object in another object's child hierarchy. Can create if missing.
         /// </summary>                
         /// <returns>Transform of found object</returns>
-        public Transform FindObjectInAnotherHierarchy(GameObject obj, GameObject otherHierarchy, bool createIfMissing)
+        public Transform FindTransformInAnotherHierarchy(Transform trans, Transform otherHierarchyTrans, bool createIfMissing)
         {
-            var childPath = GetGameObjectPath(obj);
-            var childTrans = otherHierarchy.transform.root.Find(childPath, createIfMissing, obj.transform);
+            if(!trans)
+                return null;
+
+            var childPath = GetGameObjectPath(trans);
+            var childTrans = otherHierarchyTrans.root.Find(childPath, createIfMissing, trans);
 
             return childTrans;
-        }
-
-        public static bool IsBoneHasWeights(Transform t, SkinnedMeshRenderer r)
-        {
-            if(t == r.rootBone)
-            {
-                return true;
-            }
-
-            bool isBone = false;
-            foreach(var b in r.bones)
-            {
-                if(t == b)
-                {
-                    isBone = true;
-                    break;
-                }
-            }
-
-            if(isBone)
-            {
-                foreach(var b in r.sharedMesh.boneWeights)
-                {
-                    if((t == r.bones[b.boneIndex0] && b.weight0 > 0) || (t == r.bones[b.boneIndex1] && b.weight1 > 0)
-                            || (t == r.bones[b.boneIndex2] && b.weight2 > 0) || (t == r.bones[b.boneIndex3] && b.weight3 > 0))
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            }
-            else
-            {
-                return false;
-            }
         }
 
         public static bool IsSupportedComponentType(Type type)
@@ -3558,24 +3219,7 @@ namespace Pumkin.AvatarTools
             }
             return true;
         }
-
-        public static void SaveMesh(Mesh mesh, string path, bool makeNewInstance, bool optimizeMesh, bool overwrite)
-        {
-            if(string.IsNullOrEmpty(path))
-                return;
-
-            if(overwrite)
-                AssetDatabase.DeleteAsset(path);
-
-            Mesh meshToSave = (makeNewInstance) ? Instantiate(mesh) as Mesh : mesh;
-
-            if(optimizeMesh)
-                MeshUtility.Optimize(meshToSave);
-
-            AssetDatabase.CreateAsset(meshToSave, path);
-            AssetDatabase.SaveAssets();
-        }
-
+        
         public static Vector3 RoundVectorValues(Vector3 v, int decimals)
         {
             return new Vector3((float)Math.Round(v.x, decimals), (float)Math.Round(v.y, decimals), (float)Math.Round(v.z, decimals));
@@ -3666,26 +3310,7 @@ namespace Pumkin.AvatarTools
         #endregion
     }
     #region Data Structures
-
-    public class BlendShapeFrame
-    {
-        public string name;
-        public float weight;
-
-        public Vector3[] deltaVertices, deltaNormals, deltaTangents;
-
-        private BlendShapeFrame() { }
-
-        public BlendShapeFrame(string name, float weight, Vector3[] deltaVertices, Vector3[] deltaNormals, Vector3[] deltaTangents)
-        {
-            this.name = name;
-            this.deltaVertices = deltaVertices;
-            this.deltaNormals = deltaNormals;
-            this.deltaTangents = deltaTangents;
-            this.weight = weight;
-        }
-    }
-
+    
     public static class Styles
     {
         public static GUIStyle Foldout_title { get; internal set; }
@@ -3697,9 +3322,15 @@ namespace Pumkin.AvatarTools
         public static GUIStyle HelpBox { get; internal set; }
         public static GUIStyle HelpBox_OneLine { get; internal set; }
         public static GUIStyle Box { get; internal set; }
+        public static GUIStyle BigButton { get; internal set; }
 
         static Styles()
         {
+            BigButton = new GUIStyle("Button")
+            {
+                fixedHeight = 28f,
+                stretchHeight = false,
+            };
             Foldout_title = new GUIStyle("Foldout")
             {
                 fontStyle = FontStyle.Bold,
@@ -3801,7 +3432,7 @@ namespace Pumkin.AvatarTools
     /// </summary>
     public static class Strings
     {
-        public static readonly string version = "0.7b - Work in Progress";
+        public static readonly string version = "0.6.1b - Work in Progress";
         public static readonly string toolsPage = "https://github.com/rurre/PumkinsAvatarTools/";
         public static readonly string donationLink = "https://ko-fi.com/notpumkin";
         public static readonly string discordLink = "https://discord.gg/7vyekJv";
@@ -4023,6 +3654,7 @@ namespace Pumkin.AvatarTools
         {
             public static string CopyFrom { get; internal set; }
             public static string CopyGameObjects { get; internal set; }
+            public static string CopyColliderObjects { get; internal set; }
             public static string CopySettings { get; internal set; }
             public static string CreateMissing { get; internal set; }
 
@@ -4102,6 +3734,7 @@ namespace Pumkin.AvatarTools
                 TrailRenderers = GetString("ui_copier_trailRenderers") ?? "_Trail Renderers";
                 MeshRenderers = GetString("ui_copier_meshRenderers") ?? "_Mesh Renderers";
                 CopyGameObjects = GetString("ui_copier_copyGameObjects") ?? "_Copy GameObjects";
+                CopyColliderObjects = GetString("ui_copier_dynamicBones_copyColliderObjects") ?? "_Copy Collider Objects";
                 Lights = GetString("ui_copier_lights") ?? "_Lights";
                 Animators = GetString("ui_copier_animators") ?? "_Animators";
                 CopyMainAnimator = GetString("ui_copier_animators_copyMain") ?? "_Copy Main Animator";
@@ -4167,7 +3800,7 @@ namespace Pumkin.AvatarTools
                 LoadedBlendshapePreset = GetString("log_loadedBlendshapePreset") ?? "_Loaded Blendshapes: {0}";
                 FailedDoesntHave = GetString("log_failedDoesntHave") ?? "_Failed: {0} doesn't have a {1}";
                 FailedNotSupported = GetString("log_failedNotSupported") ?? "_Failed: {0} is not supported";
-                FailedAlreadyHas = GetString("log_failedAlreadyHas") ?? "_Failed: {0} already has {1}";
+                FailedAlreadyHas = GetString("log_failedAlreadyHas") ?? "_Failed: {1} already has {0}";
                 LoadedCameraOverlay = GetString("log_loadedCameraOverlay") ?? "_Loaded {0} as Camera Overlay";
                 FailedHasNo = GetString("log_failedHasNo") ?? "_{0} has no {1}, Ignoring.";
             }
@@ -4390,6 +4023,8 @@ namespace Pumkin.AvatarTools
                 {"ui_copier_dynamicBones_removeOld", "Remove Old Bones" },
                 {"ui_copier_dynamicBones_removeOldColliders", "Remove Old Colliders" },
                 {"ui_copier_dynamicBones_createMissing", "Create Missing Bones" },
+                {"ui_copier_dynamicBones_copyColliderObjects" , "Copy Collider Objects" },
+
 
                 //UI Copier Colliders
                 {"ui_copier_colliders", "Colliders" },
@@ -4497,7 +4132,7 @@ namespace Pumkin.AvatarTools
                 {"log_loadedPose", "Loaded Pose: {0}"},
                 {"log_loadedBlendshapePreset", "Loaded Blendshapes: {0}"},
                 {"log_failedDoesntHave", "Failed: {0} doesn't have a {1}" },
-                {"log_failedAlreadyHas", "Failed: {0} already has {1}" },
+                {"log_failedAlreadyHas", "Failed: {1} already has {0}" },
                 {"log_loadedCameraOverlay", "Loaded {0} as Camera Overlay" },
                 {"log_failedHasNo", "{0} has no {1}, Ignoring."},
 #endregion
@@ -4767,84 +4402,9 @@ namespace Pumkin.AvatarTools
             return s;
         }
     };
-
-    public class AvatarStat
-    {
-        public string Name
-        {
-            get; private set;
-        }
-        public int Value
-        {
-            get; private set;
-        }
-        public int[] Levels
-        {
-            get; private set;
-        }
-
-        public enum StatLevel { Excellent = -1, VeryGood, Good, Medium, Poor, VeryPoor, Invalid = 100 };
-
-        public AvatarStat(string name, int val_poor, int val_medium, int val_good, int val_veryGood)
-        {
-            Name = name;
-            Levels = new int[] { val_veryGood, val_good, val_medium, val_poor };
-        }
-
-        public StatLevel GetStatLevelPolygon(int polycount)
-        {
-            if(polycount <= Levels[(int)StatLevel.VeryGood])
-                return StatLevel.VeryGood;
-            else if(polycount > Levels[(int)StatLevel.VeryGood] && polycount < Levels[(int)StatLevel.Good])
-                return StatLevel.Good;
-            else
-                return StatLevel.Poor;
-        }
-
-        public StatLevel GetStatLevel(int stat)
-        {
-            if(stat < Levels[0])
-                return StatLevel.Excellent;
-
-            for(int i = 0; i < Levels.Length; i++)
-                if(stat <= Levels[i])
-                    return (StatLevel)i;
-
-            if(stat > Levels[Levels.Length - 1])
-                return StatLevel.VeryPoor;
-
-            return StatLevel.Invalid;
-        }
-    }
-
+    
     public class AvatarInfo
-    {
-        readonly List<AvatarStat> statRanks = new List<AvatarStat>()
-        {
-            { new AvatarStat("Polygons", 70000, 70000, 70000, 32000 ) },
-            { new AvatarStat("Skinned Meshes", 16, 8, 2, 1) },
-            { new AvatarStat("Meshes", 24, 16, 8, 4) },
-            { new AvatarStat("Unique Materials", 24, 16, 8, 4) },
-            { new AvatarStat("Dynamic Bone Components", 24, 16, 8, 4) },
-            { new AvatarStat("Dynamic Bone Transforms", 24, 16, 8, 4) },
-            { new AvatarStat("Dynamic Bone Colliders", 24, 16, 8, 4) },
-            { new AvatarStat("Dynamic Bone Collision Check Count", 24, 16, 8, 4) },
-            { new AvatarStat("Animators", 24, 16, 8, 4) },
-            { new AvatarStat("Bones", 24, 16, 8, 4) },
-            { new AvatarStat("Lights", 24, 16, 8, 4) },
-            { new AvatarStat("Particle Systems", 24, 16, 8, 4) },
-            { new AvatarStat("Total Particles Active", 24, 16, 8, 4) },
-            { new AvatarStat("Mesh Particle Active Polys", 24, 16, 8, 4) },
-            { new AvatarStat("Particle Trails Enabled", 1, 1, 0, 0) },
-            { new AvatarStat("Particle Collision Enabled", 1, 1, 0, 0) },
-            { new AvatarStat("Trail Renderers", 8, 4, 2, 1) },
-            { new AvatarStat("Line Renderers", 8, 4, 2, 1) },
-            { new AvatarStat("Cloths", 1, 1, 1, 0) },
-            { new AvatarStat("Total Cloth Vertices", 200, 100, 5, 0) },
-            { new AvatarStat("Physics Colliders", 8, 8, 1, 0) },
-            { new AvatarStat("Physics Rigidbodies", 8, 8, 1, 0) },
-            { new AvatarStat("Audio Sources", 8, 8, 4, 1) },
-        };
+    {        
         AvatarPerformanceStats perfStats = new AvatarPerformanceStats();
 
         public string Name { get; private set; }
@@ -4997,7 +4557,7 @@ namespace Pumkin.AvatarTools
             UniqueMaterials = new HashSet<Material>(matList).Count;
             UniqueMaterials_Total = new HashSet<Material>(matList_total).Count;
 
-#if BONES
+#if BONES || OLD_BONES
 
             var dbColliders = o.GetComponentsInChildren<DynamicBoneCollider>(true);
             foreach(var c in dbColliders)
@@ -5084,19 +4644,6 @@ namespace Pumkin.AvatarTools
             AvatarInfo a = new AvatarInfo(o);
             toString = a.ToString();
             return a;
-        }
-
-        public AvatarStat.StatLevel GetStatLevel(string statName, int statNr)
-        {
-            if(string.IsNullOrEmpty(statName))
-                return AvatarStat.StatLevel.Invalid;
-
-            var stat = statRanks.Find(x => !string.IsNullOrEmpty(x.Name) && x.Name.ToLower() == statName.ToLower());
-
-            if(stat != null && stat.Name.ToLower() == "polygons")
-                return stat.GetStatLevelPolygon(statNr);
-
-            return stat.GetStatLevel(statNr);
         }
 
         public override string ToString()
