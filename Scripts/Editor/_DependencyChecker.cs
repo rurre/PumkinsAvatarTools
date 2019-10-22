@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Pumkin.DependencyChecker
 {
     [InitializeOnLoad]
-    public class _DependecyChecker
+    public class _DependencyChecker
     {
         static readonly float checkCooldown = 0.5f;
 
