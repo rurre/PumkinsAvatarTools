@@ -9,22 +9,15 @@ namespace Pumkin.DependencyChecker
     [InitializeOnLoad]
     public class _DependencyChecker
     {
-        static readonly float checkCooldown = 0.5f;
-
         static string hasBonesString = "#define BONES\r\n";
         static string hasOldBonesString = "#define OLD_BONES\r\n";
 
         public static string MainScriptPath { get; private set; }
 
-        static bool needRewrite = false;
-        static bool needCheck = true;
+        static bool needRewrite = false;        
 
-        static bool bonesAreOld = false;
+        static bool bonesAreOld = false;        
         
-        static float _now = 0f;
-        static float _canCheckNext = 0f;
-
-        static bool checkManually = true;
         static bool missingBoneFiles = false;
 
         public enum CheckerStatus { DEFAULT, NO_BONES, NO_SDK, OK, OK_OLDBONES };
@@ -33,32 +26,25 @@ namespace Pumkin.DependencyChecker
             get; internal set;
         }        
 
-        static _DependecyChecker()
+        static _DependencyChecker()
         {            
             Check();  
         }
 
         [UnityEditor.Callbacks.DidReloadScripts]
         private static void OnScriptsReloaded()
-        {
-            if(!checkManually)
-                Check();
+        {            
+            //Check();
         }
 
         public static void ForceCheck()
-        {
-            needCheck = true;
+        {            
             Status = CheckerStatus.DEFAULT;
             Check();
         }
 
         public static void Check()
         {
-            _now = Time.time;
-            
-            if(!checkManually && (!needCheck || _now < _canCheckNext))
-                return;
-
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for VRChat SDK in project...");
             Type sdkType = GetType("VRCSDK2.VRC_AvatarDescriptor");
 
@@ -107,7 +93,7 @@ namespace Pumkin.DependencyChecker
                 }
                 else //DynamicBones Present
                 {
-                    if(boneColliderType.IsSubclassOf(boneColliderBaseType))
+                    if(boneColliderBaseType != null && boneColliderType.IsSubclassOf(boneColliderBaseType))
                         bonesAreOld = false;
                     else
                         bonesAreOld = true;
@@ -139,10 +125,7 @@ namespace Pumkin.DependencyChecker
                     AssetDatabase.ImportAsset(RelativePath(toolScriptPath[0]));
                     needRewrite = false;
                 }
-            }
-            if(!checkManually)
-                _canCheckNext = _now + checkCooldown;
-            needCheck = false;
+            }            
         }                
 
         static Type GetType(string typeName)

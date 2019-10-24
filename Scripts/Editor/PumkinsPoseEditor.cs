@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -9,6 +9,8 @@ using System.Linq;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using Pumkin.AvatarTools;
+using Pumkin.DataStructures;
+using Pumkin.HelperFunctions;
 
 namespace Pumkin.PoseEditor
 {
@@ -45,135 +47,7 @@ namespace Pumkin.PoseEditor
         int selectedPositionIndex = 0;
                 
         static List<PosePreset> poses;
-        static List<HumanPosePreset> humanPoses = new List<HumanPosePreset>();
-        static List<PosePreset> defaultPoses = new List<PosePreset>()
-        {
-            new PosePreset("APose", new Dictionary<string, SerialTransform>
-            {
-                {"Armature", new SerialTransform(new Quaternion(-0.7071068f, 0f, 0f, 0.7071067f))},
-                {"Armature/Hips", new SerialTransform(new Quaternion(0.7071068f, 0f, 0f, 0.7071067f))},                
-                {"Armature/Hips/Left leg", new SerialTransform(new Quaternion(0.9986714f, 0.03588417f, 0.03587975f, 0.008972821f))},
-                {"Armature/Hips/Left leg/Left knee", new SerialTransform(new Quaternion(0.004872414f, -0.04231054f, 0.04190284f, 0.9982135f))},
-                {"Armature/Hips/Left leg/Left knee/Left ankle", new SerialTransform(new Quaternion(-0.4095502f, 0.008253491f, -0.003099248f, 0.912245f))},
-                {"Armature/Hips/Left leg/Left knee/Left ankle/Left toe", new SerialTransform(new Quaternion(3.848644E-08f, 0.9361382f, -0.3516323f, 6.619196E-08f))},
-                {"Armature/Hips/Left leg/Left knee/Left ankle/Left toe/Left toe_end", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},
-                {"Armature/Hips/Right leg", new SerialTransform(new Quaternion(0.9986714f, -0.03588417f, -0.03587975f, 0.008972821f))},
-                {"Armature/Hips/Right leg/Right knee", new SerialTransform(new Quaternion(0.004872414f, 0.04231054f, -0.04190284f, 0.9982135f))},
-                {"Armature/Hips/Right leg/Right knee/Right ankle", new SerialTransform(new Quaternion(-0.4095502f, -0.008253491f, 0.003099248f, 0.912245f))},
-                {"Armature/Hips/Right leg/Right knee/Right ankle/Right toe", new SerialTransform(new Quaternion(-3.848644E-08f, 0.9361382f, -0.3516323f, -6.619196E-08f))},
-                {"Armature/Hips/Right leg/Right knee/Right ankle/Right toe/Right toe_end", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},
-                {"Armature/Hips/Spine", new SerialTransform(new Quaternion(-0.05796075f, 1.614445E-13f, 1.614445E-13f, 0.9983189f))},
-                {"Armature/Hips/Spine/Chest", new SerialTransform(new Quaternion(-0.001378456f, 1.969634E-09f, 2.212438E-09f, 0.999999f))},
-                {"Armature/Hips/Spine/Chest/Breast", new SerialTransform(new Quaternion(-5.586176E-08f, 0.6639034f, 0.7478184f, -5.13642E-08f))},
-                {"Armature/Hips/Spine/Chest/Breast/Breast_end", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder", new SerialTransform(new Quaternion(0.5621743f, -0.4578156f, -0.5156817f, -0.4565495f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm", new SerialTransform(new Quaternion(-0.2053409f, 0.2135349f, -0.09379838f, 0.9504945f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow", new SerialTransform(new Quaternion(-0.01347903f, -0.002298978f, 0.02280845f, 0.9996464f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist", new SerialTransform(new Quaternion(0.01777397f, 0.0001094748f, -0.02512324f, 0.9995263f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/IndexFinger1_L", new SerialTransform(new Quaternion(-0.0356151f, 0.005686217f, 0.03969931f, 0.9985605f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/IndexFinger1_L/IndexFinger2_L", new SerialTransform(new Quaternion(-0.02050746f, 0.03265196f, -0.02400833f, 0.9989679f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/IndexFinger1_L/IndexFinger2_L/IndexFinger3_L", new SerialTransform(new Quaternion(0.01886311f, -0.01968856f, 0.006647404f, 0.9996061f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/IndexFinger1_L/IndexFinger2_L/IndexFinger3_L/IndexFinger3_L_end", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/LittleFinger1_L", new SerialTransform(new Quaternion(-0.06815263f, 0.05165451f, 0.002492888f, 0.9963337f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/LittleFinger1_L/LittleFinger2_L", new SerialTransform(new Quaternion(-0.005968827f, -0.005104264f, 0.01414687f, 0.9998691f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/LittleFinger1_L/LittleFinger2_L/LittleFinger3_L", new SerialTransform(new Quaternion(0.006916159f, -0.006350369f, 0.001030987f, 0.9999554f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/LittleFinger1_L/LittleFinger2_L/LittleFinger3_L/LittleFinger3_L_end", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/MiddleFinger1_L", new SerialTransform(new Quaternion(-0.0153637f, -0.008300184f, 0.03650313f, 0.999181f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/MiddleFinger1_L/MiddleFinger2_L", new SerialTransform(new Quaternion(-0.03824675f, 0.04590584f, -0.02282737f, 0.9979523f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/MiddleFinger1_L/MiddleFinger2_L/MiddleFinger3_L", new SerialTransform(new Quaternion(0.04821414f, -0.05051146f, 0.01771069f, 0.9974018f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/MiddleFinger1_L/MiddleFinger2_L/MiddleFinger3_L/MiddleFinger3_L_end", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/RingFinger1_L", new SerialTransform(new Quaternion(-0.08235166f, 0.06716307f, -0.005541536f, 0.9943222f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/RingFinger1_L/RingFinger2_L", new SerialTransform(new Quaternion(0.01983806f, -0.02340992f, 0.01137352f, 0.9994644f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/RingFinger1_L/RingFinger2_L/RingFinger3_L", new SerialTransform(new Quaternion(0.03805108f, -0.04579372f, 0.02312871f, 0.997958f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/RingFinger1_L/RingFinger2_L/RingFinger3_L/RingFinger3_L_end", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/Thumb0_L", new SerialTransform(new Quaternion(-0.2454762f, 0.1082771f, 0.1491333f, 0.951723f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/Thumb0_L/Thumb1_L", new SerialTransform(new Quaternion(-0.02024357f, 0.03498593f, -0.008945947f, 0.9991428f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/Thumb0_L/Thumb1_L/Thumb2_L", new SerialTransform(new Quaternion(0.02221633f, -0.04790917f, 0.01709747f, 0.9984582f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/Thumb0_L/Thumb1_L/Thumb2_L/Thumb2_L_end", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},
-                {"Armature/Hips/Spine/Chest/Neck", new SerialTransform(new Quaternion(0.09886816f, -1.276232E-08f, -1.393427E-08f, 0.9951006f))},
-                {"Armature/Hips/Spine/Chest/Neck/Head", new SerialTransform(new Quaternion(-0.03964783f, 1.127509E-08f, 1.127509E-08f, 0.9992138f))},                                
-                {"Armature/Hips/Spine/Chest/Right shoulder", new SerialTransform(new Quaternion(0.5621742f, 0.4578156f, 0.5156817f, -0.4565495f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm", new SerialTransform(new Quaternion(-0.2053409f, -0.2135349f, 0.0937984f, 0.9504945f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow", new SerialTransform(new Quaternion(-0.01347904f, 0.002298978f, -0.02280846f, 0.9996464f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist", new SerialTransform(new Quaternion(0.01777413f, -0.000109199f, 0.02512311f, 0.9995264f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/IndexFinger1_R", new SerialTransform(new Quaternion(-0.03561525f, -0.005686515f, -0.03969924f, 0.9985605f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/IndexFinger1_R/IndexFinger2_R", new SerialTransform(new Quaternion(-0.02050746f, -0.03265193f, 0.02400845f, 0.9989679f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/IndexFinger1_R/IndexFinger2_R/IndexFinger3_R", new SerialTransform(new Quaternion(0.01886313f, 0.01968858f, -0.006647416f, 0.9996061f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/IndexFinger1_R/IndexFinger2_R/IndexFinger3_R/IndexFinger3_R_end", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/LittleFinger1_R", new SerialTransform(new Quaternion(-0.06815278f, -0.05165481f, -0.002492778f, 0.9963337f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/LittleFinger1_R/LittleFinger2_R", new SerialTransform(new Quaternion(-0.005968846f, 0.005104282f, -0.01414684f, 0.9998691f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/LittleFinger1_R/LittleFinger2_R/LittleFinger3_R", new SerialTransform(new Quaternion(0.006916152f, 0.006350345f, -0.00103096f, 0.9999554f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/LittleFinger1_R/LittleFinger2_R/LittleFinger3_R/LittleFinger3_R_end", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/MiddleFinger1_R", new SerialTransform(new Quaternion(-0.01536454f, 0.008299073f, -0.03650245f, 0.999181f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/MiddleFinger1_R/MiddleFinger2_R", new SerialTransform(new Quaternion(-0.03824554f, -0.04590411f, 0.02282618f, 0.9979525f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/MiddleFinger1_R/MiddleFinger2_R/MiddleFinger3_R", new SerialTransform(new Quaternion(0.04821276f, 0.05050958f, -0.01770934f, 0.997402f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/MiddleFinger1_R/MiddleFinger2_R/MiddleFinger3_R/MiddleFinger3_R_end", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/RingFinger1_R", new SerialTransform(new Quaternion(-0.0823547f, -0.06716713f, 0.005544453f, 0.9943216f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/RingFinger1_R/RingFinger2_R", new SerialTransform(new Quaternion(0.01984035f, 0.02341333f, -0.01137586f, 0.9994643f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/RingFinger1_R/RingFinger2_R/RingFinger3_R", new SerialTransform(new Quaternion(0.03805373f, 0.04579718f, -0.02313079f, 0.9979577f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/RingFinger1_R/RingFinger2_R/RingFinger3_R/RingFinger3_R_end", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/Thumb0_R", new SerialTransform(new Quaternion(-0.2454735f, -0.1082745f, -0.1491345f, 0.9517239f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/Thumb0_R/Thumb1_R", new SerialTransform(new Quaternion(-0.02024736f, -0.03499207f, 0.008947278f, 0.9991424f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/Thumb0_R/Thumb1_R/Thumb2_R", new SerialTransform(new Quaternion(0.02221983f, 0.04791843f, -0.01710149f, 0.9984577f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/Thumb0_R/Thumb1_R/Thumb2_R/Thumb2_R_end", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},        
-            }),
-            new PosePreset("TPose", new Dictionary<string, SerialTransform>
-            {
-                {"Armature", new SerialTransform(new Quaternion(-0.7071068f, 0f, 0f, 0.7071067f))},
-                {"Armature/Hips", new SerialTransform(new Quaternion(0.7071068f, 0f, 0f, 0.7071067f))},
-                {"Armature/Hips/Left leg", new SerialTransform(new Quaternion(1f, 6.837939E-08f, 7.54979E-08f, 1.947072E-07f))},
-                {"Armature/Hips/Left leg/Left knee", new SerialTransform(new Quaternion(2.553765E-07f, -1.967755E-08f, 1.255907E-08f, 1f))},
-                {"Armature/Hips/Left leg/Left knee/Left ankle", new SerialTransform(new Quaternion(-0.4950582f, 0.01679231f, -0.01679236f, 0.8685353f))},
-                {"Armature/Hips/Left leg/Left knee/Left ankle/Left toe", new SerialTransform(new Quaternion(-6.171095E-07f, 0.9642062f, -0.2640882f, 0.02374722f))},
-                {"Armature/Hips/Right leg", new SerialTransform(new Quaternion(1f, 1.367588E-07f, 7.54979E-08f, 1.947072E-07f))},
-                {"Armature/Hips/Right leg/Right knee", new SerialTransform(new Quaternion(2.553765E-07f, -4.200568E-08f, 1.032666E-07f, 1f))},
-                {"Armature/Hips/Right leg/Right knee/Right ankle", new SerialTransform(new Quaternion(-0.4950581f, -0.01679211f, 0.01679208f, 0.8685353f))},
-                {"Armature/Hips/Right leg/Right knee/Right ankle/Right toe", new SerialTransform(new Quaternion(6.374848E-07f, 0.9642062f, -0.2640882f, -0.02374698f))},
-                {"Armature/Hips/Spine", new SerialTransform(new Quaternion(0f, 0f, 0f, 1f))},
-                {"Armature/Hips/Spine/Chest", new SerialTransform(new Quaternion(-0.01303699f, -2.334407E-08f, -2.334407E-08f, 0.999915f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder", new SerialTransform(new Quaternion(-0.5060819f, 0.4729586f, 0.4854548f, 0.5334089f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm", new SerialTransform(new Quaternion(-0.04704045f, 0.2640885f, 0.03154722f, 0.9628339f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow", new SerialTransform(new Quaternion(0.004182443f, 0.003751449f, -0.01474725f, 0.9998755f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist", new SerialTransform(new Quaternion(-0.0177228f, -0.004817383f, 0.04033175f, 0.9990175f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/IndexFinger1_L", new SerialTransform(new Quaternion(0.7341435f, -0.4539575f, -0.4539577f, 0.2210843f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/IndexFinger1_L/IndexFinger2_L", new SerialTransform(new Quaternion(1.490116E-08f, 3.725291E-08f, 1.110222E-15f, 1f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/IndexFinger1_L/IndexFinger2_L/IndexFinger3_L", new SerialTransform(new Quaternion(4.301344E-23f, 8.881784E-15f, -4.440905E-16f, 1f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/LittleFinger1_L", new SerialTransform(new Quaternion(0.7341434f, -0.4539578f, -0.4539577f, 0.2210844f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/LittleFinger1_L/LittleFinger2_L", new SerialTransform(new Quaternion(-6.328271E-15f, 4.470348E-08f, -3.49246E-08f, 1f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/LittleFinger1_L/LittleFinger2_L/LittleFinger3_L", new SerialTransform(new Quaternion(-1.985233E-23f, 7.105427E-15f, 5.820766E-09f, 1f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/MiddleFinger1_L", new SerialTransform(new Quaternion(0.7341434f, -0.4539577f, -0.4539576f, 0.2210843f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/MiddleFinger1_L/MiddleFinger2_L", new SerialTransform(new Quaternion(-8.881784E-16f, -7.450581E-08f, -1.164154E-08f, 1f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/MiddleFinger1_L/MiddleFinger2_L/MiddleFinger3_L", new SerialTransform(new Quaternion(0f, -4.846701E-25f, 0f, 1f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/RingFinger1_L", new SerialTransform(new Quaternion(0.7341434f, -0.4539576f, -0.4539576f, 0.2210845f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/RingFinger1_L/RingFinger2_L", new SerialTransform(new Quaternion(1.385808E-06f, -2.004206E-06f, -0.06961256f, 0.9975742f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/RingFinger1_L/RingFinger2_L/RingFinger3_L", new SerialTransform(new Quaternion(7.610062E-23f, -2.220447E-16f, 5.820766E-09f, 1f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/Thumb0_L", new SerialTransform(new Quaternion(0.7629954f, -0.352358f, -0.4343732f, 0.3240399f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/Thumb0_L/Thumb1_L", new SerialTransform(new Quaternion(3.407985E-22f, 4.470348E-08f, -2.328305E-08f, 1f))},
-                {"Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/Thumb0_L/Thumb1_L/Thumb2_L", new SerialTransform(new Quaternion(-4.632212E-23f, 7.105427E-15f, -5.82077E-09f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder", new SerialTransform(new Quaternion(-0.5060809f, -0.4729587f, -0.4854544f, 0.53341f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm", new SerialTransform(new Quaternion(-0.0470415f, -0.2640885f, -0.03154606f, 0.9628339f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow", new SerialTransform(new Quaternion(0.004181627f, -0.003752453f, 0.01474767f, 0.9998755f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist", new SerialTransform(new Quaternion(-0.01772276f, 0.004817458f, -0.04033176f, 0.9990175f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/IndexFinger1_R", new SerialTransform(new Quaternion(0.7341437f, 0.4539576f, 0.4539576f, 0.221084f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/IndexFinger1_R/IndexFinger2_R", new SerialTransform(new Quaternion(1.490116E-08f, -1.043081E-07f, -3.219647E-15f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/IndexFinger1_R/IndexFinger2_R/IndexFinger3_R", new SerialTransform(new Quaternion(0f, 1.449532E-29f, -4.76456E-22f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/LittleFinger1_R", new SerialTransform(new Quaternion(0.7341437f, 0.4539576f, 0.4539576f, 0.221084f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/LittleFinger1_R/LittleFinger2_R", new SerialTransform(new Quaternion(1.490115E-08f, -1.043081E-07f, -3.219647E-15f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/LittleFinger1_R/LittleFinger2_R/LittleFinger3_R", new SerialTransform(new Quaternion(6.948312E-23f, -1.111731E-21f, -2.38228E-22f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/MiddleFinger1_R", new SerialTransform(new Quaternion(0.7341438f, 0.4539575f, 0.4539576f, 0.2210839f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/MiddleFinger1_R/MiddleFinger2_R", new SerialTransform(new Quaternion(-1.490116E-08f, -1.117587E-07f, 1.164153E-08f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/MiddleFinger1_R/MiddleFinger2_R/MiddleFinger3_R", new SerialTransform(new Quaternion(3.308722E-24f, -1.196375E-22f, -2.220449E-16f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/RingFinger1_R", new SerialTransform(new Quaternion(0.7341437f, 0.4539576f, 0.4539576f, 0.2210839f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/RingFinger1_R/RingFinger2_R", new SerialTransform(new Quaternion(-9.926129E-24f, -3.72529E-08f, -1.164154E-08f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/RingFinger1_R/RingFinger2_R/RingFinger3_R", new SerialTransform(new Quaternion(1.323489E-23f, -7.105427E-15f, -5.820768E-09f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/Thumb0_R", new SerialTransform(new Quaternion(0.7629959f, 0.352356f, 0.4343733f, 0.3240407f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/Thumb0_R/Thumb1_R", new SerialTransform(new Quaternion(-1.164153E-08f, -8.195639E-08f, 2.328307E-08f, 1f))},
-                {"Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/Thumb0_R/Thumb1_R/Thumb2_R", new SerialTransform(new Quaternion(-5.820768E-09f, -4.20128E-17f, 5.820767E-09f, 1f))},
-                {"Armature/Hips/Spine/Chest/Neck", new SerialTransform(new Quaternion(0.01834228f, 2.346763E-08f, 2.32181E-08f, 0.9998318f))},
-                {"Armature/Hips/Spine/Chest/Neck/Head", new SerialTransform(new Quaternion(-0.005305921f, -6.2143E-15f, 1.364294E-12f, 0.9999859f))},
-                {"Body", new SerialTransform(new Quaternion(-0.7071068f, 0f, 0f, 0.7071067f))},
-        }),
-        };
+        static List<HumanPosePreset> humanPoses = new List<HumanPosePreset>();        
         static List<BlendshapePreset> shapes;
         static List<string> scenePaths;
 
@@ -186,18 +60,18 @@ namespace Pumkin.PoseEditor
         Scene addedScene;        
 
         public static string PosePresetPath
-        {
-            get { return PumkinsAvatarTools.MainScriptPath + "/Resources/Presets/Poses/"; }
+        {            
+            get { return PumkinsAvatarTools.MainScriptPath + "/../../Resources/Presets/Poses/"; }
         }
 
         public static string BlendshapesPresetPath
         {
-            get { return PumkinsAvatarTools.MainScriptPath + "/Resources/Presets/Blendshapes/"; }
+            get { return PumkinsAvatarTools.MainScriptPath + "/../../Resources/Presets/Blendshapes/"; }
         }
 
         public static string ScenePresetPath
         {
-            get { return PumkinsAvatarTools.MainScriptPath + "/Resources/Presets/Scenes/"; }
+            get { return PumkinsAvatarTools.MainScriptPath + "/../../Resources/Presets/Scenes/"; }
         }
 
         public Scene ThisScene
@@ -208,95 +82,6 @@ namespace Pumkin.PoseEditor
         public bool InPlaymode
         {
             get { return EditorApplication.isPlaying; }
-        }
-
-
-        /// <summary>
-        /// Check folders for scenes, serialized poses and blendshape files
-        /// </summary>
-        public static void CheckFolders(bool forceRefresh = false)
-        {
-            var pFiles = Directory.GetFiles(PosePresetPath, "*." + poseExtension, SearchOption.AllDirectories);
-            var sFiles = Directory.GetFiles(BlendshapesPresetPath, "*." + blendshapeExtension, SearchOption.AllDirectories);
-            var scFiles = Directory.GetFiles(ScenePresetPath, "*." + sceneExtension, SearchOption.AllDirectories);
-
-            
-            if(poses == null)
-                poses = new List<PosePreset>();
-            if(shapes == null)
-                shapes = new List<BlendshapePreset>();
-            if(scenePaths == null)
-                scenePaths = new List<string>();
-
-            if(forceRefresh || (poses.Count != pFiles.Length))
-            {
-                poses.Clear();
-
-                foreach(var s in pFiles)
-                {
-                    try
-                    {
-                        string json = File.ReadAllText(s);
-                        if(!string.IsNullOrEmpty(json))
-                        {
-                            var pose = JsonConvert.DeserializeObject<PosePreset>(json);
-
-                            if(pose != null)
-                            {
-                                poses.Add(pose);
-                                Debug.LogFormat(Strings.Log.LoadedPose, s);
-                            }
-                        }
-                    }
-                    catch(Exception e)
-                    {
-                        Debug.LogError(e.Message);
-                        continue;
-                    }                    
-                }
-            }
-            if(forceRefresh || (shapes.Count != sFiles.Length))
-            {
-                shapes.Clear();
-
-                foreach(var s in sFiles)
-                {
-                    try
-                    {
-                        string json = File.ReadAllText(s);
-                        if(!string.IsNullOrEmpty(json))
-                        {
-                            var shape = JsonConvert.DeserializeObject<BlendshapePreset>(json);
-
-                            if(shape != null)
-                            {
-                                shapes.Add(shape);
-                                Debug.LogFormat(Strings.Log.LoadedBlendshapePreset, s);
-                            }
-                        }
-                    }
-                    catch(Exception e)
-                    {
-                        Debug.LogError(e.Message);
-                        continue;
-                    }
-                }
-            }
-            if(forceRefresh || (scenePaths.Count != scFiles.Length))
-            {
-                scenePaths = scFiles.ToList();                
-            }
-
-            var sc = EditorBuildSettings.scenes.Select(x => x.path.Replace('\\', '/')).ToList();
-            var scb = new List<EditorBuildSettingsScene>();
-
-            foreach(var s in scFiles)
-            {
-                if(!sc.Contains(s.Replace('\\', '/')))
-                    scb.Add(new EditorBuildSettingsScene(s, true));
-            }
-            if(scb.Count > 0)
-                EditorBuildSettings.scenes = scb.ToArray();            
         }
 
         //[MenuItem("Tools/Pumkin/Pose Editor")]
@@ -513,8 +298,8 @@ namespace Pumkin.PoseEditor
                 }
                 EditorGUI.EndDisabledGroup();
             }
-            
-            DrawLine();
+
+            Helpers.DrawGuiLine();
             EditorGUILayout.Space();
 
             //===========================================================================
@@ -562,8 +347,8 @@ namespace Pumkin.PoseEditor
 
                                     foreach(var t in ts)
                                     {
-                                        if(t.root != t && (!poseOnlySaveChangedRotations || !PumkinsAvatarTools.TransformIsInDefaultPosition(t, true)))
-                                            settings.Add(PumkinsAvatarTools.GetGameObjectPath(t.gameObject), t);
+                                        if(t.root != t && (!poseOnlySaveChangedRotations || !Helpers.TransformIsInDefaultPosition(t, true)))
+                                            settings.Add(Helpers.GetGameObjectPath(t.gameObject), t);
                                     }
 
                                     var p = new PosePreset(_posePresetName, settings);
@@ -605,7 +390,7 @@ namespace Pumkin.PoseEditor
                 EditorGUI.EndDisabledGroup();
             }
 
-            DrawLine();
+            Helpers.DrawGuiLine();
             EditorGUILayout.Space();
 
             //===========================================================================
@@ -635,7 +420,7 @@ namespace Pumkin.PoseEditor
 
                                 foreach(var r in renders)
                                 {
-                                    string renderPath = PumkinsAvatarTools.GetGameObjectPath(r.gameObject);
+                                    string renderPath = Helpers.GetGameObjectPath(r.gameObject);
                                     var shapeList = new List<PoseBlendshape>();
 
                                     for(int i = 0; i < r.sharedMesh.blendShapeCount; i++)
@@ -695,80 +480,7 @@ namespace Pumkin.PoseEditor
                 EditorGUI.EndDisabledGroup();
             }
 
-            #region Deadcode
-            /*if(_blendshape_expand = GUILayout.Toggle(_blendshape_expand, "_Blendshapes", Styles.Foldout_title))
-            {
-                EditorGUI.BeginDisabledGroup(!selectedAvatar);
-                {
-                    EditorGUILayout.Space();
-                    _blendshapePresetName = EditorGUILayout.TextField("_Blendshape Preset" + ":", _blendshapePresetName);
-
-                    EditorGUILayout.BeginHorizontal(GUILayout.ExpandWidth(true));
-                    {
-                        if(GUILayout.Button("_Save Blendshapes", GUILayout.ExpandWidth(true)))
-                        {
-                            if(string.IsNullOrEmpty(_blendshapePresetName))
-                            {
-                                PumkinsAvatarTools.Log("_Name is empty");
-                            }
-                            var renders = selectedAvatar.GetComponentsInChildren<SkinnedMeshRenderer>();
-
-                            if(renders.Length > 0)
-                            {
-                                var shapeDict = new Dictionary<string, List<PoseBlendshape>>();
-
-                                foreach(var r in renders)
-                                {
-                                    string renderPath = Functions.GetGameObjectPath(r.gameObject);
-                                    var shapeList = new List<PoseBlendshape>();
-
-                                    for(int i = 0; i < r.sharedMesh.blendShapeCount; i++)
-                                    {
-                                        float weight = r.GetBlendShapeWeight(i);
-                                        var b = new PoseBlendshape(r.sharedMesh.GetBlendShapeName(i), weight);
-
-                                        if(weight > 0)
-                                            shapeList.Add(b);
-                                    }
-
-                                    shapeDict.Add(renderPath, shapeList);
-                                }
-
-                                BlendshapePreset bp = new BlendshapePreset(_blendshapePresetName, shapeDict);
-
-                                bp.SaveToFile(BlendshapesPresetPath, overwriteExisting);
-                            }
-                        }
-                        if(GUILayout.Button("_Load Blendshapes", GUILayout.ExpandWidth(true)))
-                        {
-                            string json = File.ReadAllText(BlendshapesPresetPath + _blendshapePresetName + '.' + blendshapeExtension);
-                            if(!string.IsNullOrEmpty(json))
-                            {
-                                var blend = JsonConvert.DeserializeObject<BlendshapePreset>(json);
-                                if(blend != null)
-                                {
-                                    Undo.RegisterFullObjectHierarchyUndo(selectedAvatar, "Load Blendshapes");
-                                    PumkinsAvatarTools.ResetBlendShapes(selectedAvatar);
-
-                                    blend.ApplyBlendshapes(selectedAvatar);
-                                }
-                            }
-                        }
-                    }
-                    EditorGUILayout.EndHorizontal();
-
-                    if(GUILayout.Button(Strings.Tools.ResetBlendshapes))
-                    {
-                        PumkinsAvatarTools.ResetBlendShapes(selectedAvatar);
-                    }
-
-                    EditorGUILayout.Space();
-                }
-                EditorGUI.EndDisabledGroup();
-            }*/
-            #endregion
-
-            DrawLine();
+            Helpers.DrawGuiLine();
             EditorGUILayout.Space();
 
             EditorGUI.BeginDisabledGroup(!selectedAvatar);
@@ -788,6 +500,94 @@ namespace Pumkin.PoseEditor
             EditorGUI.EndDisabledGroup();
 
             EditorGUILayout.EndScrollView();
+        }
+
+        /// <summary>
+        /// Check folders for scenes, serialized poses and blendshape files
+        /// </summary>
+        public static void CheckFolders(bool forceRefresh = false)
+        {
+            var pFiles = Directory.GetFiles(PosePresetPath, "*." + poseExtension, SearchOption.AllDirectories);
+            var sFiles = Directory.GetFiles(BlendshapesPresetPath, "*." + blendshapeExtension, SearchOption.AllDirectories);
+            var scFiles = Directory.GetFiles(ScenePresetPath, "*." + sceneExtension, SearchOption.AllDirectories);
+
+
+            if(poses == null)
+                poses = new List<PosePreset>();
+            if(shapes == null)
+                shapes = new List<BlendshapePreset>();
+            if(scenePaths == null)
+                scenePaths = new List<string>();
+
+            if(forceRefresh || (poses.Count != pFiles.Length))
+            {
+                poses.Clear();
+
+                foreach(var s in pFiles)
+                {
+                    try
+                    {
+                        string json = File.ReadAllText(s);
+                        if(!string.IsNullOrEmpty(json))
+                        {
+                            var pose = JsonConvert.DeserializeObject<PosePreset>(json);
+
+                            if(pose != null)
+                            {
+                                poses.Add(pose);
+                                Debug.LogFormat(Strings.Log.LoadedPose, s);
+                            }
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        Debug.LogError(e.Message);
+                        continue;
+                    }
+                }
+            }
+            if(forceRefresh || (shapes.Count != sFiles.Length))
+            {
+                shapes.Clear();
+
+                foreach(var s in sFiles)
+                {
+                    try
+                    {
+                        string json = File.ReadAllText(s);
+                        if(!string.IsNullOrEmpty(json))
+                        {
+                            var shape = JsonConvert.DeserializeObject<BlendshapePreset>(json);
+
+                            if(shape != null)
+                            {
+                                shapes.Add(shape);
+                                Debug.LogFormat(Strings.Log.LoadedBlendshapePreset, s);
+                            }
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        Debug.LogError(e.Message);
+                        continue;
+                    }
+                }
+            }
+            if(forceRefresh || (scenePaths.Count != scFiles.Length))
+            {
+                scenePaths = scFiles.ToList();
+            }
+
+            var sc = EditorBuildSettings.scenes.Select(x => x.path.Replace('\\', '/')).ToList();
+            var scb = new List<EditorBuildSettingsScene>();
+
+            foreach(var s in scFiles)
+            {
+                if(!sc.Contains(s.Replace('\\', '/')))
+                    scb.Add(new EditorBuildSettingsScene(s, true));
+            }
+            if(scb.Count > 0)
+                EditorBuildSettings.scenes = scb.ToArray();
         }
 
         /// <summary>
@@ -832,7 +632,7 @@ namespace Pumkin.PoseEditor
             var humanPose = new HumanPose();
             humanPoseHandler.GetHumanPose(ref humanPose);
                         
-            if(humanPose.bodyPosition.y < 1)
+            if(humanPose.bodyPosition.y < 1 && !Mathf.Approximately(humanPose.bodyPosition.y, 1))
             {
                 PumkinsAvatarTools.Log(Strings.PoseEditor.BodyPositionYTooSmall, LogType.Warning, humanPose.bodyPosition.y.ToString());
                 humanPose.bodyPosition.y = 1;                
@@ -990,6 +790,7 @@ namespace Pumkin.PoseEditor
                 
             poses[selectedPoseIndex].ApplyPose(avatar);
         }
+
         /// <summary>
         /// Applies Blendshapes from file
         /// </summary>        
@@ -1010,11 +811,6 @@ namespace Pumkin.PoseEditor
             shapes[selectedShapeIndex].ApplyBlendshapes(avatar);
         }
 
-        void DrawLine()
-        {
-            PumkinsAvatarTools.DrawGuiLine();
-        }
-
         /// <summary>
         /// Applies position to avatar, for when loading a scene
         /// </summary>        
@@ -1023,7 +819,7 @@ namespace Pumkin.PoseEditor
         /// <param name="applyBlendshapes">Should the blendshapes associated with the position be applied?</param>
         void ApplyPosition(GameObject avatar, PumkinsPoseEditorPosition pos, bool applyPose, bool applyBlendshapes)
         {
-            if(position == null || avatar == null || pos == null)
+            if(avatar == null || pos == null)
                 return;
 
             avatar.transform.position = pos.transform.position;
@@ -1139,486 +935,4 @@ namespace Pumkin.PoseEditor
             }
         }
     }       
-
-    #region DataStructures
-
-    /// <summary>
-    /// Serializable Transform class
-    /// </summary>
-    [System.Serializable]
-    public class SerialTransform
-    {
-        public SerialVector3 position, localPosition, scale, localScale, eulerAngles, localEulerAngles;
-        public SerialQuaternion rotation, localRotation;            
-
-        SerialTransform()
-        {
-            this.position = Vector3.zero;
-            this.rotation = Quaternion.identity;
-            this.scale = Vector3.one;
-            this.localEulerAngles = Vector3.zero;
-            this.localPosition = Vector3.zero;
-            this.localRotation = Quaternion.identity;
-            this.localScale = Vector3.one;            
-        }
-
-        [JsonConstructor]
-        public SerialTransform(Vector3 position, Quaternion rotation, Vector3 scale, Vector3 eulerAngles, Vector3 localEulerAngles, Vector3 localScale, Vector3 localPosition, Quaternion localRotation, float version) : base()
-        {
-            this.position = position;
-            this.rotation = rotation;
-            this.scale = scale;
-            this.localEulerAngles = localEulerAngles;
-            this.localPosition = localPosition;
-            this.localRotation = localRotation;
-            this.localScale = localScale;            
-        }
-
-        public SerialTransform(Vector3 localPosition, Quaternion localRotation, Vector3 localScale, Vector3 localEulerAngles) : base()
-        {
-            this.localPosition = localPosition;
-            this.localRotation = localRotation;
-            this.localScale = localScale;
-            this.localEulerAngles = localEulerAngles;
-        }
-
-        public SerialTransform(Quaternion localRotation) :  base()
-        {
-            this.localRotation = localRotation;
-        }
-
-        public SerialTransform(Transform t) : base()
-        {
-            position = t.position;
-            localPosition = t.localPosition;
-
-            scale = t.localScale;
-            localScale = t.localScale;
-
-            rotation = t.rotation;
-            localRotation = t.localRotation;
-
-            eulerAngles = t.eulerAngles;
-
-            if(localEulerAngles != null)
-                localEulerAngles = t.localEulerAngles;
-        }
-
-        public static implicit operator SerialTransform(Transform t)
-        {
-            return new SerialTransform(t);
-        }
-    }
-
-    /// <summary>
-    /// Serializable Quaternion class
-    /// </summary>
-    [System.Serializable]
-    public class SerialQuaternion
-    {
-        public float x, y, z, w;        
-
-        public SerialQuaternion(Quaternion q)
-        {
-            x = q.x;
-            y = q.y;
-            z = q.z;
-            w = q.w;            
-        }
-
-        private SerialQuaternion(float x, float y, float z, float w)
-        {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.w = w;
-        }
-
-        public static implicit operator SerialQuaternion(Quaternion q)
-        {
-            return new SerialQuaternion(q);
-        }
-
-        public static implicit operator Quaternion(SerialQuaternion q)
-        {
-            return new Quaternion(q.x, q.y, q.z, q.w);
-        }
-    }
-
-    /// <summary>
-    /// Serializable Vector3 class
-    /// </summary>
-    [System.Serializable]
-    public class SerialVector3
-    {
-        public float x, y ,z;
-
-        public SerialVector3(Vector3 v)
-        {
-            x = v.x;
-            y = v.y;
-            z = v.z;
-        }
-
-        public SerialVector3(float x, float y, float z)
-        {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-
-        public static implicit operator SerialVector3(Vector3 v)
-        {
-            return new SerialVector3(v);
-        }
-
-        public static implicit operator Vector3(SerialVector3 v)
-        {
-            return new Vector3(v.x, v.y, v.z);
-        }
-
-        public static SerialVector3 operator * (SerialVector3 v, float f)
-        {
-            return new SerialVector3(new Vector3(v.x, v.y, v.z) * f);
-        }
-    }
-
-    /// <summary>
-    /// This might be much better than the transform-based PosePreset
-    /// </summary>
-    [System.Serializable]
-    public class HumanPosePreset
-    {
-        public string poseName;        
-        public Vector3 bodyPosition;        
-        public Quaternion bodyRotation;
-        public Vector3 rootPosition;
-        public float[] muscles;
-
-        public HumanPosePreset(string poseName, Vector3 rootPosition, HumanPose p)
-        {
-            this.poseName = poseName;
-            bodyPosition = p.bodyPosition;
-            bodyRotation = p.bodyRotation;
-            muscles = p.muscles;
-            this.rootPosition = rootPosition;
-        }
-
-        public HumanPosePreset(string poseName, Vector3 bodyPosition, Quaternion bodyRotation, Vector3 rootPosition, float[] muscles)
-        {
-            this.poseName = poseName;
-            this.rootPosition = rootPosition;
-            this.bodyPosition = bodyPosition;
-            this.bodyRotation = bodyRotation;
-            this.muscles = muscles;
-        }
-
-        internal bool ApplyPose(GameObject avatar)
-        {
-            Animator anim = avatar.GetComponent<Animator>();
-            if(anim == null || !anim.isHuman)            
-                return false;
-
-            HumanPoseHandler hph = new HumanPoseHandler(anim.avatar, avatar.transform);
-            HumanPose hp = this;   
-            hph.SetHumanPose(ref hp);            
-            
-            return true;
-        }
-
-        public static implicit operator HumanPose(HumanPosePreset v)
-        {
-            HumanPose hp = new HumanPose();
-            hp.bodyPosition = v.bodyPosition;
-            hp.bodyRotation = v.bodyRotation;
-            hp.muscles = v.muscles;
-
-            return hp;
-        }
-    }
-
-    /// <summary>
-    /// Serializable Pose preset, used to store avatar transforms associated to a name
-    /// </summary>
-    [System.Serializable]
-    public class PosePreset
-    {
-        public string poseName;
-        public Dictionary<string, SerialTransform> transforms;        
-
-        public PosePreset(string poseName, Dictionary<string, SerialTransform> transformSettings = null)
-        {
-            this.poseName = poseName;
-            this.transforms = transformSettings;            
-        }
-
-        /// <summary>
-        /// Adds or overwrites a transform to the pose dictionary.
-        /// </summary>
-        /// <param name="path">Path of the transform</param>
-        /// <param name="transform">Transform for positoin and rotation settings</param>
-        /// <param name="allowOverwrite">Whether to overwrite settings if transform exists or not</param>
-        /// <returns>Returns true if successfully added or overwritten</returns>
-        public bool AddTransform(string path, Transform transform, bool allowOverwrite = true)
-        {
-            if(transforms.ContainsKey(path))
-            {
-                if(allowOverwrite)
-                    transforms[path] = transform;
-                else
-                    return false;
-            }
-            else
-            {
-                transforms.Add(path, transform);
-            }
-            return true;
-        }        
-
-        /// <summary>
-        /// Serialize and save pose to file
-        /// </summary>
-        /// <param name="filePath">Path to folder where to save the file to, excluding filename</param>
-        /// <param name="overwriteExisting">Overwrite file if one with the same name already exists, if not will add a number to the end and create new file</param>
-        /// <returns></returns>
-        public bool SaveToFile(string filePath, bool overwriteExisting)
-        {
-            if(transforms == null)
-                transforms = new Dictionary<string, SerialTransform>();            
-
-            string path = filePath + "/" + poseName + '.' + PumkinsPoseEditor.poseExtension;
-
-            if(!overwriteExisting)
-                path = PumkinsAvatarTools.NextAvailableFilename(filePath + "/" + poseName + '.' + PumkinsPoseEditor.poseExtension);
-
-            string json = JsonConvert.SerializeObject(this, Formatting.Indented);
-            
-            if(!string.IsNullOrEmpty(json))
-            {
-                File.WriteAllText(path, json);
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Don't hurt me, I need this for a default failsafe or two.
-        /// </summary>
-        /// <returns>C# code to declare and initialize this object</returns>
-        public string ToHardcodedString()
-        {
-            if(transforms == null)
-                transforms = new Dictionary<string, SerialTransform>();
-
-            string s = string.Format("new PosePreset(\"{0}\", new Dictionary<string, SerialTransform>\n\t", poseName);
-            s += "{\n";
-            foreach(var t in transforms)
-            {
-                s += "\t\t{";
-                s += string.Format("\"{0}\", new SerialTransform(new Quaternion({1}f, {2}f, {3}f, {4}f))", t.Key, t.Value.localRotation.x, t.Value.localRotation.y, t.Value.localRotation.z, t.Value.localRotation.w);
-                s += "},\n";
-            }
-            s += "}),\n";
-
-            return s;
-        }
-
-        /// <summary>
-        /// Apply this pose to avatar
-        /// </summary>        
-        public void ApplyPose(GameObject avatar)//, bool childrenFirst = false)
-        {
-            if(!avatar)
-                return;
-
-            //if(childrenFirst)
-            //{
-            //    var ls = transforms.Keys.OrderBy(o => o.Count(c => c == '/'));
-
-            //    foreach(var k in ls)
-            //    {
-            //        var t = avatar.transform.Find(k);
-            //        var v = transforms[k];
-
-            //        if(t != null && v != null)
-            //        {
-            //            t.localEulerAngles = v.localEulerAngles;
-            //            t.localRotation = v.localRotation;
-            //        }
-            //    }
-            //}
-            //else
-            //{
-                foreach(var kv in transforms)
-                {
-                    var t = avatar.transform.Find(kv.Key);
-
-                    if(t != null)
-                    {
-                        t.localEulerAngles = kv.Value.localEulerAngles;
-                        t.localRotation = kv.Value.localRotation;
-                    }
-                }
-            //}
-        }
-    }
-
-    [System.Serializable]
-    public class BlendshapePreset
-    {
-        public string presetName;
-        public Dictionary<string, List<PoseBlendshape>> blendshapes;
-
-        public BlendshapePreset(string presetName, Dictionary<string, List<PoseBlendshape>> blendshapes = null)
-        {
-            this.presetName = presetName;
-            this.blendshapes = blendshapes;
-
-            if(blendshapes == null)
-                blendshapes = new Dictionary<string, List<PoseBlendshape>>();            
-        }
-
-        public bool AddBlendshape(string meshRendererPath, PoseBlendshape blend)
-        {
-            var d = blendshapes[meshRendererPath];
-
-            if(d != null && d.Count > 0 && !d.Exists(x => x.Name.ToLower() == blend.Name.ToLower()))
-            {
-                d.Add(blend);
-                return true;
-            }
-            return false;
-        }
-
-        public bool RemoveBlendshape(string meshRendererPath, string shapeName)
-        {
-            var d = blendshapes[meshRendererPath];
-            var b = d.Find(x => x.Name.ToLower() == shapeName.ToLower());
-
-            if(d != null && d.Count > 0 && b != null)
-            {
-                d.Remove(b);
-                return true;
-            }
-            return false;
-        }
-
-        public bool SaveToFile(string filePath, bool overwriteExisting)
-        {
-            string path = filePath + "/" + presetName + '.' + PumkinsPoseEditor.blendshapeExtension;
-
-            if(!overwriteExisting)
-                path = PumkinsAvatarTools.NextAvailableFilename(filePath + "/" + presetName + '.' + PumkinsPoseEditor.blendshapeExtension);
-
-            string json = JsonConvert.SerializeObject(this, Formatting.Indented);
-
-            if(!string.IsNullOrEmpty(json))
-            {
-                File.WriteAllText(path, json);
-                return true;
-            }
-            return false;
-        }
-
-        public void ApplyBlendshapes(GameObject avatar)
-        {
-            if(!avatar)
-                return;
-
-            foreach(var b in blendshapes)
-            {
-                var t = avatar.transform.Find(b.Key);
-                if(t)
-                {
-                    var sr = t.GetComponent<SkinnedMeshRenderer>();
-                    if(sr)
-                    {
-                        foreach(var shape in b.Value)
-                        {
-                            int index = sr.sharedMesh.GetBlendShapeIndex(shape.Name);
-
-                            if(shape.AlternateNames.Count > 0)
-                            {
-                                for(int i = 0; index == -1 && i < shape.AlternateNames.Count; i++)
-                                {
-                                    index = sr.sharedMesh.GetBlendShapeIndex(shape.AlternateNames[i]);
-                                }
-                            }
-
-                            if(index != -1)
-                            {
-                                sr.SetBlendShapeWeight(index, shape.Weight);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    [System.Serializable]
-    public class CameraPreset
-    {        
-        SerialTransform transform;
-        Camera camera;
-    }
-
-    [System.Serializable]
-    public class ScenePreset
-    {
-        string presetName;
-
-        public void Load()
-        {
-            Debug.Log("Doesn't do anything yet");
-        }
-    }
-
-    [System.Serializable]
-    public class PoseBlendshape
-    {
-        public string FriendlyName
-        {
-            get
-            {
-                return friendlyName;
-            }
-            set
-            {
-                if(string.IsNullOrEmpty(value))
-                    friendlyName = Name;
-            }
-        }
-
-        public string Name
-        {
-            get; set;
-        }
-
-        public float Weight
-        {
-            get; set;
-        }
-
-        public List<string> AlternateNames
-        {
-            get; set;
-        }
-
-        string friendlyName;
-
-        public PoseBlendshape(string name, float weight = 0, string friendlyName = null, List<string> alternateNames = null)
-        {
-            Name = name;
-            Weight = weight;
-
-            FriendlyName = friendlyName;
-            if(alternateNames != null)
-                AlternateNames = alternateNames;
-            else
-                AlternateNames = new List<string>();
-        }
-    }
-
-    #endregion
 }

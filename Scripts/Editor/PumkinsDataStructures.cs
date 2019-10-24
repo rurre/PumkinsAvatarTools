@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Pumkin.AvatarTools;
 using Pumkin.HelperFunctions;
 using Pumkin.PoseEditor;
@@ -11,9 +11,588 @@ using VRC.Core;
 using VRCSDK2;
 using VRCSDK2.Validation.Performance;
 using VRCSDK2.Validation.Performance.Stats;
+using Pumkin.Translations;
 
 namespace Pumkin.DataStructures
 {
+    [ExecuteInEditMode, InitializeOnLoad]
+    public class Strings : SingletonScriptableObject<Strings>
+    {        
+        static PumkinsLanguageHolder _holder;        
+        public static PumkinsLanguageHolder Holder
+        {
+            get
+            {
+                return _holder;
+            }
+            private set
+            {
+                _holder = value;
+                ReloadStrings();
+            }
+        }
+
+        [RuntimeInitializeOnLoadMethod]
+        public static void LoadHolder()
+        {
+            if(Holder)
+                return;
+
+            Holder = (FindObjectOfType<PumkinsLanguageHolder>()) ?? (_holder = CreateInstance<PumkinsLanguageHolder>());            
+        }
+
+        public readonly string versionNr = "0.7b - Work in Progress";
+        public readonly string toolsPage = "https://github.com/rurre/PumkinsAvatarTools/";
+        public readonly string donationLink = "https://ko-fi.com/notpumkin";
+        public readonly string discordLink = "https://discord.gg/7vyekJv";
+        static readonly string translationsPath = "Translations/";
+        
+        public string Language
+        {
+            get;
+            private set;
+        }        
+        public string Author
+        {
+            get; private set;
+        }
+                
+        public class Main
+        {
+            public static string Title { get; internal set; }
+            public static string WindowName { get; internal set; }
+            public static string Version { get; internal set; }
+            public static string Avatar { get; internal set; }
+            public static string Tools { get; internal set; }
+            public static string Copier { get; internal set; }
+            public static string RemoveAll { get; internal set; }
+            public static string AvatarInfo { get; internal set; }
+            public static string Thumbnails { get; internal set; }
+
+            public static string Misc { get; internal set; }
+            public static string UseSceneSelection { get; internal set; }
+
+            static Main()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                if(!Holder)
+                    return;
+
+                Avatar = Holder.main.avatar ?? "_Avatar";
+                Title = Holder.main.title ?? "_Pumkin's Avatar Tools";
+                Version = Holder.main.version ?? "_Version";
+                WindowName = Holder.main.windowName ?? "_Pumkin Tools";
+                Tools = Holder.main.tools ?? "_Tools";
+                Copier = Holder.main.copier ?? "_Copy Components";
+                AvatarInfo = Holder.main.avatarInfo ?? "_Avatar Info";
+                RemoveAll = Holder.main.removeAll ?? "_Remove All";
+                Misc = Holder.main.misc ?? "_Misc";
+                Thumbnails = Holder.main.thumbnails ?? "_Thumbnails";
+                UseSceneSelection = Holder.main.useSceneSelection ?? "_Use Scene Selection";
+            }
+        };
+        public static class Buttons
+        {
+            public static string SelectFromScene { get; internal set; }
+            public static string CopySelected { get; internal set; }
+            public static string Cancel { get; internal set; }
+            public static string Apply { get; internal set; }
+            public static string Refresh { get; internal set; }
+            public static string Copy { get; internal set; }
+            public static string OpenHelpPage { get; internal set; }
+            public static string OpenGithubPage { get; internal set; }
+            public static string OpenDonationPage { get; internal set; }
+            public static string OpenPoseEditor { get; internal set; }
+            public static string JoinDiscordServer { get; internal set; }
+            public static string SelectNone { get; internal set; }
+            public static string SelectAll { get; internal set; }
+            public static string Browse { get; internal set; }
+
+            static Buttons()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                if(!Holder)
+                    return;
+
+                SelectFromScene = Holder.buttons.selectFromScene ?? "_Select From Scene";
+                CopySelected = Holder.buttons.copySelected ?? "_Copy Selected";
+                Refresh = Holder.buttons.refresh ?? "_Refresh";
+                Cancel = Holder.buttons.cancel ?? "_Cancel";
+                Apply = Holder.buttons.apply ?? "_Apply";
+                Copy = Holder.buttons.copy ?? "_Copy Text";
+                OpenHelpPage = Holder.buttons.openHelpPage ?? "_Open Help Page";
+                OpenGithubPage = Holder.buttons.openGithubPage ?? "_Open Github Page";
+                OpenDonationPage = Holder.buttons.openDonationPage ?? "_Buy me a Ko-Fi~";
+                OpenPoseEditor = Holder.buttons.openPoseEditor ?? "_Open Pose Editor";
+                JoinDiscordServer = Holder.buttons.joinDiscordServer ?? "_Join Discord Server!";
+                SelectNone = Holder.buttons.selectNone ?? "_Select None";
+                SelectAll = Holder.buttons.selectAll ?? "_Select All";
+                Browse = Holder.buttons.browse ?? "_Browse";
+            }
+        };
+        public static class Tools
+        {
+            public static string FillVisemes { get; internal set; }
+            public static string EditViewpoint { get; internal set; }
+            public static string RevertBlendshapes { get; internal set; }
+            public static string ZeroBlendshapes { get; internal set; }
+            public static string ResetPose { get; internal set; }
+            public static string ResetToTPose { get; internal set; }
+            public static string EditScale { get; internal set; }
+
+            static Tools()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                if(!Holder)
+                    return;
+
+                FillVisemes = Holder.tools.fillVisemes ?? "_Fill Visemes";
+                EditViewpoint = Holder.tools.editViewpoint ?? "_Edit Viewpoint";
+                RevertBlendshapes = Holder.tools.revertBlendshapes ?? "_Revert Blendshapes";
+                ZeroBlendshapes = Holder.tools.zeroBlendshapes ?? "_Zero Blendshapes";
+                ResetPose = Holder.tools.resetPose ?? "_Reset Pose";
+                ResetToTPose = Holder.tools.resetToTPose ?? "_Reset to T-Pose";
+                EditScale = Holder.tools.editScale ?? "_Edit Scale";
+            }
+        };
+        public static class AvatarInfo
+        {
+            public static string SelectAvatarFirst { get; internal set; }
+
+            public static string Name { get; internal set; }
+            public static string GameObjects { get; internal set; }
+            public static string Bones { get; internal set; }
+            public static string SkinnedMeshRenderers { get; internal set; }
+            public static string MeshRenderers { get; internal set; }
+            public static string Polygons { get; internal set; }
+            public static string UsedMaterialSlots { get; internal set; }
+            public static string UniqueMaterials { get; internal set; }
+            public static string Shaders { get; internal set; }
+            public static string DynamicBoneTransforms { get; internal set; }
+            public static string DynamicBoneColliders { get; internal set; }
+            public static string DynamicBoneColliderTransforms { get; internal set; }
+            public static string ParticleSystems { get; internal set; }
+            public static string MaxParticles { get; internal set; }
+            public static string OverallPerformance { get; internal set; }
+            public static string Line { get; internal set; }
+
+            static AvatarInfo()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                if(!Holder)
+                    return;
+
+                Name = Holder.avatarInfo.name ?? "_{0}";
+                Line = Holder.avatarInfo.line ?? "---------------------";
+                GameObjects = Holder.avatarInfo.gameObjects ?? "_GameObjects: {0} ({1})";
+                Bones = Holder.avatarInfo.bones ?? "_Bones: {0} - {1}";
+                SkinnedMeshRenderers = Holder.avatarInfo.skinnedMeshRenderers ?? "_Skinned Mesh Renderers: {0} ({1}) - {2}";
+                MeshRenderers = Holder.avatarInfo.meshRenderers ?? "_Mesh Renderers: {0} ({1}) - {2}";
+                Polygons = Holder.avatarInfo.polygons ?? "_Polygons: {0} ({1}) - {2}";
+                UsedMaterialSlots = Holder.avatarInfo.usedMaterialSlots ?? "_Used Material Slots: {0} ({1}) - {2}";
+                UniqueMaterials = Holder.avatarInfo.uniqueMaterials ?? "_Unique Materials: {0} ({1})";
+                Shaders = Holder.avatarInfo.shaders ?? "_Shaders: {0}";
+                DynamicBoneTransforms = Holder.avatarInfo.dynamicBoneTransforms ?? "_Dynamic Bone Transforms: {0} ({1}) - {2}";
+                DynamicBoneColliders = Holder.avatarInfo.dynamicBoneColliders ?? "_Dynamic Bone Colliders: {0} ({1}) - {2}";
+                DynamicBoneColliderTransforms = Holder.avatarInfo.dynamicBoneColliderTransforms ?? "_Collider Affected Transforms: {0} ({1}) - {2}";
+                ParticleSystems = Holder.avatarInfo.particleSystems ?? "_Particle Systems: {0} ({1}) - {2}";
+                MaxParticles = Holder.avatarInfo.maxParticles ?? "_Max Particles: {0} ({1}) - {2}";
+                OverallPerformance = Holder.avatarInfo.overallPerformance ?? "_Overall Performance: {0}";
+                SelectAvatarFirst = Holder.avatarInfo.selectAvatarFirst ?? "_Select an Avatar first";
+            }
+        }
+        public static class Thumbnails
+        {
+            public static string OverlayCameraImage { get; internal set; }
+            public static string OverlayTexture { get; internal set; }
+            public static string StartUploadingFirst { get; internal set; }
+            public static string CenterCameraOnViewpoint { get; internal set; }
+            public static string BackgroundType { get; internal set; }
+            public static string BackgroundType_None { get; internal set; }
+            public static string BackgroundType_Material { get; internal set; }
+            public static string BackgroundType_Color { get; internal set; }
+            public static string HideOtherAvatars { get; internal set; }
+            public static string BackgroundType_Image { get; internal set; }
+
+            static Thumbnails()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                if(!Holder)
+                    return;
+
+                OverlayCameraImage = Holder.thumbnails.overlayCameraImage ?? "_Overlay Image";
+                OverlayTexture = Holder.thumbnails.overlayTexture ?? "_Overlay Texture";
+                StartUploadingFirst = Holder.thumbnails.startUploadingFirst ?? "_Start uploading an Avatar first";
+                CenterCameraOnViewpoint = Holder.thumbnails.centerCameraOnViewpoint ?? "_Center Camera on Viewpoint";
+                BackgroundType = Holder.thumbnails.backgroundType ?? "_Background Type";
+                BackgroundType_None = Holder.thumbnails.backgroundType_None ?? "_None";
+                BackgroundType_Material = Holder.thumbnails.backgroundType_Material ?? "_Material";
+                BackgroundType_Color = Holder.thumbnails.backgroundType_Color ?? "_Color";
+                BackgroundType_Image = Holder.thumbnails.backgroundType_Image ?? "_Image";
+                HideOtherAvatars = Holder.thumbnails.hideOtherAvatars ?? "_Hide Other Avatars when Uploading";
+            }
+        }
+        public static class Copier
+        {
+            public static string CopyFrom { get; internal set; }
+            public static string CopyGameObjects { get; internal set; }
+            public static string CopyColliderObjects { get; internal set; }
+            public static string CopySettings { get; internal set; }
+            public static string CreateMissing { get; internal set; }
+
+            public static string Transforms { get; internal set; }
+            public static string Transforms_position { get; internal set; }
+            public static string Transforms_rotation { get; internal set; }
+            public static string Transforms_scale { get; internal set; }
+            public static string Transforms_avatarScale { get; internal set; }
+            public static string DynamicBones { get; internal set; }
+            public static string DynamicBones_colliders { get; internal set; }
+            public static string DynamicBones_removeOldBones { get; internal set; }
+            public static string DynamicBones_removeOldColliders { get; internal set; }
+            public static string DynamicBones_createMissing { get; internal set; }
+            public static string Colliders { get; internal set; }
+            public static string Colliders_box { get; internal set; }
+            public static string Colliders_capsule { get; internal set; }
+            public static string Colliders_sphere { get; internal set; }
+            public static string Colliders_mesh { get; internal set; }
+            public static string Colliders_removeOld { get; internal set; }
+            public static string Descriptor { get; internal set; }
+            public static string Descriptor_pipelineId { get; internal set; }
+            public static string Descriptor_animationOverrides { get; internal set; }
+            public static string SkinMeshRender { get; internal set; }
+            public static string SkinMeshRender_materials { get; internal set; }
+            public static string SkinMeshRender_blendShapeValues { get; internal set; }
+            public static string ParticleSystems { get; internal set; }
+            public static string RigidBodies { get; internal set; }
+            public static string TrailRenderers { get; internal set; }
+            public static string EmptyGameObjects { get; internal set; }
+            public static string MeshRenderers { get; internal set; }
+            public static string Lights { get; internal set; }
+            public static string Animators { get; internal set; }
+            public static string CopyMainAnimator { get; internal set; }
+            public static string ReplaceOld { get; internal set; }
+            public static string Animators_inChildren { get; internal set; }
+            public static string AudioSources { get; internal set; }
+            public static string Joints { get; internal set; }
+            public static string Exclusions { get; internal set; }
+            public static string IncludeChildren { get; private set; }
+            public static string Size { get; private set; }
+            public static string Descriptor_copyViewpoint { get; internal set; }
+
+            static Copier()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                if(!Holder)
+                    return;
+
+                CopyFrom = Holder.copier.copyFrom ?? "_Copy From";
+
+                CopySettings = Holder.copier.copySettings ?? "_Settings";
+                CreateMissing = Holder.copier.createMissing ?? "_Create Missing";
+                EmptyGameObjects = Holder.copier.emptyGameObjects ?? "_Empty GameObjects";
+                ReplaceOld = Holder.copier.replaceOld ?? "_Replace Old";
+
+                Transforms = Holder.copier.transforms ?? "_Transforms";
+                Transforms_position = Holder.copier.transforms_position ?? "_Position";
+                Transforms_rotation = Holder.copier.transforms_rotation ?? "_Rotation";
+                Transforms_scale = Holder.copier.transforms_scale ?? "_Scale";
+                Transforms_avatarScale = Holder.copier.transforms_avatarScale ?? "_Avatar Scale";
+                DynamicBones = Holder.copier.dynamicBones ?? "_Dynamic Bones";
+                DynamicBones_colliders = Holder.copier.colliders ?? "_Colliders";
+                DynamicBones_removeOldBones = Holder.copier.dynamicBones_removeOldBones ?? "_Remove Old Bones";
+                DynamicBones_removeOldColliders = Holder.copier.dynamicBones_removeOldColliders ?? "_Remove Old Colliders";
+                DynamicBones_createMissing = Holder.copier.createMissing ?? "_Create Missing Bones";
+                Colliders = Holder.copier.colliders ?? "_Colliders";
+                Colliders_box = Holder.copier.colliders_box ?? "_Box Colliders";
+                Colliders_capsule = Holder.copier.colliders_capsule ?? "_Capsule Colliders";
+                Colliders_sphere = Holder.copier.colliders_sphere ?? "_Sphere Colliders";
+                Colliders_mesh = Holder.copier.colliders_mesh ?? "_Mesh Colliders";
+                Colliders_removeOld = Holder.copier.colliders_removeOld ?? "_Remove Old Colliders";
+                Descriptor = Holder.copier.descriptor ?? "_Avatar Descriptor";
+                Descriptor_pipelineId = Holder.copier.descriptor_pipelineId ?? "_Pipeline Id";
+                Descriptor_animationOverrides = Holder.copier.descriptor_animationOverrides ?? "_Animation Overrides";
+                Descriptor_copyViewpoint = Holder.copier.descriptor_copyViewpoint ?? "_Viewpoint";
+                SkinMeshRender = Holder.copier.skinMeshRender ?? "_Skinned Mesh Renderers";
+                SkinMeshRender_materials = Holder.copier.skinMeshRender_materials ?? "_Materials";
+                SkinMeshRender_blendShapeValues = Holder.copier.skinMeshRender_blendShapeValues ?? "_BlendShape Values";
+                ParticleSystems = Holder.copier.particleSystems ?? "_Particle Systems";
+                RigidBodies = Holder.copier.rigidBodies ?? "_Rigid Bodies";
+                TrailRenderers = Holder.copier.trailRenderers ?? "_Trail Renderers";
+                MeshRenderers = Holder.copier.meshRenderers ?? "_Mesh Renderers";
+                CopyGameObjects = Holder.copier.copyGameObjects ?? "_Copy GameObjects";
+                CopyColliderObjects = Holder.copier.copyColliderObjects ?? "_Copy Collider Objects";
+                Lights = Holder.copier.lights ?? "_Lights";
+                Animators = Holder.copier.animators ?? "_Animators";
+                CopyMainAnimator = Holder.copier.copyMainAnimator ?? "_Copy Main Animator";
+                Animators_inChildren = Holder.copier.animators_inChildren ?? "_Child Animators";
+                AudioSources = Holder.copier.audioSources ?? "_Audio Sources";
+                Joints = Holder.copier.joints ?? "_Joints";
+                Exclusions = Holder.copier.exclusions ?? "_Exclusions";
+                IncludeChildren = Holder.copier.includeChildren ?? "_Include Children";
+                Size = Holder.copier.size ?? "_Size";
+            }
+        };
+        public static class Log
+        {
+            public static string CopyAttempt { get; internal set; }
+            public static string RemoveAttempt { get; internal set; }
+            public static string CopyFromInvalid { get; internal set; }
+            public static string Done { get; internal set; }
+            public static string Failed { get; internal set; }
+            public static string CantCopyToSelf { get; internal set; }
+            public static string ViewpointApplied { get; internal set; }
+            public static string ViewpointCancelled { get; internal set; }
+            public static string Cancelled { get; internal set; }
+            public static string NoSkinnedMeshFound { get; internal set; }
+            public static string DescriptorIsNull { get; internal set; }
+            public static string Success { get; internal set; }
+            public static string TryFillVisemes { get; internal set; }            
+            public static string MeshHasNoVisemes { get; internal set; }
+            public static string FailedIsNull { get; internal set; }
+            public static string NameIsEmpty { get; internal set; }
+            public static string LoadedPose { get; internal set; }
+            public static string LoadedBlendshapePreset { get; internal set; }
+            public static string NothingSelected { get; internal set; }
+            public static string FailedDoesntHave { get; internal set; }
+            public static string FailedAlreadyHas { get; internal set; }
+            public static string LoadedCameraOverlay { get; internal set; }
+            public static string FailedHasNo { get; internal set; }
+
+            static Log()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                if(!Holder)
+                    return;
+
+                Done = Holder.log.done ?? "_Done";
+                Cancelled = Holder.log.cancelled ?? "_Cancelled";
+                NothingSelected = Holder.log.nothingSelected ?? "_Select something first";
+                CantCopyToSelf = Holder.log.cantCopyToSelf ?? "_Can't copy Components from an object to itself. What are you doing?";
+                CopyAttempt = Holder.log.copyAttempt ?? "_Attempting to copy {0} from {1} to {2}";
+                RemoveAttempt = Holder.log.removeAttempt ?? "_Attempting to remove {0} from {1}";
+                CopyFromInvalid = Holder.log.copyFromInvalid ?? "_Can't copy Components because 'Copy From' is invalid";
+                ViewpointApplied = Holder.log.viewpointApplied ?? "_Set Viewposition to {0}";
+                ViewpointCancelled = Holder.log.viewpointCancelled ?? "_Cancelled Viewposition changes";
+                TryFillVisemes = Holder.log.tryFillVisemes ?? "_Attempting to fill visemes on {0}";
+                NoSkinnedMeshFound = Holder.log.noSkinnedMeshFound ?? "_Failed: No skinned mesh found";
+                DescriptorIsNull = Holder.log.descriptorIsNull ?? "_Avatar descriptor is null";
+                Success = Holder.log.success ?? "_Success";
+                MeshHasNoVisemes = Holder.log.meshHasNoVisemes ?? "_Failed. Mesh has no Visemes. Set to Default";                
+                Failed = Holder.log.failed ?? "_Failed";
+                FailedIsNull = Holder.log.failedIsNull ?? "_Failed: {1} is null";
+                NameIsEmpty = Holder.log.nameIsEmpty ?? "_Name is Empty";
+                LoadedPose = Holder.log.loadedPose ?? "_Loaded Pose: {0}";
+                LoadedBlendshapePreset = Holder.log.loadedBlendshapePreset ?? "_Loaded Blendshapes: {0}";
+                FailedDoesntHave = Holder.log.failedDoesntHave ?? "_Failed: {0} doesn't have a {1}";
+                FailedAlreadyHas = Holder.log.failedAlreadyHas ?? "_Failed: {1} already has {0}";
+                LoadedCameraOverlay = Holder.log.loadedCameraOverlay ?? "_Loaded {0} as Camera Overlay";
+                FailedHasNo = Holder.log.failedHasNo ?? "_{0} has no {1}, Ignoring.";
+            }
+        };
+        public static class Warning
+        {
+            public static string Warn { get; internal set; }
+            public static string NotFound { get; internal set; }
+            public static string SelectSceneObject { get; internal set; }
+            public static string OldVersion { get; internal set; }
+            public static string VRCCamNotFound { get; internal set; }
+
+            static Warning()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                if(!Holder)
+                    return;
+
+                Warn = Holder.warnings.warn ?? "_Warning";
+                NotFound = Holder.warnings.notFound ?? "_(Not Found)";
+                OldVersion = Holder.warnings.oldVersion ?? "_(Old Version)";
+                SelectSceneObject = Holder.warnings.selectSceneObject ?? "_Please select an object from the scene";
+                VRCCamNotFound = Holder.warnings.vrcCamNotFound ?? "_VRCCam not found";
+            }
+        };
+        public static class Credits
+        {            
+            public static string Version { get; internal set; }
+            public static string RedundantStrings { get; internal set; }
+            public static string JsonDotNetCredit { get; internal set; }
+            public static string AddMoreStuff { get; internal set; }
+            public static string PokeOnDiscord { get; internal set; }
+
+            static Credits()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                if(!Holder)
+                    return;
+                                
+                Version = (Holder.credits.version + Instance.versionNr) ?? ("_Version" + " " + Instance.versionNr);
+                RedundantStrings = Holder.credits.redundantStrings ?? "_Now with 100% more redundant strings";
+                JsonDotNetCredit = Holder.credits.jsonDotNetCredit ?? "_JsonDotNet by Newtonsoft";
+                AddMoreStuff = Holder.credits.addMoreStuff ?? "_I'll add more stuff to this eventually";
+                PokeOnDiscord = Holder.credits.pokeOnDiscord ?? "_Poke me on Discord at Pumkin#2020";
+            }
+        };
+        public static class Misc
+        {
+            public static string uwu { get; internal set; }
+            public static string SearchForBones { get; internal set; }
+            public static string SuperExperimental { get; internal set; }
+            public static string Language { get; internal set; }
+
+            private static string searchForBones;
+
+            static Misc()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                if(!Holder)
+                    return;
+
+                uwu = Holder.misc.uwu ?? "_uwu";
+                SearchForBones = Holder.misc.searchForBones ?? "_Search for DynamicBones";
+                SuperExperimental = Holder.misc.superExperimental ?? "_Super Experimental Stuff";
+                Language = Holder.misc.language ?? "_Language";
+            }
+        }
+
+        public static class PoseEditor
+        {
+            public static string Title { get; internal set; }
+
+            public static string Scene { get; internal set; }
+            public static string SceneLoadAdditive { get; internal set; }
+            public static string SceneOverrideLights { get; internal set; }
+
+            public static string AvatarPosition { get; internal set; }
+            public static string AvatarPositionOverridePose { get; internal set; }
+            public static string AvatarPositionOverrideBlendshapes { get; internal set; }
+
+            public static string SceneSaveChanges { get; internal set; }
+            public static string UnloadScene { get; internal set; }
+            public static string ResetPosition { get; internal set; }
+
+            public static string Pose { get; internal set; }
+            public static string NewPose { get; internal set; }
+            public static string OnlySavePoseChanges { get; internal set; }
+            public static string LoadPose { get; internal set; }
+
+            public static string Blendshapes { get; internal set; }
+            public static string NewPreset { get; internal set; }
+            public static string LoadPreset { get; internal set; }
+
+            public static string SaveButton { get; internal set; }
+            public static string ReloadButton { get; internal set; }
+
+            public static string BodyPositionYTooSmall { get; internal set; }
+
+            static PoseEditor()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                if(!Holder)
+                    return;
+
+                Title = GetString("ui_poseEditor") ?? "_Pose Editor (Very Beta)";
+                Scene = GetString("ui_poseEditor_scene") ?? "_Scene";
+                SceneLoadAdditive = GetString("ui_poseEditor_scene_loadAdditive") ?? "_Load Additive";
+                SceneOverrideLights = GetString("ui_poseEditor_scene_overrideLights") ?? "_Override Lights";
+                AvatarPosition = GetString("ui_poseEditor_avatarPosition") ?? "_Avatar Position";
+                AvatarPositionOverridePose = GetString("ui_poseEditor_avatarPosition_overridePose") ?? "_Override Pose";
+                AvatarPositionOverrideBlendshapes = GetString("ui_poseEditor_avatarPositionOverrideBlendshapes") ?? "_Override Blendshapes";
+                SceneSaveChanges = GetString("ui_poseEditor_scene_saveChanges") ?? "_Save Scene Changes";
+                UnloadScene = GetString("ui_poseEditor_scene_unload") ?? "_Unload Scene";
+                ResetPosition = GetString("ui_poseEditor_resetPosition") ?? "_Reset Position";
+                Pose = GetString("ui_poseEditor_pose") ?? "_Pose";
+                NewPose = GetString("ui_poseEditor_newPose") ?? "_New Pose";
+                OnlySavePoseChanges = GetString("ui_poseEditor_onlySavePoseChanges") ?? "_Only Save Pose Changes";
+                LoadPose = GetString("ui_poseEditor_loadPose") ?? "_Load Pose";
+                Blendshapes = GetString("ui_poseEditor_blendshapes") ?? "_Blendshapes";
+                NewPreset = GetString("ui_poseEditor_newPreset") ?? "_New Preset";
+                LoadPreset = GetString("ui_poseEditor_loadPreset") ?? "_Load Preset";
+                SaveButton = GetString("ui_poseEditor_save") ?? "_Save";
+                ReloadButton = GetString("ui_poseEditor_reload") ?? "_Reload";
+                BodyPositionYTooSmall = GetString("warn_poseEditor_bodyPositionYTooSmall") ?? "_humanPose.bodyPosition.y is {0}, you probably don't want that. Setting humanPose.bodyPosition.y to 1";
+            }
+        }
+
+        static Strings()
+        {
+            ReloadStrings();
+        }        
+
+        static void ReloadStrings()
+        {
+            if(!Holder)
+                return;
+
+            Main.Reload();
+            Buttons.Reload();
+            Tools.Reload();
+            Copier.Reload();
+            Log.Reload();
+            Warning.Reload();
+            Credits.Reload();
+            Misc.Reload();
+            Thumbnails.Reload();
+        }
+
+        static string GetString(string stringName)
+        {
+            return null;
+        }
+
+        public static void SetLanguage(PumkinsLanguageHolder languageHolder)
+        {
+            Holder = languageHolder;
+        }
+
+        public static PumkinsLanguageHolder[] GetLanguages()
+        {
+            return Resources.FindObjectsOfTypeAll<PumkinsLanguageHolder>();
+        }
+    };
+
     public static class Colors
     {
         public static Color SceneGUIWindow { get; internal set; }
@@ -179,992 +758,6 @@ namespace Pumkin.DataStructures
         }
 
     }
-
-    /// <summary>
-    /// Strings. Need to move these to files eventually
-    /// </summary>
-    public static class Strings
-    {
-        public static readonly string version = "0.7b - Work in Progress";
-        public static readonly string toolsPage = "https://github.com/rurre/PumkinsAvatarTools/";
-        public static readonly string donationLink = "https://ko-fi.com/notpumkin";
-        public static readonly string discordLink = "https://discord.gg/7vyekJv";
-        readonly static Dictionary<string, string> dictionary_english, dictionary_uwu;
-        static Dictionary<string, string> stringDictionary;
-        static DictionaryLanguage language;
-
-        public enum DictionaryLanguage { English, uwu = 100 };
-
-        static public DictionaryLanguage Language
-        {
-            get { return language; }
-            set
-            {
-                if(value != language)
-                {
-                    switch(value)
-                    {
-                        case DictionaryLanguage.English:
-                            stringDictionary = dictionary_english;
-                            break;
-                        case DictionaryLanguage.uwu:
-                            stringDictionary = dictionary_uwu;
-                            break;
-                        default:
-                            stringDictionary = dictionary_english;
-                            break;
-                    }
-                    language = value;
-                    ReloadStrings();
-                }
-            }
-        }
-
-        public static class AvatarInfo
-        {
-            public static string SelectAvatarFirst { get; internal set; }
-
-            public static string Name { get; internal set; }
-            public static string GameObjects { get; internal set; }
-            public static string Bones { get; internal set; }
-            public static string SkinnedMeshRenderers { get; internal set; }
-            public static string MeshRenderers { get; internal set; }
-            public static string Polygons { get; internal set; }
-            public static string UsedMaterialSlots { get; internal set; }
-            public static string UniqueMaterials { get; internal set; }
-            public static string Shaders { get; internal set; }
-            public static string DynamicBoneTransforms { get; internal set; }
-            public static string DynamicBoneColliders { get; internal set; }
-            public static string DynamicBoneColliderTransforms { get; internal set; }
-            public static string ParticleSystems { get; internal set; }
-            public static string MaxParticles { get; internal set; }
-            public static string OverallPerformance { get; internal set; }
-            public static string Line { get; internal set; }
-
-            static AvatarInfo()
-            {
-                Reload();
-            }
-
-            public static void Reload()
-            {
-                Name = GetString("ui_avatarInfo_name") ?? "_{0}";
-                Line = GetString("ui_avatarInfo_line") ?? "---------------------";
-                GameObjects = GetString("ui_avatarInfo_gameobjects") ?? "_GameObjects: {0} ({1})";
-                Bones = GetString("ui_avatarInfo_bones") ?? "_Bones: {0} - {1}";
-                SkinnedMeshRenderers = GetString("ui_avatarInfo_skinnedMeshRenderers") ?? "_Skinned Mesh Renderers: {0} ({1}) - {2}";
-                MeshRenderers = GetString("ui_avatarInfo_meshRenderers") ?? "_Mesh Renderers: {0} ({1}) - {2}";
-                Polygons = GetString("ui_avatarInfo_polygons") ?? "_Polygons: {0} ({1}) - {2}";
-                UsedMaterialSlots = GetString("ui_avatarInfo_usedMaterialSlots") ?? "_Used Material Slots: {0} ({1}) - {2}";
-                UniqueMaterials = GetString("ui_avatarInfo_uniqueMaterials") ?? "_Unique Materials: {0} ({1})";
-                Shaders = GetString("ui_avatarInfo_shaders") ?? "_Shaders: {0}";
-                DynamicBoneTransforms = GetString("ui_avatarInfo_dynamicBoneTransforms") ?? "_Dynamic Bone Transforms: {0} ({1}) - {2}";
-                DynamicBoneColliders = GetString("ui_avatarInfo_dynamicBoneColliders") ?? "_Dynamic Bone Colliders: {0} ({1}) - {2}";
-                DynamicBoneColliderTransforms = GetString("ui_avatarInfo_dynamicBoneColliderTransforms") ?? "_Collider Affected Transforms: {0} ({1}) - {2}";
-                ParticleSystems = GetString("ui_avatarInfo_particleSystems") ?? "_Particle Systems: {0} ({1}) - {2}";
-                MaxParticles = GetString("ui_avatarInfo_maxParticles") ?? "_Max Particles: {0} ({1}) - {2}";
-                OverallPerformance = GetString("ui_avatarInfo_overallPerformance") ?? "_Overall Performance: {0}";
-                SelectAvatarFirst = GetString("ui_avatarInfo_selectAvatarFirst") ?? "_Select an Avatar first";
-            }
-        }
-
-        public static class Main
-        {
-            public static string Title { get; internal set; }
-            public static string WindowName { get; internal set; }
-            public static string Version { get; internal set; }
-            public static string Avatar { get; internal set; }
-            public static string Tools { get; internal set; }
-            public static string Copier { get; internal set; }
-            public static string RemoveAll { get; internal set; }
-            public static string AvatarInfo { get; internal set; }
-            public static string Thumbnails { get; internal set; }
-
-            public static string Misc { get; internal set; }
-            public static string UseSceneSelection { get; internal set; }
-
-            static Main()
-            {
-                Reload();
-            }
-
-            public static void Reload()
-            {
-                Avatar = GetString("ui_main_avatar") ?? "_Avatar";
-                Title = GetString("ui_main_title") ?? "_Pumkin's Avatar Tools";
-                Version = GetString("ui_main_version") ?? "_Version";
-                WindowName = GetString("ui_main_windowName") ?? "_Pumkin Tools";
-                Tools = GetString("ui_tools") ?? "_Tools";
-                Copier = GetString("ui_copier") ?? "_Copy Components";
-                AvatarInfo = GetString("ui_avatarInfo") ?? "_Avatar Info";
-                RemoveAll = GetString("ui_removeAll") ?? "_Remove All";
-                Misc = GetString("ui_misc") ?? "_Misc";
-                Thumbnails = GetString("ui_thumbnails") ?? "_Thumbnails";
-                UseSceneSelection = GetString("ui_useSceneSelection") ?? "_Use Scene Selection";
-            }
-
-        };
-        public static class Buttons
-        {
-            public static string SelectFromScene { get; internal set; }
-            public static string CopySelected { get; internal set; }
-            public static string Cancel { get; internal set; }
-            public static string Apply { get; internal set; }
-            public static string Refresh { get; internal set; }
-            public static string Copy { get; internal set; }
-            public static string OpenHelpPage { get; internal set; }
-            public static string OpenGithubPage { get; internal set; }
-            public static string OpenDonationPage { get; internal set; }
-            public static string OpenPoseEditor { get; internal set; }
-            public static string JoinDiscordServer { get; internal set; }
-            public static string SelectNone { get; internal set; }
-            public static string SelectAll { get; internal set; }
-            public static string Browse { get; internal set; }
-
-            static Buttons()
-            {
-                Reload();
-            }
-
-            public static void Reload()
-            {
-                SelectFromScene = GetString("buttons_selectFromScene") ?? "_Select from Scene";
-                CopySelected = GetString("buttons_copySelected") ?? "_Copy Selected";
-                Refresh = GetString("buttons_refresh") ?? "_Refresh";
-                Cancel = GetString("buttons_cancel") ?? "_Cancel";
-                Apply = GetString("buttons_apply") ?? "_Apply";
-                Copy = GetString("buttons_copyText") ?? "_Copy Text";
-                OpenHelpPage = GetString("buttons_openHelpPage") ?? "_Open Help Page";
-                OpenGithubPage = GetString("buttons_openGithubPage") ?? "_Open Github Page";
-                OpenDonationPage = GetString("buttons_openDonationPage") ?? "_Buy me a Ko-Fi~";
-                OpenPoseEditor = GetString("buttons_openPoseEditor") ?? "_Open Pose Editor";
-                JoinDiscordServer = GetString("buttons_joinDiscordServer") ?? "_Join Discord Server!";
-                SelectNone = GetString("buttons_selectNone") ?? "_Select None";
-                SelectAll = GetString("buttons_selectAll") ?? "_Select All";
-                Browse = GetString("buttons_browse") ?? "_Browse";
-            }
-        };
-        public static class Tools
-        {
-            public static string FillVisemes { get; internal set; }
-            public static string EditViewpoint { get; internal set; }
-            public static string RevertBlendshapes { get; internal set; }
-            public static string ZeroBlendshapes { get; internal set; }
-            public static string ResetPose { get; internal set; }
-            public static string ResetToTPose { get; internal set; }
-            public static string EditScale { get; internal set; }
-
-            static Tools()
-            {
-                Reload();
-            }
-
-            public static void Reload()
-            {
-                FillVisemes = GetString("ui_tools_fillVisemes") ?? "_Fill Visemes";
-                EditViewpoint = GetString("ui_tools_editViewpoint") ?? "_Edit Viewpoint";
-                RevertBlendshapes = GetString("ui_tools_revertBlendShapes") ?? "_Revert Blendshapes";
-                ZeroBlendshapes = GetString("ui_tools_zeroBlendShapes") ?? "_Zero Blendshapes";
-                ResetPose = GetString("ui_tools_resetPose") ?? "_Reset Pose";
-                ResetToTPose = GetString("ui_tools_resetToTPose") ?? "_Reset to T-Pose";
-                EditScale = GetString("ui_tools_editScale") ?? "_Edit Scale";
-            }
-        };
-        public static class Thumbnails
-        {
-            public static string OverlayCameraImage { get; internal set; }
-            public static string OverlayTexture { get; internal set; }
-            public static string StartUploadingFirst { get; internal set; }
-            public static string CenterCameraOnViewpoint { get; internal set; }
-            public static string BackgroundType { get; internal set; }
-            public static string BackgroundType_None { get; internal set; }
-            public static string BackgroundType_Material { get; internal set; }
-            public static string BackgroundType_Color { get; internal set; }
-            public static string HideOtherAvatars { get; internal set; }
-            public static string BackgroundType_Image { get; internal set; }
-
-            static Thumbnails()
-            {
-                Reload();
-            }
-
-            public static void Reload()
-            {
-                OverlayCameraImage = GetString("ui_thumbnails_overlayCameraImage") ?? "_Overlay Image";
-                OverlayTexture = GetString("ui_thumbnails_overlayTexture") ?? "_Overlay Texture";
-                StartUploadingFirst = GetString("ui_thumbnails_startUploadingFirst") ?? "_Start uploading an Avatar first";
-                CenterCameraOnViewpoint = GetString("ui_thumbnails_centerCameraOnViewpoint") ?? "_Center Camera on Viewpoint";
-
-                BackgroundType = GetString("ui_thumbnails_backgroundType") ?? "_Background Type";
-
-                BackgroundType_None = GetString("ui_thumbnails_backgroundType_none") ?? "_None";
-                BackgroundType_Material = GetString("ui_thumbnails_backgroundType_material") ?? "_Material";
-                BackgroundType_Color = GetString("ui_thumbnails_backgroundType_color") ?? "_Color";
-                BackgroundType_Image = GetString("ui_thumbnails_backgroundType_image") ?? "_Image";
-
-                HideOtherAvatars = GetString("ui_thumbnails_hideOtherAvatars") ?? "_Hide Other Avatars when Uploading";
-            }
-        }
-        public static class Copier
-        {
-            public static string CopyFrom { get; internal set; }
-            public static string CopyGameObjects { get; internal set; }
-            public static string CopyColliderObjects { get; internal set; }
-            public static string CopySettings { get; internal set; }
-            public static string CreateMissing { get; internal set; }
-
-            public static string Transforms { get; internal set; }
-            public static string Transforms_position { get; internal set; }
-            public static string Transforms_rotation { get; internal set; }
-            public static string Transforms_scale { get; internal set; }
-            public static string Transforms_avatarScale { get; internal set; }
-            public static string DynamicBones { get; internal set; }
-            public static string DynamicBones_colliders { get; internal set; }
-            public static string DynamicBones_removeOldBones { get; internal set; }
-            public static string DynamicBones_removeOldColliders { get; internal set; }
-            public static string DynamicBones_createMissing { get; internal set; }
-            public static string Colliders { get; internal set; }
-            public static string Colliders_box { get; internal set; }
-            public static string Colliders_capsule { get; internal set; }
-            public static string Colliders_sphere { get; internal set; }
-            public static string Colliders_mesh { get; internal set; }
-            public static string Colliders_removeOld { get; internal set; }
-            public static string Descriptor { get; internal set; }
-            public static string Descriptor_pipelineId { get; internal set; }
-            public static string Descriptor_animationOverrides { get; internal set; }
-            public static string SkinMeshRender { get; internal set; }
-            public static string SkinMeshRender_materials { get; internal set; }
-            public static string SkinMeshRender_blendShapeValues { get; internal set; }
-            public static string ParticleSystems { get; internal set; }
-            public static string RigidBodies { get; internal set; }
-            public static string TrailRenderers { get; internal set; }
-            public static string EmptyGameObjects { get; internal set; }
-            public static string MeshRenderers { get; internal set; }
-            public static string Lights { get; internal set; }
-            public static string Animators { get; internal set; }
-            public static string CopyMainAnimator { get; internal set; }
-            public static string ReplaceOld { get; internal set; }
-            public static string Animators_inChildren { get; internal set; }
-            public static string AudioSources { get; internal set; }
-            public static string Joints { get; internal set; }
-            public static string Exclusions { get; internal set; }
-            public static string IncludeChildren { get; private set; }
-            public static string Size { get; private set; }
-            public static string Descriptor_copyViewpoint { get; internal set; }
-
-            static Copier()
-            {
-                Reload();
-            }
-
-            public static void Reload()
-            {
-                CopyFrom = GetString("ui_copier_copyFrom") ?? "_Copy From";
-
-                CopySettings = GetString("ui_copier_copySettings") ?? "_Settings";
-                CreateMissing = GetString("ui_copier_createMissing") ?? "_Create Missing";
-                EmptyGameObjects = GetString("ui_copier_emptyGameObjects") ?? "_Empty GameObjects";
-                ReplaceOld = GetString("ui_copier_replaceOld") ?? "_Replace Old";
-
-                Transforms = GetString("ui_copier_transforms") ?? "_Transforms";
-                Transforms_position = GetString("ui_copier_transforms_position") ?? "_Position";
-                Transforms_rotation = GetString("ui_copier_transforms_rotation") ?? "_Rotation";
-                Transforms_scale = GetString("ui_copier_transforms_scale") ?? "_Scale";
-                Transforms_avatarScale = GetString("ui_copier_transforms_avatarScale") ?? "_Avatar Scale";
-                DynamicBones = GetString("ui_copier_dynamicBones") ?? "_Dynamic Bones";
-                DynamicBones_colliders = GetString("ui_copier_dynamicBones_colliders") ?? "_Colliders";
-                DynamicBones_removeOldBones = GetString("ui_copier_dynamicBones_removeOld") ?? "_Remove Old Bones";
-                DynamicBones_removeOldColliders = GetString("ui_copier_dynamicBones_removeOldColliders") ?? "_Remove Old Colliders";
-                DynamicBones_createMissing = GetString("ui_copier_dynamicBones_createMissing") ?? "_Create Missing Bones";
-                Colliders = GetString("ui_copier_colliders") ?? "_Colliders";
-                Colliders_box = GetString("ui_copier_colliders_box") ?? "_Box Colliders";
-                Colliders_capsule = GetString("ui_copier_colliders_capsule") ?? "_Capsule Colliders";
-                Colliders_sphere = GetString("ui_copier_colliders_sphere") ?? "_Sphere Colliders";
-                Colliders_mesh = GetString("ui_copier_colliders_mesh") ?? "_Mesh Colliders";
-                Colliders_removeOld = GetString("ui_copier_colliders_removeOld") ?? "_Remove Old Colliders";
-                Descriptor = GetString("ui_copier_descriptor") ?? "_Avatar Descriptor";
-                Descriptor_pipelineId = GetString("ui_copier_descriptor_pipelineId") ?? "_Pipeline Id";
-                Descriptor_animationOverrides = GetString("ui_copier_descriptor_animationOverrides") ?? "_Animation Overrides";
-                Descriptor_copyViewpoint = GetString("ui_copier_descriptor_copyViewpoint") ?? "_Viewpoint";
-                SkinMeshRender = GetString("ui_copier_skinMeshRender") ?? "_Skinned Mesh Renderers";
-                SkinMeshRender_materials = GetString("ui_copier_skinMeshRender_materials") ?? "_Materials";
-                SkinMeshRender_blendShapeValues = GetString("ui_copier_skinMeshRender_blendShapeValues") ?? "_BlendShape Values";
-                ParticleSystems = GetString("ui_copier_particleSystem") ?? "_Particle Systems";
-                RigidBodies = GetString("ui_copier_rigidBodies") ?? "_Rigid Bodies";
-                TrailRenderers = GetString("ui_copier_trailRenderers") ?? "_Trail Renderers";
-                MeshRenderers = GetString("ui_copier_meshRenderers") ?? "_Mesh Renderers";
-                CopyGameObjects = GetString("ui_copier_copyGameObjects") ?? "_Copy GameObjects";
-                CopyColliderObjects = GetString("ui_copier_dynamicBones_copyColliderObjects") ?? "_Copy Collider Objects";
-                Lights = GetString("ui_copier_lights") ?? "_Lights";
-                Animators = GetString("ui_copier_animators") ?? "_Animators";
-                CopyMainAnimator = GetString("ui_copier_animators_copyMain") ?? "_Copy Main Animator";
-                Animators_inChildren = GetString("ui_copier_animatorsInChildren") ?? "_Child Animators";
-                AudioSources = GetString("ui_copier_audioSources") ?? "_Audio Sources";
-                Joints = GetString("ui_copier_joints") ?? "_Joints";
-                Exclusions = GetString("ui_copier_exclusions") ?? "_Exclusions";
-                IncludeChildren = GetString("ui_copier_includeChildren") ?? "_Include Children";
-                Size = GetString("ui_copier_size") ?? "_Size";
-            }
-        };
-        public static class Log
-        {
-            public static string CopyAttempt { get; internal set; }
-            public static string RemoveAttempt { get; internal set; }
-            public static string CopyFromInvalid { get; internal set; }
-            public static string Done { get; internal set; }
-            public static string Failed { get; internal set; }
-            public static string CantCopyToSelf { get; internal set; }
-            public static string ViewpointApplied { get; internal set; }
-            public static string ViewpointCancelled { get; internal set; }
-            public static string Cancelled { get; internal set; }
-            public static string NoSkinnedMeshFound { get; internal set; }
-            public static string DescriptorIsNull { get; internal set; }
-            public static string Success { get; internal set; }
-            public static string TryFillVisemes { get; internal set; }
-            public static string TryRemoveUnsupportedComponent { get; internal set; }
-            public static string MeshHasNoVisemes { get; internal set; }
-            public static string FailedIsNull { get; internal set; }
-            public static string NameIsEmpty { get; internal set; }
-            public static string LoadedPose { get; internal set; }
-            public static string LoadedBlendshapePreset { get; internal set; }
-            public static string NothingSelected { get; internal set; }
-            public static string FailedDoesntHave { get; internal set; }
-            public static string FailedAlreadyHas { get; internal set; }
-            public static string LoadedCameraOverlay { get; internal set; }
-            public static string FailedHasNo { get; internal set; }
-
-            static Log()
-            {
-                Reload();
-            }
-
-            public static void Reload()
-            {
-                Done = GetString("log_done") ?? "_Done";
-                Cancelled = GetString("log_cancelled") ?? "_Cancelled";
-                NothingSelected = GetString("log_nothingSelected") ?? "_Select something first";
-                CantCopyToSelf = GetString("log_cantCopyToSelf") ?? "_Can't copy Components from an object to itself. What are you doing?";
-                CopyAttempt = GetString("log_copyAttempt") ?? "_Attempting to copy {0} from {1} to {2}";
-                RemoveAttempt = GetString("log_removeAttempt") ?? "_Attempting to remove {0} from {1}";
-                CopyFromInvalid = GetString("log_copyFromInvalid") ?? "_Can't copy Components because 'Copy From' is invalid";
-                ViewpointApplied = GetString("log_viewpointApplied") ?? "_Set Viewposition to {0}";
-                ViewpointCancelled = GetString("log_viewpointCancelled") ?? "_Cancelled Viewposition changes";
-                TryFillVisemes = GetString("log_tryFillVisemes") ?? "_Attempting to fill visemes on {0}";
-                NoSkinnedMeshFound = GetString("log_noSkinnedMeshFound") ?? "_Failed: No skinned mesh found";
-                DescriptorIsNull = GetString("log_descriptorIsNull") ?? "_Avatar descriptor is null";
-                Success = GetString("log_success") ?? "_Success";
-                MeshHasNoVisemes = GetString("log_meshHasNoVisemes") ?? "_Failed. Mesh has no Visemes. Set to Default";
-                TryRemoveUnsupportedComponent = GetString("log_tryRemoveUnsupportedComponent") ?? "_Attempting to remove unsupported component {0} from {1}";
-                Failed = GetString("log_failed") ?? "_Failed";
-                FailedIsNull = GetString("log_failedIsNull") ?? "_Failed: {1} is null";
-                NameIsEmpty = GetString("log_nameIsEmpty") ?? "_Name is Empty";
-                LoadedPose = GetString("log_loadedPose") ?? "_Loaded Pose: {0}";
-                LoadedBlendshapePreset = GetString("log_loadedBlendshapePreset") ?? "_Loaded Blendshapes: {0}";
-                FailedDoesntHave = GetString("log_failedDoesntHave") ?? "_Failed: {0} doesn't have a {1}";
-                FailedAlreadyHas = GetString("log_failedAlreadyHas") ?? "_Failed: {1} already has {0}";
-                LoadedCameraOverlay = GetString("log_loadedCameraOverlay") ?? "_Loaded {0} as Camera Overlay";
-                FailedHasNo = GetString("log_failedHasNo") ?? "_{0} has no {1}, Ignoring.";
-            }
-        };
-        public static class Warning
-        {
-            public static string Warn { get; internal set; }
-            public static string NotFound { get; internal set; }
-            public static string SelectSceneObject { get; internal set; }
-            public static string OldVersion { get; internal set; }
-            public static string VRCCamNotFound { get; internal set; }
-
-            static Warning()
-            {
-                Reload();
-            }
-
-            public static void Reload()
-            {
-                Warn = GetString("warn_warning") ?? "_Warning";
-                NotFound = GetString("warn_notFound") ?? "_(Not Found)";
-                OldVersion = GetString("warn_oldVersion") ?? "_(Old Version)";
-                SelectSceneObject = GetString("warn_selectSceneObject") ?? "_Please select an object from the scene";
-                VRCCamNotFound = GetString("warn_vrcCamNotFound") ?? "_VRCCam not found";
-            }
-        };
-        public static class Credits
-        {
-            public static string Title { get; internal set; }
-            public static string Version { get; internal set; }
-            public static string RedundantStrings { get; internal set; }
-            public static string JsonDotNetCredit { get; internal set; }
-            public static string AddMoreStuff { get; internal set; }
-            public static string PokeOnDiscord { get; internal set; }
-
-            static Credits()
-            {
-                Reload();
-            }
-
-            public static void Reload()
-            {
-                Title = GetString("credits_title") ?? "_Pumkin's Avatar Tools";
-                Version = GetString("credits_version") ?? "_Version" + " " + version;
-                RedundantStrings = GetString("credits_redundantStrings") ?? "_Now with 100% more redundant strings";
-                JsonDotNetCredit = GetString("credits_jsonDotNetCredit") ?? "_JsonDotNet by Newtonsoft";
-                AddMoreStuff = GetString("credits_addMoreStuff") ?? "_I'll add more stuff to this eventually";
-                PokeOnDiscord = GetString("credits_pokeOnDiscord") ?? "_Poke me on Discord at Pumkin#2020";
-            }
-        };
-        public static class Misc
-        {
-            public static string uwu { get; internal set; }
-            public static string SearchForBones { get; internal set; }
-            public static string SuperExperimental { get; internal set; }
-
-            private static string searchForBones;
-
-            static Misc()
-            {
-                Reload();
-            }
-
-            public static void Reload()
-            {
-                uwu = GetString("misc_uwu") ?? "_uwu";
-                SearchForBones = GetString("misc_searchForBones") ?? "_Search for DynamicBones";
-                SuperExperimental = GetString("misc_superExperimental") ?? "_Super Experimental Stuff:";
-            }
-        }
-
-        public static class PoseEditor
-        {
-            public static string Title { get; internal set; }
-
-            public static string Scene { get; internal set; }
-            public static string SceneLoadAdditive { get; internal set; }
-            public static string SceneOverrideLights { get; internal set; }
-
-            public static string AvatarPosition { get; internal set; }
-            public static string AvatarPositionOverridePose { get; internal set; }
-            public static string AvatarPositionOverrideBlendshapes { get; internal set; }
-
-            public static string SceneSaveChanges { get; internal set; }
-            public static string UnloadScene { get; internal set; }
-            public static string ResetPosition { get; internal set; }
-
-            public static string Pose { get; internal set; }
-            public static string NewPose { get; internal set; }
-            public static string OnlySavePoseChanges { get; internal set; }
-            public static string LoadPose { get; internal set; }
-
-            public static string Blendshapes { get; internal set; }
-            public static string NewPreset { get; internal set; }
-            public static string LoadPreset { get; internal set; }
-
-            public static string SaveButton { get; internal set; }
-            public static string ReloadButton { get; internal set; }
-
-            public static string BodyPositionYTooSmall { get; internal set; }
-
-            static PoseEditor()
-            {
-                Reload();
-            }
-
-            public static void Reload()
-            {
-                Title = GetString("ui_poseEditor") ?? "_Pose Editor (Very Beta)";
-                Scene = GetString("ui_poseEditor_scene") ?? "_Scene";
-                SceneLoadAdditive = GetString("ui_poseEditor_scene_loadAdditive") ?? "_Load Additive";
-                SceneOverrideLights = GetString("ui_poseEditor_scene_overrideLights") ?? "_Override Lights";
-                AvatarPosition = GetString("ui_poseEditor_avatarPosition") ?? "_Avatar Position";
-                AvatarPositionOverridePose = GetString("ui_poseEditor_avatarPosition_overridePose") ?? "_Override Pose";
-                AvatarPositionOverrideBlendshapes = GetString("ui_poseEditor_avatarPositionOverrideBlendshapes") ?? "_Override Blendshapes";
-                SceneSaveChanges = GetString("ui_poseEditor_scene_saveChanges") ?? "_Save Scene Changes";
-                UnloadScene = GetString("ui_poseEditor_scene_unload") ?? "_Unload Scene";
-                ResetPosition = GetString("ui_poseEditor_resetPosition") ?? "_Reset Position";
-                Pose = GetString("ui_poseEditor_pose") ?? "_Pose";
-                NewPose = GetString("ui_poseEditor_newPose") ?? "_New Pose";
-                OnlySavePoseChanges = GetString("ui_poseEditor_onlySavePoseChanges") ?? "_Only Save Pose Changes";
-                LoadPose = GetString("ui_poseEditor_loadPose") ?? "_Load Pose";
-                Blendshapes = GetString("ui_poseEditor_blendshapes") ?? "_Blendshapes";
-                NewPreset = GetString("ui_poseEditor_newPreset") ?? "_New Preset";
-                LoadPreset = GetString("ui_poseEditor_loadPreset") ?? "_Load Preset";
-                SaveButton = GetString("ui_poseEditor_save") ?? "_Save";
-                ReloadButton = GetString("ui_poseEditor_reload") ?? "_Reload";
-                BodyPositionYTooSmall = GetString("warn_poseEditor_bodyPositionYTooSmall") ?? "_humanPose.bodyPosition.y is {0}, you probably don't want that. Setting humanPose.bodyPosition.y to 1";
-            }
-        }
-
-        static Strings()
-        {
-            //Language Dictionaries
-            dictionary_english = new Dictionary<string, string>
-            {
-#region Main
-                //Main
-                {"ui_main_title", "Pumkin's Avatar Tools" },
-                {"ui_main_windowName", "Pumkin Tools" },
-                {"ui_main_version", "Version" },
-                {"ui_main_avatar", "Avatar" },
-                {"ui_tools", "Tools" },
-                {"ui_copier", "Copy Components" },
-                {"ui_avatarInfo", "Avatar Info" },
-                {"ui_thumbnails", "Thumbnails" },
-                {"ui_misc", "Misc" },
-                {"ui_removeAll", "Remove All" },
-                {"ui_useSceneSelection", "Use Scene Selection" },
-
-#region AvatarInfo
-                { "ui_avatarInfo_name", "Name: {0}"},
-                { "ui_avatarInfo_line", "---------------------"},
-                { "ui_avatarInfo_gameobjects", "GameObjects: {0} ({1})"},
-                { "ui_avatarInfo_bones", "Bones: {0} - {1}"},
-                { "ui_avatarInfo_skinnedMeshRenderers", "Skinned Mesh Renderers: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_meshRenderers", "Mesh Renderers: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_polygons", "Polygons: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_usedMaterialSlots", "Used Material Slots: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_uniqueMaterials", "Unique Materials: {0} ({1})"},
-                { "ui_avatarInfo_shaders", "Shaders: {0}"},
-                { "ui_avatarInfo_dynamicBoneTransforms", "Dynamic Bone Transforms: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_dynamicBoneColliders", "Dynamic Bone Colliders: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_dynamicBoneColliderTransforms", "Collider Affected Transforms: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_particleSystems", "Particle Systems: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_maxParticles", "Max Particles: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_overallPerformance", "Overall Performance: {0}"},
-                { "ui_avatarInfo_selectAvatarFirst", "Select an Avatar first"},                
-#endregion
-
-#region Buttons
-                {"buttons_selectFromScene", "Select from Scene" },
-                {"buttons_copySelected" , "Copy Selected" },
-                {"buttons_refresh", "Refresh" },
-                {"buttons_apply", "Apply" },
-                {"buttons_cancel", "Cancel" },
-                {"buttons_copyText", "Copy Text" },
-                {"buttons_openHelpPage", "Open Help Page" },
-                {"buttons_openGithubPage", "Open Github Page" },
-                {"buttons_openDonationPage", "Buy me a Ko-Fi~" },
-                {"buttons_openPoseEditor", "Open Pose Editor" },
-                {"buttons_joinDiscordServer", "Join Discord Server!" },
-                {"buttons_selectAll", "Select All" },
-                {"buttons_selectNone", "Select None" },
-                {"buttons_browse", "Browse" },
-#endregion
-
-#endregion
-#region Tools
-            //UI Tools                
-                {"ui_tools_fillVisemes", "Fill Visemes" },
-                {"ui_tools_editViewpoint", "Edit Viewpoint" },
-                {"ui_tools_revertBlendShapes", "Revert Blendshapes" },
-                {"ui_tools_zeroBlendShapes", "Zero Blendshapes" },
-                {"ui_tools_resetPose", "Reset Pose" },
-                {"ui_tools_resetToTPose", "Reset to T-Pose" },
-                {"ui_tools_editScale", "Scale Avatar" },
-
-#endregion
-#region Copier
-                //UI Copier
-                {"ui_copier_copyFrom", "Copy from" },
-                {"ui_copier_exclusions", "Exclusions"},
-                {"ui_copier_includeChildren", "Include Children"},
-                {"ui_copier_size", "Size"},
-                //UI Copier Misc
-                {"ui_copier_copyGameObjects", "Copy GameObjects" },
-                {"ui_copier_emptyGameObjects", "Empty GameObjects" },
-                {"ui_copier_copySettings", "Settings" },
-                {"ui_copier_createMissing", "Create Missing" },
-                {"ui_copier_replaceOld", "Replace Old" },
-
-                //UI Copier Transforms
-                {"ui_copier_transforms", "Transforms" },
-                {"ui_copier_transforms_position", "Position" },
-                {"ui_copier_transforms_rotation", "Rotation" },
-                {"ui_copier_transforms_scale", "Scale" },
-                {"ui_copier_transforms_avatarScale", "Avatar Scale" },
-            
-                //UI Copier Dynamic Bones
-                {"ui_copier_dynamicBones", "Dynamic Bones" },
-                {"ui_copier_dynamicBones_colliders", "Dynamic Bone Colliders" },
-                {"ui_copier_dynamicBones_removeOld", "Remove Old Bones" },
-                {"ui_copier_dynamicBones_removeOldColliders", "Remove Old Colliders" },
-                {"ui_copier_dynamicBones_createMissing", "Create Missing Bones" },
-                {"ui_copier_dynamicBones_copyColliderObjects" , "Copy Collider Objects" },
-
-
-                //UI Copier Colliders
-                {"ui_copier_colliders", "Colliders" },
-                {"ui_copier_colliders_box", "Box Colliders" },
-                {"ui_copier_colliders_capsule", "Capsule Colliders" },
-                {"ui_copier_colliders_sphere", "Sphere Colliders" },
-                {"ui_copier_colliders_mesh", "Mesh Colliders" },
-                {"ui_copier_colliders_removeOld", "Remove Old Colliders" },                
-
-                //UI Copier Avatar Descriptor
-                {"ui_copier_descriptor", "Avatar Descriptor" },
-                {"ui_copier_descriptor_pipelineId", "Pipeline Id" },
-                {"ui_copier_descriptor_animationOverrides", "Animation Overrides" },
-                {"ui_copier_descriptor_copyViewpoint", "Viewpoint" },
-
-                //UI Copier Skinned Mesh Renderer
-                {"ui_copier_skinMeshRender", "Skinned Mesh Renderers" },
-                {"ui_copier_skinMeshRender_materials", "Materials" },
-                {"ui_copier_skinMeshRender_blendShapeValues", "BlendShape Values" },
-
-                //UI Copier Particle System
-                {"ui_copier_particleSystem", "Particle Systems" },
-
-                //UI Copier Rigid Bodies
-                {"ui_copier_rigidBodies", "Rigid Bodies" },
-
-                //UI Copier Trail Renderers
-                {"ui_copier_trailRenderers", "Trail Renderers" },
-
-                //UI Copier MeshRenderers
-                {"ui_copier_meshRenderers",  "Mesh Renderers"},
-
-                //UI Copier Lights
-                {"ui_copier_lights",  "Lights"},
-                
-                //UI Copier Animators
-                {"ui_copier_animators",  "Animators"},
-                {"ui_copier_animators_copyMain", "Copy Main Animator" },
-                {"ui_copier_animatorsInChildren", "Child Animators" },
-
-                //UI Copier Audio Sources
-                {"ui_copier_audioSources", "Audio Sources" },
-
-                //UI Copier Joints
-                {"ui_copier_joints", "Joints"},
-
-#endregion
-
-#region Thumbnails
-                //Thumbnails                
-                {"ui_thumbnails_overlayCameraImage", "Overlay Image" },
-                {"ui_thumbnails_overlayTexture",  "Overlay Texture"},
-                {"ui_thumbnails_startUploadingFirst", "Begin uploading an Avatar first" },
-                {"ui_thumbnails_backgroundColor", "Background Color" },
-                {"ui_thumbnails_centerCameraOnViewpoint", "Center Camera on Viewpoint" },
-
-                {"ui_thumbnails_backgroundType", "Background Type" },
-                {"ui_thumbnails_backgroundType_none", "None" },
-                {"ui_thumbnails_backgroundType_material", "Material" },
-                {"ui_thumbnails_backgroundType_color", "Color" },
-                {"ui_thumbnails_backgroundType_image", "Image" },
-                {"ui_thumbnails_hideOtherAvatars" , "Hide Other Avatars when Uploading"},
-#endregion
-#region PoseEditor
-                //Pose Editor
-                {"ui_poseEditor", "Pose Editor (Very Beta)"},
-                {"ui_poseEditor_scene", "Scene"},
-                {"ui_poseEditor_scene_loadAdditive", "Load Additive"},
-                {"ui_poseEditor_scene_overrideLights", "Override Lights"},
-                {"ui_poseEditor_avatarPosition", "Avatar Position"},
-                {"ui_poseEditor_avatarPosition_overridePose", "Override Pose"},
-                {"ui_poseEditor_scene_saveChanges", "Save Scene Changes"},
-                {"ui_poseEditor_scene_unload", "Unload Scene"},
-                {"ui_poseEditor_resetPosition", "Reset Position"},
-                {"ui_poseEditor_pose", "Pose"},
-                {"ui_poseEditor_newPose", "New Pose"},
-                {"ui_poseEditor_onlySavePoseChanges", "Only Save Pose Changes"},
-                {"ui_poseEditor_loadPose", "Load Pose"},
-                {"ui_poseEditor_blendshapes", "Blendshapes"},
-                {"ui_poseEditor_newPreset", "New Preset"},
-                {"ui_poseEditor_loadPreset", "Load Preset"},
-                {"ui_poseEditor_save", "Save"},
-                {"ui_poseEditor_reload", "Reload"},
-#endregion
-
-#region Log
-                //Log
-                {"log_failed", "Failed" },
-                {"log_cancelled", "Cancelled" },
-                {"log_success", "Success" },
-                {"log_nothingSelected" , "Select something first" },
-                {"log_done", "Done. Check Unity Console for full Output Log" },
-                {"log_copyAttempt", "Attempting to copy {0} from {1} to {2}" },
-                {"log_removeAttempt", "Attempting to remove {0} from {1}" },
-                {"log_copyFromInvalid", "Can't copy Components because 'Copy From' is invalid" },
-                {"log_cantCopyToSelf", "Can't copy Components from an object to itself. What are you doing?" },
-                {"log_viewpointApplied", "Set Viewposition to {0}" },
-                {"log_viewpointCancelled", "Cancelled Viewposition changes" },
-                {"log_tryFillVisemes", "Attempting to fill visemes on {0}" },
-                {"log_noSkinnedMeshFound", "Failed: No skinned mesh found" },
-                {"log_descriptorIsNull", "Avatar descriptor is null"},
-                {"log_meshHasNoVisemes", "Failed. Mesh has no Visemes. Set to Default" },
-                {"log_failedIsNull" , "Failed. {1} is null. Ignoring" },
-                {"log_nameIsEmpty", "Name is empty" },
-                {"log_loadedPose", "Loaded Pose: {0}"},
-                {"log_loadedBlendshapePreset", "Loaded Blendshapes: {0}"},
-                {"log_failedDoesntHave", "Failed: {0} doesn't have a {1}" },
-                {"log_failedAlreadyHas", "Failed: {1} already has {0}" },
-                {"log_loadedCameraOverlay", "Loaded {0} as Camera Overlay" },
-                {"log_failedHasNo", "{0} has no {1}, Ignoring."},
-#endregion
-
-#region Warnings
-                //Warnings
-                { "log_warning", "Warning" },
-                { "warn_selectSceneObject" , "Please select an object from the scene" },
-                { "warn_notFound", "(Not Found)" },
-                { "warn_oldVersion", "(Old Version)" },
-                { "warn_poseEditor_bodyPositionYTooSmall", "humanPose.bodyPosition.y is {0}, you probably don't want that. Setting humanPose.bodyPosition.y to 1" },
-                { "warn_vrcCamNotFound" , "VRCCam not found" },
-#endregion
-
-#region Credits
-                //Credits
-                { "credits_title", "Pumkin's Avatar Tools"},
-                { "credits_version", "Version" + " " + version },
-                { "credits_redundantStrings", "Now with 100% more redundant strings"},
-                { "credits_jsonDotNetCredit", "JsonDotNet by Newtonsoft"},
-                { "credits_addMoreStuff", "I'll add more stuff to this eventually" },
-                { "credits_pokeOnDiscord", "Poke me on Discord at Pumkin#2020" },
-#endregion
-
-                //Misc                
-                { "misc_uwu", "uwu" },
-                { "misc_searchForBones", "Search for DynamicBones" },
-                { "misc_superExperimental", "Super Experimental stuff" },
-            };
-
-            //Mistakes
-            dictionary_uwu = new Dictionary<string, string>
-            {
-#region Main
-                //Main
-                {"ui_main_title", "Pumkin's Avataw Awoos! ÒwÓ" },
-                {"ui_main_windowName", "Pumkin Awoos" },
-                {"ui_main_version", "Vewsion~" },
-                {"ui_main_avatar", "Avataw :o" },
-                {"ui_thumbnails", "Thumbnyaiws >:3" },
-                {"ui_tools", "Toows òwó" },
-                {"ui_copier", "Copy Componyents uwu" },
-                {"ui_avatarInfo", "Avataw Info 0w0" },
-                {"ui_misc", "Misc ;o" },
-                {"ui_removeAll", "Wemuv Aww (⁰д⁰ )" },
-
-#region AvatarInfo
-                { "ui_avatarInfo_name", "Nyame: {0}"},
-                { "ui_avatarInfo_line", "---------------------"},
-                { "ui_avatarInfo_gameobjects", "GamyeObwects: {0} ({1})"},
-                { "ui_avatarInfo_bones", "Bonyes: {0} - {1}"},
-                { "ui_avatarInfo_skinnedMeshRenderers", "Skinnyed Mesh Wendewews: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_meshRenderers", "Mesh Wendewews: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_polygons", "Powygons: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_usedMaterialSlots", "Used Matewiaw Swots: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_uniqueMaterials", "Unyique Matewiaws: {0} ({1})"},
-                { "ui_avatarInfo_shaders", "Shadews: {0}"},
-                { "ui_avatarInfo_dynamicBoneTransforms", "Dynyamic Bonye Twansfowms: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_dynamicBoneColliders", "Dynyamic Bonye Cowwidews: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_dynamicBoneColliderTransforms", "Cowwidew Affected Twansfowms: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_particleSystems", "Pawticwe Systems: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_maxParticles", "Max Pawticwes: {0} ({1}) - {2}"},
-                { "ui_avatarInfo_overallPerformance", "Ovewaww Pewfowmance: {0}"},
-                { "ui_avatarInfo_selectAvatarFirst", "Sewect an Avataw furst ewe" },
-#endregion
-
-#region Buttons
-                {"buttons_selectFromScene", "Sewect fwom Scenye x3" },
-                {"buttons_copySelected" , "Copy Sewected (´• ω •`)" },
-                {"buttons_refresh", "Wefwesh (ﾟωﾟ;)" },
-                {"buttons_apply", "Appwy （>﹏<）" },
-                {"buttons_cancel", "Cancew ; o;" },
-                {"buttons_copyText", "Cowpy OwO" },
-                {"buttons_openHelpPage", "Opyen Hewp Paws uwu" },
-                {"buttons_openGithubPage", "Opyen Gitwub Paws :o" },
-                {"buttons_openDonationPage", "Buy Pumkin a Ko-Fi~ OwO" },
-                {"buttons_openPoseEditor", "Open Paws Editow" },
-#endregion
-
-#endregion
-#region Tools
-                //UI Toows                
-                {"ui_tools_fillVisemes", "Fiww Visemes ;~;" },
-                {"ui_tools_editViewpoint", "Edit Viewpoint o-o" },
-                {"ui_tools_revertBlendShapes", "Weset Bwendshapyes uwu" },
-                {"ui_tools_zeroBlendShapes", "Zewo Bwendshapyes 0~0" },
-                {"ui_tools_resetPose", "Weset Pose ;3" },
-                {"ui_tools_resetToTPose", "Weset to T-Pose" },
-
-#endregion
-#region Copier
-                //UI Copier
-                {"ui_copier_copyFrom", "Copy fwom~" },                
-
-                //UI Copier Transforms
-                {"ui_copier_transforms", "Twansfowms!" },
-                {"ui_copier_transforms_position", "Position~" },
-                {"ui_copier_transforms_wotation", "Wotation @~@" },
-                {"ui_copier_transforms_scawe", "Scawe www" },
-                {"ui_copier_transforms_avatarScale", "Avatar Scale o-o" },
-
-                //UI Copier Dynamic Bones
-                {"ui_copier_dynamicBones", "Dynyamic Bonyes~" },
-                {"ui_copier_dynamicBones_settings", "Settings º ^º" },
-                {"ui_copier_dynamicBones_colliders", "Dynyamic Bonye Cowwidews~" },
-                {"ui_copier_dynamicBones_removeOld", "Wemuv Owd Bonyes uwu" },
-                {"ui_copier_dynamicBones_removeOldColliders", "Wemuv Owd Cowwidews ;w;" },
-                {"ui_copier_dynamicBones_createMissing", "Cweate Missing Bonyes!" },
-
-                //UI Copier Colliders
-                {"ui_copier_colliders", "Cowwidews ;o;" },
-                {"ui_copier_colliders_box", "Box Cowwidews!" },
-                {"ui_copier_colliders_capsule", "Capsuwe Cowwidews o-o" },
-                {"ui_copier_colliders_sphere", "Sphewe Cowwidews O~O" },
-                {"ui_copier_colliders_mesh", "Mesh Cowwidews zzz" },
-                {"ui_copier_colliders_removeOld", "Wemuv Owd Cowwidews uwu" },
-
-                //UI Copier Avatar Descriptor
-                {"ui_copier_descriptor", "Avataw Descwiptow~" },
-                {"ui_copier_descriptor_settings", "Settings agen" },
-                {"ui_copier_descriptor_pipelineId", "Pipewinye Id!" },
-                {"ui_copier_descriptor_animationOverrides", "Anyimation Ovewwides :o" },
-
-                //UI Copier Skinned Mesh Renderer
-                {"ui_copier_skinMeshRender", "Skinnyed Mesh Wendewews ;w;" },
-                {"ui_copier_skinMeshRender_settings", "Settings ageeen" },
-                {"ui_copier_skinMeshRender_materials", "Matewiaws uwu" },
-                {"ui_copier_skinMeshRender_blendShapeValues", "BwendShape Vawues ùwú" },
-
-                //UI Copier Particle System
-                {"ui_copier_particleSystem", "Pawtickle Systums zzz" },
-
-                //UI Copier Rigid Bodies
-                {"ui_copier_rigidBodies", "Wigid Bodyes" },                
-
-                //UI Copier Trail Renderers
-                {"ui_copier_trailRenderers", "Twail Wendewuws" },
-
-                //UI Copier MeshRenderers
-                {"ui_copier_meshRenderers",  "Mesh Wenderur"},
-
-                //UI Copier Lights
-                {"ui_copier_lights",  "Wighties"},
-                
-                //UI Copier Animators
-                {"ui_copier_animators",  "Anyanmaytows"},
-                {"ui_copier_animators_copyMain", "Copy main Anyanmaytow" },
-                {"ui_copier_animatorsInChildren", "Smol Anyanmaytows" },
-
-                //UI Copier Audio Sources
-                { "ui_copier_audioSources", "Awwdio Sauces" },
-
-                //UI Copier Joints
-                {"ui_copier_joints", "Joints"},
-
-#endregion
-
-#region Thumbnails
-                //Thumbnails                
-                { "ui_thumbnails_overlayCameraImage", "Ovewwide Camewa Image" },
-                { "ui_thumbnails_overlayTexture",  "Ovewwide Textuwe"},
-                { "ui_thumbnails_startUploadingFirst", "Stawt upwoading Avataw fiwst!!" },
-                { "ui_thumbnails_backgroundColor", "Background Color" },
-                { "ui_thumbnails_centerCameraOnViewpoint", "Center Camera on Viewpoint" },
-#endregion
-#region PoseEditor
-                //Pose Editor
-                {"ui_poseEditor", "Pose Editow (Vewy Beta)"},
-                {"ui_poseEditor_scene", "Scenye"},
-                {"ui_poseEditor_scene_loadAdditive", "Woad Addititive"},
-                {"ui_poseEditor_scene_overrideLights", "Ovewwide Wights"},
-                {"ui_poseEditor_avatarPosition", "Avataw Position"},
-                {"ui_poseEditor_avatarPosition_overridePose", "Ovewwide Pose"},
-                {"ui_poseEditor_scene_saveChanges", "Save Scenye Changes"},
-                {"ui_poseEditor_scene_unload", "Unwoad Scenye"},
-                {"ui_poseEditor_resetPosition", "Weset Position"},
-                {"ui_poseEditor_pose", "Paws"},
-                {"ui_poseEditor_newPose", "Nyew Paws"},
-                {"ui_poseEditor_onlySavePoseChanges", "Onwy Save Paws Changes"},
-                {"ui_poseEditor_loadPose", "Woad Paws"},
-                {"ui_poseEditor_blendshapes", "Bwendshapes"},
-                {"ui_poseEditor_newPreset", "Nyew Pweset"},
-                {"ui_poseEditor_loadPreset", "Woad Pweset"},
-                {"ui_poseEditor_save", "Save"},
-                {"ui_poseEditor_reload", "Wewoad"},
-#endregion
-
-#region Log
-                //Log
-                {"log_failed", "Faiwed ùwú" },
-                {"log_cancelled", "Cancewwed .-." },
-                {"log_success", "Success OWO" },
-                {"log_nothingSelected" , "Sewect sumstuf furst uwu" },
-                {"log_done", "Donye. Check Unyity Consowe fow fuww Output Wog uwus" },
-                {"log_copyAttempt", "Attempting to copy {0} fwom {1} to {2} o-o" },
-                {"log_remuveAttempt", "Attempting to wemuv {0} fwom {1} ;-;" },
-                {"log_copyFromInvalid", "Can't copy Componyents because 'Copy Fwom' is invawid ; o ;" },
-                {"log_cantCopyToSelf", "Can't copy Componyents fwom an object to itsewf. What awe you doing? ;     w     ;" },
-                {"log_viewpointApplied", "Set Viewposition to {0}!" },
-                {"log_viewpointCancelled", "Cancewwed Viewposition changes uwu" },
-                {"log_tryFixVisemes", "Attempting to fiww visemes on {0}!" },
-                {"log_noSkinnedMeshFound", "Faiwed: Nyo skinnyed mesh found ;o;" },
-                {"log_descriptorIsNull", "Avataw descwiptow is nyuww humpf"},
-                {"log_meshHasNoVisemes", "Faiwed. Mesh has nyo Visemes. Set to Defauwt ;w;" },
-                {"log_failedIsNull" , "Faiwed {1} is nyull /w\\. Ignyowing uwu" },
-                {"log_nameIsEmpty", "Nyame ish emptyyy ;w;" },
-                {"log_loadedPose", "Woaded Paws: {0}"},
-                {"log_loadedBlendshapePreset", "Woaded Bwendshapyes: {0}"},
-                {"log_failedDoesntHave", "Faiwed: {0} dun have a {1} ;o;" },
-                {"log_failedAlreadyHas", "Faiwed: {0} alredy has {1} ;w;" },
-                {"log_loadedCameraOverlay", "Loaded {0} as Camera Overlay" },
-                {"log_failedHasNo", "{0} has no {1}, Ignoring."},
-#endregion
-
-#region Warnings
-                //Warnings
-                { "log_warning", "Wawnying! unu" },
-                { "warn_selectSceneObject" , "Pwease sewect an object fwom the scenye!!" },
-                { "warn_notFound", "(Nyot Fownd ;~;)" },
-                { "warn_oldVersion", "(Old Version)" },
-                { "warn_poseEditor_bodyPositionYTooSmall", "humanPose.bodyPosition.y is {0}, you pwobabwy don't want that. Setting humanPose.bodyPosition.y to 1 uwu" },
-#endregion
-
-#region Credits
-                //Credits
-                { "credits_title", "Pumkin's Avataw Awoos~ :3"},
-                { "credits_version", "Vewsion" + " " + version },
-                { "credits_redundantStrings", "Nyow with 0W0% mowe noticin things~"},
-                { "credits_jsonDotNetCredit", "JsonDotNet by Newtonsoft" },
-                { "credits_addMoreStuff", "I'ww add mowe stuff to this eventuawwy >w<" },
-                { "credits_pokeOnDiscord", "Poke me! But on Discowd at Pumkin#2020~ uwus" },
-#endregion
-
-                //Misc                
-                { "misc_uwu", "OwO" },
-                { "misc_searchForBones", "Seawch fow DynyamicBonyes" },
-                { "misc_superExperimental", "Supew Scawy stuffs ヾ(´囗｀｡)ﾉ" },
-            };
-
-            stringDictionary = dictionary_english;
-            language = DictionaryLanguage.English;
-            ReloadStrings();
-        }
-
-        static void ReloadStrings()
-        {
-            Main.Reload();
-            Buttons.Reload();
-            Tools.Reload();
-            Copier.Reload();
-            Log.Reload();
-            Warning.Reload();
-            Credits.Reload();
-            Misc.Reload();
-            Thumbnails.Reload();
-        }
-
-        static string GetString(string stringName)
-        {
-            if(string.IsNullOrEmpty(stringName))
-                return stringName;
-
-            string s = string.Empty;
-            stringDictionary.TryGetValue(stringName, out s);
-
-            return s;
-        }
-    };
 
     public class AvatarInfo
     {
@@ -1838,8 +1431,7 @@ namespace Pumkin.DataStructures
                     t.localEulerAngles = kv.Value.localEulerAngles;
                     t.localRotation = kv.Value.localRotation;
                 }
-            }
-            //}
+            }            
         }
     }
 

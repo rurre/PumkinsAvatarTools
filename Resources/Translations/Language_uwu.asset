@@ -1,0 +1,165 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6888704aad6f47442971dbe67f6fa40a, type: 3}
+  m_Name: Language_uwu
+  m_EditorClassIdentifier: 
+  languageName: uwu
+  author: Pumkin
+  main:
+    title: Pumkin's Avataw Awoos
+    windowName: Pumkin Toows
+    version: Vewsion
+    tools: Toows
+    removeAll: Wemuv Aww
+    copier: Copy Componyents
+    avatarInfo: Avataw Info
+    thumbnails: Thumbnyaiws
+    misc: Misc
+    avatar: Avataw
+    useSceneSelection: Use Scenye Sewection
+  buttons:
+    selectFromScene: Sewect fwom Scenye
+    copySelected: Copy Sewected
+    refresh: Wefwesh
+    cancel: Cancew
+    apply: Appwy
+    copy: Copy Text
+    openHelpPage: Open Hewp Page
+    openGithubPage: Open Github Page
+    openDonationPage: Buy me a Ko-Fi~ OwO
+    openPoseEditor: Open Pose Editow
+    joinDiscordServer: 'Join Discowd Sewvew UwU '
+    selectNone: Sewect Nyonye
+    selectAll: Sewect Aww
+    browse: Bwowse
+  tools:
+    fillVisemes: Fiww Visemes
+    editViewpoint: Edit Viewpoint
+    revertBlendshapes: Wevewt Bwendshapes
+    zeroBlendshapes: Zewo Bwendshapes
+    resetPose: Weset Pose
+    resetToTPose: Weset to T-Pose
+    editScale: Edit Scawe
+  copier:
+    copyFrom: Copy Fwom
+    copySettings: Settings
+    createMissing: Cweate Missing
+    emptyGameObjects: Empty GameObjects
+    replaceOld: Wepwace Owd
+    transforms: Twansfowms
+    transforms_position: Position
+    transforms_rotation: Wotation
+    transforms_scale: Scawe
+    transforms_avatarScale: Avataw Scawe
+    dynamicBones: Dynyamic Bonyes
+    dynamicBones_colliders: Cowwidews
+    dynamicBones_removeOldBones: Wemuv Owd Bonyes
+    dynamicBones_removeOldColliders: Remove Old Colliders
+    dynamicBones_createMissing: Wemuv Owd Cowwidews
+    colliders: Cowwidews
+    colliders_box: Box Cowwidews
+    colliders_capsule: Capsuwe Cowwidews
+    colliders_sphere: Sphewe Cowwidews
+    colliders_mesh: Mesh Cowwidews
+    colliders_removeOld: Wemuv Owd Cowwidews
+    descriptor: Avataw Descwiptow
+    descriptor_pipelineId: Pipewinye Id
+    descriptor_animationOverrides: Anyimation Ovewwides
+    descriptor_copyViewpoint: Viewpoint
+    skinMeshRender: Skinnyed Mesh Wendewews
+    skinMeshRender_materials: Matewiaws
+    skinMeshRender_blendShapeValues: BwendShape Vawues
+    particleSystems: Pawticwe Systems
+    rigidBodies: Wigid Bodies
+    trailRenderers: Twaiw Wendewews
+    meshRenderers: Mesh Wendewews
+    copyGameObjects: Copy GameObjects
+    copyColliderObjects: Copy Cowwidew Objects
+    lights: Wights
+    animators: Anyimatows
+    copyMainAnimator: Copy Main Anyimatow
+    animators_inChildren: Chiwd Anyimatows
+    audioSources: Audio Souwces
+    joints: Joints
+    exclusions: Excwusions
+    includeChildren: Incwude Chiwdwen
+    size: Size
+  avatarInfo:
+    name: '{0}'
+    line: ~~~~~~~~~~~~~~~
+    gameObjects: 'GameObjects: {0} ({1})'
+    bones: 'Bonyes: {0} - {1}'
+    skinnedMeshRenderers: 'Skinned Mesh Wendewews: {0} ({1}) - {2}'
+    meshRenderers: 'Mesh Wendewews: {0} ({1}) - {2}'
+    polygons: 'Powygonyes: {0} ({1}) - {2}'
+    usedMaterialSlots: 'Used Matewial Swots: {0} ({1}) - {2}'
+    uniqueMaterials: 'Unique Matewials: {0} ({1})'
+    shaders: 'Shadews: {0}'
+    dynamicBoneTransforms: 'Dynamic Bonye Twansfowms: {0} ({1}) - {2}'
+    dynamicBoneColliders: 'Dynamic Bonye Cowwidews: {0} ({1}) - {2}'
+    dynamicBoneColliderTransforms: 'Cowwidew Affected Twansfowms: {0} ({1}) - {2}'
+    particleSystems: 'Pawstickle Systems: {0} ({1}) - {2}'
+    maxParticles: 'Max Pawticles: {0} ({1}) - {2}'
+    overallPerformance: 'Ovewall Perfowmance: {0}'
+    selectAvatarFirst: Sewect an Avataw fiwst
+  thumbnails:
+    overlayCameraImage: Overlay Image
+    overlayTexture: Overlay Texture
+    startUploadingFirst: Start uploading an Avatar first
+    centerCameraOnViewpoint: Center Camera on Viewpoint
+    backgroundType: Background Type
+    backgroundType_None: None
+    backgroundType_Material: Material
+    backgroundType_Color: Color
+    backgroundType_Image: Image
+    hideOtherAvatars: Hide Other Avatars when Uploading
+  misc:
+    uwu: uwu
+    searchForBones: Search for DynamicBones
+    superExperimental: 'Super Experimental Stuff:'
+  log:
+    done: Done
+    cancelled: Cancelled
+    nothingSelected: Select something first
+    cantCopyToSelf: Can't copy Components from an object to itself. What are you doing?
+    copyAttempt: Attempting to copy {0} from {1} to {2}
+    removeAttempt: Attempting to remove {0} from {1}
+    copyFromInvalid: Can't copy Components because 'Copy From' is invalid
+    viewpointApplied: Set Viewposition to {0}
+    viewpointCancelled: Cancelled Viewposition changes
+    tryFillVisemes: Attempting to fill visemes on {0}
+    noSkinnedMeshFound: 'Failed: No skinned mesh found'
+    descriptorIsNull: Avatar descriptor is null
+    success: Success
+    meshHasNoVisemes: Failed. Mesh has no Visemes. Set to Default
+    tryRemoveUnsupportedComponent: Attempting to remove unsupported component {0}
+      from {1}
+    failed: Failed
+    failedIsNull: 'Failed: {1} is null'
+    nameIsEmpty: Name is Empty
+    loadedPose: 'Loaded Pose: {0}'
+    loadedBlendshapePreset: 'Loaded Blendshapes: {0}'
+    failedDoesntHave: 'Failed: {0} doesn''t have a {1}'
+    failedAlreadyHas: 'Failed: {1} already has {0}'
+    loadedCameraOverlay: Loaded {0} as Camera Overlay
+    failedHasNo: '{0} has no {1}, Ignoring.'
+  warnings:
+    warn: Warning
+    notFound: (Not Found)
+    oldVersion: (Old Version)
+    selectSceneObject: Please select an object from the scene
+    vrcCamNotFound: VRCCam not found
+  credits:
+    version: Version
+    redundantStrings: Now with 100% more redundant strings
+    jsonDotNetCredit: JsonDotNet by Newtonsoft
+    addMoreStuff: I'll add more stuff to this eventually
+    pokeOnDiscord: Poke me on Discord at Pumkin#2020

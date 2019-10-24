@@ -1,15 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using Pumkin.DependencyChecker;
+using Pumkin.DataStructures;
 
 namespace Pumkin.AvatarTools
 {
     [System.Serializable]
     public class _PumkinsAvatarToolsWindow : EditorWindow
     {
-        [SerializeField, HideInInspector] static PumkinsAvatarTools _tools;
+        [SerializeField, HideInInspector] static PumkinsAvatarTools _tools;        
         static EditorWindow _window;
                 
         string[] boneErrors =
@@ -32,7 +31,7 @@ namespace Pumkin.AvatarTools
             {
                 _tools = value;
             }
-        }
+        }        
 
         [MenuItem("Tools/Pumkin/Avatar Tools", false, 0)]
         public static void ShowWindow()
@@ -52,7 +51,7 @@ namespace Pumkin.AvatarTools
         {
             EditorPrefs.DeleteKey("PumkinToolsWindow");
             ToolsWindow = null;
-            _DependecyChecker.Status = _DependecyChecker.CheckerStatus.DEFAULT;
+            _DependencyChecker.Status = _DependencyChecker.CheckerStatus.DEFAULT;
 
             if(_window)
                 _window.Repaint();
@@ -92,13 +91,13 @@ namespace Pumkin.AvatarTools
 
         void HandleRepaint(EditorWindow window)
         {
-            if(!window && !EditorWindow.focusedWindow)
+            if(!window || !EditorWindow.focusedWindow)
                 return;
 
             //This check is needed otherwise we can't rename any objects in the hierarchy
             //Works for now, but we need to check if changing language will affect it            
             if(EditorWindow.focusedWindow.titleContent.text != "Hierarchy") //UnityEditor.SceneHierarchyWindow            
-                window.Repaint();            
+                window.Repaint();
         }
 
         private void OnInspectorUpdate()
@@ -106,21 +105,27 @@ namespace Pumkin.AvatarTools
             HandleRepaint(this);
         }
 
+        public static void RequestRepaint(EditorWindow window)
+        {
+            if(window)
+                window.Repaint();
+        }
+
         public void OnGUI()
         {
             if(!ToolsWindow)
                 return;
 
-            switch(_DependecyChecker.Status)
+            switch(_DependencyChecker.Status)
             {
-                case _DependecyChecker.CheckerStatus.OK:
-                case _DependecyChecker.CheckerStatus.NO_BONES:
-                case _DependecyChecker.CheckerStatus.OK_OLDBONES:
+                case _DependencyChecker.CheckerStatus.OK:
+                case _DependencyChecker.CheckerStatus.NO_BONES:
+                case _DependencyChecker.CheckerStatus.OK_OLDBONES:
                     {
                         ToolsWindow.OnGUI();
                         break;
                     }
-                case _DependecyChecker.CheckerStatus.NO_SDK:
+                case _DependencyChecker.CheckerStatus.NO_SDK:
                     {
 
                         HandleRepaint(ToolsWindow);                                              
@@ -129,11 +134,11 @@ namespace Pumkin.AvatarTools
 
                         EditorGUILayout.HelpBox("VRChat SDK not found.\nPlease install the SDK and try again.", MessageType.Warning, true);
                         if(GUILayout.Button("Reload", Styles.BigButton, GUILayout.MaxHeight(40)))
-                            _DependecyChecker.ForceCheck();                                                
+                            _DependencyChecker.ForceCheck();                                                
 
                         EditorGUILayout.HelpBox("If you need help, you can join my Discord server!", MessageType.Info, true);
                         if(GUILayout.Button(new GUIContent(Strings.Buttons.JoinDiscordServer ?? "Join Discord Server", Icons.DiscordIcon)))
-                            Application.OpenURL(Strings.discordLink);
+                            Application.OpenURL(Strings.Instance.discordLink);
                         EditorGUILayout.LabelField("I'm not sure why the button is so big. Help");
                     }
                     break;
@@ -146,11 +151,11 @@ namespace Pumkin.AvatarTools
                         EditorGUILayout.Space();
 
                         if(GUILayout.Button("Reload", Styles.BigButton, GUILayout.MaxHeight(40)))
-                            _DependecyChecker.ForceCheck();
+                            _DependencyChecker.ForceCheck();
                         
                         EditorGUILayout.HelpBox("If you need help, you can join my Discord server!", MessageType.Info, true);
                         if(GUILayout.Button(new GUIContent(Strings.Buttons.JoinDiscordServer ?? "Join Discord Server", Icons.DiscordIcon ?? null)))
-                            Application.OpenURL(Strings.discordLink);
+                            Application.OpenURL(Strings.Instance.discordLink);
                         EditorGUILayout.LabelField("I'm not sure why the button is so big. Help");
                     }
                     break;
