@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a722b864b617955438a3effb19b2c444, type: 3}
+  m_Name: eye
+  m_EditorClassIdentifier: 
+  name: eye
+  offsetMode: 0
+  positionOffset: {x: -0.036, y: 0.0019999743, z: 0.036}
+  rotationAnglesOffset: {x: -0, y: 180, z: -0}
+  transformPath: 
+  useOverlay: 1
+  overlayImagePath: D:/Libraries/Desktop/vignette.png
+  overlayImageTint: {r: 0.862069, g: 1, b: 0, a: 0.616}
+  useBackground: 1
+  backgroundType: 0
+  backgroundColor: {r: 0.007352948, g: 0.007352948, b: 0.007352948, a: 1}
+  backgroundImagePath: 
+  backgroundImageTint: {r: 1, g: 1, b: 1, a: 1}
+  backgroundMaterial: {fileID: 0}

@@ -1,0 +1,181 @@
+﻿using Pumkin.AvatarTools;
+using Pumkin.DataStructures;
+using Pumkin.HelperFunctions;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+
+namespace Pumkin.Presets
+{
+    public class PumkinsPosePreset : PumkinPreset
+    {
+        public new string name;
+        public float[] muscles;       
+
+        public PosePresetMode presetMode = PosePresetMode.HumanPose;
+
+        List<string> transformPaths;
+        List<Vector3> transformRotations;
+
+        private PumkinsPosePreset() { }
+        public enum PosePresetMode { HumanPose, TransformRotations };
+
+        /// <summary>
+        /// Creates and returns a PosePreset based on transform rotations only
+        /// </summary>                
+        public static PumkinsPosePreset CreatePreset(string poseName, GameObject avatar, PosePresetMode mode)
+        {
+            PumkinsPosePreset pose = CreateInstance<PumkinsPosePreset>();
+            pose.SetupPreset(poseName, avatar, mode);
+            return pose;
+        }
+
+        /// <summary>
+        /// Creates and returns a PosePreset based on humanoid muscle values
+        /// </summary>        
+        public static PumkinsPosePreset CreatePreset(string poseName, Animator anim)
+        {
+            HumanPose hp = new HumanPose();
+            HumanPoseHandler hph = new HumanPoseHandler(anim.avatar, anim.transform);
+            hph.GetHumanPose(ref hp);
+
+            return CreatePreset(poseName, hp);
+        }
+
+        /// <summary>
+        /// Creates and returns a PosePreset based on humanoid muscle values
+        /// </summary>
+        public static PumkinsPosePreset CreatePreset(string poseName, HumanPose p)
+        {
+            PumkinsPosePreset pose = CreateInstance<PumkinsPosePreset>();
+            pose.SetupPreset(poseName, p);
+            return pose;
+        }
+
+        /// <summary>
+        /// Creates and returns a PosePreset based on humanoid muscle values
+        /// </summary>
+        public static PumkinsPosePreset CreatePreset(string poseName, float[] muscles)
+        {
+            PumkinsPosePreset pose = CreateInstance<PumkinsPosePreset>();
+            pose.SetupPreset(poseName, muscles);
+            return pose;
+        }
+
+        public bool SetupPreset(string poseName, GameObject avatar, PosePresetMode mode)
+        {
+            if(!avatar)
+                return false;
+
+            if(mode == PosePresetMode.TransformRotations)
+            {
+                Transform[] trans = avatar.GetComponentsInChildren<Transform>();
+
+                transformPaths = new List<string>(trans.Length);
+                transformRotations = new List<Vector3>(trans.Length);
+
+                for(int i = 0; i < trans.Length; i++)
+                {
+                    var t = trans[i];
+
+                    transformPaths[i] = Helpers.GetGameObjectPath(t, true);
+                    transformRotations[i] = t.localEulerAngles;
+                }
+                return true;
+            }
+            else
+            {
+                Animator anim = avatar.GetComponent<Animator>();
+
+                if(!anim)
+                    return false;
+
+                HumanPose hp = new HumanPose();
+                HumanPoseHandler hph = new HumanPoseHandler(anim.avatar, anim.transform);
+                hph.GetHumanPose(ref hp);
+
+                SetupPreset(poseName, hp);
+                return true;
+            }
+        }
+
+        public bool SetupPreset(string poseName, HumanPose p)
+        {            
+            name = poseName;
+            muscles = p.muscles;
+            presetMode = PosePresetMode.HumanPose;
+            return true;
+        }
+
+        public bool SetupPreset(string poseName, float[] muscles)
+        {            
+            name = poseName;
+            presetMode = PosePresetMode.HumanPose;
+            this.muscles = muscles;
+            return true;
+        }
+
+        public void SavePreset(bool overwriteExisting)
+        {
+            ScriptableObjectUtility.SaveAsset(this, name, PumkinsAvatarTools.MainFolderPath + "/Resources/Presets/Poses/", overwriteExisting);
+            PumkinsPresetManager.LoadPresets<PumkinsPosePreset>();
+        }
+
+        public override bool ApplyPreset(GameObject avatar)
+        {
+            if(!avatar)
+                return false;
+
+            Undo.RegisterFullObjectHierarchyUndo(avatar, "Apply Pose");
+
+            if(presetMode == PosePresetMode.HumanPose)
+            {
+                Animator anim = avatar.GetComponent<Animator>();
+                if(anim == null || !anim.isHuman)
+                    return false;
+
+                HumanPoseHandler hph = new HumanPoseHandler(anim.avatar, avatar.transform);
+                HumanPose hp = GetHumanPose(anim);
+
+                if(hp.bodyPosition.y < 1 && !Mathf.Approximately(hp.bodyPosition.y, 1))
+                {
+                    PumkinsAvatarTools.Log(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, hp.bodyPosition.y.ToString());
+                    hp.bodyPosition.y = 1;
+                }
+
+                hph.SetHumanPose(ref hp);
+                PumkinsAvatarTools.OnPoseWasChanged(PumkinsAvatarTools.PoseChangeType.Normal);
+                return true;
+            }
+            else
+            {
+                if(!avatar)
+                    return false;
+
+                for(int i = 0; i < transformPaths.Count; i++)
+                {
+                    var t = avatar.transform.Find(transformPaths[i]);
+                    if(t != null)                    
+                        t.localEulerAngles = transformRotations[i];                                            
+                }
+                return true;
+            }
+        }
+
+        public HumanPose GetHumanPose(Animator anim)
+        {
+            if(!anim || !anim.isHuman)
+                return default;
+
+            HumanPose hp = new HumanPose
+            {
+                bodyPosition = anim.bodyPosition,
+                bodyRotation = anim.bodyRotation,
+                muscles = muscles
+            };
+
+            return hp;
+        }        
+    }
+}

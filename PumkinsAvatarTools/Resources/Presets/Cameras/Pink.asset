@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a722b864b617955438a3effb19b2c444, type: 3}
+  m_Name: Pink
+  m_EditorClassIdentifier: 
+  name: Pink
+  offsetMode: 0
+  positionOffset: {x: 0, y: 0, z: 0.317}
+  rotationAnglesOffset: {x: 0, y: 180, z: 0}
+  transformPath: 
+  useOverlay: 0
+  overlayImagePath: 
+  overlayImageTint: {r: 1, g: 1, b: 1, a: 1}
+  useBackground: 1
+  backgroundType: 0
+  backgroundColor: {r: 1, g: 0.3455882, b: 0.3455882, a: 1}
+  backgroundImagePath: 
+  backgroundImageTint: {r: 1, g: 1, b: 1, a: 1}
+  backgroundMaterial: {fileID: 0}
+  posePreset:
+    poseName: 
+    bodyPosition: {x: 0, y: 0, z: 0}
+    bodyRotation: {x: 0, y: 0, z: 0, w: 0}
+    rootPosition: {x: 0, y: 0, z: 0}
+    muscles: []
