@@ -1,0 +1,193 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d5ce1fd657d8984c8ced97b71ea3c84, type: 3}
+  m_Name: tr hands behind
+  m_EditorClassIdentifier: 
+  name: tr hands behind
+  muscles: []
+  presetMode: 1
+  transformPaths:
+  - Armature
+  - Armature/Hips
+  - Armature/Hips/ButtTail1
+  - Armature/Hips/ButtTail1/ButtTail2
+  - Armature/Hips/ButtTail1/ButtTail2/ButtTail3
+  - Armature/Hips/ButtTail1/ButtTail2/ButtTail3/ButtTail4
+  - Armature/Hips/ButtTail1/ButtTail2/ButtTail3/ButtTail4/ButtTail5
+  - Armature/Hips/ButtTail1/ButtTail2/ButtTail3/ButtTail4/ButtTail5/ButtTail6
+  - Armature/Hips/ButtTail1/ButtTail2/ButtTail3/ButtTail4/ButtTail5/ButtTail6/ButtTail7
+  - Armature/Hips/Left leg
+  - Armature/Hips/Left leg/Left knee
+  - Armature/Hips/Left leg/Left knee/Left ankle
+  - Armature/Hips/Left leg/Left knee/Left ankle/Left toe
+  - Armature/Hips/Right leg
+  - Armature/Hips/Right leg/Right knee
+  - Armature/Hips/Right leg/Right knee/Right ankle
+  - Armature/Hips/Right leg/Right knee/Right ankle/Right toe
+  - Armature/Hips/Spine
+  - Armature/Hips/Spine/Chest
+  - Armature/Hips/Spine/Chest/Left shoulder
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/IndexFinger1_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/IndexFinger1_L/IndexFinger2_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/IndexFinger1_L/IndexFinger2_L/IndexFinger3_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/LittleFinger1_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/LittleFinger1_L/LittleFinger2_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/LittleFinger1_L/LittleFinger2_L/LittleFinger3_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/MiddleFinger1_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/MiddleFinger1_L/MiddleFinger2_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/MiddleFinger1_L/MiddleFinger2_L/MiddleFinger3_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/RingFinger1_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/RingFinger1_L/RingFinger2_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/RingFinger1_L/RingFinger2_L/RingFinger3_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/Thumb0_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/Thumb0_L/Thumb1_L
+  - Armature/Hips/Spine/Chest/Left shoulder/Left arm/Left elbow/Left wrist/Thumb0_L/Thumb1_L/Thumb2_L
+  - Armature/Hips/Spine/Chest/Neck
+  - Armature/Hips/Spine/Chest/Neck/Head
+  - Armature/Hips/Spine/Chest/Neck/Head/BackHair1
+  - Armature/Hips/Spine/Chest/Neck/Head/BackHair2_L
+  - Armature/Hips/Spine/Chest/Neck/Head/BackHair2_R
+  - Armature/Hips/Spine/Chest/Neck/Head/BackHair3_L
+  - Armature/Hips/Spine/Chest/Neck/Head/BackHair3_R
+  - Armature/Hips/Spine/Chest/Neck/Head/Eye_L
+  - Armature/Hips/Spine/Chest/Neck/Head/Eye_R
+  - Armature/Hips/Spine/Chest/Neck/Head/FrontHair
+  - Armature/Hips/Spine/Chest/Neck/Head/FrontHair_L
+  - Armature/Hips/Spine/Chest/Neck/Head/FrontHair_R
+  - Armature/Hips/Spine/Chest/Neck/Head/HairSplash_L
+  - Armature/Hips/Spine/Chest/Neck/Head/HairSplash_R
+  - Armature/Hips/Spine/Chest/Neck/Head/LeftEye
+  - Armature/Hips/Spine/Chest/Neck/Head/RightEye
+  - Armature/Hips/Spine/Chest/Neck/Head/Sideburn_L
+  - Armature/Hips/Spine/Chest/Neck/Head/Sideburn_L/Sideburn2_L
+  - Armature/Hips/Spine/Chest/Neck/Head/Sideburn_R
+  - Armature/Hips/Spine/Chest/Neck/Head/Sideburn_R/Sideburn2_R
+  - Armature/Hips/Spine/Chest/Neck/Head/SideHair_L
+  - Armature/Hips/Spine/Chest/Neck/Head/SideHair_R
+  - Armature/Hips/Spine/Chest/Neck/Head/StandingEars1_L
+  - Armature/Hips/Spine/Chest/Neck/Head/StandingEars1_L/StandingEars2_L
+  - Armature/Hips/Spine/Chest/Neck/Head/StandingEars1_L/StandingEars2_L/StandingEars3_L
+  - Armature/Hips/Spine/Chest/Neck/Head/StandingEars1_R
+  - Armature/Hips/Spine/Chest/Neck/Head/StandingEars1_R/StandingEars2_R
+  - Armature/Hips/Spine/Chest/Neck/Head/StandingEars1_R/StandingEars2_R/StandingEars3_R
+  - Armature/Hips/Spine/Chest/Right shoulder
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/IndexFinger1_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/IndexFinger1_R/IndexFinger2_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/IndexFinger1_R/IndexFinger2_R/IndexFinger3_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/LittleFinger1_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/LittleFinger1_R/LittleFinger2_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/LittleFinger1_R/LittleFinger2_R/LittleFinger3_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/MiddleFinger1_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/MiddleFinger1_R/MiddleFinger2_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/MiddleFinger1_R/MiddleFinger2_R/MiddleFinger3_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/RingFinger1_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/RingFinger1_R/RingFinger2_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/RingFinger1_R/RingFinger2_R/RingFinger3_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/Thumb0_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/Thumb0_R/Thumb1_R
+  - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/Thumb0_R/Thumb1_R/Thumb2_R
+  - Armature/Hips/Spine/Chest/Tie
+  - Body
+  transformRotations:
+  - {x: 270.01978, y: -0, z: 0}
+  - {x: 89.98022, y: 0.000004533284, z: 0}
+  - {x: 294.96713, y: 180, z: 180}
+  - {x: 345.83087, y: 0, z: 0}
+  - {x: 355.69366, y: 0, z: 0}
+  - {x: 348.48257, y: 0, z: 0}
+  - {x: 12.162545, y: 0, z: 0}
+  - {x: 16.92251, y: 0, z: 0}
+  - {x: 7.4697595, y: 0, z: 0}
+  - {x: 355.95477, y: 181.5173, z: 180.98526}
+  - {x: 3.8605263, y: 359.92575, z: 359.13998}
+  - {x: 295.11115, y: 2.2772114, z: 359.18576}
+  - {x: 33.00898, y: 180, z: -0.0000034708305}
+  - {x: 355.95477, y: 178.4827, z: 179.01476}
+  - {x: 3.8605168, y: 0.07425429, z: 0.859996}
+  - {x: 295.11118, y: 357.72278, z: 0.81429315}
+  - {x: 33.00901, y: 180, z: -0.0000031092716}
+  - {x: 357.45453, y: 0, z: 0}
+  - {x: 356.14288, y: 0, z: 0}
+  - {x: 289.88348, y: 235.2355, z: 210.22551}
+  - {x: 299.2622, y: 293.46887, z: 29.787003}
+  - {x: 342.87845, y: 24.45631, z: 358.1155}
+  - {x: 4.125098, y: 68.52027, z: 355.71838}
+  - {x: 357.8668, y: 0.13304903, z: 1.3951445}
+  - {x: 359.61502, y: 0.76090914, z: 1.388737}
+  - {x: 2.9103875, y: 0.98537946, z: 356.9471}
+  - {x: 356.3002, y: 2.9690676, z: 3.8173842}
+  - {x: 4.4917154, y: 356.87787, z: 2.2994015}
+  - {x: 351.76007, y: 11.599681, z: 356.20108}
+  - {x: 357.56125, y: 1.1311035, z: 359.59915}
+  - {x: 359.4394, y: 0.08939234, z: 1.5984173}
+  - {x: 1.0176904, y: 356.25717, z: 5.8876853}
+  - {x: 355.7049, y: 3.7220178, z: 2.1151142}
+  - {x: 1.2251344, y: 0.40899152, z: 359.85162}
+  - {x: 359.06345, y: 358.9677, z: 4.6246767}
+  - {x: 317.46353, y: 26.332407, z: 3.4255497}
+  - {x: 18.80518, y: 353.3795, z: 350.2147}
+  - {x: 1.3260518, y: 359.1687, z: 4.2062306}
+  - {x: 7.167308, y: -0, z: -0}
+  - {x: 359.2353, y: 0, z: 0}
+  - {x: 351.64594, y: 180, z: 180}
+  - {x: 346.6349, y: 202.77544, z: 202.77531}
+  - {x: 346.6349, y: 157.22456, z: 157.22469}
+  - {x: 12.046695, y: 201.69836, z: 201.69829}
+  - {x: 12.046694, y: 158.30164, z: 158.30171}
+  - {x: 273.28342, y: 83.71956, z: 83.7186}
+  - {x: 273.28336, y: 276.28058, z: 276.28128}
+  - {x: 348.584, y: 178.86003, z: 179.0956}
+  - {x: 356.78564, y: 189.67596, z: 189.67345}
+  - {x: 351.06155, y: 178.24527, z: 178.245}
+  - {x: 326.499, y: 209.24898, z: 209.24908}
+  - {x: 326.499, y: 150.75102, z: 150.75092}
+  - {x: -0, y: 0, z: 0}
+  - {x: -0, y: 0, z: 0}
+  - {x: 10.30937, y: 171.96922, z: 171.96783}
+  - {x: 2.275113, y: 15.257706, z: 347.53583}
+  - {x: 10.309369, y: 188.03078, z: 188.03217}
+  - {x: 2.275113, y: 344.74228, z: 12.464178}
+  - {x: 21.199808, y: 176.81459, z: 176.81453}
+  - {x: 21.199812, y: 183.18541, z: 183.18547}
+  - {x: 15.332658, y: 6.0179014, z: 6.0178905}
+  - {x: 359.9451, y: 358.54034, z: 358.88983}
+  - {x: 10.071609, y: 353.653, z: 355.53714}
+  - {x: 15.332658, y: 353.9821, z: 353.98212}
+  - {x: 359.9451, y: 1.4596689, z: 1.1101787}
+  - {x: 10.071609, y: 6.346974, z: 4.4628673}
+  - {x: 289.0721, y: 124.05356, z: 150.23131}
+  - {x: 308.25882, y: 90.470695, z: 305.40826}
+  - {x: 336.432, y: 356.87674, z: 0.9923546}
+  - {x: 2.1806688, y: 298.77094, z: 3.6328223}
+  - {x: 357.87302, y: 0.12693955, z: 358.5953}
+  - {x: 359.58008, y: 359.45135, z: 358.5529}
+  - {x: 2.868851, y: 359.22244, z: 2.997116}
+  - {x: 356.31116, y: 357.1955, z: 356.172}
+  - {x: 4.463058, y: 3.3492343, z: 357.65182}
+  - {x: 351.7125, y: 348.63577, z: 3.7410207}
+  - {x: 357.5598, y: 359.10028, z: 0.39089644}
+  - {x: 359.40253, y: 0.11804121, z: 358.3464}
+  - {x: 0.9801223, y: 3.9499257, z: 354.0554}
+  - {x: 355.71167, y: 356.4614, z: 357.8712}
+  - {x: 1.1837225, y: 359.79938, z: 0.097561486}
+  - {x: 359.02432, y: 1.2425332, z: 355.31882}
+  - {x: 319.0435, y: 333.23828, z: 358.0598}
+  - {x: 14.017554, y: 8.215047, z: 6.4856257}
+  - {x: 3.5256631, y: 359.9417, z: 359.37683}
+  - {x: 24.561192, y: 180, z: 180}
+  - {x: 270.01978, y: -0, z: 0}

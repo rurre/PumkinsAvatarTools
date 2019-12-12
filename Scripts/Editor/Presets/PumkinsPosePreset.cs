@@ -15,8 +15,8 @@ namespace Pumkin.Presets
 
         public PosePresetMode presetMode = PosePresetMode.HumanPose;
 
-        List<string> transformPaths;
-        List<Vector3> transformRotations;
+        public List<string> transformPaths;
+        public List<Vector3> transformRotations;
 
         private PumkinsPosePreset() { }
         public enum PosePresetMode { HumanPose, TransformRotations };
@@ -77,10 +77,14 @@ namespace Pumkin.Presets
 
                 for(int i = 0; i < trans.Length; i++)
                 {
-                    var t = trans[i];
+                    var t = trans[i];                    
+                    string path = Helpers.GetGameObjectPath(t, true);
 
-                    transformPaths[i] = Helpers.GetGameObjectPath(t, true);
-                    transformRotations[i] = t.localEulerAngles;
+                    if(t && !string.IsNullOrEmpty(path))
+                    {
+                        transformPaths.Add(path);
+                        transformRotations.Add(t.localEulerAngles);
+                    }
                 }
                 return true;
             }

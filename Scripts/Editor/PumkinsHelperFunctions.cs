@@ -263,7 +263,98 @@ namespace Pumkin.HelperFunctions
             EditorGUIUtility.labelWidth = oldWidth;
         }
 
-        public static void DrawPropertyArrayScrolling(SerializedProperty property, string displayName, ref bool expanded, ref Vector2 scrollPosition, float minHeight, float maxHeight)
+        public static void DrawPropertyArrayScrolling(SerializedProperty property, string displayName, ref bool expanded, 
+            ref Vector2 scrollPosition, float minHeight, float maxHeight, bool indent = true)
+        {
+            if(property == null)
+                return;
+            
+            expanded = EditorGUILayout.Foldout(expanded, displayName);
+            if(expanded)
+            {
+                SerializedProperty arraySizeProp = property.FindPropertyRelative("Array.size");
+                EditorGUILayout.PropertyField(arraySizeProp, new GUIContent(Strings.Copier.size ?? "Size"));
+
+                scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.MinHeight(Mathf.Clamp(arraySizeProp.intValue * 20, 0, maxHeight)), GUILayout.MaxHeight(maxHeight));
+                if(indent)
+                    EditorGUI.indentLevel++;
+                else
+                    EditorGUILayout.Space();
+
+                for(int i = 0; i < arraySizeProp.intValue; i++)
+                {
+                    EditorGUILayout.PropertyField(property.GetArrayElementAtIndex(i));
+                }
+                if(indent)
+                    EditorGUI.indentLevel--;
+
+                EditorGUILayout.EndScrollView();
+            }
+        }
+
+        public static void DrawPropertyArray(SerializedProperty property, string displayName, ref bool expanded, bool indent = true)
+        {
+            if(property == null)
+                return;
+
+            expanded = EditorGUILayout.Foldout(expanded, displayName);
+            if(expanded)
+            {
+                SerializedProperty arraySizeProp = property.FindPropertyRelative("Array.size");
+                EditorGUILayout.PropertyField(arraySizeProp, new GUIContent(Strings.Copier.size ?? "Size"));
+
+                if(indent)
+                    EditorGUI.indentLevel++;
+                else
+                    EditorGUILayout.Space();
+
+                for(int i = 0; i < arraySizeProp.intValue; i++)
+                {
+                    EditorGUILayout.PropertyField(property.GetArrayElementAtIndex(i));
+                }
+
+                if(indent)
+                    EditorGUI.indentLevel--;
+            }
+        }
+
+        public static void DrawPropertyArrayWithNames(SerializedProperty property, string displayName, string[] labels, ref bool expanded, 
+            bool indent = true, float labelWidthOverride = 0)
+        {
+            if(property == null)
+                return;
+
+            expanded = EditorGUILayout.Foldout(expanded, displayName, Styles.Foldout);
+            if(expanded)
+            {
+                SerializedProperty arraySizeProp = property.FindPropertyRelative("Array.size");
+                EditorGUILayout.PropertyField(arraySizeProp, new GUIContent(Strings.Copier.size ?? "Size"));                
+
+                if(indent)
+                    EditorGUI.indentLevel++;
+                else
+                    EditorGUILayout.Space();
+
+                float oldLabelWidth = EditorGUIUtility.labelWidth;
+                if(labelWidthOverride > 0)
+                    EditorGUIUtility.labelWidth = labelWidthOverride;
+
+                for(int i = 0; i < arraySizeProp.intValue; i++)
+                {
+                    string label = i < labels.Length ? labels[i] : "Element " + i;
+                    EditorGUILayout.PropertyField(property.GetArrayElementAtIndex(i), new GUIContent(label));
+                }
+
+                if(indent)
+                    EditorGUI.indentLevel--;
+
+                if(labelWidthOverride > 0)
+                    EditorGUIUtility.labelWidth = oldLabelWidth;
+            }
+        }
+
+        public static void DrawPropertyArrayWithNamesScrolling(SerializedProperty property, string displayName, string[] labels, ref bool expanded, 
+            ref Vector2 scrollPosition, float minHeight, float maxHeight, bool indent = true, float labelWidthOverride = 0)
         {
             if(property == null)
                 return;
@@ -275,35 +366,53 @@ namespace Pumkin.HelperFunctions
                 EditorGUILayout.PropertyField(arraySizeProp, new GUIContent(Strings.Copier.size ?? "Size"));
 
                 scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.MinHeight(Mathf.Clamp(arraySizeProp.intValue * 20, 0, maxHeight)), GUILayout.MaxHeight(maxHeight));
-                EditorGUI.indentLevel++;
-                for(int i = 0; i < arraySizeProp.intValue; i++)
                 {
-                    EditorGUILayout.PropertyField(property.GetArrayElementAtIndex(i));
+                    if(indent)
+                        EditorGUI.indentLevel++;
+                    else
+                        EditorGUILayout.Space();
+
+                    float oldLabelWidth = EditorGUIUtility.labelWidth;
+                    if(labelWidthOverride > 0)
+                        EditorGUIUtility.labelWidth = labelWidthOverride;
+
+                    for(int i = 0; i < arraySizeProp.intValue; i++)
+                    {                        
+                        string label = i < labels.Length ? labels[i] : "Element " + i;
+                        EditorGUILayout.PropertyField(property.GetArrayElementAtIndex(i), new GUIContent(label));
+                    }
+
+                    if(labelWidthOverride > 0)
+                        EditorGUIUtility.labelWidth = oldLabelWidth;
+                    if(indent)
+                        EditorGUI.indentLevel--;
                 }
-                EditorGUI.indentLevel--;
                 EditorGUILayout.EndScrollView();
             }
         }
 
-        public static void DrawPropertyArray(SerializedProperty property, string displayName, ref bool expanded)
+        public static void DrawPropertyArraysHorizontal(SerializedProperty[] arrays, string displayName, ref bool expanded, float labelWidthOverride = 0)
         {
-            if(property == null)
+            if(arrays == null)
                 return;
 
             expanded = EditorGUILayout.Foldout(expanded, displayName);
             if(expanded)
             {
-                SerializedProperty arraySizeProp = property.FindPropertyRelative("Array.size");
+                SerializedProperty arraySizeProp = arrays[0].FindPropertyRelative("Array.size");
                 EditorGUILayout.PropertyField(arraySizeProp, new GUIContent(Strings.Copier.size ?? "Size"));
 
-                EditorGUI.indentLevel++;
+                EditorGUILayout.Space();
 
                 for(int i = 0; i < arraySizeProp.intValue; i++)
-                {
-                    EditorGUILayout.PropertyField(property.GetArrayElementAtIndex(i));
+                {                    
+                    foreach(var array in arrays)
+                    {
+                        EditorGUILayout.PropertyField(array.GetArrayElementAtIndex(i), GUIContent.none);                        
+                    }
+                    EditorGUILayout.Space();
+                    EditorGUILayout.Space();
                 }
-
-                EditorGUI.indentLevel--;
             }
         }
 

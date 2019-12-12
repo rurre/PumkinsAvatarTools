@@ -880,9 +880,9 @@ namespace Pumkin.AvatarTools
 
                     EditorGUILayout.Space();                    
 
-                    DrawMiscMenuGUI();
+                    DrawMiscMenuGUI();                    
 
-                    EditorGUILayout.Space();
+                    Helpers.DrawGuiLine();
                 }
                 EditorGUILayout.EndScrollView();
 
