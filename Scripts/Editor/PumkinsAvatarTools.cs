@@ -16,7 +16,9 @@ using Pumkin.HelperFunctions;
 using Pumkin.Extensions;
 using UnityEngine.SceneManagement;
 using Pumkin.Presets;
+#if UNITY_2018
 using UnityEditor.Experimental.SceneManagement;
+#endif
 
 /// <summary>
 /// PumkinsAvatarTools by, well, Pumkin
@@ -640,8 +642,10 @@ namespace Pumkin.AvatarTools
                 EditorApplication.playModeStateChanged += HandlePlayModeStateChange;
                 Selection.selectionChanged += HandleSelectionChanged;
                 EditorSceneManager.sceneOpened += HandleSceneChange;
+#if UNITY_2018
                 PrefabStage.prefabStageOpened += HandlePrefabStageOpened;
                 PrefabStage.prefabStageClosing += HandlePrefabStageClosed;                
+#endif
 
                 _eventsAdded = true;
             }
@@ -674,8 +678,10 @@ namespace Pumkin.AvatarTools
             Selection.selectionChanged -= HandleSelectionChanged;
             EditorApplication.playModeStateChanged -= HandlePlayModeStateChange;            
             EditorSceneManager.sceneOpened -= HandleSceneChange;
+#if UNITY_2018
             PrefabStage.prefabStageOpened -= HandlePrefabStageOpened;
             PrefabStage.prefabStageClosing -= HandlePrefabStageClosed;            
+#endif
 
             _eventsAdded = false;
 
@@ -755,6 +761,7 @@ namespace Pumkin.AvatarTools
             _PumkinsAvatarToolsWindow.RequestRepaint(this);
         }
 
+#if UNITY_2018
         private void HandlePrefabStageOpened(PrefabStage stage)
         {
             if(SelectedAvatar)
@@ -771,10 +778,11 @@ namespace Pumkin.AvatarTools
                 oldSelectedAvatar = null;
             }
         }
+#endif
 
-        #endregion
+#endregion
 
-        #region Unity GUI                   
+#region Unity GUI                   
 
         //[MenuItem("Tools/Pumkin/Pose Editor")]
         public static void ShowWindow()
@@ -1071,7 +1079,7 @@ namespace Pumkin.AvatarTools
                     Helpers.DrawGuiLine(1, false);
 
                     //DynamicBones menu
-#if !BONES && !OLD_BONES                                        
+#if !BONES && !OLD_BONES
                     EditorGUI.BeginDisabledGroup(true);
                     {
                         Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones + " (" + Strings.Warning.notFound + ")", Icons.BoneIcon);
@@ -2274,9 +2282,9 @@ namespace Pumkin.AvatarTools
             _mainScroll = new Vector2(0, 1000);
         }
 
-        #endregion
+#endregion
 
-        #region Main Functions
+#region Main Functions
 
         private void RefreshOverlayTexturePath()
         {
@@ -2502,6 +2510,7 @@ namespace Pumkin.AvatarTools
             }
         }
 
+#if UNITY_2018
         public void SetupRig(GameObject avatar)
         {
             GameObject pref = PrefabUtility.GetCorrespondingObjectFromOriginalSource(avatar);
@@ -2576,6 +2585,7 @@ namespace Pumkin.AvatarTools
                 }
             }            
         }
+#endif
 
         /// <summary>
         /// Quickly sets viewpoint to eye height if avatar is humanoid
@@ -4153,7 +4163,7 @@ namespace Pumkin.AvatarTools
                 
 #endregion
 
-        #region Destroy Functions    
+#region Destroy Functions    
 
         /// <summary>
         /// Destroys ParticleSystem in object
@@ -4210,6 +4220,7 @@ namespace Pumkin.AvatarTools
                     }
                     if(c <= 0 && (t.name.ToLower() != (t.parent.name.ToLower() + "_end")))
                     {
+#if UNITY_2018
                         if(PrefabUtility.GetPrefabInstanceStatus(t) == PrefabInstanceStatus.NotAPrefab || PrefabUtility.GetPrefabInstanceStatus(t) == PrefabInstanceStatus.Disconnected)
                         {
                             Log(Strings.Log.hasNoComponentsOrChildrenDestroying, LogType.Log, t.name);
@@ -4219,6 +4230,10 @@ namespace Pumkin.AvatarTools
                         {
                             Log(Strings.Log.cantBeDestroyedPartOfPrefab, LogType.Warning, t.name, "GameObject");
                         }
+#elif UNITY_2017
+                        Log(Strings.Log.hasNoComponentsOrChildrenDestroying, LogType.Log, t.name);
+                        DestroyImmediate(t.gameObject);
+#endif
                     }
                 }
             }
@@ -4244,6 +4259,7 @@ namespace Pumkin.AvatarTools
                     log = Strings.Log.removeAttempt + " - ";
                     string name = comps[i].name;
 
+#if UNITY_2018
                     if(!PrefabUtility.IsPartOfPrefabInstance(comps[i]))
                     {
                         try
@@ -4262,13 +4278,26 @@ namespace Pumkin.AvatarTools
                     {
                         Log(Strings.Log.cantBeDestroyedPartOfPrefab, LogType.Warning, name, type.Name);
                     }
+#elif UNITY_2017
+                    try
+                    {
+                        DestroyImmediate(comps[i]);
+                        log += Strings.Log.success;
+                        Log(log, LogType.Log, type.ToString(), name);
+                    }
+                    catch(Exception e)
+                    {
+                        log += Strings.Log.failed + ": " + e.Message;
+                        Log(log, LogType.Exception, type.ToString(), name);
+                    }
+#endif
                 }
             }
         }
 
-        #endregion
+#endregion
 
-        #region Helper Functions
+#region Helper Functions
 
         public static void RefreshPresetIndex<T>() where T : PumkinPreset
         {
@@ -4378,7 +4407,7 @@ namespace Pumkin.AvatarTools
                 return false;
 
 #if UNITY_2017
-            var pref = PrefabUtility.GetPrefabParent(objTo.transform.root.gameObject) as GameObject;
+            var pref = PrefabUtility.GetPrefabParent(avatar.transform.root.gameObject) as GameObject;
 #else
             var pref = PrefabUtility.GetCorrespondingObjectFromSource(avatar.transform.root.gameObject) as GameObject;
 #endif
