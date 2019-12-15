@@ -8,9 +8,8 @@ using UnityEngine;
 namespace Pumkin.Presets
 {
     public class PumkinsBlendshapePreset : PumkinPreset
-    {        
-        List<string> skinnedMeshRendererPaths;
-        List<PumkinsBlendshape[]> blendshapeArrays;        
+    {           
+        public List<PumkinsSkinnedMeshRendererBlendshapes> renderers;        
 
         public static PumkinsBlendshapePreset CreatePreset(string presetName, GameObject avatar)
         {
@@ -21,21 +20,27 @@ namespace Pumkin.Presets
 
         public override bool ApplyPreset(GameObject avatar)
         {
-            if(!avatar)
-                return false;
-
-            for(int i = 0; i < skinnedMeshRendererPaths.Count; i++)
+            if(!avatar || renderers == null)
             {
-                var t = avatar.transform.Find(skinnedMeshRendererPaths[i]);                
+                PumkinsAvatarTools.Log(Strings.Warning.invalidPreset, LogType.Warning, name);
+                return false;
+            }
+
+            for(int i = 0; i < renderers.Count; i++)
+            {
+                if(renderers[i] == null)
+                    continue;
+
+                var t = avatar.transform.Find(renderers[i].rendererPath);                
                 if(t)
                 {
                     var render = t.GetComponent<SkinnedMeshRenderer>();
                     if(render)
                     {
-                        for(int j = 0; j < blendshapeArrays[i].Length; j++)
+                        for(int j = 0; j < renderers[i].shapes.Count; j++)
                         {
-                            int index = render.sharedMesh.GetBlendShapeIndex(blendshapeArrays[i][j].Name);
-                            float weight = blendshapeArrays[i][j].Weight;                            
+                            int index = render.sharedMesh.GetBlendShapeIndex(renderers[i].shapes[j].name);
+                            float weight = renderers[i].shapes[j].weight;                            
                             render.SetBlendShapeWeight(index, weight);
                         }
                     }
@@ -55,23 +60,23 @@ namespace Pumkin.Presets
             if(!avatar)
                 return;
 
-            var renders = avatar.GetComponentsInChildren<SkinnedMeshRenderer>();
-            skinnedMeshRendererPaths = new List<string>(renders.Length);
-            blendshapeArrays = new List<PumkinsBlendshape[]>(renders.Length);
+            var renders = avatar.GetComponentsInChildren<SkinnedMeshRenderer>();            
+            renderers = new List<PumkinsSkinnedMeshRendererBlendshapes>(renders.Length);
 
             for(int i = 0; i < renders.Length; i++)
             {
                 var r = renders[i];
-                skinnedMeshRendererPaths.Add(Helpers.GetGameObjectPath(r.gameObject, true));
-                PumkinsBlendshape[] shapes = new PumkinsBlendshape[r.sharedMesh.blendShapeCount];
+                var rPath = Helpers.GetGameObjectPath(r.gameObject, true);
+                List<PumkinsBlendshape> shapeList = new List<PumkinsBlendshape>(r.sharedMesh.blendShapeCount);                
+                
                 for(int j = 0; j < r.sharedMesh.blendShapeCount; j++)
                 {
                     string name = r.sharedMesh.GetBlendShapeName(j);
                     float weight = r.GetBlendShapeWeight(j);
 
-                    shapes[j] = new PumkinsBlendshape(name, weight);
+                    shapeList.Add(new PumkinsBlendshape(name, weight));
                 }
-                blendshapeArrays.Add(shapes);
+                renderers.Add(new PumkinsSkinnedMeshRendererBlendshapes(rPath, shapeList));                
             }
         }
     }

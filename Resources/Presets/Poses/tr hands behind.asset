@@ -13,7 +13,107 @@ MonoBehaviour:
   m_Name: tr hands behind
   m_EditorClassIdentifier: 
   name: tr hands behind
-  muscles: []
+  muscles:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
   presetMode: 1
   transformPaths:
   - Armature
@@ -102,7 +202,7 @@ MonoBehaviour:
   - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/Thumb0_R/Thumb1_R
   - Armature/Hips/Spine/Chest/Right shoulder/Right arm/Right elbow/Right wrist/Thumb0_R/Thumb1_R/Thumb2_R
   - Armature/Hips/Spine/Chest/Tie
-  - Body
+  - Armature/Hips/Spine/Chest/Tie
   transformRotations:
   - {x: 270.01978, y: -0, z: 0}
   - {x: 89.98022, y: 0.000004533284, z: 0}
@@ -190,4 +290,4 @@ MonoBehaviour:
   - {x: 14.017554, y: 8.215047, z: 6.4856257}
   - {x: 3.5256631, y: 359.9417, z: 359.37683}
   - {x: 24.561192, y: 180, z: 180}
-  - {x: 270.01978, y: -0, z: 0}
+  - {x: 24.561192, y: 180, z: 180}

@@ -16,7 +16,7 @@ namespace Pumkin.Presets
             return name;
         }
 
-        public abstract bool ApplyPreset(GameObject avatar);        
+        public abstract bool ApplyPreset(GameObject avatar);
     }
 
     public static class PumkinsPresetManager

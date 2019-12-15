@@ -35,12 +35,35 @@ namespace Pumkin.Presets
             _window.ShowUtility();
         }
 
+        private void OnEnable()
+        {
+            PumkinsAvatarTools.AvatarSelectionChanged += HandleSelectionChanged;
+        }
+
+        private void OnDisable()
+        {
+            PumkinsAvatarTools.AvatarSelectionChanged -= HandleSelectionChanged;
+        }
+
+        public void HandleSelectionChanged(GameObject selection)
+        {
+            SetupPreset();
+        }
+
+        private static void SetupPreset()
+        {
+            PumkinsBlendshapePreset preset = (PumkinsBlendshapePreset)CreatePresetPopupBase.preset;
+            preset.SetupPreset(preset.name, PumkinsAvatarTools.SelectedAvatar);
+            CreatePresetPopupBase.preset = preset;
+        }
+
         private void OnGUI()
         {
             PumkinsBlendshapePreset preset = (PumkinsBlendshapePreset)CreatePresetPopupBase.preset;
             if(!preset)
-                AssignOrCreatePreset<PumkinsBlendshapePreset>(preset);
-
+            {
+                AssignOrCreatePreset<PumkinsBlendshapePreset>(preset);                
+            }
             scroll = EditorGUILayout.BeginScrollView(scroll);
             {
                 EditorGUILayout.Space();
@@ -49,22 +72,16 @@ namespace Pumkin.Presets
 
                 Helpers.DrawGuiLine();
 
-                EditorGUI.BeginChangeCheck();
-                {
-                    PumkinsAvatarTools.SelectedAvatar = (GameObject)EditorGUILayout.ObjectField("Avatar", PumkinsAvatarTools.SelectedAvatar, typeof(GameObject), true);
-                }
-                if(EditorGUI.EndChangeCheck())
-                {
-                    preset.SetupPreset(preset.name, PumkinsAvatarTools.SelectedAvatar);
-                }
+                PumkinsAvatarTools.SelectedAvatar = (GameObject)EditorGUILayout.ObjectField("Avatar", PumkinsAvatarTools.SelectedAvatar, typeof(GameObject), true);
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGuiLine();                
 
                 EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedCamera || string.IsNullOrEmpty(preset.name) || !PumkinsAvatarTools.SelectedAvatar);
                 {
                     _overwriteFile = GUILayout.Toggle(_overwriteFile, "Overwrite File");
                     if(GUILayout.Button("Save Preset", Styles.BigButton))
                     {
+                        SetupPreset();
                         preset.SavePreset(_overwriteFile);
                     }
                 }

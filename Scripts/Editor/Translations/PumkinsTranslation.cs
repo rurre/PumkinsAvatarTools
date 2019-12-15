@@ -264,6 +264,7 @@ namespace Pumkin.Translations
         public string oldVersion = "Old Version";
         public string selectSceneObject = "Please select an object from the scene";
         public string cameraNotFound = "Camera not found";
+        public string invalidPreset = "Can't apply preset {0}: Invalid Preset";
     };
 
     [Serializable]

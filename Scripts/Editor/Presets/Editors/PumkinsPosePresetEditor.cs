@@ -23,8 +23,7 @@ namespace Pumkin.Presets
             pMuscles,
             pPresetMode,
             pTransformPaths,
-            pTransformRotations,
-            pMuscleNames;        
+            pTransformRotations;              
 
         PumkinsPosePreset Preset
         {
@@ -63,7 +62,7 @@ namespace Pumkin.Presets
             }
             else
             {
-                Helpers.DrawPropertyArraysHorizontal(new SerializedProperty[] { pTransformPaths, pTransformRotations }, "Transform Rotations", ref transforms_expand);
+                Helpers.DrawPropertyArraysHorizontalWithDeleteAndAdd(new SerializedProperty[] { pTransformPaths, pTransformRotations }, "Transform Rotations", ref transforms_expand);
             }            
 
             Helpers.DrawGuiLine();

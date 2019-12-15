@@ -114,7 +114,7 @@ namespace Pumkin.Presets
 
             Helpers.DrawGuiLine();
 
-            if(GUILayout.Button(Strings.Buttons.selectInToolsWindow))
+            if(GUILayout.Button(Strings.Buttons.selectInToolsWindow, Styles.BigButton))
             {
                 PumkinsPresetManager.SelectPresetInToolWindow(Preset);
             }

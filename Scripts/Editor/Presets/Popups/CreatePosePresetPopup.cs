@@ -8,6 +8,33 @@ namespace Pumkin.Presets
 {
     public class CreatePosePresetPopup : CreatePresetPopupBase
     {
+        public static string[] defaultMusclesNames;
+
+        bool muscles_expand = false;
+        bool transforms_expand = false;
+
+        SerializedObject serializedPosePreset;
+        SerializedProperty pMuscles,
+            pTransformPaths,
+            pTransformRotations;
+
+        private void OnEnable()
+        {
+            if(defaultMusclesNames == null || defaultMusclesNames.Length == 0)
+                defaultMusclesNames = HumanTrait.MuscleName;
+
+            NewMethod();
+        }
+
+        private void NewMethod()
+        {
+            serializedPosePreset = new SerializedObject(preset);
+
+            pMuscles = serializedPosePreset.FindProperty("muscles");
+            pTransformPaths = serializedPosePreset.FindProperty("transformPaths");
+            pTransformRotations = serializedPosePreset.FindProperty("transformRotations");
+        }
+
         public static void ShowWindow(PumkinsPosePreset newPreset = null)
         {
             AssignOrCreatePreset<PumkinsPosePreset>(newPreset);
@@ -49,7 +76,9 @@ namespace Pumkin.Presets
 
                 Helpers.DrawGuiLine();
 
-                preset.presetMode = (PumkinsPosePreset.PosePresetMode)EditorGUILayout.EnumPopup("Pose Mode", preset.presetMode);                
+                preset.presetMode = (PumkinsPosePreset.PosePresetMode)EditorGUILayout.EnumPopup("Pose Mode", preset.presetMode);
+
+                Helpers.DrawGuiLine();
 
                 EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedAvatar || !preset || string.IsNullOrEmpty(preset.name));
                 {

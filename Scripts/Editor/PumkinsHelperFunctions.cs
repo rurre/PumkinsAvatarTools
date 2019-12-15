@@ -319,7 +319,7 @@ namespace Pumkin.HelperFunctions
         }
 
         public static void DrawPropertyArrayWithNames(SerializedProperty property, string displayName, string[] labels, ref bool expanded, 
-            bool indent = true, float labelWidthOverride = 0)
+            bool indent = true, float labelWidthOverride = 0, bool allowResize = true)
         {
             if(property == null)
                 return;
@@ -328,7 +328,9 @@ namespace Pumkin.HelperFunctions
             if(expanded)
             {
                 SerializedProperty arraySizeProp = property.FindPropertyRelative("Array.size");
-                EditorGUILayout.PropertyField(arraySizeProp, new GUIContent(Strings.Copier.size ?? "Size"));                
+
+                if(allowResize)
+                    EditorGUILayout.PropertyField(arraySizeProp, new GUIContent(Strings.Copier.size ?? "Size"));                
 
                 if(indent)
                     EditorGUI.indentLevel++;
@@ -388,6 +390,65 @@ namespace Pumkin.HelperFunctions
                         EditorGUI.indentLevel--;
                 }
                 EditorGUILayout.EndScrollView();
+            }
+        }
+
+        public static void DrawPropertyArraysHorizontalWithDeleteAndAdd(SerializedProperty[] arrays, string displayName, ref bool expanded, float labelWidthOverride = 0)
+        {            
+            if(arrays == null)
+                return;
+
+            HashSet<int> toDeleteIndex = new HashSet<int>();
+            int toAdd = 0;
+
+            expanded = EditorGUILayout.Foldout(expanded, displayName);
+            if(expanded)
+            {
+                SerializedProperty arraySizeProp = arrays[0].FindPropertyRelative("Array.size");
+                EditorGUI.BeginChangeCheck();
+                {                    
+                    EditorGUILayout.PropertyField(arraySizeProp, new GUIContent(Strings.Copier.size ?? "Size"));
+                }
+                if(EditorGUI.EndChangeCheck())
+                {
+                    foreach(var array in arrays)
+                    {
+                        array.arraySize = arraySizeProp.intValue;
+                    }
+                }
+
+                EditorGUILayout.Space();
+
+                for(int i = 0; i < arraySizeProp.intValue; i++)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    {
+                        EditorGUILayout.BeginVertical();                        
+                        for(int j = 0; j < arrays.Length; j++)
+                        {
+                            EditorGUILayout.PropertyField(arrays[j].GetArrayElementAtIndex(i), GUIContent.none);
+                        }                        
+                        EditorGUILayout.EndVertical();
+
+                        if(GUILayout.Button(Icons.Delete, Styles.BigIconButton))
+                            toDeleteIndex.Add(i);
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.Space();
+                    EditorGUILayout.Space();
+                }
+
+                if(GUILayout.Button("Add Element"))
+                    toAdd++;
+
+                foreach(int i in toDeleteIndex)                
+                    foreach(var array in arrays)                    
+                        array.DeleteArrayElementAtIndex(i);                
+
+                if(toAdd > 0)                
+                    foreach(var array in arrays)                
+                        array.arraySize += toAdd;                
             }
         }
 
@@ -598,98 +659,4 @@ namespace Pumkin.HelperFunctions
                 modelImporter.SaveAndReimport();
         }
     }        
-}
-
-namespace Pumkin.Extensions
-{
-    public static class Extensions
-    {
-        public static Transform Find(this Transform transform, string name, bool createIfMissing = false, Transform sourceTransform = null)
-        {            
-            var t = transform.Find(name);
-
-            if(t == null && createIfMissing)
-            {
-                var arr = Helpers.GetPathAsArray(name);
-                if(arr.Length > 0)
-                {
-                    string path = "";
-                    for(int i = 0; i < arr.Length; i++)
-                    {
-                        path += arr[i] + '/';
-                        var tNew = transform.Find(path);
-
-                        if(tNew == null)
-                        {
-                            string s = Helpers.GetPathNoName(path);
-                            var parent = transform.Find(s);
-
-                            if(!parent)
-                                return null;
-
-                            tNew = new GameObject(arr[i]).transform;
-                            tNew.parent = parent;
-
-                            var trans = sourceTransform.root.Find(s + arr[i]);
-                            if(trans)
-                            {
-                                tNew.localScale = Vector3.one;
-                                tNew.localPosition = trans.localPosition;
-                                tNew.localRotation = trans.localRotation;
-                                tNew.localEulerAngles = trans.localEulerAngles;
-                                tNew.localScale = trans.localScale;
-
-                                tNew.gameObject.tag = trans.gameObject.tag;
-                                tNew.gameObject.layer = trans.gameObject.layer;
-                                tNew.gameObject.SetActive(trans.gameObject.activeInHierarchy);
-
-                            }
-                            else
-                            {
-                                tNew.localPosition = Vector3.zero;
-                                tNew.localRotation = Quaternion.identity;
-                                tNew.localEulerAngles = Vector3.zero;
-                                tNew.localScale = Vector3.one;
-                            }
-                            t = tNew;
-                        }
-                    }
-                }
-            }
-            return t;
-        }
-
-        public static bool IsSameTexture(this Texture2D first, Texture2D second)
-        {
-            Color[] firstPix = first.GetPixels();
-            Color[] secondPix = second.GetPixels();
-            if(firstPix.Length != secondPix.Length)
-            {
-                return false;
-            }
-            for(int i = 0; i < firstPix.Length; i++)
-            {
-                if(firstPix[i] != secondPix[i])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-        
-        public static Transform FindDeepChild(this Transform aParent, string aName)
-        {
-            Queue<Transform> queue = new Queue<Transform>();
-            queue.Enqueue(aParent);
-            while(queue.Count > 0)
-            {
-                var c = queue.Dequeue();
-                if(c.name == aName)
-                    return c;
-                foreach(Transform t in c)
-                    queue.Enqueue(t);
-            }
-            return null;
-        }
-    }
 }

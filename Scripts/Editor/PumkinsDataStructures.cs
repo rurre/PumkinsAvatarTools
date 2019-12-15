@@ -20,7 +20,7 @@ using VRCSDK2.Validation.Performance.Stats;
 
 namespace Pumkin.DataStructures
 {
-    [ExecuteInEditMode, InitializeOnLoad]
+    [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
 #if NEWSDK
@@ -31,7 +31,7 @@ namespace Pumkin.DataStructures
 
         public readonly string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
         public readonly string LINK_DONATION = "https://ko-fi.com/notpumkin";
-        public readonly string LINK_DISCORD = "https://discord.gg/7vyekJv";             
+        public readonly string LINK_DISCORD = "https://discord.gg/7vyekJv";
 
         static PumkinsTranslation _translationHolder;
         public static PumkinsTranslation Translation
@@ -98,7 +98,7 @@ namespace Pumkin.DataStructures
             }
         };
         public static class Buttons
-        {            
+        {
             public static string selectFromScene = "_Select from Scene";
             public static string copySelected = "_Copy Selected";
             public static string refresh = "_Refresh";
@@ -112,7 +112,7 @@ namespace Pumkin.DataStructures
             public static string joinDiscordServer = "_Join Discord Server!";
             public static string selectNone = "_Select None";
             public static string selectAll = "_Select All";
-            public static string browse = "_Browse";            
+            public static string browse = "_Browse";
             public static string setFromCamera = "_Set from Camera";
             public static string reset = "_Reset";
             public static string edit = "_Edit";
@@ -186,7 +186,7 @@ namespace Pumkin.DataStructures
                 resetToTPose = Translation.tools.resetToTPose;
                 editScale = Translation.tools.editScale;
                 autoViewpoint = Translation.tools.autoViewpoint;
-                setTPose = Translation.tools.setTPose;                
+                setTPose = Translation.tools.setTPose;
                 viewpointZDepth = Translation.tools.viewpointZDepth;
                 setRendererAnchors = Translation.tools.setRendererAnchors;
             }
@@ -205,12 +205,12 @@ namespace Pumkin.DataStructures
             public static string skinnedMeshRenderers = "_Skinned Mesh Renderers: {0} ({1}) - {2}";
             public static string meshRenderers = "_Mesh Renderers: {0} ({1}) - {2}";
             public static string polygons = "_Polygons: {0} ({1}) - {2}";
-            public static string usedMaterialSlots = "_Used Material Slots: {0} ({1}) - {2}";                        
+            public static string usedMaterialSlots = "_Used Material Slots: {0} ({1}) - {2}";
             public static string dynamicBoneTransforms = "_Dynamic Bone Transforms: {0} ({1}) - {2}";
             public static string dynamicBoneColliders = "_Dynamic Bone Colliders: {0} ({1}) - {2}";
             public static string dynamicBoneColliderTransforms = "_Collider Affected Transforms: {0} ({1}) - {2}";
             public static string particleSystems = "_Particle Systems: {0} ({1}) - {2}";
-            public static string maxParticles = "_Max Particles: {0} ({1}) - {2}";                                     
+            public static string maxParticles = "_Max Particles: {0} ({1}) - {2}";
 #else
             public static string bones = "_Bones: {0}";
             public static string skinnedMeshRenderers = "_Skinned Mesh Renderers: {0} ({1})";
@@ -248,7 +248,7 @@ namespace Pumkin.DataStructures
                 dynamicBoneColliders = Translation.avatarInfo.dynamicBoneColliders;
                 dynamicBoneColliderTransforms = Translation.avatarInfo.dynamicBoneColliderTransforms;
                 particleSystems = Translation.avatarInfo.particleSystems;
-                maxParticles = Translation.avatarInfo.maxParticles;                
+                maxParticles = Translation.avatarInfo.maxParticles;
                 selectAvatarFirst = Translation.avatarInfo.selectAvatarFirst;
                 overallPerformance = Translation.avatarInfo.overallPerformance;
             }
@@ -268,8 +268,8 @@ namespace Pumkin.DataStructures
             public static string tint = "_Tint";
             public static string useCameraOverlay = "_Use Camera Overlay";
             public static string useCameraBackground = "_Use Camera Background";
-            public static string selectedCamera = "_Selected Camera";            
-            public static string offset = "_Offset";                        
+            public static string selectedCamera = "_Selected Camera";
+            public static string offset = "_Offset";
             public static string blendshapes = "_Blendshapes";
             public static string poses = "_Poses";
             public static string cameras = "_Cameras";
@@ -301,8 +301,8 @@ namespace Pumkin.DataStructures
                 tint = Translation.thumbnails.tint;
                 useCameraOverlay = Translation.thumbnails.useCameraOverlay;
                 useCameraBackground = Translation.thumbnails.useCameraBackground;
-                selectedCamera = Translation.thumbnails.selectedCamera;                
-                offset = Translation.thumbnails.offset;                
+                selectedCamera = Translation.thumbnails.selectedCamera;
+                offset = Translation.thumbnails.offset;
                 blendshapes = Translation.thumbnails.blendshapes;
                 poses = Translation.thumbnails.poses;
                 cameras = Translation.thumbnails.cameras;
@@ -330,7 +330,7 @@ namespace Pumkin.DataStructures
             public static string dynamicBones_colliders = "_Colliders";
             public static string dynamicBones_removeOldBones = "_Remove Old Bones";
             public static string dynamicBones_removeOldColliders = "_Remove Old Colliders";
-            public static string dynamicBones_createMissing = "_Copy Missing Bones";            
+            public static string dynamicBones_createMissing = "_Copy Missing Bones";
             public static string colliders = "_Colliders";
             public static string colliders_box = "_Box Colliders";
             public static string colliders_capsule = "_Capsule Colliders";
@@ -359,7 +359,7 @@ namespace Pumkin.DataStructures
 
             public static string exclusions = "_Exclusions";
             public static string includeChildren = "_Include Children";
-            public static string size = "_Size";            
+            public static string size = "_Size";
 
             static Copier()
             {
@@ -514,6 +514,7 @@ namespace Pumkin.DataStructures
             public static string oldVersion = "_Old Version";
             public static string selectSceneObject = "_Please select an object from the scene";
             public static string cameraNotFound = "_Camera not found";
+            public static string invalidPreset = "_Can't apply preset {0}: Invalid Preset";
 
             static Warning()
             {
@@ -530,12 +531,13 @@ namespace Pumkin.DataStructures
                 oldVersion = Translation.warnings.oldVersion;
                 selectSceneObject = Translation.warnings.selectSceneObject;
                 cameraNotFound = Translation.warnings.cameraNotFound;
+                invalidPreset = Translation.warnings.invalidPreset;
             }
         };
         public static class Credits
         {
             public static string version = "_Version";
-            public static string redundantStrings = "_Now with 100% more redundant strings";            
+            public static string redundantStrings = "_Now with 100% more redundant strings";
             public static string addMoreStuff = "_I'll add more stuff to this eventually";
             public static string pokeOnDiscord = "_Poke me on Discord at Pumkin#2020";
 
@@ -550,7 +552,7 @@ namespace Pumkin.DataStructures
                     return;
 
                 version = (Translation.credits.version + " " + Instance.VERSION_NUMBER) ?? ("_Version" + " " + Instance.VERSION_NUMBER);
-                redundantStrings = Translation.credits.redundantStrings;                
+                redundantStrings = Translation.credits.redundantStrings;
                 addMoreStuff = Translation.credits.addMoreStuff;
                 pokeOnDiscord = Translation.credits.pokeOnDiscord;
             }
@@ -643,7 +645,7 @@ namespace Pumkin.DataStructures
 
         static void ReloadStrings()
         {
-            Main.Reload();            
+            Main.Reload();
             Buttons.Reload();
             Tools.Reload();
             Copier.Reload();
@@ -686,7 +688,7 @@ namespace Pumkin.DataStructures
         public static GUIStyle Foldout { get; internal set; }
         public static GUIStyle HelpBox { get; internal set; }
         public static GUIStyle HelpBox_OneLine { get; internal set; }
-        public static GUIStyle Box { get; internal set; }        
+        public static GUIStyle Box { get; internal set; }
         public static GUIStyle BigButton { get; internal set; }
         public static GUIStyle LightTextField { get; internal set; }
         public static GUIStyle PaddedBox { get; internal set; }
@@ -712,8 +714,8 @@ namespace Pumkin.DataStructures
                 fontSize = 13,
                 fixedHeight = 26,
                 fontStyle = FontStyle.Bold,
-                contentOffset = new Vector2(5f, 0),                
-            };            
+                contentOffset = new Vector2(5f, 0),
+            };
 
             Label_mainTitle = new GUIStyle(EditorStyles.boldLabel)
             {
@@ -752,14 +754,14 @@ namespace Pumkin.DataStructures
 
             ToolbarBigButtons = new GUIStyle("button")
             {
-                fixedHeight = 24f,                
+                fixedHeight = 24f,
             };
 
             IconButton = new GUIStyle("button")
             {
                 fixedWidth = 24f,
                 fixedHeight = 18f,
-            };            
+            };
 
             CopierToggle = new GUIStyle("Toggle");
             Popup = new GUIStyle("Popup");
@@ -777,7 +779,6 @@ namespace Pumkin.DataStructures
 
     public struct Icons
     {
-
         public static Texture2D Star { get; internal set; }
         public static Texture2D CsScript { get; internal set; }
         public static Texture2D Transform { get; internal set; }
@@ -798,6 +799,7 @@ namespace Pumkin.DataStructures
         public static Texture2D AudioSource { get; internal set; }
         public static Texture2D Joint { get; internal set; }
         public static Texture2D Settings { get; internal set; }
+        public static Texture2D Delete { get; internal set; }
 
         public static Texture2D DiscordIcon { get; internal set; }
         public static Texture2D GithubIcon { get; internal set; }
@@ -825,6 +827,7 @@ namespace Pumkin.DataStructures
             AudioSource = EditorGUIUtility.FindTexture("AudioSource Icon");
             Joint = EditorGUIUtility.FindTexture("FixedJoint Icon");
             Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");
+            Delete = EditorGUIUtility.FindTexture("TreeEditor.Trash");
 
             BoneIcon = Resources.Load("icons/bone-icon") as Texture2D ?? CsScript;
             BoneColliderIcon = Resources.Load("icons/bonecollider-icon") as Texture2D ?? DefaultAsset;
@@ -850,15 +853,15 @@ namespace Pumkin.DataStructures
             AudioSource = (Texture2D)EditorGUIUtility.IconContent("AudioSource Icon").image;
             Joint = (Texture2D)EditorGUIUtility.IconContent("FixedJoint Icon").image;
             Settings = (Texture2D)EditorGUIUtility.IconContent("Settings").image;
-            
+            Delete = (Texture2D)EditorGUIUtility.IconContent("TreeEditor.Trash").image;
 
-            Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");            
+            Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");
 
             BoneIcon = Resources.Load("icons/bone-icon") as Texture2D ?? CsScript;
             BoneColliderIcon = Resources.Load("icons/bonecollider-icon") as Texture2D ?? DefaultAsset;
             DiscordIcon = Resources.Load("icons/discord-logo") as Texture2D ?? Star;
             GithubIcon = Resources.Load("icons/github-logo") as Texture2D ?? Star;
-            KofiIcon = Resources.Load("icons/kofi-logo") as Texture2D ?? Star;        
+            KofiIcon = Resources.Load("icons/kofi-logo") as Texture2D ?? Star;
 #endif
         }
 
@@ -943,7 +946,7 @@ namespace Pumkin.DataStructures
             {
                 AvatarPerformance.CalculatePerformanceStats(o.name, o, perfStats);
             }
-            catch { }            
+            catch { }
 #endif
             Name = o.name;
 
@@ -967,13 +970,13 @@ namespace Pumkin.DataStructures
                 if(r.sharedMesh)
                     Polygons_Total += r.sharedMesh.triangles.Length / 3;
                 if(r.bones != null)
-                    bonesList.AddRange(r.bones.Select(b => b.gameObject.name));                
+                    bonesList.AddRange(r.bones.Select(b => b.gameObject.name));
 
                 if(r.gameObject.activeInHierarchy && r.enabled)
                 {
                     SkinnedMeshRenderers += 1;
                     if(r.sharedMesh)
-                        Polygons += r.sharedMesh.triangles.Length / 3;                    
+                        Polygons += r.sharedMesh.triangles.Length / 3;
                 }
 
                 foreach(var mat in r.sharedMaterials)
@@ -993,7 +996,7 @@ namespace Pumkin.DataStructures
 
             Bones = new HashSet<string>(bonesList).Count;
 
-            var renders = o.GetComponentsInChildren<MeshRenderer>(true);            
+            var renders = o.GetComponentsInChildren<MeshRenderer>(true);
             foreach(var r in renders)
             {
                 var filter = r.GetComponent<MeshFilter>();
@@ -1152,7 +1155,7 @@ namespace Pumkin.DataStructures
                     string.Format(Strings.AvatarInfo.particleSystems, ParticleSystems, ParticleSystems_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.ParticleSystemCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.ParticleTotalCount)) + "\n" +
                     Strings.AvatarInfo.line + "\n" +
-                    string.Format(Strings.AvatarInfo.overallPerformance, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.Overall));    
+                    string.Format(Strings.AvatarInfo.overallPerformance, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.Overall));
 #else
                     CachedInfo =
                     string.Format(Strings.AvatarInfo.name, Name) + "\n" +
@@ -1201,7 +1204,7 @@ namespace Pumkin.DataStructures
 
         public static bool operator true(AvatarInfo x) { return x != null; }
         public static bool operator false(AvatarInfo x) { return !(x == null); }
-    }    
+    }
 
     /// <summary>
     /// Serializable Transform class
@@ -1222,7 +1225,7 @@ namespace Pumkin.DataStructures
             this.localRotation = Quaternion.identity;
             this.localScale = Vector3.one;
         }
-        
+
         public SerialTransform(Vector3 position, Quaternion rotation, Vector3 scale, Vector3 eulerAngles, Vector3 localEulerAngles, Vector3 localScale, Vector3 localPosition, Quaternion localRotation, float version) : base()
         {
             this.position = position;
@@ -1274,7 +1277,7 @@ namespace Pumkin.DataStructures
             if(t != null)
                 return true;
             return false;
-        }        
+        }
     }
 
     /// <summary>
@@ -1348,252 +1351,39 @@ namespace Pumkin.DataStructures
         {
             return new SerialVector3(new Vector3(v.x, v.y, v.z) * f);
         }
-    }    
-
-    /// <summary>
-    /// Serializable Pose preset, used to store avatar transforms associated to a name
-    /// </summary>
-    [Serializable]
-    public class PosePreset
-    {
-        public string poseName;
-        public Dictionary<string, SerialTransform> transforms;
-
-        public PosePreset(string poseName, Dictionary<string, SerialTransform> transformSettings = null)
-        {
-            this.poseName = poseName;
-            this.transforms = transformSettings;
-        }
-
-        /// <summary>
-        /// Adds or overwrites a transform to the pose dictionary.
-        /// </summary>
-        /// <param name="path">Path of the transform</param>
-        /// <param name="transform">Transform for positoin and rotation settings</param>
-        /// <param name="allowOverwrite">Whether to overwrite settings if transform exists or not</param>
-        /// <returns>Returns true if successfully added or overwritten</returns>
-        public bool AddTransform(string path, Transform transform, bool allowOverwrite = true)
-        {
-            if(transforms.ContainsKey(path))
-            {
-                if(allowOverwrite)
-                    transforms[path] = transform;
-                else
-                    return false;
-            }
-            else
-            {
-                transforms.Add(path, transform);
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Serialize and save pose to file
-        /// </summary>
-        /// <param name="filePath">Path to folder where to save the file to, excluding filename</param>
-        /// <param name="overwriteExisting">Overwrite file if one with the same name already exists, if not will add a number to the end and create new file</param>
-        /// <returns></returns>
-        public bool SaveToFile(string filePath, bool overwriteExisting)
-        {
-            if(transforms == null)
-                transforms = new Dictionary<string, SerialTransform>();
-
-            string path = filePath + "/" + poseName + '.' + PumkinsPoseEditor.poseExtension;
-
-            if(!overwriteExisting)
-                path = Helpers.NextAvailableFilename(filePath + "/" + poseName + '.' + PumkinsPoseEditor.poseExtension);
-
-            string json = JsonConvert.SerializeObject(this, Formatting.Indented);
-
-            if(!string.IsNullOrEmpty(json))
-            {
-                File.WriteAllText(path, json);
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Don't hurt me, I need this for a default failsafe or two.
-        /// </summary>
-        /// <returns>C# code to declare and initialize this object</returns>
-        public string ToHardcodedString()
-        {
-            if(transforms == null)
-                transforms = new Dictionary<string, SerialTransform>();
-
-            string s = string.Format("new PosePreset(\"{0}\", new Dictionary<string, SerialTransform>\n\t", poseName);
-            s += "{\n";
-            foreach(var t in transforms)
-            {
-                s += "\t\t{";
-                s += string.Format("\"{0}\", new SerialTransform(new Quaternion({1}f, {2}f, {3}f, {4}f))", t.Key, t.Value.localRotation.x, t.Value.localRotation.y, t.Value.localRotation.z, t.Value.localRotation.w);
-                s += "},\n";
-            }
-            s += "}),\n";
-
-            return s;
-        }
-
-        /// <summary>
-        /// Apply this pose to avatar
-        /// </summary>        
-        public void ApplyPose(GameObject avatar)//, bool childrenFirst = false)
-        {
-            if(!avatar)
-                return;
-
-            foreach(var kv in transforms)
-            {
-                var t = avatar.transform.Find(kv.Key);
-
-                if(t != null)
-                {
-                    t.localEulerAngles = kv.Value.localEulerAngles;
-                    t.localRotation = kv.Value.localRotation;
-                }
-            }
-        }
     }
 
     [Serializable]
-    public class BlendshapePreset
+    public class PumkinsSkinnedMeshRendererBlendshapes
     {
-        public string presetName;
-        public Dictionary<string, List<PumkinsBlendshape>> blendshapes;
+        [SerializeField] public string rendererPath;
+        [SerializeField] public List<PumkinsBlendshape> shapes = new List<PumkinsBlendshape>();
 
-        public BlendshapePreset(string presetName, Dictionary<string, List<PumkinsBlendshape>> blendshapes = null)
+        public PumkinsSkinnedMeshRendererBlendshapes(string path, List<PumkinsBlendshape> shapeList)
         {
-            this.presetName = presetName;
-            this.blendshapes = blendshapes;
-
-            if(blendshapes == null)
-                blendshapes = new Dictionary<string, List<PumkinsBlendshape>>();
-        }
-
-        public bool AddBlendshape(string meshRendererPath, PumkinsBlendshape blend)
-        {
-            var d = blendshapes[meshRendererPath];
-
-            if(d != null && d.Count > 0 && !d.Exists(x => x.Name.ToLower() == blend.Name.ToLower()))
-            {
-                d.Add(blend);
-                return true;
-            }
-            return false;
-        }
-
-        public bool RemoveBlendshape(string meshRendererPath, string shapeName)
-        {
-            var d = blendshapes[meshRendererPath];
-            var b = d.Find(x => x.Name.ToLower() == shapeName.ToLower());
-
-            if(d != null && d.Count > 0 && b != null)
-            {
-                d.Remove(b);
-                return true;
-            }
-            return false;
-        }
-
-        public bool SaveToFile(string filePath, bool overwriteExisting)
-        {
-            string path = filePath + "/" + presetName + '.' + PumkinsPoseEditor.blendshapeExtension;
-
-            if(!overwriteExisting)
-                path = Helpers.NextAvailableFilename(filePath + "/" + presetName + '.' + PumkinsPoseEditor.blendshapeExtension);
-
-            string json = JsonConvert.SerializeObject(this, Formatting.Indented);
-
-            if(!string.IsNullOrEmpty(json))
-            {
-                File.WriteAllText(path, json);
-                return true;
-            }
-            return false;
-        }
-
-        public void ApplyBlendshapes(GameObject avatar)
-        {
-            if(!avatar)
-                return;
-
-            foreach(var b in blendshapes)
-            {
-                var t = avatar.transform.Find(b.Key);
-                if(t)
-                {
-                    var sr = t.GetComponent<SkinnedMeshRenderer>();
-                    if(sr)
-                    {
-                        foreach(var shape in b.Value)
-                        {
-                            int index = sr.sharedMesh.GetBlendShapeIndex(shape.Name);
-
-                            if(shape.AlternateNames.Count > 0)
-                            {
-                                for(int i = 0; index == -1 && i < shape.AlternateNames.Count; i++)
-                                {
-                                    index = sr.sharedMesh.GetBlendShapeIndex(shape.AlternateNames[i]);
-                                }
-                            }
-
-                            if(index != -1)
-                            {
-                                sr.SetBlendShapeWeight(index, shape.Weight);
-                            }
-                        }
-                    }
-                }
-            }
+            rendererPath = path;
+            shapes = shapeList;
         }
     }
 
     [Serializable]
     public class PumkinsBlendshape
     {
-        public string FriendlyName
-        {
-            get
-            {
-                return friendlyName;
-            }
-            set
-            {
-                if(string.IsNullOrEmpty(value))
-                    friendlyName = Name;
-            }
-        }
-
-        public string Name
-        {
-            get; set;
-        }
-
-        public float Weight
-        {
-            get; set;
-        }
-
-        public List<string> AlternateNames
-        {
-            get; set;
-        }
-
-        string friendlyName;
+        [SerializeField] public string name;
+        [SerializeField] public float weight;
+        [SerializeField] public List<string> alternateNames;
+        [SerializeField] public string friendlyName;
 
         public PumkinsBlendshape(string name, float weight = 0, string friendlyName = null, List<string> alternateNames = null)
         {
-            Name = name;
-            Weight = weight;
-
-            FriendlyName = friendlyName;
+            this.name = name;
+            this.weight = weight;
+            this.friendlyName = friendlyName;
             if(alternateNames != null)
-                AlternateNames = alternateNames;
+                this.alternateNames = alternateNames;
             else
-                AlternateNames = new List<string>();
-        }        
+                this.alternateNames = new List<string>();
+        }
     }
 
     public static class HumanRig
@@ -1676,7 +1466,7 @@ namespace Pumkin.DataStructures
                     }
                 }
             }
-            return default;
+            return default(HumanBone);
         }
     }
 
@@ -1706,13 +1496,13 @@ namespace Pumkin.DataStructures
                 return false;
             return true;
         }
-    }    
+    }
 
     public class PumkinsMuscleDefinitions
     {
         public static readonly Vector2Int bodyRange = new Vector2Int(0, 8);
         public static readonly Vector2Int headRange = new Vector2Int(9, 20);
-        
+
         public static readonly Vector2Int leftLegRange = new Vector2Int(21, 28);
         public static readonly Vector2Int rightLegRange = new Vector2Int(29, 36);
         public static readonly Vector2Int legsRange = new Vector2Int(leftLegRange.x, rightLegRange.y);
@@ -1727,35 +1517,35 @@ namespace Pumkin.DataStructures
 
         public static string[] Body
         {
-            get => new ArraySegment<string>(HumanTrait.MuscleName, bodyRange.x, bodyRange.y).ToArray();            
+            get { return HumanTrait.MuscleName.SubArray(bodyRange.x, bodyRange.y - bodyRange.x); }
         }
         public static string[] Head
         {
-            get => new ArraySegment<string>(HumanTrait.MuscleName, headRange.x, headRange.y).ToArray();
+            get { return HumanTrait.MuscleName.SubArray(headRange.x, headRange.y - headRange.x); }
         }
         public static string[] LeftLeg
         {
-            get => new ArraySegment<string>(HumanTrait.MuscleName, leftLegRange.x, leftLegRange.y).ToArray();
+            get { return HumanTrait.MuscleName.SubArray(leftLegRange.x, leftLegRange.y - leftLegRange.x); }
         }
         public static string[] RightLeg
         {
-            get => new ArraySegment<string>(HumanTrait.MuscleName, rightLegRange.x, rightLegRange.y).ToArray();
+            get { return HumanTrait.MuscleName.SubArray(rightLegRange.x, rightLegRange.y - rightLegRange.x); }
         }
         public static string[] LeftArm
         {
-            get => new ArraySegment<string>(HumanTrait.MuscleName, leftArmRange.x, leftArmRange.y).ToArray();
+            get { return HumanTrait.MuscleName.SubArray(leftArmRange.x, leftArmRange.y - leftArmRange.x); }
         }
         public static string[] RightArm
         {
-            get => new ArraySegment<string>(HumanTrait.MuscleName, rightArmRange.x, rightArmRange.y).ToArray();
+            get { return HumanTrait.MuscleName.SubArray(rightArmRange.x, rightArmRange.y - rightArmRange.x); }
         }
         public static string[] LeftFingers
         {
-            get => new ArraySegment<string>(HumanTrait.MuscleName, leftFingersRange.x, leftFingersRange.y).ToArray();
+            get { return HumanTrait.MuscleName.SubArray(leftFingersRange.x, leftFingersRange.y - leftFingersRange.x); }
         }
         public static string[] RightFingers
         {
-            get => new ArraySegment<string>(HumanTrait.MuscleName, rightFingersRange.x, rightFingersRange.y).ToArray();
+            get { return HumanTrait.MuscleName.SubArray(rightFingersRange.x, rightFingersRange.y - rightFingersRange.x); }
         }
-    }    
+    }
 }

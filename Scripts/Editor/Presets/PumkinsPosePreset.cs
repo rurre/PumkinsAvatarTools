@@ -1,6 +1,7 @@
 ﻿using Pumkin.AvatarTools;
 using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -105,15 +106,26 @@ namespace Pumkin.Presets
         }
 
         public bool SetupPreset(string poseName, HumanPose p)
-        {            
-            name = poseName;
-            muscles = p.muscles;
+        {
+            name = poseName;            
             presetMode = PosePresetMode.HumanPose;
+            muscles = p.muscles;
+
+            if(muscles == null)
+                muscles = new float[HumanTrait.MuscleCount];
+            else
+                Array.Resize(ref muscles, HumanTrait.MuscleCount);
+
             return true;
         }
 
         public bool SetupPreset(string poseName, float[] muscles)
-        {            
+        {
+            if(muscles == null)
+                muscles = new float[HumanTrait.MuscleCount];
+            else
+                Array.Resize(ref muscles, HumanTrait.MuscleCount);
+
             name = poseName;
             presetMode = PosePresetMode.HumanPose;
             this.muscles = muscles;
@@ -170,7 +182,7 @@ namespace Pumkin.Presets
         public HumanPose GetHumanPose(Animator anim)
         {
             if(!anim || !anim.isHuman)
-                return default;
+                return default(HumanPose);
 
             HumanPose hp = new HumanPose
             {
