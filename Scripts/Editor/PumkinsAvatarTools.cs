@@ -615,11 +615,11 @@ namespace Pumkin.AvatarTools
 
         #region Event Definitions
 
-        public static void OnAvatarSelectionChanged(GameObject selectedAvatar)
+        public static void OnAvatarSelectionChanged(GameObject selection)
         {
             if(AvatarSelectionChanged != null)
-                AvatarSelectionChanged.Invoke(selectedAvatar);
-            LogVerbose("Avatar selection changed to " + selectedAvatar != null ? selectedAvatar.name : "empty");
+                AvatarSelectionChanged.Invoke(selection);
+            LogVerbose("Avatar selection changed to " + selection != null ? selection.name : "empty");
         }
 
         public static void OnPoseWasChanged(PoseChangeType changeType)
@@ -1465,12 +1465,6 @@ namespace Pumkin.AvatarTools
                                         Log(log + Strings.Log.cantCopyToSelf, LogType.Warning);
                                         return;
                                     }
-
-                                    //Figure out how to prevent undo from adding multiple copies of the same component on
-                                    /*//Record Undo
-                                    Undo.RegisterFullObjectHierarchyUndo(selectedAvatar, "Copy Components");
-                                    if(selectedAvatar.gameObject.scene.name == null) //In case it's a prefab instance, which it probably is
-                                        PrefabUtility.RecordPrefabInstancePropertyModifications(selectedAvatar);*/
 
                                     RefreshIgnoreArray();
 
@@ -2760,12 +2754,12 @@ namespace Pumkin.AvatarTools
                     break;
                 case ToolMenuActions.RemoveDynamicBoneColliders:
 #if BONES || OLD_BONES
-                    DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBoneCollider), false, false);
+                    DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, false);
 #endif
                     break;
                 case ToolMenuActions.RemoveDynamicBones:
 #if BONES || OLD_BONES
-                    DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBone), false, false);
+                    DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, false);
 #endif
                     break;
                 case ToolMenuActions.ResetPose:
@@ -2784,7 +2778,7 @@ namespace Pumkin.AvatarTools
                     ResetBlendShapes(SelectedAvatar, false);
                     break;
                 case ToolMenuActions.SetTPose:
-                    //PumkinsPoseEditor.SetTPose(selectedAvatar);
+                    //PumkinsPoseEditor.SetTPose(SelectedAvatar);
                     PumkinsPoseEditor.SetDefaultPoseByName(SelectedAvatar, "TPose");
                     break;
                 case ToolMenuActions.RemoveEmptyGameObjects:
@@ -3091,16 +3085,16 @@ namespace Pumkin.AvatarTools
         /// <summary>
         /// Sets the Probe Anchor of all Skinned Mesh Renderers to transform by path
         /// </summary>        
-        private void SetRendererAnchor(GameObject selectedAvatar, string anchorPath)
+        private void SetRendererAnchor(GameObject avatar, string anchorPath)
         {
-            Transform anchor = selectedAvatar.transform.Find(anchorPath);
+            Transform anchor = avatar.transform.Find(anchorPath);
             if(!anchor)
             {
                 Log(Strings.Log.noSkinnedMeshFound);
                 return;
             }
 
-            var renders = selectedAvatar.GetComponentsInChildren<SkinnedMeshRenderer>();
+            var renders = avatar.GetComponentsInChildren<SkinnedMeshRenderer>();
             foreach(var render in renders)
             {
                 if(render)
@@ -3188,12 +3182,12 @@ namespace Pumkin.AvatarTools
                 if(bCopier_dynamicBones_copy)
                 {
                     if(bCopier_dynamicBones_removeOldColliders)
-                        DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBoneCollider), false, true);
+                        DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, true);
                     if(bCopier_dynamicBones_copyColliders)
                         CopyAllDynamicBoneColliders(objFrom, objTo, bCopier_dynamicBones_createObjectsColliders, true);
 
                     if(bCopier_dynamicBones_removeOldBones)
-                        DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBone), false, true);
+                        DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, true);
                     if(bCopier_dynamicBones_copySettings || bCopier_dynamicBones_createMissing)
                         CopyAllDynamicBonesNew(objFrom, objTo, bCopier_dynamicBones_createMissing, true);
                 }
