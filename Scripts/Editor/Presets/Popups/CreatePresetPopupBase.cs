@@ -17,11 +17,26 @@ public abstract class CreatePresetPopupBase : EditorWindow
 
     static protected Vector2 scroll = Vector2.zero;
 
+    static protected bool editingExistingPreset = false;
+
     static protected void AssignOrCreatePreset<T>(PumkinPreset newPreset) where T : PumkinPreset
     {
+        editingExistingPreset = true;
         PumkinsPresetManager.CleanupPresetsOfType<T>();
         if(!newPreset)
+        {
             newPreset = CreateInstance<T>();
-        preset = newPreset;            
+            editingExistingPreset = false;
+        }
+        preset = newPreset;        
+    }    
+
+    protected void OnDisable()
+    {
+        if(editingExistingPreset)
+        {
+            EditorUtility.SetDirty(preset);
+            AssetDatabase.SaveAssets();
+        }
     }
 }

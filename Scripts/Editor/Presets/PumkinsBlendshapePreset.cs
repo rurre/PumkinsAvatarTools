@@ -37,10 +37,10 @@ namespace Pumkin.Presets
                     var render = t.GetComponent<SkinnedMeshRenderer>();
                     if(render)
                     {
-                        for(int j = 0; j < renderers[i].shapes.Count; j++)
+                        for(int j = 0; j < renderers[i].blendshapes.Count; j++)
                         {
-                            int index = render.sharedMesh.GetBlendShapeIndex(renderers[i].shapes[j].name);
-                            float weight = renderers[i].shapes[j].weight;                            
+                            int index = render.sharedMesh.GetBlendShapeIndex(renderers[i].blendshapes[j].name);
+                            float weight = renderers[i].blendshapes[j].weight;                            
                             render.SetBlendShapeWeight(index, weight);
                         }
                     }

@@ -1,4 +1,5 @@
-﻿using Pumkin.AvatarTools;
+﻿using System;
+using Pumkin.AvatarTools;
 using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
 using UnityEditor;
@@ -22,7 +23,7 @@ namespace Pumkin.Presets
                 _window.autoRepaintOnSceneChange = true;
             }
 
-            if(newPreset)
+            if(editingExistingPreset)
             {
                 _window.titleContent = new GUIContent("Edit Blendshape Preset");
                 _overwriteFile = true;
@@ -37,7 +38,7 @@ namespace Pumkin.Presets
 
         private void OnEnable()
         {
-            PumkinsAvatarTools.AvatarSelectionChanged += HandleSelectionChanged;
+            PumkinsAvatarTools.AvatarSelectionChanged += HandleSelectionChanged;            
         }
 
         private void OnDisable()
@@ -50,20 +51,21 @@ namespace Pumkin.Presets
             SetupPreset();
         }
 
-        private static void SetupPreset()
+        private void SetupPreset()
         {
             PumkinsBlendshapePreset preset = (PumkinsBlendshapePreset)CreatePresetPopupBase.preset;
             preset.SetupPreset(preset.name, PumkinsAvatarTools.SelectedAvatar);
-            CreatePresetPopupBase.preset = preset;
+            CreatePresetPopupBase.preset = preset;            
         }
 
         private void OnGUI()
         {
             PumkinsBlendshapePreset preset = (PumkinsBlendshapePreset)CreatePresetPopupBase.preset;
+            if(!preset)            
+                AssignOrCreatePreset<PumkinsBlendshapePreset>(preset);
             if(!preset)
-            {
-                AssignOrCreatePreset<PumkinsBlendshapePreset>(preset);                
-            }
+                return;
+            
             scroll = EditorGUILayout.BeginScrollView(scroll);
             {
                 EditorGUILayout.Space();
@@ -72,22 +74,38 @@ namespace Pumkin.Presets
 
                 Helpers.DrawGuiLine();
 
-                PumkinsAvatarTools.SelectedAvatar = (GameObject)EditorGUILayout.ObjectField("Avatar", PumkinsAvatarTools.SelectedAvatar, typeof(GameObject), true);
+                PumkinsAvatarTools.DrawAvatarSelectionWithButton(false, false);
 
-                Helpers.DrawGuiLine();                
+                Helpers.DrawGuiLine();
 
-                EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedCamera || string.IsNullOrEmpty(preset.name) || !PumkinsAvatarTools.SelectedAvatar);
+                DrawBlendshapePresetControls();
+
+                Helpers.DrawGuiLine();
+
+                if(!editingExistingPreset)
                 {
-                    _overwriteFile = GUILayout.Toggle(_overwriteFile, "Overwrite File");
-                    if(GUILayout.Button("Save Preset", Styles.BigButton))
+                    EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedCamera || string.IsNullOrEmpty(preset.name) || !PumkinsAvatarTools.SelectedAvatar);
                     {
-                        SetupPreset();
-                        preset.SavePreset(_overwriteFile);
+                        _overwriteFile = GUILayout.Toggle(_overwriteFile, "Overwrite File");
+                        if(GUILayout.Button("Save Preset", Styles.BigButton))
+                        {
+                            SetupPreset();
+                            preset.SavePreset(_overwriteFile);
+                        }
                     }
+                    EditorGUI.EndDisabledGroup();
                 }
-                EditorGUI.EndDisabledGroup();
             }
             EditorGUILayout.EndScrollView();
+        }        
+
+        private void DrawBlendshapePresetControls()
+        {
+            PumkinsBlendshapePreset p = (PumkinsBlendshapePreset)preset;
+            if(PumkinsAvatarTools.SelectedAvatar)
+                Helpers.DrawBlendshapeSlidersWithDeleteAndAdd(ref p.renderers);
+            else
+                EditorGUILayout.TextField("_Select an Avatar first.", Styles.HelpBox_OneLine);
         }
     }
 }

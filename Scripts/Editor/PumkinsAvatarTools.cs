@@ -750,7 +750,7 @@ namespace Pumkin.AvatarTools
                     SelectedAvatar = pm.pipelineManager.transform.root.gameObject;
                 }
 
-                HideAllOtherAvatars(shouldHideOtherAvatars, SelectedAvatar);                
+                HideAllOtherAvatars(shouldHideOtherAvatars, SelectedAvatar);
             }
         }
 
@@ -858,21 +858,7 @@ namespace Pumkin.AvatarTools
 
                 EditorGUILayout.Space();
 
-                SelectedAvatar = (GameObject)EditorGUILayout.ObjectField(Strings.Main.avatar, SelectedAvatar, typeof(GameObject), true);
-
-                if(_useSceneSelectionAvatar)
-                {
-                    if(Selection.activeObject != SelectedAvatar)
-                        SelectAvatarFromScene();
-                }
-
-                if(GUILayout.Button(Strings.Buttons.selectFromScene))
-                {
-                    if(Selection.activeObject)
-                        SelectAvatarFromScene();
-                }
-
-                _useSceneSelectionAvatar = GUILayout.Toggle(_useSceneSelectionAvatar, Strings.Main.useSceneSelection);
+                DrawAvatarSelectionWithButton(true);                
 
                 Helpers.DrawGuiLine();
 
@@ -1028,6 +1014,24 @@ namespace Pumkin.AvatarTools
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawSphere(_viewPosTemp, 0.1f);
             }
+        }
+
+        public static void DrawAvatarSelectionWithButton(bool showSelectFromSceneButton = true, bool showSceneSelectionCheckBox = true)
+        {
+            SelectedAvatar = (GameObject)EditorGUILayout.ObjectField(Strings.Main.avatar, SelectedAvatar, typeof(GameObject), true);
+
+            if(_useSceneSelectionAvatar)            
+                if(Selection.activeObject != SelectedAvatar)
+                    SelectAvatarFromScene();
+            
+            if(showSelectFromSceneButton)
+                if(GUILayout.Button(Strings.Buttons.selectFromScene))            
+                    if(Selection.activeObject)
+                        SelectAvatarFromScene();
+            
+
+            if(showSceneSelectionCheckBox)
+                _useSceneSelectionAvatar = GUILayout.Toggle(_useSceneSelectionAvatar, Strings.Main.useSceneSelection);
         }
 
         private void DrawCopierMenuGUI()
@@ -1559,6 +1563,17 @@ namespace Pumkin.AvatarTools
             {
                 Helpers.DrawGuiLine();
 
+                EditorGUI.BeginChangeCheck();
+                {
+                    shouldHideOtherAvatars = GUILayout.Toggle(shouldHideOtherAvatars, Strings.Thumbnails.hideOtherAvatars);
+                }
+                if(EditorGUI.EndChangeCheck())
+                {
+                    HideAllOtherAvatars(shouldHideOtherAvatars, SelectedAvatar);
+                }
+
+                Helpers.DrawGuiLine();
+
                 _presetToolbarSelectedIndex = GUILayout.Toolbar(_presetToolbarSelectedIndex, new string[] { Strings.Thumbnails.cameras, Strings.Thumbnails.poses, Strings.Thumbnails.blendshapes }, Styles.ToolbarBigButtons);
 
                 EditorGUILayout.Space();
@@ -1585,9 +1600,8 @@ namespace Pumkin.AvatarTools
         }
 
         public void DrawThumbanailBlendshapeGUI()
-        {
-            EditorGUILayout.LabelField("Not working yet", Styles.HelpBox_OneLine);
-            EditorGUILayout.Space();
+        {            
+            //Nothing for now
         }
 
         public void DrawThumbnailPoseGUI()
@@ -1602,17 +1616,6 @@ namespace Pumkin.AvatarTools
 
         public void DrawThumbnailCameraGUI()
         {
-            EditorGUI.BeginChangeCheck();
-            {
-                shouldHideOtherAvatars = GUILayout.Toggle(shouldHideOtherAvatars, Strings.Thumbnails.hideOtherAvatars);
-            }
-            if(EditorGUI.EndChangeCheck())
-            {
-                HideAllOtherAvatars(shouldHideOtherAvatars, SelectedAvatar);
-            }
-
-            Helpers.DrawGuiLine();
-
             SelectedCamera = EditorGUILayout.ObjectField(Strings.Thumbnails.selectedCamera, SelectedCamera, typeof(Camera), true) as Camera;
 
             Helpers.DrawGuiLine();

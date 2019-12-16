@@ -72,7 +72,7 @@ namespace Pumkin.Presets
 
                 Helpers.DrawGuiLine();
 
-                PumkinsAvatarTools.SelectedAvatar = (GameObject)EditorGUILayout.ObjectField("Avatar", PumkinsAvatarTools.SelectedAvatar, typeof(GameObject), true);
+                PumkinsAvatarTools.DrawAvatarSelectionWithButton(false, false);
 
                 Helpers.DrawGuiLine();
 

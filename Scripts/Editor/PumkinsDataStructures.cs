@@ -697,8 +697,7 @@ namespace Pumkin.DataStructures
         public static GUIStyle BigIconButton { get; internal set; }
         public static GUIStyle ToolbarBigButtons { get; internal set; }
         public static GUIStyle Popup { get; internal set; }
-        public static GUIStyle IconButton { get; internal set; }
-        public static GUIStyle Foldout_empty { get; internal set; }
+        public static GUIStyle IconButton { get; internal set; }        
 
         static Styles()
         {
@@ -1357,12 +1356,13 @@ namespace Pumkin.DataStructures
     public class PumkinsSkinnedMeshRendererBlendshapes
     {
         [SerializeField] public string rendererPath;
-        [SerializeField] public List<PumkinsBlendshape> shapes = new List<PumkinsBlendshape>();
-
+        [SerializeField] public List<PumkinsBlendshape> blendshapes = new List<PumkinsBlendshape>();
+        [SerializeField][HideInInspector] public bool expandedInUI = false; //oof, probably not a good idea to have this ui related bool here
+                                                                            //but then again this class only exists so unity can serialize the list of PumkinsBlendshape objects
         public PumkinsSkinnedMeshRendererBlendshapes(string path, List<PumkinsBlendshape> shapeList)
         {
             rendererPath = path;
-            shapes = shapeList;
+            blendshapes = shapeList;
         }
     }
 

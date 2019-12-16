@@ -1,4 +1,5 @@
-﻿using Pumkin.DataStructures;
+﻿using Pumkin.AvatarTools;
+using Pumkin.DataStructures;
 using Pumkin.Extensions;
 using Pumkin.HelperFunctions;
 using System;
@@ -450,6 +451,162 @@ namespace Pumkin.HelperFunctions
                     foreach(var array in arrays)                
                         array.arraySize += toAdd;                
             }
+        }
+
+        public static void DrawBlendshapeSlidersWithDeleteAndAdd(ref List<PumkinsSkinnedMeshRendererBlendshapes> rendererHolders, float labelWidthOverride = 0)
+        {
+            if(rendererHolders == null)
+                return;
+
+            bool[] rendererShapeChanged = new bool[rendererHolders.Count];  //record changes in holder to apply to renderer later
+            HashSet<int> toDeleteRendererIndex = new HashSet<int>();
+
+            int toAddRenderer = 0;
+
+            for(int i = 0; i < rendererHolders.Count; i++)
+            {
+                HashSet<int> toDeleteShapeIndex = new HashSet<int>();
+                Transform renderTransform = PumkinsAvatarTools.SelectedAvatar.transform.Find(rendererHolders[i].rendererPath);
+                SkinnedMeshRenderer renderer = null;
+
+                if(renderTransform)
+                    renderer = renderTransform.GetComponent<SkinnedMeshRenderer>();
+
+                int toAddShape = 0;                       
+
+                EditorGUILayout.Space();
+
+                EditorGUILayout.BeginHorizontal(GUILayout.ExpandWidth(true));
+                {
+                    float oldLabelWidth = EditorGUIUtility.labelWidth;
+                    EditorGUIUtility.labelWidth = 0;
+                    rendererHolders[i].expandedInUI = EditorGUILayout.Toggle(rendererHolders[i].expandedInUI, Styles.Foldout, GUILayout.MaxWidth(10));
+                    EditorGUIUtility.labelWidth = oldLabelWidth;
+
+                    rendererHolders[i].rendererPath = EditorGUILayout.TextField(rendererHolders[i].rendererPath);
+
+                    if(GUILayout.Button(Icons.Delete, Styles.IconButton))
+                        toDeleteRendererIndex.Add(i);
+                }
+                EditorGUILayout.EndHorizontal();                
+
+                if(rendererHolders[i].expandedInUI)
+                {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.BeginHorizontal();
+                    {
+                        EditorGUILayout.BeginVertical();
+                        for(int j = 0; j < rendererHolders[i].blendshapes.Count; j++)
+                        {
+                            EditorGUI.BeginChangeCheck();
+                            {
+                                EditorGUILayout.BeginHorizontal();
+                                {
+                                    rendererHolders[i].blendshapes[j].name = EditorGUILayout.TextField(rendererHolders[i].blendshapes[j].name);
+                                    rendererHolders[i].blendshapes[j].weight = EditorGUILayout.Slider(rendererHolders[i].blendshapes[j].weight, 0, 100);
+
+                                    if(GUILayout.Button(Icons.Delete, Styles.IconButton))
+                                        toDeleteShapeIndex.Add(j);                                    
+                                }
+                                EditorGUILayout.EndHorizontal();
+                            }
+                            if(EditorGUI.EndChangeCheck())
+                            {
+                                rendererShapeChanged[i] = true;
+                            }
+                        }
+                        EditorGUILayout.EndVertical();
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.Space();
+                    EditorGUILayout.BeginHorizontal();
+                    {
+                        if(GUILayout.Button("Reset Renderer"))
+                        {
+                            foreach(var shape in rendererHolders[i].blendshapes)
+                                shape.weight = 0;
+
+                            rendererShapeChanged[i] = true;
+                        }
+
+                            if(GUILayout.Button("Add Blendshape"))
+                                toAddShape++;
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.Space();
+
+                    foreach(int z in toDeleteShapeIndex)
+                        rendererHolders[i].blendshapes.RemoveAt(z);
+
+                    for(int z = 0; z < toAddShape; z++)
+                    {
+                        string name = "";
+                        float weight = 0;
+                        
+                        if(renderer)
+                        {
+                            int count = rendererHolders[i].blendshapes.Count;                            
+                            if(count < renderer.sharedMesh.blendShapeCount)
+                            {
+                                name = renderer.sharedMesh.GetBlendShapeName(count);
+                                if(!string.IsNullOrEmpty(name))
+                                    weight = renderer.GetBlendShapeWeight(count);
+                            }
+                        }
+                        rendererHolders[i].blendshapes.Add(new PumkinsBlendshape(name, weight));
+                    }
+                }              
+            }
+
+            //Apply changes from holder to actual skinned mesh renderer
+            for(int i = 0; i < rendererShapeChanged.Length; i++)
+            {
+                if(!rendererShapeChanged[i])
+                    continue;
+
+                SkinnedMeshRenderer ren;
+                Transform tRen = PumkinsAvatarTools.SelectedAvatar.transform.Find(rendererHolders[i].rendererPath);
+                if(!tRen)
+                    continue;
+
+                ren = tRen.GetComponent<SkinnedMeshRenderer>();
+
+                if(!ren)
+                    continue;
+
+                foreach(PumkinsBlendshape blendshape in rendererHolders[i].blendshapes)
+                {
+                    string name = blendshape.name;
+                    int index = ren.sharedMesh.GetBlendShapeIndex(name);                    
+
+                    if(index == -1 && blendshape.alternateNames.Count > 0)
+                    {
+                        for(int z = 0; z < blendshape.alternateNames.Count; z++)
+                        {
+                            index = ren.sharedMesh.GetBlendShapeIndex(blendshape.alternateNames[z]);
+                            if(index != -1)
+                                break;
+                        }
+                    }
+
+                    if(index != -1)
+                        ren.SetBlendShapeWeight(index, blendshape.weight);                    
+                }
+            }
+
+            if(rendererHolders.Count > 0)
+                Helpers.DrawGuiLine();
+
+            if(GUILayout.Button("Add Renderer"))
+                toAddRenderer++;
+
+            foreach(int i in toDeleteRendererIndex)            
+                rendererHolders.RemoveAt(i);            
+
+            for(int i = 0; i < toAddRenderer; i++)
+                rendererHolders.Add(new PumkinsSkinnedMeshRendererBlendshapes("", new List<PumkinsBlendshape>()));
         }
 
         public static void DrawPropertyArraysHorizontal(SerializedProperty[] arrays, string displayName, ref bool expanded, float labelWidthOverride = 0)
