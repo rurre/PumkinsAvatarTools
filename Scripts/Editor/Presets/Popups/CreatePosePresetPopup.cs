@@ -94,6 +94,13 @@ namespace Pumkin.Presets
 
             }
             EditorGUILayout.EndScrollView();
+
+            CreatePresetPopupBase.preset = preset;
+        }
+
+        protected override void RefreshSelectedPresetIndex()
+        {
+            PumkinsAvatarTools.RefreshPresetIndexByString<PumkinsPosePreset>(preset.name);
         }
     }
 }

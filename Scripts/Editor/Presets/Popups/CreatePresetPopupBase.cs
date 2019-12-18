@@ -8,12 +8,13 @@ using Pumkin.AvatarTools;
 using Pumkin.Presets;
 
 public abstract class CreatePresetPopupBase : EditorWindow
-{
+{    
     static protected CreatePresetPopupBase _window;
     static protected PumkinPreset preset;
 
     static protected GameObject avatar;
     static protected bool _overwriteFile = true;
+    static protected bool _saveEdittedChanges = true;
 
     static protected Vector2 scroll = Vector2.zero;
 
@@ -29,14 +30,19 @@ public abstract class CreatePresetPopupBase : EditorWindow
             editingExistingPreset = false;
         }
         preset = newPreset;        
-    }    
+    }
+
+    protected abstract void RefreshSelectedPresetIndex();
 
     protected void OnDisable()
     {
         if(editingExistingPreset)
         {
-            EditorUtility.SetDirty(preset);
+            if(_saveEdittedChanges)
+                EditorUtility.SetDirty(preset);
+
             AssetDatabase.SaveAssets();
+            RefreshSelectedPresetIndex();
         }
     }
 }

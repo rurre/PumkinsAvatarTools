@@ -12,8 +12,7 @@ namespace Pumkin.Presets
     public class PumkinsCameraPreset : PumkinPreset
     {
         public enum CameraOffsetMode { Viewpoint, AvatarRoot, Transform };
-
-        public new string name = "";
+        
         public CameraOffsetMode offsetMode = CameraOffsetMode.Viewpoint;
         public Vector3 positionOffset = Vector3.zero;
         public Vector3 rotationAnglesOffset = Vector3.zero;

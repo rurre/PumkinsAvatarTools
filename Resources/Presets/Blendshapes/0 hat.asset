@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65df42acc29efd546902636e201a2390, type: 3}
-  m_Name: shapes
+  m_Name: 0 hat
   m_EditorClassIdentifier: 
-  name: shapes
+  name: 0/that
   renderers:
   - rendererPath: Body
     blendshapes:
     - name: vrc.blink_left
-      weight: 0
+      weight: 20
       alternateNames: []
       friendlyName: 
     - name: vrc.blink_right
@@ -121,11 +121,11 @@ MonoBehaviour:
       alternateNames: []
       friendlyName: 
     - name: Surprised
-      weight: 100
+      weight: 0
       alternateNames: []
       friendlyName: 
     - name: Stare
-      weight: 100
+      weight: 0
       alternateNames: []
       friendlyName: 
     - name: Ah
@@ -193,7 +193,7 @@ MonoBehaviour:
       alternateNames: []
       friendlyName: 
     - name: Pupil
-      weight: 100
+      weight: 0
       alternateNames: []
       friendlyName: 
     - name: Circle White Eye
@@ -241,7 +241,7 @@ MonoBehaviour:
       alternateNames: []
       friendlyName: 
     - name: Blue Give up
-      weight: 100
+      weight: 0
       alternateNames: []
       friendlyName: 
     - name: HatOn

@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65df42acc29efd546902636e201a2390, type: 3}
-  m_Name: shapes
+  m_Name: Hat Wink
   m_EditorClassIdentifier: 
-  name: shapes
+  name: hat wink
   renderers:
   - rendererPath: Body
     blendshapes:
@@ -97,7 +97,7 @@ MonoBehaviour:
       alternateNames: []
       friendlyName: 
     - name: Wink
-      weight: 0
+      weight: 100
       alternateNames: []
       friendlyName: 
     - name: Wink Right
@@ -121,11 +121,11 @@ MonoBehaviour:
       alternateNames: []
       friendlyName: 
     - name: Surprised
-      weight: 100
+      weight: 0
       alternateNames: []
       friendlyName: 
     - name: Stare
-      weight: 100
+      weight: 0
       alternateNames: []
       friendlyName: 
     - name: Ah
@@ -193,7 +193,7 @@ MonoBehaviour:
       alternateNames: []
       friendlyName: 
     - name: Pupil
-      weight: 100
+      weight: 0
       alternateNames: []
       friendlyName: 
     - name: Circle White Eye
@@ -217,7 +217,7 @@ MonoBehaviour:
       alternateNames: []
       friendlyName: 
     - name: Cheerful
-      weight: 0
+      weight: 100
       alternateNames: []
       friendlyName: 
     - name: Sadness

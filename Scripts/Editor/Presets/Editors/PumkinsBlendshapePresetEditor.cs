@@ -10,12 +10,22 @@ namespace Pumkin.Presets
     {
         //SerializedObject serializedPreset;
         //SerializedProperty pName;
+        PumkinsBlendshapePreset _preset;
 
-        private void OnSceneGUI()
+        private void OnEnable()
         {
-            PumkinsBlendshapePreset p = (PumkinsBlendshapePreset)target;
-            p.name = EditorGUILayout.TextField(new GUIContent("Name"), p.name);
-            DrawDefaultInspector();
+            _preset = (PumkinsBlendshapePreset)target;
         }
+
+        public PumkinsBlendshapePreset Preset
+        {
+            get { return _preset; }
+        }
+
+
+        public override void OnInspectorGUI()
+        {               
+            base.OnInspectorGUI();            
+        }        
     }
 }

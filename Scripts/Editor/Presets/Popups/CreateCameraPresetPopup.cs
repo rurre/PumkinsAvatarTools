@@ -117,6 +117,8 @@ namespace Pumkin.Presets
                 EditorGUI.EndDisabledGroup();
             }
             EditorGUILayout.EndScrollView();
+
+            CreatePresetPopupBase.preset = preset;
         }
 
         void OnEnable()
@@ -138,6 +140,11 @@ namespace Pumkin.Presets
         void OnDestroy()
         {
             PumkinsAvatarTools.SelectedCamera.targetTexture = tempRT;
+        }
+
+        protected override void RefreshSelectedPresetIndex()
+        {
+            PumkinsAvatarTools.RefreshPresetIndexByString<PumkinsCameraPreset>(preset.name);
         }
     }
 }

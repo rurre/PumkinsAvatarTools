@@ -10,8 +10,7 @@ using UnityEngine;
 namespace Pumkin.Presets
 {
     public class PumkinsPosePreset : PumkinPreset
-    {
-        public new string name;
+    {        
         public float[] muscles;       
 
         public PosePresetMode presetMode = PosePresetMode.HumanPose;

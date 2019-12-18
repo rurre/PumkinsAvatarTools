@@ -10,13 +10,13 @@ using UnityEngine;
 namespace Pumkin.Presets
 {
     public abstract class PumkinPreset : ScriptableObject
-    {        
+    {
+        public new string name;        
+        public abstract bool ApplyPreset(GameObject avatar);
         public override string ToString()
         {
             return name;
         }
-
-        public abstract bool ApplyPreset(GameObject avatar);
     }
 
     public static class PumkinsPresetManager
@@ -139,6 +139,26 @@ namespace Pumkin.Presets
 
             return i;
         }
+        public static string GetPresetName<T>(int index) where T : PumkinPreset
+        {
+            if(typeof(T) == typeof(PumkinsCameraPreset))
+            {
+                if(CameraPresets[index])
+                    return CameraPresets[index].name;
+            }
+            else if(typeof(T) == typeof(PumkinsPosePreset))
+            {
+                if(PosePresets[index])
+                    return PosePresets[index].name;
+            }
+            else if(typeof(T) == typeof(PumkinsBlendshapePreset))
+            {
+                if(BlendshapePresets[index])
+                    return BlendshapePresets[index].name;
+            }
+            return "";
+        }
+
         public static T FindPreset<T>(string name) where T : PumkinPreset
         {
             object preset = null;
