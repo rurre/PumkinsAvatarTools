@@ -24,11 +24,11 @@ namespace Pumkin.DataStructures
     public class Strings : SingletonScriptableObject<Strings>
     {
 #if NEWSDK
-        public readonly string VERSION_NUMBER = "0.7b - Work in Progress";
+        public readonly string TOOLS_VERSION_NUMBER = "0.7b - Work in Progress";
 #else
-        public readonly string VERSION_NUMBER = "0.7b - Work in Progress - Old SDK";
+        public readonly string TOOLS_VERSION_NUMBER = "0.7b - Work in Progress - Old SDK";
 #endif
-
+        public readonly string POSE_EDITOR_VERSION_NUMBER = "0.1b - Work in Progress";
         public readonly string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
         public readonly string LINK_DONATION = "https://ko-fi.com/notpumkin";
         public readonly string LINK_DISCORD = "https://discord.gg/7vyekJv";
@@ -59,7 +59,7 @@ namespace Pumkin.DataStructures
             get; private set;
         }
 
-        public class Main
+        public static class Main
         {
             public static string title = "_Pumkin's Avatar Tools";
             public static string windowName = "_Pumkin Tools";
@@ -120,6 +120,8 @@ namespace Pumkin.DataStructures
             public static string createNewPreset = "_Create New Preset";
             public static string quickSetupAvatar = "_Quick Setup Avatar";
             public static string selectInToolsWindow  = "_Select in Tools Window";
+            public static string resetRenderer = "_Reset Renderer";
+            public static string revertRenderer = "_Revert Renderer";
 
             static Buttons()
             {
@@ -152,6 +154,8 @@ namespace Pumkin.DataStructures
                 createNewPreset = Translation.buttons.createNewPreset;
                 quickSetupAvatar = Translation.buttons.quickSetupAvatar;
                 selectInToolsWindow = Translation.buttons.selectInToolsWindow;
+                resetRenderer = Translation.buttons.resetRenderer;
+                revertRenderer = Translation.buttons.revertRenderer;
             }
         };
         public static class Tools
@@ -167,6 +171,7 @@ namespace Pumkin.DataStructures
             public static string setTPose = "_Force TPose";
             public static string setRendererAnchors = "_Set Renderer Anchors";
             public static string viewpointZDepth = "_Z Depth";
+            public static string revertScale = "_Revert Scale";
 
             static Tools()
             {
@@ -189,6 +194,7 @@ namespace Pumkin.DataStructures
                 setTPose = Translation.tools.setTPose;
                 viewpointZDepth = Translation.tools.viewpointZDepth;
                 setRendererAnchors = Translation.tools.setRendererAnchors;
+                revertScale = Translation.tools.revertScale;
             }
         };
         public static class AvatarInfo
@@ -455,9 +461,9 @@ namespace Pumkin.DataStructures
             public static string meshPrefabMissingCantRevertBlednshapes = "_Mesh prefab is missing, can't revert to default blendshapes";
             public static string meshPrefabMissingCantRevertPose = "_Mesh prefab is missing, can't revert to default pose";
             public static string runtimeBlueprintNotFoundStartUploading = "_RuntimeBlueprintCreation script not found. Start uploading an avatar to use this";
-            public static string failedToCenterCameraNoDescriptor = "_Failed to center camera on Viewpoint. Avatar descriptor not found";
-            public static string cantSetTPoseNonHumanoid = "_Can't set TPose for non Humanoid avatar";
+            public static string failedToCenterCameraNoDescriptor = "_Failed to center camera on Viewpoint. Avatar descriptor not found";            
             public static string setProbeAnchorTo = "_Set {0} probe anchor to {1}";
+            public static string cantSetPoseNonHumanoid = "_Can't set humanoid pose {0} on a non humanoid avatar";
 
             static Log()
             {
@@ -504,7 +510,7 @@ namespace Pumkin.DataStructures
                 meshPrefabMissingCantRevertPose = Translation.log.meshPrefabMissingCantRevertPose;
                 runtimeBlueprintNotFoundStartUploading = Translation.log.runtimeBlueprintNotFoundStartUploading;
                 failedToCenterCameraNoDescriptor = Translation.log.failedToCenterCameraNoDescriptor;
-                cantSetTPoseNonHumanoid = Translation.log.cantSetTPoseNonHumanoid;
+                cantSetPoseNonHumanoid = Translation.log.cantSetPoseNonHumanoid;
             }
         };
         public static class Warning
@@ -515,6 +521,7 @@ namespace Pumkin.DataStructures
             public static string selectSceneObject = "_Please select an object from the scene";
             public static string cameraNotFound = "_Camera not found";
             public static string invalidPreset = "_Can't apply preset {0}: Invalid Preset";
+            public static string cantRevertRendererWithoutPrefab = "_Can't revert Skinned Mesh Renderer {0}, object has no Prefab.";
 
             static Warning()
             {
@@ -532,11 +539,12 @@ namespace Pumkin.DataStructures
                 selectSceneObject = Translation.warnings.selectSceneObject;
                 cameraNotFound = Translation.warnings.cameraNotFound;
                 invalidPreset = Translation.warnings.invalidPreset;
+                cantRevertRendererWithoutPrefab = Translation.warnings.cantRevertRendererWithoutPrefab;
             }
         };
         public static class Credits
         {
-            public static string version = "_Version";
+            public static string version = "_Version";            
             public static string redundantStrings = "_Now with 100% more redundant strings";
             public static string addMoreStuff = "_I'll add more stuff to this eventually";
             public static string pokeOnDiscord = "_Poke me on Discord at Pumkin#2020";
@@ -551,7 +559,7 @@ namespace Pumkin.DataStructures
                 if(!Translation)
                     return;
 
-                version = (Translation.credits.version + " " + Instance.VERSION_NUMBER) ?? ("_Version" + " " + Instance.VERSION_NUMBER);
+                version = (Translation.credits.version + " " + Instance.TOOLS_VERSION_NUMBER) ?? ("_Version" + " " + Instance.TOOLS_VERSION_NUMBER);
                 redundantStrings = Translation.credits.redundantStrings;
                 addMoreStuff = Translation.credits.addMoreStuff;
                 pokeOnDiscord = Translation.credits.pokeOnDiscord;
@@ -584,7 +592,8 @@ namespace Pumkin.DataStructures
         }
         public static class PoseEditor
         {
-            public static string title = "_Pose Editor (Old)";
+            public static string version = "_Version";
+            public static string title = "_Pumkin's Pose Editor";            
             public static string scene = "_Scene";
             public static string sceneLoadAdditive = "_Load Additive";
             public static string sceneOverrideLights = "_Override Lights";
@@ -604,6 +613,9 @@ namespace Pumkin.DataStructures
             public static string saveButton = "_Save";
             public static string reloadButton = "_Reload";
             public static string bodyPositionYTooSmall = "_humanPose.bodyPosition.y is {0}, you probably don't want that. Setting humanPose.bodyPosition.y to 1";
+            public static string muscles = "_Muscles";
+            public static string transformRotations = "_Transform Rotations";
+            public static string selectHumanoidAvatar = "_Select a Humanoid Avatar";
 
             static PoseEditor()
             {
@@ -614,6 +626,8 @@ namespace Pumkin.DataStructures
             {
                 if(!Translation)
                     return;
+
+                version = (Translation.credits.version + " " + Instance.POSE_EDITOR_VERSION_NUMBER) ?? ("_Version" + " " + Instance.POSE_EDITOR_VERSION_NUMBER);
 
                 title = Translation.poseEditor.title;
                 scene = Translation.poseEditor.scene;
@@ -635,6 +649,30 @@ namespace Pumkin.DataStructures
                 saveButton = Translation.poseEditor.saveButton;
                 reloadButton = Translation.poseEditor.reloadButton;
                 bodyPositionYTooSmall = Translation.poseEditor.bodyPositionYTooSmall;
+                muscles = Translation.poseEditor.muscles;
+                transformRotations = Translation.poseEditor.transformRotations;
+                selectHumanoidAvatar = Translation.poseEditor.selectHumanoidAvatar;
+            }
+        }
+        public static class Preset
+        {
+            public static string name = "_Preset name";
+            public static string mode = "_Preset mode";
+            public static string otherNames = "_Other names";            
+
+            static Preset()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                if(!Translation)
+                    return;
+
+                name = Translation.preset.name;
+                mode = Translation.preset.mode;
+                otherNames = Translation.preset.otherNames;                
             }
         }
 
@@ -698,6 +736,7 @@ namespace Pumkin.DataStructures
         public static GUIStyle ToolbarBigButtons { get; internal set; }
         public static GUIStyle Popup { get; internal set; }
         public static GUIStyle IconButton { get; internal set; }        
+        public static GUIStyle TextField { get; internal set; }        
 
         static Styles()
         {
@@ -742,7 +781,8 @@ namespace Pumkin.DataStructures
 
             HelpBox_OneLine = new GUIStyle("HelpBox")
             {
-                fixedHeight = 17,
+                fontSize = 12,
+                fixedHeight = 21,
                 stretchHeight = false,
             };
 
@@ -768,7 +808,16 @@ namespace Pumkin.DataStructures
             HelpBox = new GUIStyle("HelpBox");
             Box = new GUIStyle("box");
 
-            LightTextField = new GUIStyle("TextField");
+            TextField = new GUIStyle("Textfield")
+            {
+                fixedHeight = 19f,
+            };
+            TextField.normal.textColor = Color.black;
+
+            LightTextField = new GUIStyle("TextField")
+            {
+                fixedHeight = 19f,
+            };
             LightTextField.normal.textColor = Color.white;
 
             BigIconButton = new GUIStyle(BigButton);
@@ -1353,16 +1402,29 @@ namespace Pumkin.DataStructures
     }
 
     [Serializable]
-    public class PumkinsSkinnedMeshRendererBlendshapes
+    public class PumkinsRendererBlendshapesHolder
     {
         [SerializeField] public string rendererPath;
         [SerializeField] public List<PumkinsBlendshape> blendshapes = new List<PumkinsBlendshape>();
         [SerializeField][HideInInspector] public bool expandedInUI = false; //oof, probably not a good idea to have this ui related bool here
                                                                             //but then again this class only exists so unity can serialize the list of PumkinsBlendshape objects
-        public PumkinsSkinnedMeshRendererBlendshapes(string path, List<PumkinsBlendshape> shapeList)
+        public PumkinsRendererBlendshapesHolder(string path, List<PumkinsBlendshape> shapeList)
         {
             rendererPath = path;
             blendshapes = shapeList;
+        }
+
+        public static explicit operator PumkinsRendererBlendshapesHolder(SkinnedMeshRenderer render)
+        {
+            if(!render)
+                return null;
+
+            string renderPath = Helpers.GetGameObjectPath(render.gameObject);
+            var blendshapes = new List<PumkinsBlendshape>();
+            for(int i = 0; i < render.sharedMesh.blendShapeCount; i++)
+                blendshapes.Add(new PumkinsBlendshape(render.sharedMesh.GetBlendShapeName(i), render.GetBlendShapeWeight(i)));
+            
+            return new PumkinsRendererBlendshapesHolder(renderPath, blendshapes);
         }
     }
 
@@ -1371,18 +1433,18 @@ namespace Pumkin.DataStructures
     {
         [SerializeField] public string name;
         [SerializeField] public float weight;
-        [SerializeField] public List<string> alternateNames;
-        [SerializeField] public string friendlyName;
+        [SerializeField] public List<string> otherNames;        
 
-        public PumkinsBlendshape(string name, float weight = 0, string friendlyName = null, List<string> alternateNames = null)
+        [SerializeField][HideInInspector] public bool otherNamesExpandedInUI = false; //oof, probably also not a good idea to have this ui related bool here as well                                                                                    
+
+        public PumkinsBlendshape(string name, float weight = 0, List<string> otherNames = null)
         {
             this.name = name;
-            this.weight = weight;
-            this.friendlyName = friendlyName;
-            if(alternateNames != null)
-                this.alternateNames = alternateNames;
+            this.weight = weight;            
+            if(otherNames != null)
+                this.otherNames = otherNames;
             else
-                this.alternateNames = new List<string>();
+                this.otherNames = new List<string>();
         }
     }
 

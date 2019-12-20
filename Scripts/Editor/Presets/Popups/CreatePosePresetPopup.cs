@@ -70,15 +70,15 @@ namespace Pumkin.Presets
 
                 preset.name = EditorGUILayout.TextField("Preset Name", preset.name);
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 PumkinsAvatarTools.DrawAvatarSelectionWithButton(false, false);
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 preset.presetMode = (PumkinsPosePreset.PosePresetMode)EditorGUILayout.EnumPopup("Pose Mode", preset.presetMode);
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedAvatar || !preset || string.IsNullOrEmpty(preset.name));
                 {

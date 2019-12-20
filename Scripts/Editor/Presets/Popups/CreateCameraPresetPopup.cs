@@ -60,7 +60,7 @@ namespace Pumkin.Presets
 
                 PumkinsAvatarTools.DrawAvatarSelectionWithButton(false, false);
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 EditorGUI.BeginChangeCheck();
                 {
@@ -91,17 +91,17 @@ namespace Pumkin.Presets
                 }
                 EditorGUILayout.Space();
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 PumkinsAvatarTools.Instance.DrawOverlayGUI();
 
                 EditorGUILayout.Space();
 
-                PumkinsAvatarTools.Instance.DrawBackgroundGUI();
+                //PumkinsAvatarTools.Instance.DrawBackgroundGUI();
 
                 EditorGUILayout.Space();
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedCamera || string.IsNullOrEmpty(preset.name) || !PumkinsAvatarTools.SelectedAvatar);
                 {

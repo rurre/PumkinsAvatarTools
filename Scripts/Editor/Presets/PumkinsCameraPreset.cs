@@ -85,19 +85,19 @@ namespace Pumkin.Presets
                     Texture2D tex = Helpers.GetImageTextureFromPath(overlayImagePath);
                     if(tex)
                     {
-                        PumkinsAvatarTools.Instance._overlayPathText = overlayImagePath;
+                        PumkinsAvatarTools.Instance._overlayPath = overlayImagePath;
                         PumkinsAvatarTools.Instance.cameraOverlayImageTint = overlayImageTint;
-                        PumkinsAvatarTools.Instance.SetOverlayTexture(useOverlay, overlayImagePath);                        
+                        //PumkinsAvatarTools.Instance.SetOverlayTexture(useOverlay, overlayImagePath);                        
                     }
                     else
                     {
-                        PumkinsAvatarTools.Instance.SetOverlayTexture(false);
+                        //PumkinsAvatarTools.Instance.SetOverlayTexture(false);
                     }
                 }
             }
             else
             {
-                PumkinsAvatarTools.Instance.SetOverlayTexture(false);
+                //PumkinsAvatarTools.Instance.SetOverlayTexture(false);
             }
 
             PumkinsAvatarTools.Instance.bThumbnails_use_camera_background = useBackground;            
@@ -118,7 +118,7 @@ namespace Pumkin.Presets
                         if(tex != null)
                         {                            
                             PumkinsAvatarTools.Instance.cameraBackgroundImageTint = backgroundImageTint;
-                            PumkinsAvatarTools.Instance.SetBackgroundImage(tex, backgroundImagePath);
+                            //PumkinsAvatarTools.Instance.SetBackgroundImage(tex, backgroundImagePath);
                         }
                         break;
                     case PumkinsAvatarTools.CameraBackgroundOverrideType.Material:                          
@@ -157,7 +157,7 @@ namespace Pumkin.Presets
 
             if(p.useOverlay)
             {
-                p.overlayImagePath = PumkinsAvatarTools.Instance._overlayPathText;
+                p.overlayImagePath = PumkinsAvatarTools.Instance._overlayPath;
                 p.overlayImageTint = PumkinsAvatarTools.Instance.cameraOverlayImageTint;
             }
 
@@ -172,7 +172,7 @@ namespace Pumkin.Presets
                         p.backgroundColor = PumkinsAvatarTools.Instance.vrcCamBgColor;
                         break;
                     case PumkinsAvatarTools.CameraBackgroundOverrideType.Image:
-                        p.backgroundImagePath = PumkinsAvatarTools.Instance._backgroundPathText;
+                        p.backgroundImagePath = PumkinsAvatarTools.Instance._backgroundPath;
                         p.backgroundImageTint = PumkinsAvatarTools.Instance.cameraBackgroundImageTint;
                         break;
                     case PumkinsAvatarTools.CameraBackgroundOverrideType.Material:

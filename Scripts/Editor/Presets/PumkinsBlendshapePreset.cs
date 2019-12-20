@@ -9,7 +9,7 @@ namespace Pumkin.Presets
 {
     public class PumkinsBlendshapePreset : PumkinPreset
     {           
-        public List<PumkinsSkinnedMeshRendererBlendshapes> renderers;        
+        public List<PumkinsRendererBlendshapesHolder> renderers;        
 
         public static PumkinsBlendshapePreset CreatePreset(string presetName, GameObject avatar)
         {
@@ -40,6 +40,19 @@ namespace Pumkin.Presets
                         for(int j = 0; j < renderers[i].blendshapes.Count; j++)
                         {
                             int index = render.sharedMesh.GetBlendShapeIndex(renderers[i].blendshapes[j].name);
+                            if(index == -1)
+                            {
+                                foreach(string name in renderers[i].blendshapes[j].otherNames)
+                                {
+                                    index = render.sharedMesh.GetBlendShapeIndex(name);
+                                    if(index != -1)
+                                        break;
+                                }
+                            }
+
+                            if(index == -1)
+                                continue;
+
                             float weight = renderers[i].blendshapes[j].weight;                            
                             render.SetBlendShapeWeight(index, weight);
                         }
@@ -61,7 +74,7 @@ namespace Pumkin.Presets
                 return;
 
             var renders = avatar.GetComponentsInChildren<SkinnedMeshRenderer>();            
-            renderers = new List<PumkinsSkinnedMeshRendererBlendshapes>(renders.Length);
+            renderers = new List<PumkinsRendererBlendshapesHolder>(renders.Length);
 
             for(int i = 0; i < renders.Length; i++)
             {
@@ -76,7 +89,7 @@ namespace Pumkin.Presets
 
                     shapeList.Add(new PumkinsBlendshape(name, weight));
                 }
-                renderers.Add(new PumkinsSkinnedMeshRendererBlendshapes(rPath, shapeList));                
+                renderers.Add(new PumkinsRendererBlendshapesHolder(rPath, shapeList));                
             }
         }
     }

@@ -46,7 +46,7 @@ namespace Pumkin.AvatarTools
             _window.Show();
         }
 
-        [MenuItem("Tools/Pumkin/Clear Tool Preferences",false, 50)]
+        [MenuItem("Tools/Pumkin/Clear Tool Preferences", false, 50)]
         public static void ResetPrefs()
         {
             EditorPrefs.DeleteKey("PumkinToolsWindow");
@@ -72,6 +72,11 @@ namespace Pumkin.AvatarTools
 
             if(ToolsWindow)
                 ToolsWindow.HandleOnDisable();
+        }
+
+        private void OnDestroy()
+        {
+            PumkinsAvatarTools.DestroyDummies();
         }
 
         void HandleError(string log, string stack, LogType type)

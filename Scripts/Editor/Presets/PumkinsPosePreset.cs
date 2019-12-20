@@ -144,24 +144,46 @@ namespace Pumkin.Presets
 
             Undo.RegisterFullObjectHierarchyUndo(avatar, "Apply Pose");
 
+            PumkinsAvatarTools.ResetPose(avatar);
+
             if(presetMode == PosePresetMode.HumanPose)
             {
                 Animator anim = avatar.GetComponent<Animator>();
-                if(anim == null || !anim.isHuman)
-                    return false;
-
-                HumanPoseHandler hph = new HumanPoseHandler(anim.avatar, avatar.transform);
-                HumanPose hp = GetHumanPose(anim);
-
-                if(hp.bodyPosition.y < 1 && !Mathf.Approximately(hp.bodyPosition.y, 1))
+                if(anim && anim.avatar && anim.avatar.isHuman)
                 {
-                    PumkinsAvatarTools.Log(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, hp.bodyPosition.y.ToString());
-                    hp.bodyPosition.y = 1;
-                }
+                    Vector3 pos = avatar.transform.position;
+                    Quaternion rot = avatar.transform.rotation;
 
-                hph.SetHumanPose(ref hp);
-                PumkinsAvatarTools.OnPoseWasChanged(PumkinsAvatarTools.PoseChangeType.Normal);
-                return true;
+                    avatar.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);                    
+
+                    var humanPoseHandler = new HumanPoseHandler(anim.avatar, avatar.transform);
+
+                    var humanPose = new HumanPose();
+                    humanPoseHandler.GetHumanPose(ref humanPose);
+                                        
+                    humanPose.muscles = muscles;
+
+                    //A bit of a hack but should only apply in a few cases with very old avatars with armature scale set to 100 by CATS
+                    Transform armature = avatar.transform.Find("Armature");
+                    if(Mathf.Approximately(armature.localScale.x, 100) && Mathf.Approximately(armature.localScale.y, 100) && Mathf.Approximately(armature.localScale.z, 100))
+                    {
+                        if(humanPose.bodyPosition.y < 1 && !Mathf.Approximately(humanPose.bodyPosition.y, 0))
+                        {
+                            PumkinsAvatarTools.Log(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, humanPose.bodyPosition.y.ToString());
+                            humanPose.bodyPosition.y = 1;
+                        }
+                    }
+                    humanPoseHandler.SetHumanPose(ref humanPose);
+                    avatar.transform.SetPositionAndRotation(pos, rot);
+
+                    PumkinsAvatarTools.OnPoseWasChanged(PumkinsAvatarTools.PoseChangeType.Reset);
+                    return true;
+                }
+                else
+                {
+                    PumkinsAvatarTools.Log(Strings.Log.cantSetPoseNonHumanoid, LogType.Error, name);
+                    return false;
+                }
             }
             else
             {
@@ -171,8 +193,8 @@ namespace Pumkin.Presets
                 for(int i = 0; i < transformPaths.Count; i++)
                 {
                     var t = avatar.transform.Find(transformPaths[i]);
-                    if(t != null)                    
-                        t.localEulerAngles = transformRotations[i];                                            
+                    if(t != null)
+                        t.localEulerAngles = transformRotations[i];
                 }
                 return true;
             }

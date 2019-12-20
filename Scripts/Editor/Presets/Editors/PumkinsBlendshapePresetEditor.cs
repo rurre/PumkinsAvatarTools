@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using Pumkin.DataStructures;
+using Pumkin.HelperFunctions;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -7,25 +9,29 @@ namespace Pumkin.Presets
 {
     [CustomEditor(typeof(PumkinsBlendshapePreset))]
     public class PumkinsBlendshapePresetEditor : Editor
-    {
-        //SerializedObject serializedPreset;
-        //SerializedProperty pName;
-        PumkinsBlendshapePreset _preset;
+    {        
+        PumkinsBlendshapePreset preset;
+        SerializedObject serializedPreset;
+        SerializedProperty pName;
 
         private void OnEnable()
         {
-            _preset = (PumkinsBlendshapePreset)target;
-        }
+            preset = (PumkinsBlendshapePreset)target;
+            serializedPreset = new SerializedObject(preset);
 
-        public PumkinsBlendshapePreset Preset
-        {
-            get { return _preset; }
+            pName = serializedPreset.FindProperty("name");            
         }
-
 
         public override void OnInspectorGUI()
-        {               
-            base.OnInspectorGUI();            
+        {
+            serializedPreset.Update();
+            //base.OnInspectorGUI();
+            Helpers.DrawGUILine();
+            EditorGUILayout.PropertyField(pName, new GUIContent(Strings.Preset.name));
+            Helpers.DrawGUILine();
+            Helpers.DrawBlendshapeSlidersWithDeleteAndAdd(ref preset.renderers, null);
+
+            serializedPreset.ApplyModifiedProperties();
         }        
     }
 }

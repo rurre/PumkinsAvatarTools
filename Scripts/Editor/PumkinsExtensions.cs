@@ -1,6 +1,7 @@
 ﻿using Pumkin.HelperFunctions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Pumkin.Extensions
@@ -130,6 +131,24 @@ namespace Pumkin.Extensions
             for(int i = 0; i < count; i++)
                 newArray[i] = array[startIndex + i];
             return newArray;
+        }
+
+        public static void Resize<T>(this List<T> list, int size, T element = default(T))
+        {
+            int count = list.Count;
+            size = Mathf.Clamp(size, 0, size);
+
+            if(size < count)
+            {
+                list.RemoveRange(size, count - size);
+            }
+            else if(size > count)
+            {
+                if(size > list.Capacity)   // Optimization
+                    list.Capacity = size;
+
+                list.AddRange(Enumerable.Repeat(element, size - count));
+            }
         }
     }
 }

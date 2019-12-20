@@ -85,25 +85,17 @@ namespace Pumkin.PoseEditor
 
         public void OnGUI()
         {
-            EditorGUILayout.Space();
+            int tempSize = Styles.Label_mainTitle.fontSize + 6;
+            EditorGUILayout.LabelField(Strings.PoseEditor.title, Styles.Label_mainTitle, GUILayout.MinHeight(tempSize));
 
+            EditorGUILayout.LabelField(Strings.PoseEditor.version);
+            EditorGUILayout.Space();
+            
             EditorGUI.BeginChangeCheck();
             {
-                PumkinsAvatarTools.SelectedAvatar = EditorGUILayout.ObjectField(Strings.Main.avatar, PumkinsAvatarTools.SelectedAvatar, typeof(GameObject), true) as GameObject;
-            }
-            if(EditorGUI.EndChangeCheck())
-            {
-                HandleAvatarSelectionChanged(PumkinsAvatarTools.SelectedAvatar);
-            }
-            if(GUILayout.Button(Strings.Buttons.selectFromScene))
-            {
-                PumkinsAvatarTools.SelectAvatarFromScene();
-                string s = "";
-                foreach(string m in HumanTrait.MuscleName)
-                {
-                    s += "\"" + m + "\",\n";
-                }
-            }
+                PumkinsAvatarTools.DrawAvatarSelectionWithButton();
+            }           
+
             //if(GUILayout.Button("Dump muscle names"))
             //{            
             //    string s = "";
@@ -114,10 +106,14 @@ namespace Pumkin.PoseEditor
             //    Debug.Log(s);
             //}
 
-            Helpers.DrawGuiLine();
+            Helpers.DrawGUILine();
 
             if(!PumkinsAvatarTools.SelectedAvatar || !PumkinsAvatarTools.SelectedAvatarIsHuman)
+            {
+                EditorGUILayout.LabelField(Strings.PoseEditor.selectHumanoidAvatar, Styles.HelpBox_OneLine);
+                Helpers.DrawGUILine();
                 return;
+            }
 
             toolbarSelection = GUILayout.Toolbar(toolbarSelection, new string[] { "Body", "Head", "Arms", "Legs", "Fingers" });
 
@@ -167,7 +163,7 @@ namespace Pumkin.PoseEditor
                         avatarPoseHandler.SetHumanPose(ref avatarPose);
                     }
                 }
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 PumkinsAvatarTools.Instance.DrawPresetGUI<PumkinsPosePreset>();
             }

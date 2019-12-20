@@ -48,24 +48,24 @@ namespace Pumkin.Presets
         {
             serializedPosePreset.UpdateIfRequiredOrScript();
                
-            EditorGUILayout.PropertyField(pName, new GUIContent("Preset Name"));
+            EditorGUILayout.PropertyField(pName, new GUIContent(Strings.Preset.name));
 
-            Helpers.DrawGuiLine();
+            Helpers.DrawGUILine();
 
-            EditorGUILayout.PropertyField(pPresetMode, new GUIContent("Preset Mode"));
+            EditorGUILayout.PropertyField(pPresetMode, new GUIContent(Strings.Preset.mode));
 
-            Helpers.DrawGuiLine();
+            Helpers.DrawGUILine();
 
             if((PumkinsPosePreset.PosePresetMode)pPresetMode.enumValueIndex == PumkinsPosePreset.PosePresetMode.HumanPose)
             {
-                Helpers.DrawPropertyArrayWithNames(pMuscles, "Muscles", defaultMusclesNames, ref muscles_expand, false, 185);
+                Helpers.DrawPropertyArrayWithNames(pMuscles, Strings.PoseEditor.muscles, defaultMusclesNames, ref muscles_expand, false, 185);
             }
             else
             {
-                Helpers.DrawPropertyArraysHorizontalWithDeleteAndAdd(new SerializedProperty[] { pTransformPaths, pTransformRotations }, "Transform Rotations", ref transforms_expand);
+                Helpers.DrawPropertyArraysHorizontalWithDeleteAndAdd(new SerializedProperty[] { pTransformPaths, pTransformRotations }, Strings.PoseEditor.transformRotations, ref transforms_expand);
             }            
 
-            Helpers.DrawGuiLine();
+            Helpers.DrawGUILine();
 
             if(GUILayout.Button(Strings.Buttons.selectInToolsWindow))
             {

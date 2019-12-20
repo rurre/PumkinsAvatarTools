@@ -58,7 +58,7 @@ namespace Pumkin.Presets
 
             EditorGUILayout.PropertyField(pName, new GUIContent("Preset Name"));
 
-            Helpers.DrawGuiLine();
+            Helpers.DrawGUILine();
 
             EditorGUILayout.PropertyField(pOffsetMode, new GUIContent("Offset Mode"));
 
@@ -71,7 +71,7 @@ namespace Pumkin.Presets
             EditorGUILayout.PropertyField(pPositionOffset, new GUIContent("Position Offset"));
             EditorGUILayout.PropertyField(pRotationAnglesOffset, new GUIContent("Rotation Offset"));            
 
-            Helpers.DrawGuiLine();
+            Helpers.DrawGUILine();
 
             EditorGUILayout.PropertyField(pUseOverlay, new GUIContent("Use Camera Overlay"));            
 
@@ -83,7 +83,7 @@ namespace Pumkin.Presets
                 EditorGUILayout.PropertyField(pOverlayImageTint, new GUIContent("Overlay Tint"));                
             }
 
-            Helpers.DrawGuiLine();
+            Helpers.DrawGUILine();
 
             EditorGUILayout.PropertyField(pUseBackground, new GUIContent("Use Camera Background"));
 
@@ -112,7 +112,7 @@ namespace Pumkin.Presets
                 }
             }
 
-            Helpers.DrawGuiLine();
+            Helpers.DrawGUILine();
 
             if(GUILayout.Button(Strings.Buttons.selectInToolsWindow, Styles.BigButton))
             {

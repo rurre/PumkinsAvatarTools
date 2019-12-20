@@ -73,15 +73,15 @@ namespace Pumkin.Presets
 
                 preset.name = EditorGUILayout.TextField("Preset Name", preset.name);
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 PumkinsAvatarTools.DrawAvatarSelectionWithButton(false, false);
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 DrawBlendshapePresetControls();
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
                 
                 EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(preset.name) || !PumkinsAvatarTools.SelectedAvatar);
                 {
@@ -120,7 +120,7 @@ namespace Pumkin.Presets
         {
             PumkinsBlendshapePreset p = (PumkinsBlendshapePreset)preset;
             if(PumkinsAvatarTools.SelectedAvatar)
-                Helpers.DrawBlendshapeSlidersWithDeleteAndAdd(ref p.renderers);
+                Helpers.DrawBlendshapeSlidersWithDeleteAndAdd(ref p.renderers, PumkinsAvatarTools.SelectedAvatar);
             else
                 EditorGUILayout.TextField("_Select an Avatar first.", Styles.HelpBox_OneLine);
         }

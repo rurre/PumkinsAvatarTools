@@ -34,12 +34,7 @@ namespace Pumkin.AvatarTools
 
         #region Tools    
 
-        [SerializeField] private static GameObject _selectedAvatar; // use property
-
-        internal static void Log(object invalidPreset, LogType warning)
-        {
-            throw new NotImplementedException();
-        }
+        [SerializeField] private static GameObject _selectedAvatar; // use property        
 
         [SerializeField] static bool _useSceneSelectionAvatar = false;
 
@@ -93,6 +88,7 @@ namespace Pumkin.AvatarTools
             FillVisemes,
             SetTPose,
             EditScale,
+            RevertScale,
         };
 
         #endregion
@@ -259,8 +255,8 @@ namespace Pumkin.AvatarTools
         public Texture2D cameraBackgroundTexture;
         public Texture2D cameraOverlayTexture;
         [SerializeField] string _lastOpenFilePath = "";
-        [SerializeField] public string _backgroundPathText = "";
-        [SerializeField] public string _overlayPathText = "";
+        [SerializeField] public string _backgroundPath = "";
+        [SerializeField] public string _overlayPath = "";
 
         public CameraBackgroundOverrideType cameraBackgroundType = CameraBackgroundOverrideType.Color;
 
@@ -274,12 +270,14 @@ namespace Pumkin.AvatarTools
 
         public enum CameraBackgroundOverrideType { Color, Material, Image };
 
-        readonly string CAMERA_OVERLAY_NAME = "_PumkinsCameraOverlay";
-        readonly string CAMERA_BACKGROUND_NAME = "_PumkinsCameraBackground";
+        static readonly string CAMERA_OVERLAY_NAME = "_PumkinsCameraOverlay";
+        static readonly string CAMERA_BACKGROUND_NAME = "_PumkinsCameraBackground";
 
         [SerializeField] HumanPose _tempHumanPose = new HumanPose();
         [SerializeField] float[] _tempHumanPoseMuscles;
         [SerializeField] SerializedProperty _serializedTempHumanPoseMuscles;
+
+        static List<PumkinsRendererBlendshapesHolder> _selectedAvatarRendererHolders;
 
         #endregion
 
@@ -322,7 +320,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] public string _selectedLanguageString = "English - Default";
         [SerializeField] int _selectedLanguageIndex = 0;
 
-        readonly float COPIER_SETTINGS_INDENT_SIZE = 38f;
+        readonly float COPIER_SETTINGS_INDENT_SIZE = 38f;        
 
         #endregion        
 
@@ -456,75 +454,74 @@ namespace Pumkin.AvatarTools
             set
             {
                 _selectedCamera = value;
+                OnCameraSelectionChanged(_selectedCamera);
             }
         }
 
         public GameObject GetCameraOverlay(bool createIfMissing = false)
         {
-            if(SelectedCamera && !_cameraOverlay && _thumbnails_expand)
+            if(!_cameraOverlay)
             {
                 _cameraOverlay = GameObject.Find(CAMERA_OVERLAY_NAME);
-                if(createIfMissing)
+                if(!_cameraOverlay && createIfMissing)
                     _cameraOverlay = new GameObject(CAMERA_OVERLAY_NAME);
             }
             return _cameraOverlay;
         }
-
-        public RawImage CameraOverlayRawImage
-        {
-            get
-            {
-                if(SelectedCamera && !_cameraOverlayImage)
-                {
-                    _cameraOverlayImage = GetCameraOverlay(true).GetComponent<RawImage>();
-
-                    Canvas c = _cameraOverlay.GetComponent<Canvas>();
-                    if(!c)
-                        c = _cameraOverlay.AddComponent<Canvas>();
-                    c.worldCamera = SelectedCamera;
-                    c.renderMode = RenderMode.ScreenSpaceCamera;
-                    c.planeDistance = SelectedCamera.nearClipPlane + 0.01f;
-
-                }
-                return _cameraOverlayImage;
-            }
-        }
-
         public GameObject GetCameraBackground(bool createIfMissing = false)
         {
-            if(SelectedCamera && !_cameraBackground && _thumbnails_expand)
+            if(!_cameraBackground)
             {
                 _cameraBackground = GameObject.Find(CAMERA_BACKGROUND_NAME);
-
                 if(!_cameraBackground && createIfMissing)
                     _cameraBackground = new GameObject(CAMERA_BACKGROUND_NAME);
             }
             return _cameraBackground;
         }
 
-        public RawImage CameraBackgroundRawImage
+        public RawImage GetCameraOverlayRawImage(bool createIfMissing = false)
         {
-            get
-            {
-                if(SelectedCamera && _cameraBackgroundImage == null && GetCameraBackground(true))
-                {
-                    _cameraBackgroundImage = _cameraBackground.GetComponent<RawImage>();
+            GameObject overlay = GetCameraOverlay(createIfMissing);
+            if(overlay && !_cameraOverlayImage)            
+                _cameraOverlayImage = overlay.GetComponent<RawImage>();
+            
+            if(!_cameraOverlayImage && createIfMissing)
+            {                
+                _cameraOverlayImage = overlay.AddComponent<RawImage>();
 
-                    if(_cameraBackgroundImage == null)
-                    {
-                        _cameraBackgroundImage = _cameraBackground.AddComponent<RawImage>();
-                        _cameraBackgroundImage.enabled = false;
-                    }
+                Canvas canvas = _cameraOverlay.GetComponent<Canvas>();
+                if(!canvas)
+                    canvas = _cameraOverlay.AddComponent<Canvas>();
+                canvas.worldCamera = SelectedCamera;
+                canvas.renderMode = RenderMode.ScreenSpaceCamera;
+                canvas.planeDistance = SelectedCamera.nearClipPlane + 0.01f;
+
+                if(!string.IsNullOrEmpty(_overlayPath))
+                    SetOverlayTextureFromPath(_overlayPath);
+            }
+            return _cameraOverlayImage;
+        }        
+        public RawImage GetCameraBackgroundRawImage(bool createIfMissing = false)
+        {
+            if(!_cameraBackgroundImage && createIfMissing)
+            {
+                GameObject background = GetCameraBackground(createIfMissing);
+                if(background)
+                {
+                    _cameraBackgroundImage = background.AddComponent<RawImage>();
+
                     Canvas c = _cameraBackground.GetComponent<Canvas>();
                     if(!c)
                         c = _cameraBackground.AddComponent<Canvas>();
                     c.worldCamera = SelectedCamera;
                     c.renderMode = RenderMode.ScreenSpaceCamera;
-                    c.planeDistance = SelectedCamera.farClipPlane - 1.5f;
+                    c.planeDistance = SelectedCamera.nearClipPlane + 0.01f;
 
+                    if(!string.IsNullOrEmpty(_backgroundPath))
+                        SetBackgroundTextureFromPath(_backgroundPath);
                 }
-                return _cameraBackgroundImage;
             }
+            return _cameraBackgroundImage;
         }
 
         public SerializedObject SerializedScript
@@ -605,9 +602,11 @@ namespace Pumkin.AvatarTools
 
         public delegate void AvatarChangedHandler(GameObject selection);
         public delegate void PoseChangedHandler(PoseChangeType changeType);
+        public delegate void CameraChangeHandler(Camera camera);
 
         public static event AvatarChangedHandler AvatarSelectionChanged;
         public static event PoseChangedHandler PoseChanged;
+        public static event CameraChangeHandler CameraSelectionChanged;
 
         public enum PoseChangeType { Reset, Normal, PoseEditor };
 
@@ -615,11 +614,49 @@ namespace Pumkin.AvatarTools
 
         #region Event Definitions
 
+        public static void OnCameraSelectionChanged(Camera camera)
+        {
+            if(CameraSelectionChanged != null)
+                CameraSelectionChanged.Invoke(camera);
+            LogVerbose("Camera selection changed to " + camera != null ? camera.gameObject.name : "none");
+
+            //Handle overlay and background raw images camera references
+            RawImage bg = Instance.GetCameraBackgroundRawImage(false);
+            RawImage fg = Instance.GetCameraOverlayRawImage(false);
+            if(bg)
+            {
+                Canvas bgc = bg.GetComponent<Canvas>();
+                if(!bgc)
+                    bgc = bg.gameObject.AddComponent<Canvas>();
+                bgc.worldCamera = camera;
+            }
+            if(fg)
+            {
+                Canvas fgc = fg.GetComponent<Canvas>();
+                if(!fgc)
+                    fgc = fg.gameObject.AddComponent<Canvas>();
+                fgc.worldCamera = camera;
+            }
+        }
+
         public static void OnAvatarSelectionChanged(GameObject selection)
         {
             if(AvatarSelectionChanged != null)
                 AvatarSelectionChanged.Invoke(selection);
             LogVerbose("Avatar selection changed to " + selection != null ? selection.name : "empty");
+
+
+            //Handle skinned mesh renderer container for blendshape preset gui
+            if(_selectedAvatarRendererHolders == null)
+                _selectedAvatarRendererHolders = new List<PumkinsRendererBlendshapesHolder>();
+            _selectedAvatarRendererHolders.Clear();
+
+            SkinnedMeshRenderer[] smRenderers = selection.GetComponentsInChildren<SkinnedMeshRenderer>();
+            foreach(var smRender in smRenderers)
+            {
+                if(smRender)
+                    _selectedAvatarRendererHolders.Add((PumkinsRendererBlendshapesHolder)smRender);
+            }
         }
 
         public static void OnPoseWasChanged(PoseChangeType changeType)
@@ -691,12 +728,10 @@ namespace Pumkin.AvatarTools
             EndEditingViewpoint(null, true);
             EndScalingAvatar(null, true);
 
-            SavePrefs();
-
-            DestroyDummiesDisableInstantiation();
+            SavePrefs();            
         }
 
-        void DestroyDummiesDisableInstantiation()
+        public static void DestroyDummies()
         {
             GameObject bg = GameObject.Find(CAMERA_BACKGROUND_NAME);
             GameObject fg = GameObject.Find(CAMERA_OVERLAY_NAME);
@@ -782,9 +817,8 @@ namespace Pumkin.AvatarTools
 
         #endregion
 
-        #region Unity GUI                   
-
-        //[MenuItem("Tools/Pumkin/Pose Editor")]
+        #region Unity GUI
+        
         public static void ShowWindow()
         {
             //Show existing window instance. If one doesn't exist, make one.
@@ -835,7 +869,7 @@ namespace Pumkin.AvatarTools
                 GUILayout.EndHorizontal();
                 GUILayout.EndVertical();
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
                 GUILayout.Label(Strings.Misc.superExperimental + ":");
 
                 EditorGUILayout.Space();
@@ -860,7 +894,7 @@ namespace Pumkin.AvatarTools
 
                 DrawAvatarSelectionWithButton(true);
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 _mainScroll = EditorGUILayout.BeginScrollView(_mainScroll);
                 {
@@ -882,7 +916,7 @@ namespace Pumkin.AvatarTools
 
                     DrawMiscMenuGUI();
 
-                    Helpers.DrawGuiLine();
+                    Helpers.DrawGUILine();
                 }
                 EditorGUILayout.EndScrollView();
 
@@ -1053,7 +1087,7 @@ namespace Pumkin.AvatarTools
 
                 EditorGUI.BeginDisabledGroup(copierSelectedFrom == null || SelectedAvatar == null);
                 {
-                    Helpers.DrawGuiLine(1, false);
+                    Helpers.DrawGUILine(1, false);
 
                     //Transforms menu                    
                     Helpers.DrawDropdownWithToggle(ref _copier_expand_transforms, ref bCopier_transforms_copy, Strings.Copier.transforms, Icons.Transform);
@@ -1080,7 +1114,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.EndDisabledGroup();
                     }
 
-                    Helpers.DrawGuiLine(1, false);
+                    Helpers.DrawGUILine(1, false);
 
                     //DynamicBones menu
 #if !BONES && !OLD_BONES
@@ -1121,7 +1155,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.EndDisabledGroup();
                     }
 
-                    Helpers.DrawGuiLine(1, false);
+                    Helpers.DrawGUILine(1, false);
 
                     //AvatarDescriptor menu
                     Helpers.DrawDropdownWithToggle(ref _copier_expand_avatarDescriptor, ref bCopier_descriptor_copy, Strings.Copier.descriptor, Icons.Avatar);
@@ -1147,7 +1181,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.EndDisabledGroup();
                     }
 
-                    Helpers.DrawGuiLine(1, false);
+                    Helpers.DrawGUILine(1, false);
 
                     //SkinnedMeshRenderer menu
                     Helpers.DrawDropdownWithToggle(ref _copier_expand_skinnedMeshRenderer, ref bCopier_skinMeshRender_copy, Strings.Copier.skinMeshRender, Icons.SkinnedMeshRenderer);
@@ -1172,7 +1206,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.EndDisabledGroup();
                     }
 
-                    Helpers.DrawGuiLine(1, false);
+                    Helpers.DrawGUILine(1, false);
 
                     //MeshRenderers menu
                     Helpers.DrawDropdownWithToggle(ref _copier_expand_meshRenderers, ref bCopier_meshRenderers_copy, Strings.Copier.meshRenderers, Icons.MeshRenderer);
@@ -1197,7 +1231,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.EndDisabledGroup();
                     }
 
-                    Helpers.DrawGuiLine(1, false);
+                    Helpers.DrawGUILine(1, false);
 
                     //Particles menu
                     Helpers.DrawDropdownWithToggle(ref _copier_expand_particleSystems, ref bCopier_particleSystems_copy, Strings.Copier.particleSystems, Icons.ParticleSystem);
@@ -1221,7 +1255,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.EndDisabledGroup();
                     }
 
-                    Helpers.DrawGuiLine(1, false);
+                    Helpers.DrawGUILine(1, false);
 
                     //TrailRenderers menu
                     Helpers.DrawDropdownWithToggle(ref _copier_expand_trailRenderers, ref bCopier_trailRenderers_copy, Strings.Copier.trailRenderers, Icons.TrailRenderer);
@@ -1246,7 +1280,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.EndDisabledGroup();
                     }
 
-                    Helpers.DrawGuiLine(1, false);
+                    Helpers.DrawGUILine(1, false);
 
                     //AudioSources menu
                     Helpers.DrawDropdownWithToggle(ref _copier_expand_audioSources, ref bCopier_audioSources_copy, Strings.Copier.audioSources, Icons.AudioSource);
@@ -1271,7 +1305,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.EndDisabledGroup();
                     }
 
-                    Helpers.DrawGuiLine(1, false);
+                    Helpers.DrawGUILine(1, false);
 
                     //Lights menu
                     Helpers.DrawDropdownWithToggle(ref _copier_expand_lights, ref bCopier_lights_copy, Strings.Copier.lights, Icons.Light);
@@ -1295,7 +1329,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.EndDisabledGroup();
                     }
 
-                    Helpers.DrawGuiLine(1, false);
+                    Helpers.DrawGUILine(1, false);
 
                     //RidigBodies menu
                     Helpers.DrawDropdownWithToggle(ref _copier_expand_rigidBodies, ref bCopier_rigidBodies_copy, Strings.Copier.rigidBodies, Icons.RigidBody);
@@ -1320,7 +1354,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.EndDisabledGroup();
                     }
 
-                    Helpers.DrawGuiLine(1, false);
+                    Helpers.DrawGUILine(1, false);
 
                     //Collider menu
                     Helpers.DrawDropdownWithToggle(ref _copier_expand_colliders, ref bCopier_colliders_copy, Strings.Copier.colliders, Icons.ColliderBox);
@@ -1349,7 +1383,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.EndDisabledGroup();
                     }
 
-                    Helpers.DrawGuiLine(1, false);
+                    Helpers.DrawGUILine(1, false);
 
                     //Animators menu
                     Helpers.DrawDropdownWithToggle(ref _copier_expand_animators, ref bCopier_animators_copy, Strings.Copier.animators, Icons.Animator);
@@ -1375,7 +1409,7 @@ namespace Pumkin.AvatarTools
                         EditorGUI.EndDisabledGroup();
                     }
 
-                    Helpers.DrawGuiLine(1, false);
+                    Helpers.DrawGUILine(1, false);
 
                     EditorGUILayout.Space();
 
@@ -1523,14 +1557,14 @@ namespace Pumkin.AvatarTools
                 }
                 EditorGUILayout.EndHorizontal();
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
 #if !BONES && !OLD_BONES
                 if(GUILayout.Button(Strings.Misc.searchForBones, Styles.BigButton))
                 {
                     _DependencyChecker.Check();
                 }
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 #endif
                 GUILayout.BeginHorizontal();
                 {
@@ -1561,7 +1595,7 @@ namespace Pumkin.AvatarTools
         {
             if(_thumbnails_expand = GUILayout.Toggle(_thumbnails_expand, Strings.Main.thumbnails, Styles.Foldout_title))
             {
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 EditorGUI.BeginChangeCheck();
                 {
@@ -1572,12 +1606,12 @@ namespace Pumkin.AvatarTools
                     HideAllOtherAvatars(shouldHideOtherAvatars, SelectedAvatar);
                 }
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 _presetToolbarSelectedIndex = GUILayout.Toolbar(_presetToolbarSelectedIndex, new string[] { Strings.Thumbnails.cameras, Strings.Thumbnails.poses, Strings.Thumbnails.blendshapes }, Styles.ToolbarBigButtons);
 
                 EditorGUILayout.Space();
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 switch(_presetToolbarSelectedIndex)
                 {
@@ -1601,7 +1635,17 @@ namespace Pumkin.AvatarTools
 
         public void DrawThumbanailBlendshapeGUI()
         {
-            //Nothing for now
+            EditorGUILayout.LabelField(new GUIContent(Strings.Thumbnails.blendshapes));
+            if(SelectedAvatar)
+            {
+                Helpers.DrawBlendshapeSlidersWithLabels(ref _selectedAvatarRendererHolders, SelectedAvatar);
+            }
+            else
+            {
+                EditorGUILayout.LabelField(new GUIContent(Strings.PoseEditor.selectHumanoidAvatar), Styles.HelpBox_OneLine);
+                Helpers.DrawGUILine();
+            }
+            EditorGUILayout.Space();
         }
 
         public void DrawThumbnailPoseGUI()
@@ -1611,20 +1655,20 @@ namespace Pumkin.AvatarTools
                 PumkinsMuscleEditor.ShowWindow();
             }
 
-            Helpers.DrawGuiLine();
+            Helpers.DrawGUILine();
         }
 
         public void DrawThumbnailCameraGUI()
         {
             SelectedCamera = EditorGUILayout.ObjectField(Strings.Thumbnails.selectedCamera, SelectedCamera, typeof(Camera), true) as Camera;
 
-            Helpers.DrawGuiLine();
+            Helpers.DrawGUILine();
 
             DrawOverlayGUI();
 
-            DrawBackgroundGUI();
+            //DrawBackgroundGUI();
 
-            Helpers.DrawGuiLine();
+            Helpers.DrawGUILine();
 
             EditorGUI.BeginDisabledGroup(!SelectedCamera || !SelectedAvatar);
             {
@@ -1677,7 +1721,7 @@ namespace Pumkin.AvatarTools
                     EditorGUILayout.EndHorizontal();
                 }
 
-                Helpers.DrawGuiLine();
+                Helpers.DrawGUILine();
 
                 EditorGUILayout.Space();
             }
@@ -1731,7 +1775,7 @@ namespace Pumkin.AvatarTools
             {
                 EditorGUI.BeginDisabledGroup(SelectedAvatar == null);
                 {
-                    Helpers.DrawGuiLine();
+                    Helpers.DrawGUILine();
 
                     GUILayout.BeginHorizontal();
                     {
@@ -1791,7 +1835,7 @@ namespace Pumkin.AvatarTools
 
                     }
 
-                    Helpers.DrawGuiLine();
+                    Helpers.DrawGUILine();
 
 
                     if(_tools_avatar_expand = GUILayout.Toggle(_tools_avatar_expand, Strings.Main.avatar, Styles.Foldout))
@@ -1806,6 +1850,12 @@ namespace Pumkin.AvatarTools
                                     DoAction(SelectedAvatar, ToolMenuActions.RevertBlendshapes);
                                 if(GUILayout.Button(Strings.Tools.resetPose))
                                     DoAction(SelectedAvatar, ToolMenuActions.ResetPose);
+                                EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
+                                {
+                                    if(GUILayout.Button(Strings.Tools.revertScale))
+                                        DoAction(SelectedAvatar, ToolMenuActions.RevertScale);
+                                }
+                                EditorGUI.EndDisabledGroup();
                             }
                             GUILayout.EndVertical();
 
@@ -1835,7 +1885,7 @@ namespace Pumkin.AvatarTools
                         GUILayout.EndHorizontal();
                     }
 
-                    Helpers.DrawGuiLine();
+                    Helpers.DrawGUILine();
 
                     if(_tools_removeAll_expand = GUILayout.Toggle(_tools_removeAll_expand, Strings.Main.removeAll, Styles.Foldout))
                     {
@@ -1996,7 +2046,7 @@ namespace Pumkin.AvatarTools
                 GUILayout.EndHorizontal();
             }
             EditorGUI.EndDisabledGroup();
-            Helpers.DrawGuiLine();
+            Helpers.DrawGUILine();
 
             if(GUILayout.Button(Strings.Buttons.createNewPreset, Styles.BigButton))
             {
@@ -2018,155 +2068,155 @@ namespace Pumkin.AvatarTools
                     DoAction(SelectedAvatar, ToolMenuActions.RevertBlendshapes);
             }
 
-            Helpers.DrawGuiLine();
+            Helpers.DrawGUILine();
 
             SerializedScript.ApplyModifiedProperties();
         }
 
         //Draws the "Use Background" part of the thumbnail menu
-        public void DrawBackgroundGUI()
-        {
-            if(bThumbnails_use_camera_background && (!vrcCamSetBgColor && !vrcCamSetBGImage && !vrcCamSetBGSkybox))
-                RefreshBackgroundOverrideType();
+        //public void DrawBackgroundGUI()
+        //{
+        //    if(bThumbnails_use_camera_background && (!vrcCamSetBgColor && !vrcCamSetBGImage && !vrcCamSetBGSkybox))
+        //        RefreshBackgroundOverrideType();
 
-            bool needsRefresh = false;
-            EditorGUI.BeginChangeCheck();
-            {
-                Helpers.DrawDropdownWithToggle(ref _thumbnails_useCameraBackground_expand, ref bThumbnails_use_camera_background, Strings.Thumbnails.useCameraBackground);
-            }
-            if(EditorGUI.EndChangeCheck())
-            {
-                needsRefresh = true;
-            }
+        //    bool needsRefresh = false;
+        //    EditorGUI.BeginChangeCheck();
+        //    {
+        //        Helpers.DrawDropdownWithToggle(ref _thumbnails_useCameraBackground_expand, ref bThumbnails_use_camera_background, Strings.Thumbnails.useCameraBackground);
+        //    }
+        //    if(EditorGUI.EndChangeCheck())
+        //    {
+        //        needsRefresh = true;
+        //    }
 
-            if(_thumbnails_useCameraBackground_expand || needsRefresh)
-            {
-                EditorGUI.BeginDisabledGroup(!bThumbnails_use_camera_background);
-                {
-                    EditorGUILayout.Space();
+        //    if(_thumbnails_useCameraBackground_expand || needsRefresh)
+        //    {
+        //        EditorGUI.BeginDisabledGroup(!bThumbnails_use_camera_background);
+        //        {
+        //            EditorGUILayout.Space();
 
-                    EditorGUI.BeginChangeCheck();
-                    {
-                        cameraBackgroundType = (CameraBackgroundOverrideType)EditorGUILayout.EnumPopup(Strings.Thumbnails.backgroundType, cameraBackgroundType);
-                    }
-                    if(EditorGUI.EndChangeCheck() || needsRefresh)
-                    {
-                        RefreshBackgroundOverrideType();
-                    }
+        //            EditorGUI.BeginChangeCheck();
+        //            {
+        //                cameraBackgroundType = (CameraBackgroundOverrideType)EditorGUILayout.EnumPopup(Strings.Thumbnails.backgroundType, cameraBackgroundType);
+        //            }
+        //            if(EditorGUI.EndChangeCheck() || needsRefresh)
+        //            {
+        //                RefreshBackgroundOverrideType();
+        //            }
 
-                    EditorGUILayout.Space();
+        //            EditorGUILayout.Space();
 
-                    if(SelectedCamera)
-                    {
-                        if(vrcCamSetBgColor)
-                        {
-                            EditorGUI.BeginChangeCheck();
-                            {
-                                vrcCamBgColor = EditorGUILayout.ColorField(Strings.Thumbnails.backgroundType_Color, vrcCamBgColor);
-                            }
-                            if(EditorGUI.EndChangeCheck() || needsRefresh)
-                            {
-                                if(SelectedCamera)
-                                    SelectedCamera.backgroundColor = vrcCamBgColor;
-                            }
-                            GUILayout.Space(34f);
-                        }
-                        else if(vrcCamSetBGSkybox)
-                        {
-                            EditorGUI.BeginChangeCheck();
-                            {
-                                RenderSettings.skybox = (Material)EditorGUILayout.ObjectField(Strings.Thumbnails.backgroundType_Material, RenderSettings.skybox, typeof(Material), false);
-                            }
-                            if(EditorGUI.EndChangeCheck() || needsRefresh)
-                            {
-                                if(SelectedCamera)
-                                    SelectedCamera.backgroundColor = vrcCamBgColor;
-                            }
-                            GUILayout.Space(34f);
-                        }
-                        else if(vrcCamSetBGImage)
-                        {
-                            GUILayout.BeginHorizontal();
-                            {
-                                EditorGUILayout.LabelField(Strings.Thumbnails.backgroundType_Image, GUILayout.MaxWidth(100));
-                                EditorGUILayout.SelectableLabel(_backgroundPathText, Styles.HelpBox, GUILayout.MaxHeight(18), GUILayout.ExpandHeight(false));
+        //            if(SelectedCamera)
+        //            {
+        //                if(vrcCamSetBgColor)
+        //                {
+        //                    EditorGUI.BeginChangeCheck();
+        //                    {
+        //                        vrcCamBgColor = EditorGUILayout.ColorField(Strings.Thumbnails.backgroundType_Color, vrcCamBgColor);
+        //                    }
+        //                    if(EditorGUI.EndChangeCheck() || needsRefresh)
+        //                    {
+        //                        if(SelectedCamera)
+        //                            SelectedCamera.backgroundColor = vrcCamBgColor;
+        //                    }
+        //                    GUILayout.Space(34f);
+        //                }
+        //                else if(vrcCamSetBGSkybox)
+        //                {
+        //                    EditorGUI.BeginChangeCheck();
+        //                    {
+        //                        RenderSettings.skybox = (Material)EditorGUILayout.ObjectField(Strings.Thumbnails.backgroundType_Material, RenderSettings.skybox, typeof(Material), false);
+        //                    }
+        //                    if(EditorGUI.EndChangeCheck() || needsRefresh)
+        //                    {
+        //                        if(SelectedCamera)
+        //                            SelectedCamera.backgroundColor = vrcCamBgColor;
+        //                    }
+        //                    GUILayout.Space(34f);
+        //                }
+        //                else if(vrcCamSetBGImage)
+        //                {
+        //                    GUILayout.BeginHorizontal();
+        //                    {
+        //                        EditorGUILayout.LabelField(Strings.Thumbnails.backgroundType_Image, GUILayout.MaxWidth(100));
+        //                        EditorGUILayout.SelectableLabel(_backgroundPath, Styles.HelpBox, GUILayout.MaxHeight(18), GUILayout.ExpandHeight(false));
 
-                                EditorGUI.BeginChangeCheck();
-                                {
-                                    if(GUILayout.Button(Strings.Buttons.browse, GUILayout.MaxWidth(60)))
-                                    {
-                                        string s = _lastOpenFilePath;
-                                        Texture2D tex = OpenImageGetTextureGUI(ref s);
+        //                        EditorGUI.BeginChangeCheck();
+        //                        {
+        //                            if(GUILayout.Button(Strings.Buttons.browse, GUILayout.MaxWidth(60)))
+        //                            {
+        //                                string s = _lastOpenFilePath;
+        //                                Texture2D tex = OpenImageGetTextureGUI(ref s);
 
-                                        if(tex)
-                                        {
-                                            cameraBackgroundTexture = tex;
-                                            _lastOpenFilePath = s;
-                                            _backgroundPathText = _lastOpenFilePath;
-                                        }
-                                    }
-                                    else if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
-                                    {
-                                        if(CameraBackgroundRawImage)
-                                        {
-                                            CameraBackgroundRawImage.enabled = false;
+        //                                if(tex)
+        //                                {
+        //                                    cameraBackgroundTexture = tex;
+        //                                    _lastOpenFilePath = s;
+        //                                    _backgroundPath = _lastOpenFilePath;
+        //                                }
+        //                            }
+        //                            else if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
+        //                            {
+        //                                if(CameraBackgroundRawImage)
+        //                                {
+        //                                    CameraBackgroundRawImage.enabled = false;
 
-                                            if(cameraBackgroundTexture)
-                                                cameraBackgroundTexture.name = _emptyTexture.name;
-                                        }
-                                        _backgroundPathText = null;
-                                    }
-                                }
-                            }
-                            GUILayout.EndHorizontal();
-                            if(EditorGUI.EndChangeCheck() || needsRefresh)
-                            {
-                                if(cameraBackgroundTexture != null)
-                                {
-                                    if(cameraBackgroundTexture.name != EmptyTexture.name)
-                                    {
-                                        if(SelectedCamera)
-                                        {
-                                            CameraBackgroundRawImage.texture = cameraBackgroundTexture;
-                                            cameraBackgroundTexture.name = cameraBackgroundTexture.name;
-                                            CameraBackgroundRawImage.color = cameraBackgroundImageTint;
-                                            CameraBackgroundRawImage.enabled = true;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if(_cameraBackground != null)
-                                            DestroyImmediate(_cameraBackground);
-                                    }
-                                }
-                                else
-                                {
-                                    CameraBackgroundRawImage.enabled = false;
-                                }
-                            }
+        //                                    if(cameraBackgroundTexture)
+        //                                        cameraBackgroundTexture.name = _emptyTexture.name;
+        //                                }
+        //                                _backgroundPath = null;
+        //                            }
+        //                        }
+        //                    }
+        //                    GUILayout.EndHorizontal();
+        //                    if(EditorGUI.EndChangeCheck() || needsRefresh)
+        //                    {
+        //                        if(cameraBackgroundTexture != null)
+        //                        {
+        //                            if(cameraBackgroundTexture.name != EmptyTexture.name)
+        //                            {
+        //                                if(SelectedCamera)
+        //                                {
+        //                                    CameraBackgroundRawImage.texture = cameraBackgroundTexture;
+        //                                    cameraBackgroundTexture.name = cameraBackgroundTexture.name;
+        //                                    CameraBackgroundRawImage.color = cameraBackgroundImageTint;
+        //                                    CameraBackgroundRawImage.enabled = true;
+        //                                }
+        //                            }
+        //                            else
+        //                            {
+        //                                if(_cameraBackground != null)
+        //                                    DestroyImmediate(_cameraBackground);
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            CameraBackgroundRawImage.enabled = false;
+        //                        }
+        //                    }
 
-                            EditorGUILayout.Space();
+        //                    EditorGUILayout.Space();
 
-                            if(cameraBackgroundTexture && vrcCamSetBGImage)
-                            {
-                                CameraBackgroundRawImage.enabled = true;
-                                EditorGUI.BeginChangeCheck();
-                                {
-                                    cameraBackgroundImageTint = EditorGUILayout.ColorField(Strings.Thumbnails.tint, cameraBackgroundImageTint);
-                                }
-                                if(EditorGUI.EndChangeCheck() || needsRefresh)
-                                {
-                                    CameraBackgroundRawImage.color = cameraBackgroundImageTint;
-                                }
-                            }
-                            EditorGUILayout.Space();
-                        }
-                    }
-                }
-                EditorGUI.EndDisabledGroup();
-                needsRefresh = false;
-            }
-        }
+        //                    if(cameraBackgroundTexture && vrcCamSetBGImage)
+        //                    {
+        //                        CameraBackgroundRawImage.enabled = true;
+        //                        EditorGUI.BeginChangeCheck();
+        //                        {
+        //                            cameraBackgroundImageTint = EditorGUILayout.ColorField(Strings.Thumbnails.tint, cameraBackgroundImageTint);
+        //                        }
+        //                        if(EditorGUI.EndChangeCheck() || needsRefresh)
+        //                        {
+        //                            CameraBackgroundRawImage.color = cameraBackgroundImageTint;
+        //                        }
+        //                    }
+        //                    EditorGUILayout.Space();
+        //                }
+        //            }
+        //        }
+        //        EditorGUI.EndDisabledGroup();
+        //        needsRefresh = false;
+        //    }
+        //}
 
         private void RefreshBackgroundOverrideType()
         {
@@ -2184,7 +2234,7 @@ namespace Pumkin.AvatarTools
                             SetBackgroundToColor();
                             break;
                         case CameraBackgroundOverrideType.Image:
-                            SetBackgroundTexture(true, _backgroundPathText);
+                            //SetBackgroundTexture(true, _backgroundPath);
                             break;
                         case CameraBackgroundOverrideType.Material:
                             SetBackgroundToMaterial();
@@ -2203,66 +2253,51 @@ namespace Pumkin.AvatarTools
         //Draws the "Use Overlay" section in the thumbnails menu
         public void DrawOverlayGUI()
         {
-            //RefreshOverlayTexturePath();
+            RawImage raw = GetCameraOverlayRawImage(false);
             EditorGUI.BeginChangeCheck();
             {
                 Helpers.DrawDropdownWithToggle(ref _thumbnails_useCameraOverlay_expand, ref bThumbnails_use_camera_overlay, Strings.Thumbnails.useCameraOverlay);
             }
             if(EditorGUI.EndChangeCheck())
             {
-                SetOverlayTexture(bThumbnails_use_camera_overlay, _overlayPathText);
+                SetOverlayTextureFromPath(_overlayPath);
+            }
+
+            if(bThumbnails_use_camera_overlay)
+            {
+                raw = GetCameraOverlayRawImage(true);
+                if(raw.texture)
+                    raw.enabled = true;
+                else
+                    raw.enabled = false;
+            }
+            else
+            {                
+                if(raw)
+                    raw.enabled = false;
             }
 
             if(_thumbnails_useCameraOverlay_expand)
             {
                 EditorGUI.BeginDisabledGroup(!bThumbnails_use_camera_overlay);
                 {
-                    EditorGUILayout.Space();
+                    EditorGUILayout.Space();                    
                     GUILayout.BeginHorizontal();
                     {
-                        EditorGUILayout.LabelField(Strings.Thumbnails.overlayCameraImage, GUILayout.MaxWidth(100));
-                        EditorGUILayout.SelectableLabel(_overlayPathText, Styles.HelpBox_OneLine);
-
-                        EditorGUI.BeginChangeCheck();
+                        EditorGUILayout.SelectableLabel(_overlayPath, Styles.TextField);
+                        if(GUILayout.Button(Strings.Buttons.browse, GUILayout.MaxWidth(60)) && SelectedCamera)
                         {
-                            if(GUILayout.Button(Strings.Buttons.browse, GUILayout.MaxWidth(60)) && SelectedCamera)
-                            {
-                                Texture2D tex = Helpers.OpenImageTexture(ref _lastOpenFilePath);
-                                if(tex)
-                                {
-                                    cameraOverlayTexture = tex;
-                                    cameraOverlayTexture.name = Path.GetFileNameWithoutExtension(_lastOpenFilePath);
-                                    _overlayPathText = _lastOpenFilePath;
-                                }
-                            }
-                            if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
-                            {
-                                if(CameraOverlayRawImage)
-                                {
-                                    if(cameraOverlayTexture)
-                                        cameraOverlayTexture.name = _emptyTexture.name;
-                                }
-                                _overlayPathText = null;
-                                SetOverlayTexture(bThumbnails_use_camera_overlay);
-                            }
+                            Texture2D tex = OpenImageGetTextureGUI(ref _lastOpenFilePath);
+                            _overlayPath = _lastOpenFilePath;
+                            SetOverlayTexture(tex);
+                        }
+                        if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
+                        {
+                            _overlayPath = null;
+                            SetOverlayTexture(null);
                         }
                     }
-                    GUILayout.EndHorizontal();
-                    if(EditorGUI.EndChangeCheck())
-                    {
-                        if(cameraOverlayTexture != null)
-                        {
-                            if(SelectedCamera)
-                            {
-                                CameraOverlayRawImage.texture = cameraOverlayTexture;
-                                CameraOverlayRawImage.color = cameraOverlayImageTint;
-                            }
-                        }
-                        else
-                        {
-                            CameraOverlayRawImage.color = Color.clear;
-                        }
-                    }
+                    EditorGUILayout.EndHorizontal();
 
                     EditorGUI.BeginDisabledGroup(!cameraOverlayTexture);
                     {
@@ -2272,15 +2307,14 @@ namespace Pumkin.AvatarTools
                         }
                         if(EditorGUI.EndChangeCheck())
                         {
-                            CameraOverlayRawImage.color = cameraOverlayImageTint;
+                            if(raw)
+                                raw.color = cameraOverlayImageTint;
                         }
                     }
                     EditorGUI.EndDisabledGroup();
                 }
                 EditorGUI.EndDisabledGroup();
             }
-
-            Helpers.DrawGuiLine();
         }
 
         public void SelectThumbnailPresetToolbarOption(PresetToolbarOptions option)
@@ -2293,27 +2327,29 @@ namespace Pumkin.AvatarTools
 
         #region Main Functions
 
-        private void RefreshOverlayTexturePath()
-        {
-            if(!bThumbnails_use_camera_overlay)
-                return;
+        //private void RefreshOverlayTexturePath()
+        //{
+        //    if(!bThumbnails_use_camera_overlay)
+        //        return;
 
-            if(!string.IsNullOrEmpty(_overlayPathText))
-            {
-                SetOverlayTexture(bThumbnails_use_camera_overlay, _overlayPathText);
-                if(!CameraOverlayRawImage && !CameraOverlayRawImage.texture)
-                    _overlayPathText = "";
-            }
+        //    if(!string.IsNullOrEmpty(_overlayPath))
+        //    {
+        //        SetOverlayTexture(bThumbnails_use_camera_overlay, _overlayPath);
+        //        if(!CameraOverlayRawImage && !CameraOverlayRawImage.texture)
+        //            _overlayPath = "";
+        //    }
 
-        }
+        //}
 
         private void RefreshBackgroundTexturePath()
         {
             if(!bThumbnails_use_camera_background)
                 return;
 
-            if(cameraBackgroundType == CameraBackgroundOverrideType.Image && CameraBackgroundRawImage && !string.IsNullOrEmpty(_backgroundPathText))
-                SetBackgroundTexture(bThumbnails_use_camera_background, _backgroundPathText);
+            if(cameraBackgroundType == CameraBackgroundOverrideType.Image && GetCameraBackgroundRawImage() && !string.IsNullOrEmpty(_backgroundPath))
+            {
+                //SetBackgroundTexture(bThumbnails_use_camera_background, _backgroundPath);
+            }
         }
 
         /// <summary>
@@ -2345,45 +2381,36 @@ namespace Pumkin.AvatarTools
         /// </summary>
         private void RestoreTexturesFromPaths()
         {
-            if(!string.IsNullOrEmpty(_overlayPathText))
-            {
-                if(GetCameraOverlay())
-                {
-                    RawImage img = _cameraOverlay.GetComponent<RawImage>();
-                    if(img)
-                    {
-                        cameraOverlayTexture = (Texture2D)img.texture;
-                        CameraOverlayRawImage.color = cameraOverlayImageTint;
-                    }
-                    else
-                        _overlayPathText = "";
+            RawImage overlayImg = GetCameraOverlayRawImage(bThumbnails_use_camera_overlay);
 
-                    if(bThumbnails_use_camera_overlay)
-                        CameraOverlayRawImage.enabled = true;
-                    else
-                        CameraOverlayRawImage.enabled = false;
-                }
+            if(!string.IsNullOrEmpty(_overlayPath))
+            {
+                if(overlayImg)
+                {
+                    cameraOverlayTexture = (Texture2D)overlayImg.texture;
+                    overlayImg.color = cameraOverlayImageTint;
+                }                
             }
 
-            if(!string.IsNullOrEmpty(_backgroundPathText))
-            {
-                if(GetCameraBackground())
-                {
-                    RawImage img = _cameraBackground.GetComponent<RawImage>();
-                    if(img)
-                    {
-                        cameraBackgroundTexture = (Texture2D)img.texture;
-                        CameraBackgroundRawImage.color = cameraBackgroundImageTint;
-                    }
-                    else
-                        _backgroundPathText = "";
+            //if(!string.IsNullOrEmpty(_backgroundPath))
+            //{
+            //    if(GetCameraBackground())
+            //    {
+            //        RawImage img = _cameraBackground.GetComponent<RawImage>();
+            //        if(img)
+            //        {
+            //            cameraBackgroundTexture = (Texture2D)img.texture;
+            //            CameraBackgroundRawImage.color = cameraBackgroundImageTint;
+            //        }
+            //        else
+            //            _backgroundPath = "";
 
-                    if(bThumbnails_use_camera_background && cameraBackgroundType == CameraBackgroundOverrideType.Image)
-                        CameraOverlayRawImage.enabled = true;
-                    else
-                        CameraOverlayRawImage.enabled = false;
-                }
-            }
+            //        if(bThumbnails_use_camera_background && cameraBackgroundType == CameraBackgroundOverrideType.Image)
+            //            CameraOverlayRawImage.enabled = true;
+            //        else
+            //            CameraOverlayRawImage.enabled = false;
+            //    }
+            //}
         }
 
         public void SetBackgroundToMaterial(Material mat = null)
@@ -2418,104 +2445,107 @@ namespace Pumkin.AvatarTools
                 SelectedCamera.backgroundColor = _vrcCamColorOld;
             }
 
-            if(CameraBackgroundRawImage)
-                CameraBackgroundRawImage.enabled = false;
+            var bgRaw = GetCameraBackgroundRawImage();
+            if(bgRaw)
+                bgRaw.enabled = false;
         }
 
-        public void SetBackgroundImage(Texture2D texOverride = null, string pathOverride = null)
-        {
-            ResetBackground();
-            vrcCamSetBGImage = true;
+        //public void SetBackgroundImage(Texture2D texOverride = null, string pathOverride = null)
+        //{
+        //    ResetBackground();
+        //    vrcCamSetBGImage = true;
 
-            if(GetCameraBackground() && CameraBackgroundRawImage)
-            {
-                CameraBackgroundRawImage.enabled = true;
+        //    if(GetCameraBackground() && CameraBackgroundRawImage)
+        //    {
+        //        CameraBackgroundRawImage.enabled = true;
 
-                if(texOverride && !string.IsNullOrEmpty(pathOverride))
-                    SetBackgroundTexture(vrcCamSetBGImage, texOverride, pathOverride);
-                else if(!string.IsNullOrEmpty(pathOverride))
-                    SetBackgroundTexture(vrcCamSetBGImage, pathOverride);
-                else if(!string.IsNullOrEmpty(_backgroundPathText))
-                    SetBackgroundTexture(vrcCamSetBGImage, _backgroundPathText);
-                else
-                    CameraBackgroundRawImage.enabled = false;
-            }
-        }
+        //        if(texOverride && !string.IsNullOrEmpty(pathOverride))
+        //            SetBackgroundTexture(vrcCamSetBGImage, texOverride, pathOverride);
+        //        else if(!string.IsNullOrEmpty(pathOverride))
+        //            SetBackgroundTexture(vrcCamSetBGImage, pathOverride);
+        //        else if(!string.IsNullOrEmpty(_backgroundPath))
+        //            SetBackgroundTexture(vrcCamSetBGImage, _backgroundPath);
+        //        else
+        //            CameraBackgroundRawImage.enabled = false;
+        //    }
+        //}
 
         private Texture2D OpenImageGetTextureGUI(ref string path)
-        {
+        {            
             Texture2D texture = Helpers.OpenImageTexture(ref path);
-            if(texture)
-                texture.name = Path.GetFileNameWithoutExtension(path);
+            if(texture)            
+                texture.name = Path.GetFileNameWithoutExtension(path);            
 
             return texture;
         }
 
-        public void SetOverlayTexture(bool enabled, Texture2D newTexture = null)
+        public void SetOverlayTextureFromPath(string texturePath)
         {
-            if(GetCameraOverlay() && CameraOverlayRawImage)
-            {
-                CameraOverlayRawImage.enabled = enabled;
-                if(newTexture)
-                {
-                    CameraOverlayRawImage.color = cameraOverlayImageTint;
-                    CameraOverlayRawImage.texture = newTexture;
-                }
-            }
-        }
-
-        public void SetOverlayTexture(bool enabled, string texturePath)
-        {
-            if(SelectedCamera)
-            {
-                Texture2D tex = Helpers.GetImageTextureFromPath(texturePath);
-                if(tex)
-                {
-                    _overlayPathText = texturePath;
-                    SetOverlayTexture(enabled, tex);
-                }
-            }
-        }
-
-        public void SetBackgroundTexture(bool enabled, string texturePath)
-        {
-            ResetBackground();
-            vrcCamSetBGImage = true;
+            _overlayPath = texturePath;
+            if(!GetCameraOverlay() || !GetCameraOverlayRawImage())
+                return;
 
             Texture2D tex = Helpers.GetImageTextureFromPath(texturePath);
-            if(tex)
-            {
-                SetBackgroundTexture(enabled, tex, texturePath);
-            }
-            else
-            {
-                _backgroundPathText = "";
-            }
+            SetOverlayTexture(tex);            
         }
-
-        public void SetBackgroundTexture(bool enabled, Texture2D newTexture = null, string texPath = null)
+        public void SetOverlayTexture(Texture2D newTexture)
         {
-            ResetBackground();
-            vrcCamSetBGImage = true;
-
-            if(GetCameraBackground() && CameraBackgroundRawImage)
+            var img = GetCameraOverlayRawImage();
+            if(GetCameraOverlay() && img)
             {
-                CameraBackgroundRawImage.enabled = enabled;
-
-                if(newTexture && !string.IsNullOrEmpty(texPath))
-                {
-                    CameraBackgroundRawImage.texture = newTexture;
-                    cameraBackgroundTexture = newTexture;
-                    _backgroundPathText = texPath;
-                }
+                img.color = cameraOverlayImageTint;
+                img.texture = newTexture;
+                if(newTexture)
+                    img.enabled = true;
                 else
-                {
-                    CameraBackgroundRawImage.enabled = false;
-                    cameraBackgroundTexture = null;
-                }
-
+                    img.enabled = false;                
             }
         }
+
+        private void SetBackgroundTextureFromPath(string backgroundPath)
+        {
+            
+        }
+
+        //public void SetBackgroundTexture(bool enabled, string texturePath)
+        //{
+        //    ResetBackground();
+        //    vrcCamSetBGImage = true;
+
+        //    Texture2D tex = Helpers.GetImageTextureFromPath(texturePath);
+        //    if(tex)
+        //    {
+        //        SetBackgroundTexture(enabled, tex, texturePath);
+        //    }
+        //    else
+        //    {
+        //        _backgroundPath = "";
+        //    }
+        //}
+
+        //public void SetBackgroundTexture(bool enabled, Texture2D newTexture = null, string texPath = null)
+        //{
+        //    ResetBackground();
+        //    vrcCamSetBGImage = true;
+
+        //    if(GetCameraBackground() && CameraBackgroundRawImage)
+        //    {
+        //        CameraBackgroundRawImage.enabled = enabled;
+
+        //        if(newTexture && !string.IsNullOrEmpty(texPath))
+        //        {
+        //            CameraBackgroundRawImage.texture = newTexture;
+        //            cameraBackgroundTexture = newTexture;
+        //            _backgroundPath = texPath;
+        //        }
+        //        else
+        //        {
+        //            CameraBackgroundRawImage.enabled = false;
+        //            cameraBackgroundTexture = null;
+        //        }
+
+        //    }
+        //}
 
 #if UNITY_2018
         public void SetupRig(GameObject avatar)
@@ -2751,8 +2781,7 @@ namespace Pumkin.AvatarTools
                     ResetBlendShapes(SelectedAvatar, false);
                     break;
                 case ToolMenuActions.SetTPose:
-                    //PumkinsPoseEditor.SetTPose(SelectedAvatar);
-                    PumkinsPoseEditor.SetDefaultPoseByName(SelectedAvatar, "TPose");
+                    PumkinsPoseEditor.SetTPoseHardcoded(SelectedAvatar);                    
                     break;
                 case ToolMenuActions.RemoveEmptyGameObjects:
                     DestroyEmptyGameObjects(SelectedAvatar);
@@ -2787,6 +2816,9 @@ namespace Pumkin.AvatarTools
                 case ToolMenuActions.EditScale:
                     BeginScalingAvatar(SelectedAvatar);
                     break;
+                case ToolMenuActions.RevertScale:
+                    RevertScale(SelectedAvatar);
+                    break;
                 default:
                     break;
             }
@@ -2796,6 +2828,21 @@ namespace Pumkin.AvatarTools
             EditorUtility.SetDirty(SelectedAvatar);
             if(!EditorApplication.isPlaying)
                 EditorSceneManager.MarkSceneDirty(SelectedAvatar.scene);
+        }
+
+        private void RevertScale(GameObject avatar)
+        {
+            if(!avatar)
+                return;
+
+            GameObject pref = PrefabUtility.GetCorrespondingObjectFromSource(avatar);
+            var desc = avatar.GetComponent<VRC_AvatarDescriptor>();
+            Vector3 newScale = pref != null ? pref.transform.localScale : Vector3.one;
+
+            if(desc)
+                SetAvatarScale(desc, newScale.y);
+
+            avatar.transform.localScale = newScale;
         }
 
         /// <summary>
@@ -4481,60 +4528,7 @@ namespace Pumkin.AvatarTools
             OnPoseWasChanged(PoseChangeType.Reset);
             return true;
         }
-
-        /// <summary>
-        /// Reset transforms back to prefab values
-        /// </summary>        
-        public static bool ResetPoseOld(GameObject objTo)
-        {
-            if(objTo == null)
-                return false;
-
-            string toPath = Helpers.GetGameObjectPath(objTo);
-#if UNITY_2017
-                var pref = PrefabUtility.GetPrefabParent(objTo.transform.root.gameObject) as GameObject;
-#else
-            var pref = PrefabUtility.GetCorrespondingObjectFromSource(objTo.transform.root.gameObject) as GameObject;
-#endif
-            if(!pref)
-            {
-                Log(Strings.Log.meshPrefabMissingCantRevertPose, LogType.Error);
-                return false;
-            }
-
-            Transform tr = pref.transform.Find(toPath);
-
-            if(!tr)
-                return false;
-
-            GameObject objFrom = tr.gameObject;
-
-            if(objTo.transform != objTo.transform.root)
-            {
-                objTo.transform.localPosition = objFrom.transform.localPosition;
-                objTo.transform.localEulerAngles = objFrom.transform.localEulerAngles;
-                objTo.transform.localRotation = objFrom.transform.localRotation;
-            }
-
-            //Loop through Children
-            for(int i = 0; i < objFrom.transform.childCount; i++)
-            {
-                var fromChild = objFrom.transform.GetChild(i).gameObject;
-                var t = objTo.transform.Find(fromChild.name);
-
-                if(t == null)
-                    continue;
-
-                var toChild = t.gameObject;
-
-                if(fromChild != null && toChild != null)
-                {
-                    ResetPose(toChild);
-                }
-            }
-            return true;
-        }
-
+        
         /// <summary>
         /// Looks for child object in an object's children. Can create if not found.
         /// </summary>

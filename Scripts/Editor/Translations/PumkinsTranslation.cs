@@ -46,6 +46,7 @@ namespace Pumkin.Translations
         public WarningStrings warnings = new WarningStrings();
         public CreditsStrings credits = new CreditsStrings();
         public PoseEditorStrings poseEditor = new PoseEditorStrings();
+        public PresetStrings preset = new PresetStrings();
 
         public override string ToString()
         {
@@ -55,6 +56,14 @@ namespace Pumkin.Translations
             return s;
         }
     };
+
+    [Serializable]
+    public class PresetStrings
+    {
+        public string name = "Preset name";
+        public string mode = "Preset mode";
+        public string otherNames = "Other names";        
+    }
 
     [Serializable]
     public class MainStrings
@@ -96,6 +105,8 @@ namespace Pumkin.Translations
         public string createNewPreset = "Create New Preset";
         public string quickSetupAvatar = "Quick Setup Avatar";
         public string selectInToolsWindow  = "Select in Tools Window";
+        public string resetRenderer = "Reset Renderer";
+        public string revertRenderer = "Revert Renderer";
     };
 
     [Serializable]
@@ -112,6 +123,7 @@ namespace Pumkin.Translations
         public string setTPose = "Force TPose";
         public string setRendererAnchors = "Set Renderer Anchors";
         public string viewpointZDepth = "Z Depth";
+        public string revertScale = "Revert Scale";
     };
 
     [Serializable]
@@ -253,7 +265,7 @@ namespace Pumkin.Translations
         public string meshPrefabMissingCantRevertPose = "Mesh prefab is missing, can't revert to default pose";
         public string runtimeBlueprintNotFoundStartUploading = "RuntimeBlueprintCreation script not found. Start uploading an avatar to use this";
         public string failedToCenterCameraNoDescriptor = "Failed to center camera on Viewpoint. Avatar descriptor not found";
-        public string cantSetTPoseNonHumanoid = "Can't set TPose for non Humanoid avatar";
+        public string cantSetPoseNonHumanoid = "Can't set humanoid pose {0} on a non humanoid avatar";
     };
 
     [Serializable]
@@ -265,6 +277,7 @@ namespace Pumkin.Translations
         public string selectSceneObject = "Please select an object from the scene";
         public string cameraNotFound = "Camera not found";
         public string invalidPreset = "Can't apply preset {0}: Invalid Preset";
+        public string cantRevertRendererWithoutPrefab = "Can't revert Skinned Mesh Renderer {0}, object has no Prefab.";
     };
 
     [Serializable]
@@ -289,7 +302,7 @@ namespace Pumkin.Translations
     [Serializable]
     public class PoseEditorStrings
     {
-        public string title = "Pose Editor (Old)";
+        public string title = "Pumkin's Pose Editor";
         public string scene = "Scene";
         public string sceneLoadAdditive = "Load Additive";
         public string sceneOverrideLights = "Override Lights";
@@ -309,5 +322,8 @@ namespace Pumkin.Translations
         public string saveButton = "Save";
         public string reloadButton = "Reload";
         public string bodyPositionYTooSmall = "humanPose.bodyPosition.y is {0}, you probably don't want that. Setting humanPose.bodyPosition.y to 1";
+        public string muscles = "Muscles";
+        public string transformRotations = "Transform Rotations";
+        public string selectHumanoidAvatar = "Select a Humanoid Avatar";
     }
 }

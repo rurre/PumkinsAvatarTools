@@ -61,16 +61,23 @@ namespace Pumkin.PoseEditor
             pose.ApplyPreset(avatar);
         }
 
+        public static void SetTPose(GameObject avatar)
+        {            
+            //For some reason this doesn't behave the same as SetTPoseHardcoded
+            //despite using the same values. Need to investigate this later.
+            SetDefaultPoseByName(avatar, "tpose");
+        }
+
         /// <summary>
         /// Sets hardcoded TPose.
         /// </summary>        
-        public static void SetTPose(GameObject avatar)
+        public static void SetTPoseHardcoded(GameObject avatar)
         {
             Undo.RegisterFullObjectHierarchyUndo(avatar, "Set TPose");            
                         
             var anim = avatar.GetComponent<Animator>();
 
-            if(anim.avatar && anim.avatar.isHuman)
+            if(anim && anim.avatar && anim.avatar.isHuman)
             {
                 Vector3 pos = avatar.transform.position;
                 Quaternion rot = avatar.transform.rotation;
@@ -193,15 +200,21 @@ namespace Pumkin.PoseEditor
             }
             else
             {
-                PumkinsAvatarTools.Log(Strings.Log.cantSetTPoseNonHumanoid, LogType.Warning);
+                PumkinsAvatarTools.Log(Strings.Log.cantSetPoseNonHumanoid, LogType.Warning, "TPose");
             }
         }
 
         void ApplyHumanPose(GameObject avatar, PumkinsPosePreset hp)
         {
             Undo.RegisterFullObjectHierarchyUndo(avatar, "Load Human Pose");
+
+            Vector3 pos = avatar.transform.position;
+            Quaternion rot = avatar.transform.rotation;
+            avatar.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+
             hp.ApplyPreset(avatar);
             PumkinsAvatarTools.OnPoseWasChanged(PumkinsAvatarTools.PoseChangeType.Normal);
+            avatar.transform.SetPositionAndRotation(pos, rot);
         }
     }       
 }
