@@ -272,8 +272,8 @@ namespace Pumkin.DataStructures
             public static string backgroundType_Image = "_Image";
             public static string hideOtherAvatars = "_Hide Other Avatars when Uploading";
             public static string tint = "_Tint";
-            public static string useCameraOverlay = "_Use Camera Overlay";
-            public static string useCameraBackground = "_Use Camera Background";
+            public static string useCameraOverlay = "_Use Camera Overlay Image";
+            public static string useCameraBackground = "_Use Camera Background Image";
             public static string selectedCamera = "_Selected Camera";
             public static string offset = "_Offset";
             public static string blendshapes = "_Blendshapes";

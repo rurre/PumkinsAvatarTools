@@ -213,8 +213,8 @@ namespace Pumkin.Translations
         public string backgroundType_Image = "Image";
         public string hideOtherAvatars = "Hide Other Avatars when Uploading";
         public string tint = "Tint";
-        public string useCameraOverlay = "Use Camera Overlay";
-        public string useCameraBackground = "Use Camera Background";
+        public string useCameraOverlay = "Use Camera Overlay Image";
+        public string useCameraBackground = "Use Camera Background Image";
         public string selectedCamera = "Selected Camera";
         public string offset = "Offset";        
         public string blendshapes = "Blendshapes";
