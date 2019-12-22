@@ -735,8 +735,9 @@ namespace Pumkin.DataStructures
         public static GUIStyle BigIconButton { get; internal set; }
         public static GUIStyle ToolbarBigButtons { get; internal set; }
         public static GUIStyle Popup { get; internal set; }
-        public static GUIStyle IconButton { get; internal set; }        
-        public static GUIStyle TextField { get; internal set; }        
+        public static GUIStyle IconButton { get; internal set; }
+        public static GUIStyle TextField { get; internal set; }
+        public static GUIStyle IconLabel { get; internal set; }
 
         static Styles()
         {
@@ -796,10 +797,20 @@ namespace Pumkin.DataStructures
                 fixedHeight = 24f,
             };
 
+            IconLabel = new GUIStyle("label")
+            {
+                fixedWidth = 20f,
+                fixedHeight = 20f,
+                imagePosition = ImagePosition.ImageOnly,
+                padding = new RectOffset(0, 0, 0, 0),
+            };
+
             IconButton = new GUIStyle("button")
             {
-                fixedWidth = 24f,
-                fixedHeight = 18f,
+                fixedWidth = 20f,
+                fixedHeight = 20f,
+                imagePosition = ImagePosition.ImageOnly,
+                padding = new RectOffset(0, 0, 0, 0),
             };
 
             CopierToggle = new GUIStyle("Toggle");

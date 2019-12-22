@@ -643,7 +643,7 @@ namespace Pumkin.AvatarTools
         {
             if(AvatarSelectionChanged != null)
                 AvatarSelectionChanged.Invoke(selection);
-            LogVerbose("Avatar selection changed to " + selection != null ? selection.name : "empty");
+            LogVerbose("Avatar selection changed to " + (selection != null ? selection.name : "empty"));
 
 
             //Handle skinned mesh renderer container for blendshape preset gui
@@ -651,11 +651,14 @@ namespace Pumkin.AvatarTools
                 _selectedAvatarRendererHolders = new List<PumkinsRendererBlendshapesHolder>();
             _selectedAvatarRendererHolders.Clear();
 
-            SkinnedMeshRenderer[] smRenderers = selection.GetComponentsInChildren<SkinnedMeshRenderer>();
-            foreach(var smRender in smRenderers)
+            if(selection)
             {
-                if(smRender)
-                    _selectedAvatarRendererHolders.Add((PumkinsRendererBlendshapesHolder)smRender);
+                SkinnedMeshRenderer[] smRenderers = selection.GetComponentsInChildren<SkinnedMeshRenderer>();
+                foreach(var smRender in smRenderers)
+                {
+                    if(smRender)
+                        _selectedAvatarRendererHolders.Add((PumkinsRendererBlendshapesHolder)smRender);
+                }
             }
         }
 
@@ -842,10 +845,8 @@ namespace Pumkin.AvatarTools
 
                 EditorGUIUtility.SetIconSize(new Vector2(tempSize - 3, tempSize - 3));
 
-                if(GUILayout.Button(Icons.Star, "IconButton", GUILayout.MaxWidth(tempSize + 3)))
-                {
-                    _openedInfo = !_openedInfo;
-                }
+                if(GUILayout.Button(Icons.Star, Styles.IconLabel))                
+                    _openedInfo = !_openedInfo;                
             }
             EditorGUILayout.EndHorizontal();
 
