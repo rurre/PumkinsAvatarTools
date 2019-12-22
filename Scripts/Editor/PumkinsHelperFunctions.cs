@@ -36,8 +36,13 @@ namespace Pumkin.HelperFunctions
                 EditorGUILayout.Space();
         }
 
-        public static void DrawDropdownWithToggle(ref bool expandBool, ref bool toggleBool, string label, Texture2D icon = null)
+        /// <summary>
+        /// Draws a expandable menu with a toggle checkbox and label
+        /// </summary>                
+        /// <returns>Returns true if toggleBool was changed</returns>
+        public static bool DrawDropdownWithToggle(ref bool expandBool, ref bool toggleBool, string label, Texture2D icon = null)
         {
+            bool toggleChanged = false;
             float oldWidth = EditorGUIUtility.labelWidth;
             float newWidth = Helpers.CalculateTextWidth(label);
             GUIContent content = new GUIContent(icon);
@@ -51,11 +56,16 @@ namespace Pumkin.HelperFunctions
             EditorGUILayout.BeginHorizontal();
             {
                 expandBool = GUILayout.Toggle(expandBool, content, Styles.Foldout, GUILayout.ExpandHeight(true), GUILayout.MaxWidth(iconWidth), GUILayout.MaxHeight(10));
+                EditorGUI.BeginChangeCheck();
                 toggleBool = GUILayout.Toggle(toggleBool, label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(20), GUILayout.MaxWidth(Helpers.CalculateTextWidth(label)));
+                if(EditorGUI.EndChangeCheck())
+                    toggleChanged = true;
                 expandBool = GUILayout.Toggle(expandBool, GUIContent.none, GUIStyle.none, GUILayout.MinHeight(20f));
             }
             EditorGUILayout.EndHorizontal();
             EditorGUIUtility.labelWidth = oldWidth;
+
+            return toggleChanged;
         }
 
         public static void DrawPropertyArrayScrolling(SerializedProperty property, string displayName, ref bool expanded,
@@ -307,7 +317,7 @@ namespace Pumkin.HelperFunctions
                 }
                 EditorGUILayout.EndHorizontal();
 
-                //Draw rendere dropdown
+                //Draw renderer dropdown
                 if(rendererHolders[i].expandedInUI)
                 {
                     EditorGUILayout.Space();
@@ -331,28 +341,32 @@ namespace Pumkin.HelperFunctions
 
                     EditorGUILayout.Space();
 
-
-                    if(GUILayout.Button(Strings.Buttons.revertRenderer))
+                    EditorGUILayout.BeginHorizontal();
                     {
-                        var prefRender = PrefabUtility.GetCorrespondingObjectFromSource(renderer);
-                        if(prefRender)
+                        if(!EditorApplication.isPlaying && GUILayout.Button(Strings.Buttons.revertRenderer))
                         {
-                            rendererHolders[i] = (PumkinsRendererBlendshapesHolder)prefRender;                            
+                            var prefRender = PrefabUtility.GetCorrespondingObjectFromSource(renderer);
+                            if(prefRender)
+                            {
+                                bool expanded = rendererHolders[i].expandedInUI;
+                                rendererHolders[i] = (PumkinsRendererBlendshapesHolder)prefRender;
+                                rendererHolders[i].expandedInUI = expanded;
+                                rendererShapeChanged[i] = true;
+                            }
+                            else
+                            {
+                                PumkinsAvatarTools.Log(Strings.Warning.cantRevertRendererWithoutPrefab, LogType.Warning, renderer.gameObject.name);
+                            }
+                        }
+                        if(GUILayout.Button(Strings.Buttons.resetRenderer))
+                        {
+                            foreach(var shape in rendererHolders[i].blendshapes)
+                                shape.weight = 0;
+
                             rendererShapeChanged[i] = true;
                         }
-                        else
-                        {
-                            PumkinsAvatarTools.Log(Strings.Warning.cantRevertRendererWithoutPrefab, LogType.Warning, renderer.gameObject.name);
-                        }
                     }
-
-                    if(GUILayout.Button(Strings.Buttons.resetRenderer))
-                    {
-                        foreach(var shape in rendererHolders[i].blendshapes)
-                            shape.weight = 0;
-
-                        rendererShapeChanged[i] = true;
-                    }
+                    EditorGUILayout.EndHorizontal();
 
                     EditorGUILayout.Space(); 
                 }
@@ -625,15 +639,19 @@ namespace Pumkin.HelperFunctions
             return tex;
         }
 
-        public static Texture2D OpenImageTexture(ref string startPath)
+        public static Texture2D OpenImageGetTexture(ref string startPath)
         {
             Texture2D tex = null;
-            string path = EditorUtility.OpenFilePanel("Pick an Image", startPath, "png,jpg,jpeg");
-            tex = GetImageTextureFromPath(path);
-            if(tex)
-                startPath = path;
-
+            string newPath = EditorUtility.OpenFilePanel("Pick an Image", startPath, "png,jpg,jpeg");
+            tex = GetImageTextureFromPath(newPath);
+            if(tex && !string.IsNullOrEmpty(newPath))
+                startPath = newPath;
             return tex;
+        }
+
+        public static string OpenImageGetPath(string startPath = "")
+        {
+            return EditorUtility.OpenFilePanel("Pick an Image", startPath, "png,jpg,jpeg");
         }
 
         public static float GetDeltaMultiplier(float startValue, float endValue)
@@ -651,11 +669,6 @@ namespace Pumkin.HelperFunctions
                 return true;
             else
                 return false;
-        }
-
-        internal static void DrawPropertyArrayWithNames(SerializedProperty pMuscles, object muscles, string[] defaultMusclesNames, ref bool muscles_expand, bool v1, int v2)
-        {
-            throw new NotImplementedException();
         }
 
         public static bool JointsAreIdentical(Joint j1, Joint j2)

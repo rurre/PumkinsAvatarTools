@@ -57,8 +57,8 @@ namespace Pumkin.Presets
             Helpers.DrawGUILine();
 
             if((PumkinsPosePreset.PosePresetMode)pPresetMode.enumValueIndex == PumkinsPosePreset.PosePresetMode.HumanPose)
-            {
-                Helpers.DrawPropertyArrayWithNames(pMuscles, Strings.PoseEditor.muscles, defaultMusclesNames, ref muscles_expand, false, 185);
+            {                
+                Helpers.DrawPropertyArrayWithNames(pMuscles, Strings.PoseEditor.muscles, defaultMusclesNames, ref muscles_expand, 0, 185, false);
             }
             else
             {

@@ -80,52 +80,26 @@ namespace Pumkin.Presets
             PumkinsAvatarTools.Instance.bThumbnails_use_camera_overlay = useOverlay;
             if(useOverlay)
             {
-                if(!string.IsNullOrEmpty(overlayImagePath))
-                {
-                    Texture2D tex = Helpers.GetImageTextureFromPath(overlayImagePath);
-                    if(tex)
-                    {
-                        PumkinsAvatarTools.Instance._overlayPath = overlayImagePath;
-                        PumkinsAvatarTools.Instance.cameraOverlayImageTint = overlayImageTint;
-                        //PumkinsAvatarTools.Instance.SetOverlayTexture(useOverlay, overlayImagePath);                        
-                    }
-                    else
-                    {
-                        //PumkinsAvatarTools.Instance.SetOverlayTexture(false);
-                    }
-                }
-            }
-            else
-            {
-                //PumkinsAvatarTools.Instance.SetOverlayTexture(false);
-            }
+                PumkinsAvatarTools.Instance.SetOverlayToImageFromPath(overlayImagePath);
+            }            
 
-            PumkinsAvatarTools.Instance.bThumbnails_use_camera_background = useBackground;            
-
+            PumkinsAvatarTools.Instance.bThumbnails_use_camera_background = useBackground;
             if(useBackground)
             {
                 PumkinsAvatarTools.Instance.cameraBackgroundType = backgroundType;
-
                 switch(backgroundType)
                 {
-                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Color:
-                        PumkinsAvatarTools.Instance.vrcCamSetBgColor = true;
-                        PumkinsAvatarTools.Instance.vrcCamBgColor = backgroundColor;
-                        PumkinsAvatarTools.Instance.SetBackgroundToColor();
+                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Color:                        
+                        PumkinsAvatarTools.Instance.SetCameraBackgroundToColor(backgroundColor);
                         break;
                     case PumkinsAvatarTools.CameraBackgroundOverrideType.Image:
-                        Texture2D tex = Helpers.GetImageTextureFromPath(backgroundImagePath);
-                        if(tex != null)
-                        {                            
-                            PumkinsAvatarTools.Instance.cameraBackgroundImageTint = backgroundImageTint;
-                            //PumkinsAvatarTools.Instance.SetBackgroundImage(tex, backgroundImagePath);
-                        }
+                        PumkinsAvatarTools.Instance.cameraBackgroundImageTint = backgroundImageTint;
+                        PumkinsAvatarTools.Instance.SetBackgroundToImageFromPath(backgroundImagePath);
                         break;
-                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Material:                          
-                        PumkinsAvatarTools.Instance.SetBackgroundToMaterial(backgroundMaterial);
+                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Skybox:
+                        PumkinsAvatarTools.Instance.SetCameraBackgroundToSkybox(backgroundMaterial);
                         break;
-                    default:
-                        PumkinsAvatarTools.Instance.ResetBackground();
+                    default:                        
                         break;
                 }
             }
@@ -169,13 +143,13 @@ namespace Pumkin.Presets
                 switch(p.backgroundType)
                 {
                     case PumkinsAvatarTools.CameraBackgroundOverrideType.Color:
-                        p.backgroundColor = PumkinsAvatarTools.Instance.vrcCamBgColor;
+                        p.backgroundColor = PumkinsAvatarTools.Instance._thumbsCamBgColor;
                         break;
                     case PumkinsAvatarTools.CameraBackgroundOverrideType.Image:
                         p.backgroundImagePath = PumkinsAvatarTools.Instance._backgroundPath;
                         p.backgroundImageTint = PumkinsAvatarTools.Instance.cameraBackgroundImageTint;
                         break;
-                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Material:
+                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Skybox:
                         p.backgroundMaterial = RenderSettings.skybox;
                         break;
                     default:

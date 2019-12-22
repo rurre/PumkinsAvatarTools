@@ -9,7 +9,7 @@ namespace Pumkin.AvatarTools
     public class _PumkinsAvatarToolsWindow : EditorWindow
     {
         [SerializeField, HideInInspector] static PumkinsAvatarTools _tools;        
-        static EditorWindow _window;
+        static EditorWindow _toolsWindow;
                 
         string[] boneErrors =
             {
@@ -37,24 +37,26 @@ namespace Pumkin.AvatarTools
         public static void ShowWindow()
         {
             //Show existing window instance. If one doesn't exist, make one.
-            if(!_window)
+            if(!_toolsWindow)
             {
-                _window = EditorWindow.GetWindow(typeof(_PumkinsAvatarToolsWindow));
-                _window.autoRepaintOnSceneChange = true;
-                _window.titleContent = new GUIContent(Strings.Main.windowName);
+                _toolsWindow = EditorWindow.GetWindow(typeof(_PumkinsAvatarToolsWindow));
+                _toolsWindow.autoRepaintOnSceneChange = true;
+                _toolsWindow.titleContent = new GUIContent(Strings.Main.windowName);
             }
-            _window.Show();
+            _toolsWindow.Show();
         }
 
         [MenuItem("Tools/Pumkin/Clear Tool Preferences", false, 50)]
         public static void ResetPrefs()
         {
             EditorPrefs.DeleteKey("PumkinToolsWindow");
-            ToolsWindow = null;
-            _DependencyChecker.Status = _DependencyChecker.CheckerStatus.DEFAULT;
-
-            if(_window)
-                _window.Repaint();
+            if(_tools)            
+                _tools.ResetEverything();                
+            
+            if(_toolsWindow)                            
+                DestroyImmediate(_toolsWindow);            
+            
+            _DependencyChecker.Status = _DependencyChecker.CheckerStatus.DEFAULT;            
         }
 
         private void OnEnable()
@@ -118,8 +120,8 @@ namespace Pumkin.AvatarTools
 
         public static void RepaintSelf()
         {
-            if(_window)
-                _window.Repaint();
+            if(_toolsWindow)
+                _toolsWindow.Repaint();
         }
 
         [UnityEditor.Callbacks.DidReloadScripts]

@@ -107,6 +107,7 @@ namespace Pumkin.Translations
         public string selectInToolsWindow  = "Select in Tools Window";
         public string resetRenderer = "Reset Renderer";
         public string revertRenderer = "Revert Renderer";
+        public string alignCameraToView = "Align Camera to View";
     };
 
     [Serializable]
@@ -208,13 +209,13 @@ namespace Pumkin.Translations
         public string centerCameraOnViewpoint = "Center Camera on Viewpoint";
         public string backgroundType = "Background Type";
         public string backgroundType_None = "None";
-        public string backgroundType_Material = "Material";
+        public string backgroundType_Material = "Skybox";
         public string backgroundType_Color = "Color";
         public string backgroundType_Image = "Image";
         public string hideOtherAvatars = "Hide Other Avatars when Uploading";
         public string tint = "Tint";
-        public string useCameraOverlay = "Use Camera Overlay Image";
-        public string useCameraBackground = "Use Camera Background Image";
+        public string useCameraOverlay = "Use Camera Overlay";
+        public string useCameraBackground = "Use Camera Background";
         public string selectedCamera = "Selected Camera";
         public string offset = "Offset";        
         public string blendshapes = "Blendshapes";
@@ -266,6 +267,9 @@ namespace Pumkin.Translations
         public string runtimeBlueprintNotFoundStartUploading = "RuntimeBlueprintCreation script not found. Start uploading an avatar to use this";
         public string failedToCenterCameraNoDescriptor = "Failed to center camera on Viewpoint. Avatar descriptor not found";
         public string cantSetPoseNonHumanoid = "Can't set humanoid pose {0} on a non humanoid avatar";
+        public string loadedImageAsBackground = "Loaded {0} as Background image";
+        public string loadedImageAsOverlay = "Loaded {0} as Overlay image";
+        public string setProbeAnchorTo = "Set {0}'s probe anchor to {1}";
     };
 
     [Serializable]
@@ -278,6 +282,7 @@ namespace Pumkin.Translations
         public string cameraNotFound = "Camera not found";
         public string invalidPreset = "Can't apply preset {0}: Invalid Preset";
         public string cantRevertRendererWithoutPrefab = "Can't revert Skinned Mesh Renderer {0}, object has no Prefab.";
+        public string cantLoadImageAtPath = "Can't load image at {0}";
     };
 
     [Serializable]

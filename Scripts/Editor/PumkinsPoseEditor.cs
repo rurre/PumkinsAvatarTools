@@ -64,7 +64,7 @@ namespace Pumkin.PoseEditor
         public static void SetTPose(GameObject avatar)
         {            
             //For some reason this doesn't behave the same as SetTPoseHardcoded
-            //despite using the same values. Need to investigate this later.
+            //despite using the same values. TODO: Investigate this later.
             SetDefaultPoseByName(avatar, "tpose");
         }
 
@@ -89,10 +89,17 @@ namespace Pumkin.PoseEditor
                 var humanPose = new HumanPose();
                 humanPoseHandler.GetHumanPose(ref humanPose);
 
-                if(humanPose.bodyPosition.y < 1 && !Mathf.Approximately(humanPose.bodyPosition.y, 1))
+                //A long time ago CATS used to export avatars with a Armature scale of 100. This caused issues applying poses.
+                //For now we'll just hardcode search for "Armature".
+                //TODO: Find a better way to get the armature and check if it's scale could cause issues when tposing
+                Transform armature = avatar.transform.Find("Armature");
+                if(!(armature && armature.localScale == Vector3.one))
                 {
-                    PumkinsAvatarTools.Log(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, humanPose.bodyPosition.y.ToString());
-                    humanPose.bodyPosition.y = 1;
+                    if(humanPose.bodyPosition.y < 1 && !Mathf.Approximately(humanPose.bodyPosition.y, 1))
+                    {
+                        humanPose.bodyPosition.y = 1;
+                        PumkinsAvatarTools.LogVerbose(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, humanPose.bodyPosition.y.ToString());
+                    }
                 }
 
                 #region Hardcoded TPose Values

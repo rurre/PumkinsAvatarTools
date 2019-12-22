@@ -104,7 +104,7 @@ namespace Pumkin.Presets
                         EditorGUILayout.PropertyField(pBackgroundImagePath, new GUIContent("Image Path"));
                         EditorGUILayout.PropertyField(pBackgroundImageTint, new GUIContent("Image Tint"));
                         break;
-                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Material:
+                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Skybox:
                         EditorGUILayout.PropertyField(pBackgroundMaterial, new GUIContent("Material"));
                         break;
                     default:

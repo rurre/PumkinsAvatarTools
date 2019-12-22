@@ -122,6 +122,7 @@ namespace Pumkin.DataStructures
             public static string selectInToolsWindow  = "_Select in Tools Window";
             public static string resetRenderer = "_Reset Renderer";
             public static string revertRenderer = "_Revert Renderer";
+            public static string alignCameraToView = "_Align Camera to View";
 
             static Buttons()
             {
@@ -156,6 +157,7 @@ namespace Pumkin.DataStructures
                 selectInToolsWindow = Translation.buttons.selectInToolsWindow;
                 resetRenderer = Translation.buttons.resetRenderer;
                 revertRenderer = Translation.buttons.revertRenderer;
+                alignCameraToView = Translation.buttons.alignCameraToView;
             }
         };
         public static class Tools
@@ -267,7 +269,7 @@ namespace Pumkin.DataStructures
             public static string centerCameraOnViewpoint = "_Center Camera on Viewpoint";
             public static string backgroundType = "_Background Type";
             public static string backgroundType_None = "_None";
-            public static string backgroundType_Material = "_Material";
+            public static string backgroundType_Material = "_Skybox";
             public static string backgroundType_Color = "_Color";
             public static string backgroundType_Image = "_Image";
             public static string hideOtherAvatars = "_Hide Other Avatars when Uploading";
@@ -462,8 +464,10 @@ namespace Pumkin.DataStructures
             public static string meshPrefabMissingCantRevertPose = "_Mesh prefab is missing, can't revert to default pose";
             public static string runtimeBlueprintNotFoundStartUploading = "_RuntimeBlueprintCreation script not found. Start uploading an avatar to use this";
             public static string failedToCenterCameraNoDescriptor = "_Failed to center camera on Viewpoint. Avatar descriptor not found";            
-            public static string setProbeAnchorTo = "_Set {0} probe anchor to {1}";
+            public static string setProbeAnchorTo = "_Set {0}'s probe anchor to {1}";
             public static string cantSetPoseNonHumanoid = "_Can't set humanoid pose {0} on a non humanoid avatar";
+            public static string loadedImageAsBackground = "_Loaded {0} as Background image";
+            public static string loadedImageAsOverlay = "_Loaded {0} as Overlay image";
 
             static Log()
             {
@@ -511,7 +515,10 @@ namespace Pumkin.DataStructures
                 runtimeBlueprintNotFoundStartUploading = Translation.log.runtimeBlueprintNotFoundStartUploading;
                 failedToCenterCameraNoDescriptor = Translation.log.failedToCenterCameraNoDescriptor;
                 cantSetPoseNonHumanoid = Translation.log.cantSetPoseNonHumanoid;
-            }
+                setProbeAnchorTo = Translation.log.setProbeAnchorTo;
+                loadedImageAsBackground = Translation.log.loadedImageAsBackground;
+                loadedImageAsOverlay = Translation.log.loadedImageAsOverlay;
+        }
         };
         public static class Warning
         {
@@ -522,6 +529,7 @@ namespace Pumkin.DataStructures
             public static string cameraNotFound = "_Camera not found";
             public static string invalidPreset = "_Can't apply preset {0}: Invalid Preset";
             public static string cantRevertRendererWithoutPrefab = "_Can't revert Skinned Mesh Renderer {0}, object has no Prefab.";
+            public static string cantLoadImageAtPath = "_Can't load image at {0}";
 
             static Warning()
             {
