@@ -31,6 +31,11 @@ namespace Pumkin.Presets
             Helpers.DrawGUILine();
             Helpers.DrawBlendshapeSlidersWithDeleteAndAdd(ref preset.renderers, null);
 
+            Helpers.DrawGUILine();
+
+            if(GUILayout.Button(Strings.Buttons.selectInToolsWindow, Styles.BigButton))
+                PumkinsPresetManager.SelectPresetInToolWindow(preset);
+
             serializedPreset.ApplyModifiedProperties();
         }        
     }

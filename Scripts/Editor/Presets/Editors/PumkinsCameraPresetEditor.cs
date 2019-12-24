@@ -10,9 +10,10 @@ namespace Pumkin.Presets
 {
     [CustomEditor(typeof(PumkinsCameraPreset))]
     public class PumkinsCameraPresetEditor : Editor
-    {
-        SerializedObject st;
+    {        
+        PumkinsCameraPreset preset;
 
+        SerializedObject st;
         SerializedProperty pName,
             pOffsetMode,
             pTransformPath,
@@ -26,16 +27,15 @@ namespace Pumkin.Presets
             pBackgroundColor,
             pBackgroundImagePath,
             pBackgroundImageTint,
-            pBackgroundMaterial;            
+            pBackgroundMaterial;
 
-        PumkinsCameraPreset Preset
-        {
-            get { return (PumkinsCameraPreset)target; }
-        }
+        
 
         private void OnEnable()
         {
-            st = new SerializedObject(Preset);
+            preset = (PumkinsCameraPreset)target;
+
+            st = new SerializedObject(preset);
             pName = st.FindProperty("name");
             pOffsetMode = st.FindProperty("offsetMode");
             pTransformPath = st.FindProperty("transformPath");
@@ -122,7 +122,7 @@ namespace Pumkin.Presets
             Helpers.DrawGUILine();
 
             if(GUILayout.Button(Strings.Buttons.selectInToolsWindow, Styles.BigButton))            
-                PumkinsPresetManager.SelectPresetInToolWindow(Preset);            
+                PumkinsPresetManager.SelectPresetInToolWindow(preset);            
 
             st.ApplyModifiedProperties();
         }    

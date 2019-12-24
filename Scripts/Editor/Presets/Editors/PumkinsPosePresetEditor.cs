@@ -12,6 +12,7 @@ namespace Pumkin.Presets
     [CustomEditor(typeof(PumkinsPosePreset))]
     public class PumkinsPosePresetEditor : Editor
     {
+        PumkinsPosePreset preset;
         static string[] defaultMusclesNames;
 
         bool muscles_expand = false;
@@ -25,17 +26,14 @@ namespace Pumkin.Presets
             pTransformPaths,
             pTransformRotations;              
 
-        PumkinsPosePreset Preset
-        {
-            get { return (PumkinsPosePreset)target; }
-        }
 
         private void OnEnable()
-        {            
+        {
+            preset = (PumkinsPosePreset)target;
             if(defaultMusclesNames == null || defaultMusclesNames.Length == 0)
                 defaultMusclesNames = HumanTrait.MuscleName;
 
-            serializedPosePreset = new SerializedObject(Preset);            
+            serializedPosePreset = new SerializedObject(preset);
             
             pName = serializedPosePreset.FindProperty("name");
             pMuscles = serializedPosePreset.FindProperty("muscles");
@@ -74,10 +72,8 @@ namespace Pumkin.Presets
 
             Helpers.DrawGUILine();
 
-            if(GUILayout.Button(Strings.Buttons.selectInToolsWindow))
-            {
-                PumkinsPresetManager.SelectPresetInToolWindow(Preset);
-            }
+            if(GUILayout.Button(Strings.Buttons.selectInToolsWindow))            
+                PumkinsPresetManager.SelectPresetInToolWindow(preset);            
 
             serializedPosePreset.ApplyModifiedProperties();
         }
