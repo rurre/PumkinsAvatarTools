@@ -1,5 +1,4 @@
 #define NEWSDK
-using Newtonsoft.Json;
 using Pumkin.AvatarTools;
 using Pumkin.HelperFunctions;
 using Pumkin.PoseEditor;
