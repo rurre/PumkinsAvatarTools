@@ -248,6 +248,7 @@ Material:
     - _ApplyGamma: 0
     - _AttenuationMultiplier: 0
     - _BlendOp: 0
+    - _Brightness: 1
     - _BumpMapUV: 0
     - _BumpScale: 1
     - _CameraAngleMax: 90

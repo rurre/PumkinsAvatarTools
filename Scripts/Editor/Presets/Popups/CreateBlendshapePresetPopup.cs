@@ -25,12 +25,12 @@ namespace Pumkin.Presets
 
             if(editingExistingPreset)
             {
-                _window.titleContent = new GUIContent("Edit Blendshape Preset");
+                _window.titleContent = new GUIContent(Strings.Presets.editBlendshapePreset);
                 _overwriteFile = true;
             }
             else
             {
-                _window.titleContent = new GUIContent("Create Blendshape Preset");
+                _window.titleContent = new GUIContent(Strings.Presets.createBlendshapePreset);
             }
 
             _window.ShowUtility();
@@ -71,7 +71,7 @@ namespace Pumkin.Presets
             {
                 EditorGUILayout.Space();
 
-                preset.name = EditorGUILayout.TextField("Preset Name", preset.name);
+                preset.name = EditorGUILayout.TextField(Strings.Presets.presetName, preset.name);
 
                 Helpers.DrawGUILine();
 
@@ -85,28 +85,12 @@ namespace Pumkin.Presets
                 
                 EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(preset.name) || !PumkinsAvatarTools.SelectedAvatar);
                 {
-                    if(editingExistingPreset)
+                    if(!editingExistingPreset)
                     {
-                        //EditorGUILayout.BeginHorizontal();
-                        //if(GUILayout.Button("Cancel", Styles.BigButton))
-                        //{
-                        //    _saveEdittedChanges = false;
-                        //    Close();
-                        //}
-                        //if(GUILayout.Button("Save Changes", Styles.BigButton))
-                        //{
-                        //    _saveEdittedChanges = true;
-                        //    EditorUtility.SetDirty(preset);
-                        //    Close();
-                        //}
-                        //EditorGUILayout.EndHorizontal();
-                    }
-                    else
-                    {
-                        _overwriteFile = GUILayout.Toggle(_overwriteFile, "Overwrite File");
-                        if(GUILayout.Button("Save Preset", Styles.BigButton))
+                        _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
+                        if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
                             preset.SavePreset(_overwriteFile);
-                    }                    
+                    }
                 }
                 EditorGUI.EndDisabledGroup();
                 
@@ -122,7 +106,7 @@ namespace Pumkin.Presets
             if(PumkinsAvatarTools.SelectedAvatar)
                 Helpers.DrawBlendshapeSlidersWithDeleteAndAdd(ref p.renderers, PumkinsAvatarTools.SelectedAvatar);
             else
-                EditorGUILayout.TextField("_Select an Avatar first.", Styles.HelpBox_OneLine);
+                EditorGUILayout.TextField(Strings.PoseEditor.selectHumanoidAvatar, Styles.HelpBox_OneLine);
         }
 
         protected override void RefreshSelectedPresetIndex()

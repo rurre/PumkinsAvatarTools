@@ -20,16 +20,18 @@ public abstract class CreatePresetPopupBase : EditorWindow
 
     static protected bool editingExistingPreset = false;
 
-    static protected void AssignOrCreatePreset<T>(PumkinPreset newPreset) where T : PumkinPreset
+    static protected PumkinPreset AssignOrCreatePreset<T>(PumkinPreset newPreset) where T : PumkinPreset
     {
         editingExistingPreset = true;
         PumkinsPresetManager.CleanupPresetsOfType<T>();
         if(!newPreset)
         {
             newPreset = CreateInstance<T>();
+            newPreset.name = "";
             editingExistingPreset = false;
         }
-        preset = newPreset;        
+        preset = newPreset;
+        return preset;
     }
 
     protected abstract void RefreshSelectedPresetIndex();

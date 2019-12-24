@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Pumkin.PoseEditor
 {
     public class PumkinsMuscleEditorUtils
-    {        
+    {
         public static void HandleClickSelection(GameObject gameObject, Event evt)
         {
             if(evt.shift || EditorGUI.actionKey)
@@ -52,6 +52,7 @@ namespace Pumkin.PoseEditor
                 if(!bone)
                     continue;
                 Handles.DrawPolyLine(bone.root.position, bone.tip.position);
+                Handles.SphereHandleCap(0, bone.root.position, bone.root.localRotation, 0.02f, EventType.Repaint);     
             }
         }
     }

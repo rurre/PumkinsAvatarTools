@@ -23,10 +23,10 @@ namespace Pumkin.Presets
             if(defaultMusclesNames == null || defaultMusclesNames.Length == 0)
                 defaultMusclesNames = HumanTrait.MuscleName;
 
-            NewMethod();
+            SetupProperties();
         }
 
-        private void NewMethod()
+        private void SetupProperties()
         {
             serializedPosePreset = new SerializedObject(preset);
 
@@ -45,14 +45,14 @@ namespace Pumkin.Presets
                 _window.autoRepaintOnSceneChange = true;
             }
 
-            if(newPreset)
+            if(editingExistingPreset)
             {
-                _window.titleContent = new GUIContent("Edit Pose Preset");
+                _window.titleContent = new GUIContent(Strings.Presets.editPosePreset);
                 _overwriteFile = true;
             }
             else
             {
-                _window.titleContent = new GUIContent("Create Pose Preset");
+                _window.titleContent = new GUIContent(Strings.Presets.createPosePreset);
             }
 
             _window.ShowUtility();
@@ -68,7 +68,7 @@ namespace Pumkin.Presets
             {
                 EditorGUILayout.Space();
 
-                preset.name = EditorGUILayout.TextField("Preset Name", preset.name);
+                preset.name = EditorGUILayout.TextField(Strings.Presets.presetName, preset.name);
 
                 Helpers.DrawGUILine();
 
@@ -76,14 +76,14 @@ namespace Pumkin.Presets
 
                 Helpers.DrawGUILine();
 
-                preset.presetMode = (PumkinsPosePreset.PosePresetMode)EditorGUILayout.EnumPopup("Pose Mode", preset.presetMode);
+                preset.presetMode = (PumkinsPosePreset.PosePresetMode)EditorGUILayout.EnumPopup(Strings.Presets.poseMode, preset.presetMode);
 
                 Helpers.DrawGUILine();
 
                 EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedAvatar || !preset || string.IsNullOrEmpty(preset.name));
                 {
-                    _overwriteFile = GUILayout.Toggle(_overwriteFile, "Overwrite File");
-                    if(GUILayout.Button("Save Preset", Styles.BigButton))
+                    _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
+                    if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
                     {
                         preset.SetupPreset(preset.name, PumkinsAvatarTools.SelectedAvatar, preset.presetMode);
                         if(preset)

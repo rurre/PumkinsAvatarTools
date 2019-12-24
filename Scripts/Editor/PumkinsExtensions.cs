@@ -149,6 +149,6 @@ namespace Pumkin.Extensions
 
                 list.AddRange(Enumerable.Repeat(element, size - count));
             }
-        }
+        }        
     }
 }

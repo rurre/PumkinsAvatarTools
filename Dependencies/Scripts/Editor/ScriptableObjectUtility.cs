@@ -8,6 +8,11 @@ public static class ScriptableObjectUtility
 {    
     public static void SaveAsset<T>(T asset, string name, string path, bool overwriteExisting = false) where T : ScriptableObject
     {
+        if(asset == null)
+        {
+            Debug.LogWarning("Attempting to create a null asset.");
+            return;
+        }
         try
         {
             if(!name.Contains(".asset"))
@@ -18,14 +23,18 @@ public static class ScriptableObjectUtility
                 path = path.Substring(Application.dataPath.Length);
             }
 
-            path = path.TrimStart('/', '\\');
-
-            string fullPath = Application.dataPath + path + name;
-            string finalPath = path + name;
+            path = path.TrimStart('/', '\\');            
+            string finalPath = path;
 
             if(!finalPath.ToLower().StartsWith("assets/"))
                 finalPath = "Assets/" + finalPath;
-            
+                        
+            var subFolders = name.Split('/', '\\');
+            if(subFolders.Length > 0)
+                name = subFolders[subFolders.Length - 1];   
+
+            string fullPath = Application.dataPath + "/" + path + name;
+
             if(File.Exists(fullPath))
             {
                 if(overwriteExisting)
@@ -40,7 +49,7 @@ public static class ScriptableObjectUtility
                 }
             }
 
-            AssetDatabase.CreateAsset(asset, finalPath);
+            AssetDatabase.CreateAsset(asset, finalPath + name);
             //Debug.Log("Should create " + finalPath);
 
             AssetDatabase.SaveAssets();
@@ -54,10 +63,11 @@ public static class ScriptableObjectUtility
             return;
         }
     }
+    
     /// <summary>
     //	This makes it easy to create, name and place unique new ScriptableObject asset files.
     /// </summary>
-    public static T CreateAsset<T>(string name, string path, bool overwriteExisting = false) where T : ScriptableObject
+    public static T CreateAndSaveAsset<T>(string name, string path, bool overwriteExisting = false) where T : ScriptableObject
     {
         T asset = ScriptableObject.CreateInstance<T>();
         SaveAsset(asset, name, path, overwriteExisting);

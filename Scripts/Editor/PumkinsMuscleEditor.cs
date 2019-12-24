@@ -22,7 +22,7 @@ namespace Pumkin.PoseEditor
 
         static Animator _avatarAnimator;
 
-        static bool _drawSkeleton = true;
+        static bool _drawSkeleton = false;
 
         static bool _openedSettings = false;
 
@@ -46,7 +46,8 @@ namespace Pumkin.PoseEditor
         {
             get
             {
-                return windowIsFocused == true ? _drawSkeleton : false;
+                //return windowIsFocused == true ? _drawSkeleton : false;
+                return _drawSkeleton;
             }
             set
             {
@@ -157,23 +158,18 @@ namespace Pumkin.PoseEditor
 
         void DrawHandlesGUI(SceneView sceneView)
         {
-            if(DrawSkeleton && bones.Count > 0)
-            {
-                PumkinsMuscleEditorUtils.DrawBones(bones);
-            }
+            if(DrawSkeleton && bones.Count > 0)            
+                PumkinsMuscleEditorUtils.DrawBones(bones);            
         }       
 
         public void OnGUI()
-        {
-
-            int tempSize = Styles.Label_mainTitle.fontSize + 6;
+        {                        
             EditorGUILayout.BeginHorizontal();
             {
-                EditorGUILayout.LabelField(Strings.PoseEditor.title, Styles.Label_mainTitle, GUILayout.MinHeight(tempSize));                
+                EditorGUILayout.LabelField(Strings.PoseEditor.title, Styles.Label_mainTitle);
 
                 if(GUILayout.Button(Icons.Settings, Styles.IconButton))                
-                    _openedSettings = !_openedSettings;
-                
+                    _openedSettings = !_openedSettings;                
             }
             EditorGUILayout.EndHorizontal();
 
@@ -205,7 +201,7 @@ namespace Pumkin.PoseEditor
 
         private void DrawSettingsGUI()
         {
-            DrawSkeleton = GUILayout.Toggle(DrawSkeleton, "_Show Skeleton");
+            _drawSkeleton = GUILayout.Toggle(_drawSkeleton, "_Show Skeleton");
         }
 
         private void DrawMainGUI()

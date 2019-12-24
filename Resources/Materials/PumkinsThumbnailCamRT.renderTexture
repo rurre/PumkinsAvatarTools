@@ -15,12 +15,12 @@ RenderTexture:
   m_Width: 800
   m_Height: 600
   m_AntiAliasing: 4
-  m_DepthFormat: 1
-  m_ColorFormat: 0
+  m_DepthFormat: 2
+  m_ColorFormat: 22
   m_MipMap: 0
   m_GenerateMips: 1
-  m_SRGB: 1
-  m_UseDynamicScale: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
   m_BindMS: 0
   m_TextureSettings:
     serializedVersion: 2

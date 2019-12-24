@@ -8,8 +8,7 @@ namespace Pumkin.Presets
 {
     public class CreateCamerePresetPopup : CreatePresetPopupBase
     {
-        static Transform referenceTransform;
-        static RenderTexture tempRT = null;
+        static Transform referenceTransform;        
 
         public static void ShowWindow(PumkinsCameraPreset newPreset = null)
         {
@@ -21,17 +20,80 @@ namespace Pumkin.Presets
                 _window.autoRepaintOnSceneChange = true;
             }
 
-            if(newPreset)
+            if(editingExistingPreset)
             {
-                _window.titleContent = new GUIContent("Edit Camera Preset");
+                _window.titleContent = new GUIContent(Strings.Presets.editCameraPreset);
                 _overwriteFile = true;
             }
             else
             {
-                _window.titleContent = new GUIContent("Create Camera Preset");
+                _window.titleContent = new GUIContent(Strings.Presets.createCameraPreset);
             }
 
             _window.ShowUtility();
+        }
+
+        void OnEnable()
+        {
+            PumkinsAvatarTools.CameraSelectionChanged += HandleCameraSelectionChanged;
+
+            PumkinsAvatarTools.SelectedCamera.targetTexture = PumkinsAvatarTools.DefaultRT;
+            
+            RefreshReferenceTransform();
+        }
+
+        private static void RefreshReferenceTransform()
+        {
+            PumkinsCameraPreset p = (PumkinsCameraPreset)preset;
+            if(!p || p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Viewpoint)
+                return;
+
+            GameObject avatar = PumkinsAvatarTools.SelectedAvatar;
+            if(!string.IsNullOrEmpty(p.transformPath) && avatar)
+                referenceTransform = avatar.transform.Find(p.transformPath);
+        }
+
+        private void OnDestroy()
+        {
+            if(editingExistingPreset)            
+                GetNewOffsetsAndApplyToPreset();            
+        }
+
+        private static void GetNewOffsetsAndApplyToPreset()
+        {
+            PumkinsCameraPreset p = (PumkinsCameraPreset)preset;
+            Camera camera = PumkinsAvatarTools.SelectedCamera;
+            GameObject avatar = PumkinsAvatarTools.SelectedAvatar;            
+            if(avatar && camera && p)
+            {
+                if(p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.AvatarRoot)
+                    p.CalculateOffsets(avatar.transform.root, camera);
+                else if(p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform && referenceTransform)                
+                    p.CalculateOffsets(referenceTransform, camera);                
+                else
+                    p.CalculateOffsets(PumkinsAvatarTools.SelectedAvatar.GetComponent<VRCSDK2.VRC_AvatarDescriptor>(), camera);                
+            }
+            preset = p;
+        }
+
+        private new void OnDisable()
+        {
+            base.OnDisable();
+            PumkinsAvatarTools.CameraSelectionChanged -= HandleCameraSelectionChanged;
+        }
+
+        private void HandleCameraSelectionChanged(Camera camera)
+        {
+            if(!camera)
+                return;
+            camera.targetTexture = PumkinsAvatarTools.DefaultRT;
+
+            RefreshReferenceTransform();
+        }
+
+        protected override void RefreshSelectedPresetIndex()
+        {
+            PumkinsAvatarTools.RefreshPresetIndexByString<PumkinsCameraPreset>(preset.name);
         }
 
         void OnInspectorUpdate()
@@ -41,110 +103,77 @@ namespace Pumkin.Presets
 
         void OnGUI()
         {
-            PumkinsCameraPreset preset = (PumkinsCameraPreset)CreatePresetPopupBase.preset;
-            Camera newCam;
-
-            if(!preset)
-                AssignOrCreatePreset<PumkinsCameraPreset>(null);
+            PumkinsCameraPreset newPreset = (PumkinsCameraPreset)preset;            
+            if(!newPreset) //Not sure I like this part
+            {
+                newPreset = (PumkinsCameraPreset)AssignOrCreatePreset<PumkinsCameraPreset>(null);
+                preset = newPreset;
+            }
 
             Rect r = GUILayoutUtility.GetAspectRect(1.3f);
-            EditorGUI.DrawPreviewTexture(r, PumkinsAvatarTools.RTTexture, PumkinsAvatarTools.RTMaterial, ScaleMode.ScaleToFit);
-
-            EditorGUILayout.HelpBox(Strings.Thumbnails.previewIsDark, MessageType.Info);
+            EditorGUI.DrawTextureTransparent(r, PumkinsAvatarTools.SelectedCamRT, ScaleMode.ScaleToFit);            
 
             scroll = EditorGUILayout.BeginScrollView(scroll);
             {
-                preset.name = EditorGUILayout.TextField("Preset Name", preset.name);
-
-                EditorGUILayout.Space();
-
-                PumkinsAvatarTools.DrawAvatarSelectionWithButton(false, false);
-
-                Helpers.DrawGUILine();
-
-                EditorGUI.BeginChangeCheck();
+                if(newPreset)
                 {
-                    newCam = (Camera)EditorGUILayout.ObjectField("Camera", PumkinsAvatarTools.SelectedCamera, typeof(Camera), true);
-                }
-                if(EditorGUI.EndChangeCheck())
-                {
-                    PumkinsAvatarTools.SelectedCamera.targetTexture = tempRT;
-                    tempRT = newCam.targetTexture;
+                    newPreset.name = EditorGUILayout.TextField(Strings.Presets.presetName, newPreset.name);
 
-                    PumkinsAvatarTools.SelectedCamera = newCam;
-                }
+                    EditorGUILayout.Space();
 
-                EditorGUILayout.Space();
+                    PumkinsAvatarTools.DrawAvatarSelectionWithButton(false, false);
 
-                preset.offsetMode = (PumkinsCameraPreset.CameraOffsetMode)EditorGUILayout.EnumPopup("Offset Mode", preset.offsetMode);
-                if(preset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform)
-                {
-                    EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedAvatar);
+                    Helpers.DrawGUILine();
+                    
+                    PumkinsAvatarTools.SelectedCamera = (Camera)EditorGUILayout.ObjectField(Strings.Presets.camera, PumkinsAvatarTools.SelectedCamera, typeof(Camera), true);                                        
+
+                    EditorGUILayout.Space();
+
+                    newPreset.offsetMode = (PumkinsCameraPreset.CameraOffsetMode)EditorGUILayout.EnumPopup(Strings.Presets.offsetMode, newPreset.offsetMode);
+                    if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform)
                     {
-                        referenceTransform = EditorGUILayout.ObjectField("Transform", referenceTransform, typeof(Transform), true) as Transform;
-                        if(referenceTransform && !referenceTransform.IsChildOf(PumkinsAvatarTools.SelectedAvatar.transform))
+                        EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedAvatar);
                         {
-                            PumkinsAvatarTools.Log("{0} doesn't belong to avatar {1}.", LogType.Warning, referenceTransform.name, PumkinsAvatarTools.SelectedAvatar.name);
-                            referenceTransform = null;
+                            referenceTransform = EditorGUILayout.ObjectField(Strings.Presets.transform, referenceTransform, typeof(Transform), true) as Transform;
+                            if(referenceTransform && !referenceTransform.IsChildOf(PumkinsAvatarTools.SelectedAvatar.transform))
+                            {
+                                PumkinsAvatarTools.Log(Strings.Presets.transformDoesntBelongToAvatar, LogType.Warning, referenceTransform.name, PumkinsAvatarTools.SelectedAvatar.name);
+                                referenceTransform = null;
+                            }
                         }
                     }
-                }
-                EditorGUILayout.Space();
+                    EditorGUILayout.Space();
 
-                Helpers.DrawGUILine();
+                    Helpers.DrawGUILine();
 
-                PumkinsAvatarTools.Instance.DrawOverlayGUI();
+                    PumkinsAvatarTools.Instance.DrawOverlayGUI();
 
-                EditorGUILayout.Space();
+                    Helpers.DrawGUILine();
 
-                //PumkinsAvatarTools.Instance.DrawBackgroundGUI();
+                    PumkinsAvatarTools.Instance.DrawBackgroundGUI();
 
-                EditorGUILayout.Space();
+                    Helpers.DrawGUILine();
 
-                Helpers.DrawGUILine();
+                    PumkinsAvatarTools.Instance.DrawCameraControlButtons();
 
-                EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedCamera || string.IsNullOrEmpty(preset.name) || !PumkinsAvatarTools.SelectedAvatar);
-                {
-                    _overwriteFile = GUILayout.Toggle(_overwriteFile, "Overwrite File");
-                    if(GUILayout.Button("Save Preset", Styles.BigButton))
+                    if(!editingExistingPreset)
                     {
-                        if(preset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform)
-                            preset.SavePreset(referenceTransform.gameObject, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
-                        else
-                            preset.SavePreset(PumkinsAvatarTools.SelectedAvatar, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
+                        EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedCamera || string.IsNullOrEmpty(newPreset.name) || !PumkinsAvatarTools.SelectedAvatar);
+                        {
+                            _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
+                            if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
+                            {
+                                if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform)
+                                    newPreset.SavePreset(referenceTransform.gameObject, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
+                                else
+                                    newPreset.SavePreset(PumkinsAvatarTools.SelectedAvatar, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
+                            }
+                        }
+                        EditorGUI.EndDisabledGroup();
                     }
                 }
-                EditorGUI.EndDisabledGroup();
             }
-            EditorGUILayout.EndScrollView();
-
-            CreatePresetPopupBase.preset = preset;
-        }
-
-        void OnEnable()
-        {
-            Camera cam = PumkinsAvatarTools.SelectedCamera;
-            if(cam)
-            {
-                tempRT = cam.activeTexture;
-                if(!cam.targetTexture)
-                    cam.targetTexture = PumkinsAvatarTools.DefaultRT;
-
-                cam.farClipPlane = 1000;
-                cam.nearClipPlane = 0.01f;
-
-                PumkinsAvatarTools.RTTexture = cam.targetTexture;
-            }
-        }
-
-        void OnDestroy()
-        {
-            PumkinsAvatarTools.SelectedCamera.targetTexture = tempRT;
-        }
-
-        protected override void RefreshSelectedPresetIndex()
-        {
-            PumkinsAvatarTools.RefreshPresetIndexByString<PumkinsCameraPreset>(preset.name);
+            EditorGUILayout.EndScrollView();            
         }
     }
 }

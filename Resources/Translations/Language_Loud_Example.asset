@@ -3,13 +3,14 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6888704aad6f47442971dbe67f6fa40a, type: 3}
-  m_Name: Language_Loud_Example
+  m_Name: LANGUAGE_LOUD_EXAMPLE
   m_EditorClassIdentifier: 
   languageName: LOUD ENGLISH
   author: EXAMPLE
@@ -34,12 +35,25 @@ MonoBehaviour:
     copy: COPY TEXT
     openHelpPage: OPEN HELP PAGE
     openGithubPage: OPEN GITHUB PAGE
-    openDonationPage: BUY ME A KO-FI
+    openDonationPage: BUY ME A KO-FI~
     openPoseEditor: OPEN POSE EDITOR
-    joinDiscordServer: JOIN DISCORD SERVER!!!
+    joinDiscordServer: JOIN DISCORD SERVER!
     selectNone: SELECT NONE
     selectAll: SELECT ALL
     browse: BROWSE
+    setFromCamera: SET FROM CAMERA
+    reset: RESET
+    edit: EDIT
+    load: LOAD
+    createNewPreset: CREATE NEW PRESET
+    quickSetupAvatar: QUICK SETUP AVATAR
+    selectInToolsWindow: SELECT IN TOOLS WINDOW
+    resetRenderer: RESET RENDERER
+    revertRenderer: REVERT RENDERER
+    alignCameraToView: ALIGN CAMERA TO VIEW
+    savePreset: SAVE PRESET
+    selectInAssets: SELECT IN ASSETS
+    openFolder: OPEN FOLDER
   tools:
     fillVisemes: FILL VISEMES
     editViewpoint: EDIT VIEWPOINT
@@ -48,10 +62,15 @@ MonoBehaviour:
     resetPose: RESET POSE
     resetToTPose: RESET TO T-POSE
     editScale: EDIT SCALE
+    autoViewpoint: AUTO VIEWPOINT
+    setTPose: FORCE TPOSE
+    setRendererAnchors: SET RENDERER ANCHORS
+    viewpointZDepth: Z DEPTH
+    revertScale: REVERT SCALE
   copier:
     copyFrom: COPY FROM
     copySettings: SETTINGS
-    createMissing: CREATE MISSING
+    createMissing: COPY MiSSING
     emptyGameObjects: EMPTY GAMEOBJECTS
     replaceOld: REPLACE OLD
     transforms: TRANSFORMS
@@ -63,7 +82,7 @@ MonoBehaviour:
     dynamicBones_colliders: COLLIDERS
     dynamicBones_removeOldBones: REMOVE OLD BONES
     dynamicBones_removeOldColliders: REMOVE OLD COLLIDERS
-    dynamicBones_createMissing: CREATE MISSING BONES
+    dynamicBones_createMissing: COPY MISSING BONES
     colliders: COLLIDERS
     colliders_box: BOX COLLIDERS
     colliders_capsule: CAPSULE COLLIDERS
@@ -78,10 +97,10 @@ MonoBehaviour:
     skinMeshRender_materials: MATERIALS
     skinMeshRender_blendShapeValues: BLENDSHAPE VALUES
     particleSystems: PARTICLE SYSTEMS
-    rigidBodies: RIGIDBODIES
+    rigidBodies: RIGID BODIES
     trailRenderers: TRAIL RENDERERS
     meshRenderers: MESH RENDERERS
-    copyGameObjects: COPY GAME OBJECTS
+    copyGameObjects: COPY GAMEOBJECTS
     copyColliderObjects: COPY COLLIDER OBJECTS
     lights: LIGHTS
     animators: ANIMATORS
@@ -89,13 +108,13 @@ MonoBehaviour:
     animators_inChildren: CHILD ANIMATORS
     audioSources: AUDIO SOURCES
     joints: JOINTS
-    exclusions: EXCLUSIONS
+    ignoreList: IGNORE LIST
     includeChildren: INCLUDE CHILDREN
     size: SIZE
   avatarInfo:
     name: '{0}'
     line: '---------------------'
-    gameObjects: 'GAME OBJECTS: {0} ({1})'
+    gameObjects: 'GAMEOBJECTS: {0} ({1})'
     bones: 'BONES: {0} - {1}'
     skinnedMeshRenderers: 'SKINNED MESH RENDERERS: {0} ({1}) - {2}'
     meshRenderers: 'MESH RENDERERS: {0} ({1}) - {2}'
@@ -113,16 +132,27 @@ MonoBehaviour:
   thumbnails:
     overlayCameraImage: OVERLAY IMAGE
     overlayTexture: OVERLAY TEXTURE
-    startUploadingFirst: START UPLOADING AVATAR FIRST
+    startUploadingFirst: START UPLOADING AN AVATAR, OR GET INTO PLAY MODE
     centerCameraOnViewpoint: CENTER CAMERA ON VIEWPOINT
     backgroundType: BACKGROUND TYPE
     backgroundType_None: NONE
-    backgroundType_Material: MATERIAL
+    backgroundType_Material: SKYBOX
     backgroundType_Color: COLOR
     backgroundType_Image: IMAGE
     hideOtherAvatars: HIDE OTHER AVATARS WHEN UPLOADING
+    tint: TINT
+    useCameraOverlay: USE CAMERA OVERLAY
+    useCameraBackground: USE CAMERA BACKGROUND
+    selectedCamera: SELECTED CAMERA
+    offset: OFFSET
+    blendshapes: BLENDSHAPES
+    poses: POSES
+    cameras: CAMERAS
+    centerCameraFixClippingPlanes: FIX CLIPPING PLANES
+    positionOffset: POSITION OFFSET
+    rotationOffset: ROTATION OFFSET
   misc:
-    uwu: UWU
+    uwu: uwu
     searchForBones: SEARCH FOR DYNAMICBONES
     superExperimental: SUPER EXPERIMENTAL STUFF
     language: LANGUAGE
@@ -133,12 +163,12 @@ MonoBehaviour:
     nothingSelected: SELECT SOMETHING FIRST
     cantCopyToSelf: CAN'T COPY COMPONENTS FROM AN OBJECT TO ITSELF. WHAT ARE YOU DOING?
     copyAttempt: ATTEMPTING TO COPY {0} FROM {1} TO {2}
-    removeAttempt: ATTEMPTING TO REMOVE {0} FROM {1}
-    copyFromInvalid: CAN'T COPY COMPONENTS BECAUSE 'COPY FROM' IS INVALID
+    removeAttempt: ATTEMPTING TO REMOVE {0} from {1}
+    copyFromInvalid: CAN'T COPY COMPONENTS because 'Copy From' is invalid
     viewpointApplied: SET VIEWPOSITION TO {0}
     viewpointCancelled: CANCELLED VIEWPOSITION CHANGES
     tryFillVisemes: ATTEMPTING TO FILL VISEMES ON {0}
-    noSkinnedMeshFound: 'FAILED: NO SKINNED MESH RENDERER FOUND'
+    noSkinnedMeshFound: 'FAILED: NO SKINNED MESH FOUND'
     descriptorIsNull: AVATAR DESCRIPTOR IS NULL
     success: SUCCESS
     meshHasNoVisemes: FAILED. MESH HAS NO VISEMES. SET TO DEFAULT
@@ -150,23 +180,47 @@ MonoBehaviour:
     loadedPose: 'LOADED POSE: {0}'
     loadedBlendshapePreset: 'LOADED BLENDSHAPES: {0}'
     failedDoesntHave: 'FAILED: {0} DOESN''T HAVE A {1}'
-    failedAlreadyHas: 'FAILED: {1} ALREADY HAS A {0}'
+    failedAlreadyHas: 'FAILED: {0} ALREADY HAS A {1}'
     loadedCameraOverlay: LOADED {0} AS CAMERA OVERLAY
     failedHasNo: '{0} HAS NO {1}, IGNORING.'
+    settingQuickViewpoint: SETTING QUICK VIEWPOINT TO {0}
+    cantSetViewpointNonHumanoid: CAN'T SET VIEWPOINT FOR A NON HUMANOID AVATAR
+    setAvatarScaleTo: SET AVATAR SCALE TO {0} AND VIEWPOINT TO {1}
+    setAvatarScaleAndViewpointTo: SET AVATAR SCALE TO {0} AND VIEWPOINT TO {1}
+    canceledScaleChanges: CANCELLED SCALE CHANGES
+    successCopiedOverFromTo: 'SUCCESS: COPIED OVER {0} FROM {1}''S {2} TO {3}''S {4}'
+    hasNoComponentsOrChildrenDestroying: '{0} HAS NO COMPONENTS OR CHILDREN. DESTROYING'
+    cantBeDestroyedPartOfPrefab: '{0}''S {1} CAN''T BE DESTROYED BECAUSE IT''S PART
+      OF A PREFAB INSTANCE. IGNORING'
+    meshPrefabMissingCantRevertBlednshapes: MESH PREFAB IS MISSING, CAN'T REVERT TO
+      DEFAULT BLENDSHAPES.
+    meshPrefabMissingCantRevertPose: MESH PREFAB IS MISSING, CAN'T REVERT TO DEFAULT
+      POSE
+    runtimeBlueprintNotFoundStartUploading: RUNTIMEBLUEPRINTCREATION SCRIPT NOT FOUND.
+      START UPLOADING AN AVATAR TO USE THIS
+    failedToCenterCameraNoDescriptor: FAILED TO CENTER CAMERA ON VIEWPOINT. AVATAR
+      DESCRIPTOR NOT FOUND
+    cantSetPoseNonHumanoid: CAN'T SET HUMANOID POSE {0} ON A NON HUMANOID AVATAR
+    loadedImageAsBackground: LOADED {0} AS BACKGROUND IMAGE
+    loadedImageAsOverlay: LOADED {0} AS OVERLAY IMAGE
+    setProbeAnchorTo: SET {0}'S PROBE ANCHOR TO {1}
   warnings:
     warn: WARNING
-    notFound: (NOT FOUND)
-    oldVersion: (OLD VERSION)
+    notFound: NOT FOUND
+    oldVersion: OLD VERSION
     selectSceneObject: PLEASE SELECT AN OBJECT FROM THE SCENE
-    vrcCamNotFound: VRCCAM NOT FOUND
+    cameraNotFound: CAMERA NOT FOUND
+    invalidPreset: 'CAN''T APPLY PRESET {0}: INVALID PRESET'
+    cantRevertRendererWithoutPrefab: CAN'T REVERT SKINNED MESH RENDERER {0}, OBJECT
+      HAS NO PREFAB.
+    cantLoadImageAtPath: CAN'T LOAD IMAGE AT {0}
   credits:
     version: VERSION
-    redundantStrings: NOW WITH 100% MORE LOUD STRINGS
-    jsonDotNetCredit: JSONDOTNET BY NEWTONSOFT
-    addMoreStuff: I'LL ADD MORE STUFF HERE EVENTUALLY
+    redundantStrings: NOW WITH 100% MORE REDUNDANT STRINGS
+    addMoreStuff: I'LL ADD MORE STUFF TO THIS EVENTUALLY
     pokeOnDiscord: POKE ME ON DISCORD AT PUMKIN#2020
   poseEditor:
-    title: POSE EDITOR (VERY BETA)
+    title: PUMKIN'S POSE EDITOR
     scene: SCENE
     sceneLoadAdditive: LOAD ADDITIVE
     sceneOverrideLights: OVERRIDE LIGHTS
@@ -186,4 +240,26 @@ MonoBehaviour:
     saveButton: SAVE
     reloadButton: RELOAD
     bodyPositionYTooSmall: HUMANPOSE.BODYPOSITION.Y IS {0}, YOU PROBABLY DON'T WANT
-      THAT. SETTUING HUMANPOSE.BODYPOSITION.Y TO 1
+      THAT. SETTING HUMANPOSE.BODYPOSITION.Y TO 1
+    muscles: MUSCLES
+    transformRotations: TRANSFORM ROTATIONS
+    selectHumanoidAvatar: SELECT A HUMANOID AVATAR
+  preset:
+    presetName: PRESET NAME
+    mode: PRESET MODE
+    otherNames: OTHER NAMES
+    poseMode: POSE NAME
+    editPosePreset: EDIT POSE PRESET
+    createPosePreset: CREATE POSE PRESET
+    overwriteFile: OVERWRITE FILE
+    transformDoesntBelongToAvatar: '{0} DOESN''T BELONG TO AVATAR {1}'
+    cameraPreset: CAMERA PRESET
+    posePreset: POSE PRESET
+    blendshapePreset: BLENDSHAPE PRESET
+    editBlendshapePreset: EDIT BLENDSHAPE PRESET
+    createBlendshapePreset: Create BLENDSHAPE PRESET
+    transform: TRANSFORM
+    offsetMode: OFFSET MODE
+    camera: CAMERA
+    editCameraPreset: EDIT CAMERA PRESET
+    createCameraPreset: CREATE CAMERA PRESET

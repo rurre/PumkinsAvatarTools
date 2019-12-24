@@ -123,6 +123,9 @@ namespace Pumkin.DataStructures
             public static string resetRenderer = "_Reset Renderer";
             public static string revertRenderer = "_Revert Renderer";
             public static string alignCameraToView = "_Align Camera to View";
+            public static string savePreset = "_Save Preset";
+            public static string selectInAssets = "_Select in Assets";
+            public static string openFolder = "_Open Folder";
 
             static Buttons()
             {
@@ -158,6 +161,9 @@ namespace Pumkin.DataStructures
                 resetRenderer = Translation.buttons.resetRenderer;
                 revertRenderer = Translation.buttons.revertRenderer;
                 alignCameraToView = Translation.buttons.alignCameraToView;
+                savePreset = Translation.buttons.savePreset;
+                selectInAssets = Translation.buttons.selectInAssets;
+                openFolder = Translation.buttons.openFolder;
             }
         };
         public static class Tools
@@ -281,8 +287,7 @@ namespace Pumkin.DataStructures
             public static string blendshapes = "_Blendshapes";
             public static string poses = "_Poses";
             public static string cameras = "_Cameras";
-            public static string centerCameraFixClippingPlanes = "_Fix Clipping Planes";
-            public static string previewIsDark = "_The preview is currently shown darker than it actually is.\nUse the Game view for a more accurate preview.";
+            public static string centerCameraFixClippingPlanes = "_Fix Clipping Planes";            
             public static string positionOffset = "_Position Offset";
             public static string rotationOffset = "_Rotation Offset";
 
@@ -314,8 +319,7 @@ namespace Pumkin.DataStructures
                 blendshapes = Translation.thumbnails.blendshapes;
                 poses = Translation.thumbnails.poses;
                 cameras = Translation.thumbnails.cameras;
-                centerCameraFixClippingPlanes = Translation.thumbnails.centerCameraFixClippingPlanes;
-                previewIsDark = Translation.thumbnails.previewIsDark;
+                centerCameraFixClippingPlanes = Translation.thumbnails.centerCameraFixClippingPlanes;                
                 positionOffset = Translation.thumbnails.positionOffset;
                 rotationOffset = Translation.thumbnails.rotationOffset;
             }
@@ -662,13 +666,28 @@ namespace Pumkin.DataStructures
                 selectHumanoidAvatar = Translation.poseEditor.selectHumanoidAvatar;
             }
         }
-        public static class Preset
+        public static class Presets
         {
-            public static string name = "_Preset name";
-            public static string mode = "_Preset mode";
-            public static string otherNames = "_Other names";            
+            public static string presetName = "_Preset Name";
+            public static string mode = "_Preset Mode";
+            public static string otherNames = "_Other Names";
+            public static string poseMode = "_Pose Mode";
+            public static string editPosePreset = "_Edit Pose Preset";
+            public static string createPosePreset = "_Create Pose Preset";
+            public static string overwriteFile = "Overwrite File";
+            public static string transformDoesntBelongToAvatar = "_{0} doesn't belong to avatar {1}";
+            public static string cameraPreset = "_Camera Preset";
+            public static string posePreset = "_Pose Preset";
+            public static string blendshapePreset = "_Blendshape Preset";
+            public static string editBlendshapePreset = "_Edit Blendshape Preset";
+            public static string createBlendshapePreset = "_Create Blendshape Preset";
+            public static string transform = "_Transform";
+            public static string offsetMode = "_Offset Mode";
+            public static string camera = "_Camera";
+            public static string editCameraPreset = "_Edit Camera Preset";
+            public static string createCameraPreset = "_Create Camera Preset";
 
-            static Preset()
+            static Presets()
             {
                 Reload();
             }
@@ -678,9 +697,24 @@ namespace Pumkin.DataStructures
                 if(!Translation)
                     return;
 
-                name = Translation.preset.name;
+                presetName = Translation.preset.presetName;
                 mode = Translation.preset.mode;
-                otherNames = Translation.preset.otherNames;                
+                otherNames = Translation.preset.otherNames;
+                poseMode = Translation.preset.poseMode;
+                editPosePreset = Translation.preset.editPosePreset;
+                createPosePreset = Translation.preset.createPosePreset;
+                overwriteFile = Translation.preset.overwriteFile;
+                transformDoesntBelongToAvatar = Translation.preset.transformDoesntBelongToAvatar;
+                cameraPreset = Translation.preset.cameraPreset;
+                posePreset = Translation.preset.posePreset;
+                blendshapePreset = Translation.preset.blendshapePreset;
+                editBlendshapePreset = Translation.preset.editBlendshapePreset;
+                createBlendshapePreset = Translation.preset.createBlendshapePreset;
+                transform = Translation.preset.transform;
+                offsetMode = Translation.preset.offsetMode;
+                camera = Translation.preset.camera;
+                editCameraPreset = Translation.preset.editCameraPreset;
+                createCameraPreset = Translation.preset.createCameraPreset;
             }
         }
 
@@ -768,6 +802,7 @@ namespace Pumkin.DataStructures
             {
                 fontStyle = FontStyle.Bold,
                 fontSize = 14,
+                fixedHeight = 20,
             };
 
             Label_centered = new GUIStyle(EditorStyles.label)

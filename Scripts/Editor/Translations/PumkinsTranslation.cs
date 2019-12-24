@@ -60,9 +60,24 @@ namespace Pumkin.Translations
     [Serializable]
     public class PresetStrings
     {
-        public string name = "Preset name";
-        public string mode = "Preset mode";
-        public string otherNames = "Other names";        
+        public string presetName = "Preset Name";
+        public string mode = "Preset Mode";
+        public string otherNames = "Other Names";
+        public string poseMode = "Pose Name";
+        public string editPosePreset = "Edit Pose Preset";
+        public string createPosePreset = "Create Pose Preset";
+        public string overwriteFile = "Overwrite File";
+        public string transformDoesntBelongToAvatar = "{0} doesn't belong to avatar {1}";
+        public string cameraPreset = "Camera Preset";
+        public string posePreset = "Pose Preset";
+        public string blendshapePreset = "Blendshape Preset";
+        public string editBlendshapePreset = "Edit Blendshape Preset";
+        public string createBlendshapePreset = "Create Blendshape Preset";
+        public string transform = "Transform";
+        public string offsetMode = "Offset Mode";
+        public string camera = "Camera";
+        public string editCameraPreset = "Edit Camera Preset";
+        public string createCameraPreset = "Create Camera Preset";        
     }
 
     [Serializable]
@@ -108,6 +123,9 @@ namespace Pumkin.Translations
         public string resetRenderer = "Reset Renderer";
         public string revertRenderer = "Revert Renderer";
         public string alignCameraToView = "Align Camera to View";
+        public string savePreset = "Save Preset";
+        public string selectInAssets = "Select in Assets";
+        public string openFolder = "Open Folder";
     };
 
     [Serializable]
@@ -221,8 +239,7 @@ namespace Pumkin.Translations
         public string blendshapes = "Blendshapes";
         public string poses = "Poses";
         public string cameras = "Cameras";
-        public string centerCameraFixClippingPlanes = "Fix Clipping Planes";
-        public string previewIsDark = "The preview is currently shown darker than it actually is.\nUse the Game view for a more accurate preview.";
+        public string centerCameraFixClippingPlanes = "Fix Clipping Planes";        
         public string positionOffset = "Position Offset";
         public string rotationOffset = "Rotation Offset";
     };

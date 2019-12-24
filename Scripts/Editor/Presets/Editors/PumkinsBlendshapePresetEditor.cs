@@ -25,9 +25,9 @@ namespace Pumkin.Presets
         public override void OnInspectorGUI()
         {
             serializedPreset.Update();
-            //base.OnInspectorGUI();
+            EditorGUILayout.LabelField(Strings.Presets.blendshapePreset, Styles.Label_mainTitle);
             Helpers.DrawGUILine();
-            EditorGUILayout.PropertyField(pName, new GUIContent(Strings.Preset.name));
+            EditorGUILayout.PropertyField(pName, new GUIContent(Strings.Presets.presetName));
             Helpers.DrawGUILine();
             Helpers.DrawBlendshapeSlidersWithDeleteAndAdd(ref preset.renderers, null);
 

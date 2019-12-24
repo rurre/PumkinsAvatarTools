@@ -44,15 +44,22 @@ namespace Pumkin.Presets
             pTransformRotations = serializedPosePreset.FindProperty("transformRotations");            
         }
 
+        public override void OnInspectorGUI()
+        {
+            EditorGUILayout.LabelField(Strings.Presets.blendshapePreset, Styles.Label_mainTitle);
+            Helpers.DrawGUILine();
+            DrawPropertyGUI();
+        }
+
         void DrawPropertyGUI()
         {
             serializedPosePreset.UpdateIfRequiredOrScript();
                
-            EditorGUILayout.PropertyField(pName, new GUIContent(Strings.Preset.name));
+            EditorGUILayout.PropertyField(pName, new GUIContent(Strings.Presets.presetName));
 
             Helpers.DrawGUILine();
 
-            EditorGUILayout.PropertyField(pPresetMode, new GUIContent(Strings.Preset.mode));
+            EditorGUILayout.PropertyField(pPresetMode, new GUIContent(Strings.Presets.mode));
 
             Helpers.DrawGUILine();
 
@@ -73,11 +80,6 @@ namespace Pumkin.Presets
             }
 
             serializedPosePreset.ApplyModifiedProperties();
-        }
-
-        public override void OnInspectorGUI()
-        {
-            DrawPropertyGUI();
         }
     }
 }

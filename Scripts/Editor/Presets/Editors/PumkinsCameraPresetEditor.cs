@@ -50,7 +50,14 @@ namespace Pumkin.Presets
             pBackgroundImagePath = st.FindProperty("backgroundImagePath");
             pBackgroundImageTint = st.FindProperty("backgroundImageTint");
             pBackgroundMaterial = st.FindProperty("backgroundMaterial");
-        }        
+        }
+
+        public override void OnInspectorGUI()
+        {
+            EditorGUILayout.LabelField(Strings.Presets.blendshapePreset, Styles.Label_mainTitle);
+            Helpers.DrawGUILine();
+            DrawPropertyGUI();
+        }
 
         void DrawPropertyGUI()
         {            
@@ -114,17 +121,10 @@ namespace Pumkin.Presets
 
             Helpers.DrawGUILine();
 
-            if(GUILayout.Button(Strings.Buttons.selectInToolsWindow, Styles.BigButton))
-            {
-                PumkinsPresetManager.SelectPresetInToolWindow(Preset);
-            }
+            if(GUILayout.Button(Strings.Buttons.selectInToolsWindow, Styles.BigButton))            
+                PumkinsPresetManager.SelectPresetInToolWindow(Preset);            
 
             st.ApplyModifiedProperties();
-        }
-
-        public override void OnInspectorGUI()
-        {
-            DrawPropertyGUI();
-        }        
+        }    
     }
 }

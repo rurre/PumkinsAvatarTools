@@ -483,7 +483,7 @@ namespace Pumkin.HelperFunctions
 
                                 if(rendererHolders[i].blendshapes[j].otherNamesExpandedInUI)
                                 {                                    
-                                    DrawStringListAsTextFields(ref rendererHolders[i].blendshapes[j].otherNames, Strings.Preset.otherNames, ref rendererHolders[i].blendshapes[j].otherNamesExpandedInUI, 1, false);                                    
+                                    DrawStringListAsTextFields(ref rendererHolders[i].blendshapes[j].otherNames, Strings.Presets.otherNames, ref rendererHolders[i].blendshapes[j].otherNamesExpandedInUI, 1, false);                                    
                                 }
                             }
                             if(EditorGUI.EndChangeCheck())
@@ -647,6 +647,15 @@ namespace Pumkin.HelperFunctions
             if(tex && !string.IsNullOrEmpty(newPath))
                 startPath = newPath;
             return tex;
+        }
+
+        public static Texture2D OpenImageGetTextureGUI(ref string path)
+        {
+            Texture2D texture = Helpers.OpenImageGetTexture(ref path);
+            if(texture)
+                texture.name = Path.GetFileNameWithoutExtension(path);
+
+            return texture;
         }
 
         public static string OpenImageGetPath(string startPath = "")
@@ -1014,6 +1023,28 @@ namespace Pumkin.HelperFunctions
             var modelImporter = AssetImporter.GetAtPath(avatarPath) as ModelImporter;
             if(modelImporter != null)
                 modelImporter.SaveAndReimport();
+        }
+
+        /// <summary>
+        /// Sets the camera near clipping plane to 0.01 and far clipping plane to 1000 to prevent near clipping
+        /// </summary>        
+        public static void FixCameraClippingPlanes(Camera cam)
+        {
+            if(!cam)
+                return;
+
+            cam.farClipPlane = 1000;
+            cam.nearClipPlane = 0.01f;
+        }
+        
+        public static GameObject FindGameObjectEvenIfDisabled(string name)
+        {
+            string lowerName = name.ToLower();
+            foreach(GameObject obj in Resources.FindObjectsOfTypeAll(typeof(GameObject)))
+                if(obj && obj.name.ToLower() == lowerName)
+                    return obj;
+
+            return null;
         }
     }        
 }
