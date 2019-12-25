@@ -42,9 +42,7 @@ namespace Pumkin.HelperFunctions
         /// <returns>Returns true if toggleBool was changed</returns>
         public static bool DrawDropdownWithToggle(ref bool expandBool, ref bool toggleBool, string label, Texture2D icon = null)
         {
-            bool toggleChanged = false;
-            float oldWidth = EditorGUIUtility.labelWidth;
-            float newWidth = Helpers.CalculateTextWidth(label);
+            bool toggleChanged = false;            
             GUIContent content = new GUIContent(icon);
 
             float iconWidth;
@@ -62,8 +60,7 @@ namespace Pumkin.HelperFunctions
                     toggleChanged = true;
                 expandBool = GUILayout.Toggle(expandBool, GUIContent.none, GUIStyle.none, GUILayout.MinHeight(20f));
             }
-            EditorGUILayout.EndHorizontal();
-            EditorGUIUtility.labelWidth = oldWidth;
+            EditorGUILayout.EndHorizontal();            
 
             return toggleChanged;
         }
@@ -343,27 +340,19 @@ namespace Pumkin.HelperFunctions
 
                     EditorGUILayout.BeginHorizontal();
                     {
-                        if(!EditorApplication.isPlaying && GUILayout.Button(Strings.Buttons.revertRenderer))
+                        if(!EditorApplication.isPlaying && GUILayout.Button(Strings.Buttons.revertRenderer) && renderer)
                         {
-                            var prefRender = PrefabUtility.GetCorrespondingObjectFromSource(renderer);
-                            if(prefRender)
-                            {
-                                bool expanded = rendererHolders[i].expandedInUI;
-                                rendererHolders[i] = (PumkinsRendererBlendshapesHolder)prefRender;
-                                rendererHolders[i].expandedInUI = expanded;
-                                rendererShapeChanged[i] = true;
-                            }
-                            else
-                            {
-                                PumkinsAvatarTools.Log(Strings.Warning.cantRevertRendererWithoutPrefab, LogType.Warning, renderer.gameObject.name);
-                            }
+                            bool expanded = rendererHolders[i].expandedInUI;
+                            PumkinsAvatarTools.ResetRendererBlendshapes(renderer, true);
+                            rendererHolders[i] = (PumkinsRendererBlendshapesHolder)renderer;
+                            rendererHolders[i].expandedInUI = expanded;                            
                         }
                         if(GUILayout.Button(Strings.Buttons.resetRenderer))
                         {
-                            foreach(var shape in rendererHolders[i].blendshapes)
-                                shape.weight = 0;
-
-                            rendererShapeChanged[i] = true;
+                            bool expanded = rendererHolders[i].expandedInUI;
+                            PumkinsAvatarTools.ResetRendererBlendshapes(renderer, false);
+                            rendererHolders[i] = (PumkinsRendererBlendshapesHolder)renderer;
+                            rendererHolders[i].expandedInUI = expanded;                            
                         }
                     }
                     EditorGUILayout.EndHorizontal();
@@ -616,7 +605,7 @@ namespace Pumkin.HelperFunctions
             }
         }
 
-        #endregion
+#endregion
 
         public static Texture2D GetImageTextureFromPath(string imagePath)
         {
@@ -820,7 +809,7 @@ namespace Pumkin.HelperFunctions
             var pref = PrefabUtility.GetPrefabParent(t.root.gameObject) as GameObject;
 #else
 			var pref = PrefabUtility.GetCorrespondingObjectFromSource(t.root.gameObject) as GameObject;
-#endif            
+#endif
             if(!pref)
                 return false;
 

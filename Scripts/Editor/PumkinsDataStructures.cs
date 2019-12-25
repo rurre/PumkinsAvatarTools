@@ -12,7 +12,7 @@ using Pumkin.Translations;
 using System.Linq;
 using Pumkin.Extensions;
 
-#if NEWSDK
+#if VRC_SDK_EXISTS || NEWSDK
 using VRCSDK2.Validation.Performance;
 using VRCSDK2.Validation.Performance.Stats;
 #endif
@@ -22,7 +22,7 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-#if NEWSDK
+#if VRC_SDK_EXISTS || NEWSDK
         public readonly string TOOLS_VERSION_NUMBER = "0.7b - Work in Progress";
 #else
         public readonly string TOOLS_VERSION_NUMBER = "0.7b - Work in Progress - Old SDK";
@@ -213,7 +213,7 @@ namespace Pumkin.DataStructures
             public static string selectAvatarFirst = "_Select an Avatar first";
             public static string uniqueMaterials = "_Unique Materials: {0} ({1})";
             public static string overallPerformance = "_Overall Performance: {0}";
-#if NEWSDK
+#if VRC_SDK_EXISTS || NEWSDK
             public static string bones = "_Bones: {0} - {1}";
             public static string skinnedMeshRenderers = "_Skinned Mesh Renderers: {0} ({1}) - {2}";
             public static string meshRenderers = "_Mesh Renderers: {0} ({1}) - {2}";
@@ -970,7 +970,7 @@ namespace Pumkin.DataStructures
 
     public class AvatarInfo
     {
-#if NEWSDK
+#if VRC_SDK_EXISTS || NEWSDK
         AvatarPerformanceStats perfStats = new AvatarPerformanceStats();
 #endif
 
@@ -1042,7 +1042,7 @@ namespace Pumkin.DataStructures
             if(o == null)
                 return;
 
-#if NEWSDK
+#if VRC_SDK_EXISTS || NEWSDK
             try
             {
                 AvatarPerformance.CalculatePerformanceStats(o.name, o, perfStats);
@@ -1238,7 +1238,7 @@ namespace Pumkin.DataStructures
                 }
                 try
                 {
-#if NEWSDK
+#if VRC_SDK_EXISTS || NEWSDK
                     CachedInfo =
                     string.Format(Strings.AvatarInfo.name, Name) + "\n" +
                     string.Format(Strings.AvatarInfo.line) + "\n" +

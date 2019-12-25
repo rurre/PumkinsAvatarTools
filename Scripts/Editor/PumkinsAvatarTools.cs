@@ -2717,7 +2717,7 @@ namespace Pumkin.AvatarTools
                     ResetPose(SelectedAvatar);
                     break;
                 case ToolMenuActions.RevertBlendshapes:
-                    ResetBlendShapes(SelectedAvatar, true);
+                    ResetBlendshapes(SelectedAvatar, true);
                     break;
                 case ToolMenuActions.FillVisemes:
                     FillVisemes(SelectedAvatar);
@@ -2726,7 +2726,7 @@ namespace Pumkin.AvatarTools
                     BeginEdittingViewpoint(SelectedAvatar);
                     break;
                 case ToolMenuActions.ZeroBlendshapes:
-                    ResetBlendShapes(SelectedAvatar, false);
+                    ResetBlendshapes(SelectedAvatar, false);
                     break;
                 case ToolMenuActions.SetTPose:
                     PumkinsPoseEditor.SetTPoseHardcoded(SelectedAvatar);                    
@@ -2786,7 +2786,11 @@ namespace Pumkin.AvatarTools
             if(!avatar)
                 return;
 
+#if UNITY_2018
             GameObject pref = PrefabUtility.GetCorrespondingObjectFromSource(avatar);
+#else
+            GameObject pref = PrefabUtility.GetPrefabObject(avatar) as GameObject;
+#endif
             var desc = avatar.GetComponent<VRC_AvatarDescriptor>();
             Vector3 newScale = pref != null ? pref.transform.localScale : Vector3.one;
 
@@ -4126,9 +4130,9 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        #endregion
+#endregion
 
-        #region Destroy Functions    
+#region Destroy Functions    
 
         /// <summary>
         /// Destroys ParticleSystem in object
@@ -4260,9 +4264,9 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        #endregion
+#endregion
 
-        #region Utility Functions        
+#region Utility Functions        
 
         /// <summary>
         /// Not actually resets everything but backgrounnd and overlay stuff
@@ -4411,9 +4415,9 @@ namespace Pumkin.AvatarTools
                 Instance._selectedBlendshapePresetString = presetString;
         }
 
-        #endregion
+#endregion
 
-        #region Helper Functions        
+#region Helper Functions        
 
         /// <summary>
         /// Sets selected camera clear flags back to _thumbsCameraBgClearFlagsOld
@@ -4449,12 +4453,12 @@ namespace Pumkin.AvatarTools
         /// Resets all BlendShape weights to 0 on all SkinnedMeshRenderers or to prefab values
         /// </summary>        
         /// <param name="revertToPrefab">Revert weights to prefab instead of 0</param>
-        public static void ResetBlendShapes(GameObject objTo, bool revertToPrefab)
+        public static void ResetBlendshapes(GameObject objTo, bool revertToPrefab)
         {
             var renders = objTo.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             foreach(var r in renders)
             {
-                ResetBlendShapes(r, revertToPrefab);
+                ResetRendererBlendshapes(r, revertToPrefab);
             }
         }
 
@@ -4462,7 +4466,7 @@ namespace Pumkin.AvatarTools
         /// Reset all BlendShape weights to 0 on SkinnedMeshRenderer or to prefab values
         /// </summary>        
         /// <param name="revertToPrefab">Revert weights to prefab instead of 0</param>        
-        public static void ResetBlendShapes(SkinnedMeshRenderer render, bool revertToPrefab)
+        public static void ResetRendererBlendshapes(SkinnedMeshRenderer render, bool revertToPrefab)
         {
             GameObject pref = null;
             SkinnedMeshRenderer prefRender = null;
@@ -4475,7 +4479,7 @@ namespace Pumkin.AvatarTools
             else
             {
 #if UNITY_2017
-                    pref = PrefabUtility.GetPrefabParent(render.gameObject) as GameObject;
+                pref = PrefabUtility.GetPrefabParent(render.gameObject) as GameObject;
 #else
                 pref = PrefabUtility.GetCorrespondingObjectFromSource(render.gameObject) as GameObject;
 #endif
@@ -4706,6 +4710,6 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        #endregion
+#endregion
     }
 }
