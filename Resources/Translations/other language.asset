@@ -1,0 +1,265 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6888704aad6f47442971dbe67f6fa40a, type: 3}
+  m_Name: other language
+  m_EditorClassIdentifier: 
+  languageName: other
+  author: Default
+  main:
+    title: Pumkin's Avatar Tools or something
+    windowName: Pumkin Tools
+    version: Version
+    tools: Tools
+    removeAll: Remove All
+    copier: Copy Components
+    avatarInfo: Avatar Info
+    thumbnails: Thumbnails
+    misc: Misc
+    avatar: Avatar
+    useSceneSelection: Use Scene Selection
+  buttons:
+    selectFromScene: Select from Scene
+    copySelected: Copy Selected
+    refresh: Refresh
+    cancel: Cancel
+    apply: Apply
+    copy: Copy Text
+    openHelpPage: Open Help Page
+    openGithubPage: Open Github Page
+    openDonationPage: Buy me a Ko-Fi~
+    openPoseEditor: Open Pose Editor
+    joinDiscordServer: Join Discord Server!
+    selectNone: Select None
+    selectAll: Select All
+    browse: Browse
+    setFromCamera: Set from Camera
+    reset: Reset
+    edit: Edit
+    load: Load
+    createNewPreset: Create New Preset
+    quickSetupAvatar: Quick Setup Avatar
+    selectInToolsWindow: Select in Tools Window
+    resetRenderer: Reset Renderer
+    revertRenderer: Revert Renderer
+    alignCameraToView: Align Camera to View
+    savePreset: Save Preset
+    selectInAssets: Select in Assets
+    openFolder: Open Folder
+  tools:
+    fillVisemes: Fill Visemes
+    editViewpoint: Edit Viewpoint
+    revertBlendshapes: Revert Blendshapes
+    zeroBlendshapes: Zero Blendshapes
+    resetPose: Reset Pose
+    resetToTPose: Reset to T-Pose
+    editScale: Edit Scale
+    autoViewpoint: Auto Viewpoint
+    setTPose: Force TPose
+    setRendererAnchors: Set Renderer Anchors
+    viewpointZDepth: Z Depth
+    revertScale: Revert Scale
+  copier:
+    copyFrom: Copy From
+    copySettings: Settings
+    createMissing: Copy Missing
+    emptyGameObjects: Empty GameObjects
+    replaceOld: Replace Old
+    transforms: Transforms
+    transforms_position: Position
+    transforms_rotation: Rotation
+    transforms_scale: Scale
+    transforms_avatarScale: Avatar Scale
+    dynamicBones: Dynamic Bones
+    dynamicBones_colliders: Colliders
+    dynamicBones_removeOldBones: Remove Old Bones
+    dynamicBones_removeOldColliders: Remove Old Colliders
+    dynamicBones_createMissing: Copy Missing Bones
+    colliders: Colliders
+    colliders_box: Box Colliders
+    colliders_capsule: Capsule Colliders
+    colliders_sphere: Sphere Colliders
+    colliders_mesh: Mesh Colliders
+    colliders_removeOld: Remove Old Colliders
+    descriptor: Avatar Descriptor
+    descriptor_pipelineId: Pipeline Id
+    descriptor_animationOverrides: Animation Overrides
+    descriptor_copyViewpoint: Viewpoint
+    skinMeshRender: Skinned Mesh Renderers
+    skinMeshRender_materials: Materials
+    skinMeshRender_blendShapeValues: BlendShape Values
+    particleSystems: Particle Systems
+    rigidBodies: Rigid Bodies
+    trailRenderers: Trail Renderers
+    meshRenderers: Mesh Renderers
+    copyGameObjects: Copy GameObjects
+    copyColliderObjects: Copy Collider Objects
+    lights: Lights
+    animators: Animators
+    copyMainAnimator: Copy Main Animator
+    animators_inChildren: Child Animators
+    audioSources: Audio Sources
+    joints: Joints
+    ignoreList: Ignore List
+    includeChildren: Include Children
+    size: Size
+  avatarInfo:
+    name: '{0}'
+    line: '---------------------'
+    gameObjects: 'GameObjects: {0} ({1})'
+    bones: 'Bones: {0} - {1}'
+    skinnedMeshRenderers: 'Skinned Mesh Renderers: {0} ({1}) - {2}'
+    meshRenderers: 'Mesh Renderers: {0} ({1}) - {2}'
+    polygons: 'Polygons: {0} ({1}) - {2}'
+    usedMaterialSlots: 'Used Material Slots: {0} ({1}) - {2}'
+    uniqueMaterials: 'Unique Materials: {0} ({1})'
+    shaders: 'Shaders: {0}'
+    dynamicBoneTransforms: 'Dynamic Bone Transforms: {0} ({1}) - {2}'
+    dynamicBoneColliders: 'Dynamic Bone Colliders: {0} ({1}) - {2}'
+    dynamicBoneColliderTransforms: 'Collider Affected Transforms: {0} ({1}) - {2}'
+    particleSystems: 'Particle Systems: {0} ({1}) - {2}'
+    maxParticles: 'Max Particles: {0} ({1}) - {2}'
+    overallPerformance: 'Overall Performance: {0}'
+    selectAvatarFirst: Select an Avatar first
+  thumbnails:
+    overlayCameraImage: Overlay Image
+    overlayTexture: Overlay Texture
+    startUploadingFirst: Start uploading an Avatar, or get into Play mode
+    centerCameraOnViewpoint: Center Camera on Viewpoint
+    backgroundType: Background Type
+    backgroundType_None: None
+    backgroundType_Material: Skybox
+    backgroundType_Color: Color
+    backgroundType_Image: Image
+    hideOtherAvatars: Hide Other Avatars when Uploading
+    tint: Tint
+    useCameraOverlay: Use Camera Overlay
+    useCameraBackground: Use Camera Background
+    selectedCamera: Selected Camera
+    offset: Offset
+    blendshapes: Blendshapes
+    poses: Poses
+    cameras: Cameras
+    centerCameraFixClippingPlanes: Fix Clipping Planes
+    positionOffset: Position Offset
+    rotationOffset: Rotation Offset
+  misc:
+    uwu: uwu
+    searchForBones: Search for DynamicBones
+    superExperimental: Super Experimental Stuff
+    language: Language
+    refresh: Refresh
+  log:
+    done: Done
+    cancelled: Cancelled
+    nothingSelected: Select something first
+    cantCopyToSelf: Can't copy Components from an object to itself. What are you doing?
+    copyAttempt: Attempting to copy {0} from {1} to {2}
+    removeAttempt: Attempting to remove {0} from {1}
+    copyFromInvalid: Can't copy Components because 'Copy From' is invalid
+    viewpointApplied: Set Viewposition to {0}
+    viewpointCancelled: Cancelled Viewposition changes
+    tryFillVisemes: Attempting to fill visemes on {0}
+    noSkinnedMeshFound: 'Failed: No skinned mesh found'
+    descriptorIsNull: Avatar descriptor is null
+    success: Success
+    meshHasNoVisemes: Failed. Mesh has no Visemes. Set to Default
+    tryRemoveUnsupportedComponent: Attempting to remove unsupported component {0}
+      from {1}
+    failed: Failed
+    failedIsNull: 'Failed: {1} is null'
+    nameIsEmpty: Name is Empty
+    loadedPose: 'Loaded Pose: {0}'
+    loadedBlendshapePreset: 'Loaded Blendshapes: {0}'
+    failedDoesntHave: 'Failed: {0} doesn''t have a {1}'
+    failedAlreadyHas: 'Failed: {0} already has a {1}'
+    loadedCameraOverlay: Loaded {0} as Camera Overlay
+    failedHasNo: '{0} has no {1}, Ignoring.'
+    settingQuickViewpoint: Setting quick viewpoint to {0}
+    cantSetViewpointNonHumanoid: Can't set Viewpoint for a non humanoid avatar
+    setAvatarScaleTo: Set Avatar scale to {0} and Viewpoint to {1}
+    setAvatarScaleAndViewpointTo: Set Avatar scale to {0} and Viewpoint to {1}
+    canceledScaleChanges: Cancelled Scale changes
+    successCopiedOverFromTo: 'Success: Copied over {0} from {1}''s {2} to {3}''s {4}'
+    hasNoComponentsOrChildrenDestroying: '{0} has no components or children. Destroying'
+    cantBeDestroyedPartOfPrefab: '{0}''s {1} can''t be destroyed because it''s part
+      of a prefab instance. Ignoring'
+    meshPrefabMissingCantRevertBlednshapes: Mesh prefab is missing, can't revert to
+      default blendshapes.
+    meshPrefabMissingCantRevertPose: Mesh prefab is missing, can't revert to default
+      pose
+    runtimeBlueprintNotFoundStartUploading: RuntimeBlueprintCreation script not found.
+      Start uploading an avatar to use this
+    failedToCenterCameraNoDescriptor: Failed to center camera on Viewpoint. Avatar
+      descriptor not found
+    cantSetPoseNonHumanoid: Can't set humanoid pose {0} on a non humanoid avatar
+    loadedImageAsBackground: Loaded {0} as Background image
+    loadedImageAsOverlay: Loaded {0} as Overlay image
+    setProbeAnchorTo: Set {0}'s probe anchor to {1}
+  warnings:
+    warn: Warning
+    notFound: Not Found
+    oldVersion: Old Version
+    selectSceneObject: Please select an object from the scene
+    cameraNotFound: Camera not found
+    invalidPreset: 'Can''t apply preset {0}: Invalid Preset'
+    cantRevertRendererWithoutPrefab: Can't revert Skinned Mesh Renderer {0}, object
+      has no Prefab.
+    cantLoadImageAtPath: Can't load image at {0}
+  credits:
+    version: Version
+    redundantStrings: Now with 100% more redundant strings
+    addMoreStuff: I'll add more stuff to this eventually
+    pokeOnDiscord: Poke me on Discord at Pumkin#2020
+  poseEditor:
+    title: Pumkin's Pose Editor
+    scene: Scene
+    sceneLoadAdditive: Load Additive
+    sceneOverrideLights: Override Lights
+    avatarPosition: Avatar Position
+    avatarPositionOverridePose: Override Pose
+    avatarPositionOverrideBlendshapes: Override Blendshapes
+    sceneSaveChanges: Save Scene Changes
+    unloadScene: Unload Scene
+    resetPosition: Reset Position
+    pose: Pose
+    newPose: New Pose
+    onlySavePoseChanges: Only Save Pose Changes
+    loadPose: Load Pose
+    blendshapes: Blendshapes
+    newPreset: New Preset
+    loadPreset: Load Preset
+    saveButton: Save
+    reloadButton: Reload
+    bodyPositionYTooSmall: humanPose.bodyPosition.y is {0}, you probably don't want
+      that. Setting humanPose.bodyPosition.y to 1
+    muscles: Muscles
+    transformRotations: Transform Rotations
+    selectHumanoidAvatar: Select a Humanoid Avatar
+  preset:
+    presetName: Preset Name
+    mode: Preset Mode
+    otherNames: Other Names
+    poseMode: Pose Name
+    editPosePreset: Edit Pose Preset
+    createPosePreset: Create Pose Preset
+    overwriteFile: Overwrite File
+    transformDoesntBelongToAvatar: '{0} doesn''t belong to avatar {1}'
+    cameraPreset: Camera Preset
+    posePreset: Pose Preset
+    blendshapePreset: Blendshape Preset
+    editBlendshapePreset: Edit Blendshape Preset
+    createBlendshapePreset: Create Blendshape Preset
+    transform: Transform
+    offsetMode: Offset Mode
+    camera: Camera
+    editCameraPreset: Edit Camera Preset
+    createCameraPreset: Create Camera Preset

@@ -16,6 +16,7 @@ using Pumkin.HelperFunctions;
 using Pumkin.Extensions;
 using UnityEngine.SceneManagement;
 using Pumkin.Presets;
+using Pumkin.Dependencies;
 #if UNITY_2018
 using UnityEditor.Experimental.SceneManagement;
 #endif
@@ -319,14 +320,27 @@ namespace Pumkin.AvatarTools
 
         #endregion
 
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
+
 
         public static PumkinsAvatarTools Instance
         {
-            get { return _PumkinsAvatarToolsWindow.ToolsWindow; }
+
+            get 
+            {
+#if PUMKIN_OK
+                return _PumkinsAvatarToolsWindow.ToolsWindow; 
+#else
+                return null;
+#endif
+            }
+
+
+
         }
+
 
         public static GameObject SelectedAvatar
         {
@@ -365,7 +379,7 @@ namespace Pumkin.AvatarTools
                 if(_mainScriptPath == null)
                 {
                     var toolScriptPath = Directory.GetFiles(Application.dataPath, "PumkinsAvatarTools.cs", SearchOption.AllDirectories)[0];
-                    string s = _DependencyChecker.RelativePath(toolScriptPath.Substring(0, toolScriptPath.LastIndexOf('\\')));
+                    string s = _DependencyChecker.GetRelativePath(toolScriptPath.Substring(0, toolScriptPath.LastIndexOf('\\')));
                     _mainScriptPath = s;
                 }
                 return _mainScriptPath;
@@ -597,9 +611,9 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        #endregion
+#endregion
 
-        #region Events and Delegates
+#region Events and Delegates
 
         public delegate void AvatarChangedHandler(GameObject selection);
         public delegate void PoseChangedHandler(PoseChangeType changeType);
@@ -611,9 +625,9 @@ namespace Pumkin.AvatarTools
 
         public enum PoseChangeType { Reset, Normal, PoseEditor };
 
-        #endregion
+#endregion
 
-        #region Event Definitions
+#region Event Definitions
 
         public static void OnCameraSelectionChanged(Camera camera)
         {
@@ -683,9 +697,9 @@ namespace Pumkin.AvatarTools
             LogVerbose("Pose was changed and OnPoseWasChanged() was called with changeType as " + changeType.ToString());
         }
 
-        #endregion
+#endregion
 
-        #region Callback Handlers
+#region Callback Handlers
 
         public void HandleOnEnable()
         {
@@ -831,11 +845,11 @@ namespace Pumkin.AvatarTools
         }
 #endif
 
-        #endregion
+#endregion
 
-        
 
-        #region Unity GUI
+
+#region Unity GUI
 
         public static void ShowWindow()
         {
@@ -846,7 +860,7 @@ namespace Pumkin.AvatarTools
             editorWindow.Show();
             editorWindow.titleContent = new GUIContent("Pumkin Tools");
 
-            _DependencyChecker.Check();
+            _DependencyChecker.CheckForDependencies();
         }
 
         public void OnGUI()
@@ -1147,16 +1161,16 @@ namespace Pumkin.AvatarTools
                     Helpers.DrawGUILine(1, false);
 
                     //DynamicBones menu
-#if !BONES && !OLD_BONES
+#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
                     EditorGUI.BeginDisabledGroup(true);
                     {
                         Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones + " (" + Strings.Warning.notFound + ")", Icons.BoneIcon);
                         bCopier_dynamicBones_copy = false;
                     }
                     EditorGUI.EndDisabledGroup();
-#elif OLD_BONES
+#elif PUMKIN_OLD_DBONES
                         Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones + " (" + Strings.Warning.oldVersion + ")", Icons.BoneIcon);
-#elif BONES
+#elif PUMKIN_DBONES
                         Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones, Icons.BoneIcon);
 #endif
 
@@ -1478,7 +1492,7 @@ namespace Pumkin.AvatarTools
                         {
                             if(GUILayout.Button(Strings.Buttons.selectNone, GUILayout.MinWidth(100)))
                             {
-#if BONES || OLD_BONES
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
                                     bCopier_dynamicBones_copy = false;
 #endif
                                 bCopier_colliders_copy = false;
@@ -1496,7 +1510,7 @@ namespace Pumkin.AvatarTools
                             }
                             if(GUILayout.Button(Strings.Buttons.selectAll, GUILayout.MinWidth(100)))
                             {
-#if BONES || OLD_BONES
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
                                     bCopier_dynamicBones_copy = true;
 #endif
                                 bCopier_colliders_copy = true;
@@ -1589,10 +1603,10 @@ namespace Pumkin.AvatarTools
 
                 Helpers.DrawGUILine();
 
-#if !BONES && !OLD_BONES
+#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
                 if(GUILayout.Button(Strings.Misc.searchForBones, Styles.BigButton))
                 {
-                    _DependencyChecker.Check();
+                    _DependencyChecker.CheckForDependencies();
                 }
                 Helpers.DrawGUILine();
 #endif
@@ -1601,22 +1615,22 @@ namespace Pumkin.AvatarTools
 
                     if(GUILayout.Button(new GUIContent(Strings.Buttons.openGithubPage, Icons.GithubIcon)))
                     {
-                        Application.OpenURL(Strings.Instance.LINK_GITHUB);
+                        Application.OpenURL(Strings.LINK_GITHUB);
                     }
                     if(GUILayout.Button(new GUIContent(Strings.Buttons.openHelpPage, Icons.Help)))
                     {
-                        Application.OpenURL(Strings.Instance.LINK_GITHUB + "wiki");
+                        Application.OpenURL(Strings.LINK_GITHUB + "wiki");
                     }
                 }
                 GUILayout.EndHorizontal();
 
                 if(GUILayout.Button(new GUIContent(Strings.Buttons.joinDiscordServer, Icons.DiscordIcon)))
                 {
-                    Application.OpenURL(Strings.Instance.LINK_DISCORD);
+                    Application.OpenURL(Strings.LINK_DISCORD);
                 }
                 if(GUILayout.Button(new GUIContent(Strings.Buttons.openDonationPage, Icons.KofiIcon)))
                 {
-                    Application.OpenURL(Strings.Instance.LINK_DONATION);
+                    Application.OpenURL(Strings.LINK_DONATION);
                 }
             }
         }
@@ -1939,12 +1953,12 @@ namespace Pumkin.AvatarTools
                         EditorGUILayout.BeginHorizontal();
 
                         EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
-#if !BONES
+#if !PUMKIN_DBONES
                         EditorGUI.BeginDisabledGroup(true);
 #endif
                         if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones, Icons.BoneIcon)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBones);
-#if !BONES
+#if !PUMKIN_DBONES
                         EditorGUI.EndDisabledGroup();
 #endif
                         if(GUILayout.Button(new GUIContent(Strings.Copier.particleSystems, Icons.ParticleSystem)))
@@ -1960,13 +1974,13 @@ namespace Pumkin.AvatarTools
 
                         EditorGUILayout.EndVertical();
 
-#if !BONES
+#if !PUMKIN_DBONES
                         EditorGUI.BeginDisabledGroup(true);
 #endif
                         EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
                         if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones_colliders, Icons.BoneColliderIcon)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBoneColliders);
-#if !BONES
+#if !PUMKIN_DBONES
                         EditorGUI.EndDisabledGroup();
 #endif
                         if(GUILayout.Button(new GUIContent(Strings.Copier.trailRenderers, Icons.TrailRenderer)))
@@ -2352,9 +2366,9 @@ namespace Pumkin.AvatarTools
             _mainScroll = new Vector2(0, 1000);
         }
 
-        #endregion
+#endregion
 
-        #region Main Functions
+#region Main Functions
 
         /// <summary>
         /// This will hide or show all avatars except avatarToKeep
@@ -2638,7 +2652,9 @@ namespace Pumkin.AvatarTools
             {
                 Debug.Log(e.Message);
             }
+#if PUMKIN_OK
             _PumkinsAvatarToolsWindow.RequestRepaint(_PumkinsAvatarToolsWindow.ToolsWindow);
+#endif
         }        
 
         /// <summary>
@@ -2704,12 +2720,12 @@ namespace Pumkin.AvatarTools
                     DestroyAllComponentsOfType(SelectedAvatar, typeof(Collider), false, false);
                     break;
                 case ToolMenuActions.RemoveDynamicBoneColliders:
-#if BONES || OLD_BONES
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
                         DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, false);
 #endif
                     break;
                 case ToolMenuActions.RemoveDynamicBones:
-#if BONES || OLD_BONES
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
                         DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, false);
 #endif
                     break;
@@ -3153,7 +3169,7 @@ namespace Pumkin.AvatarTools
                 {
                     CopyAllAudioSources(objFrom, objTo, bCopier_audioSources_createObjects, true);
                 }
-#if BONES || OLD_BONES
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
                     if(bCopier_dynamicBones_copy)
                     {
                         if(bCopier_dynamicBones_removeOldColliders)
@@ -3478,7 +3494,7 @@ namespace Pumkin.AvatarTools
         /// <param name="removeOldColliders">Whether to remove all DynamicBoneColliders from target before copying</param>
         void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
         {
-#if !BONES && !OLD_BONES
+#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
             Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
             return;
 #else
@@ -3523,7 +3539,7 @@ namespace Pumkin.AvatarTools
 
         void CopyAllDynamicBonesNew(GameObject from, GameObject to, bool createMissing, bool useIgnoreList)
         {
-#if !BONES && !OLD_BONES
+#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
             Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
             return;
 #else
@@ -3652,9 +3668,9 @@ namespace Pumkin.AvatarTools
                             if(dFrom.m_ReferenceObject)
                                 newDynBone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dFrom.m_ReferenceObject, newDynBone.transform.root, false);
 
-#if BONES
+#if PUMKIN_DBONES
                             var newColliders = new List<DynamicBoneColliderBase>();
-#elif OLD_BONES
+#elif PUMKIN_OLD_DBONES
                             var newColliders = new List<DynamicBoneCollider>();
 #endif
 
@@ -3666,9 +3682,9 @@ namespace Pumkin.AvatarTools
                                 if(!badRefCollider)
                                     continue;
 
-#if BONES
+#if PUMKIN_DBONES
                                 DynamicBoneColliderBase fixedRefCollider = null;
-#elif OLD_BONES
+#elif PUMKIN_OLD_DBONES
                                 DynamicBoneCollider fixedRefCollider = null;
 #endif
                                 var t = Helpers.FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
@@ -3724,7 +3740,7 @@ namespace Pumkin.AvatarTools
         /// </summary>        
         void CopyAllDynamicBones(GameObject from, GameObject to, bool createIfMissing, bool useignoreList)
         {
-#if !BONES && !OLD_BONES
+#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
             Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
             return;
 #else
@@ -3771,9 +3787,9 @@ namespace Pumkin.AvatarTools
                         if(dFrom.m_ReferenceObject)
                             newDynBone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dFrom.m_ReferenceObject, newDynBone.transform.root, false);
 
-#if BONES
+#if PUMKIN_DBONES
                         var newColliders = new List<DynamicBoneColliderBase>();
-#elif OLD_BONES
+#elif PUMKIN_OLD_DBONES
                         var newColliders = new List<DynamicBoneCollider>();
 #endif
 
@@ -3785,9 +3801,9 @@ namespace Pumkin.AvatarTools
                             if(!badRefCollider)
                                 continue;
 
-#if BONES
+#if PUMKIN_DBONES
                             DynamicBoneColliderBase fixedRefCollider = null;
-#elif OLD_BONES
+#elif PUMKIN_OLD_DBONES
                             DynamicBoneCollider fixedRefCollider = null;
 #endif
                             var t = Helpers.FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
