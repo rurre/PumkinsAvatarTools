@@ -9,10 +9,9 @@ namespace Pumkin.AvatarTools
 {
     [System.Serializable]
     public class _PumkinsAvatarToolsWindow : EditorWindow
-    {        
-#if PUMKIN_OK
+    {   
         [SerializeField, HideInInspector] static PumkinsAvatarTools _tools;        
-#endif
+
         static EditorWindow _toolsWindow;
 
         string[] boneErrors =
@@ -24,7 +23,6 @@ namespace Pumkin.AvatarTools
 
         static bool pressedReloadButton = false;
 
-#if PUMKIN_OK
         public static PumkinsAvatarTools ToolsWindow
         {
             get
@@ -39,7 +37,6 @@ namespace Pumkin.AvatarTools
                 _tools = value;
             }
         }        
-#endif
 
         [DidReloadScripts]
         static void OnScriptsReloaded()
@@ -64,10 +61,9 @@ namespace Pumkin.AvatarTools
         public static void ResetPrefs()
         {
             EditorPrefs.DeleteKey("PumkinToolsWindow");
-#if PUMKIN_OK
+
             if(_tools)            
                 _tools.ResetEverything();                
-#endif
 
             if(_toolsWindow)
                 DestroyImmediate(_toolsWindow);
@@ -80,20 +76,16 @@ namespace Pumkin.AvatarTools
             //Application.logMessageReceived -= HandleError;
             //Application.logMessageReceived += HandleError;
 
-#if PUMKIN_OK
             if(ToolsWindow)
                 ToolsWindow.HandleOnEnable();
-#endif
         }
 
         private void OnDisable()
         {
             //Application.logMessageReceived -= HandleError;
 
-#if PUMKIN_OK
             if(ToolsWindow)
                 ToolsWindow.HandleOnDisable();
-#endif
         }
 
         private void OnDestroy()
@@ -147,66 +139,40 @@ namespace Pumkin.AvatarTools
         [UnityEditor.Callbacks.DidReloadScripts]
         static void OnReloadScript()
         {
-#if PUMKIN_OK
             if(ToolsWindow)
                 ToolsWindow.RefreshLanguage();
-#endif
         }
 
         public void OnGUI()
         {
-#if PUMKIN_OK
-            if(!ToolsWindow)
-                return;
-
-            ToolsWindow.OnGUI();
-#endif
-#if !PUMKIN_VRCSDK1 && !PUMKIN_VRCSDK2 && !VRC_SDK_EXISTS
-
-            EditorGUILayout.LabelField(Strings.Main.title, Styles.Label_mainTitle, GUILayout.MinHeight(Styles.Label_mainTitle.fontSize + 6));
-            EditorGUILayout.Space();
-
-            EditorGUILayout.HelpBox("VRChat SDK not found.\nPlease install the SDK and try again.", MessageType.Warning, true);
-            EditorGUI.BeginDisabledGroup(pressedReloadButton);
+            if(_DependencyChecker.MainToolsOK)
             {
-                if(GUILayout.Button(pressedReloadButton ? "Loading..." : "Reload", Styles.BigButton))
-                {
-                    _DependencyChecker.CheckForDependencies();
-                    pressedReloadButton = true;
-                }
+                if(ToolsWindow)                   
+                    ToolsWindow.OnGUI();
             }
-            EditorGUI.EndDisabledGroup();
-
-            EditorGUILayout.HelpBox("If you need help, you can join my Discord server!", MessageType.Info, true);
-            if(GUILayout.Button(new GUIContent("Join Discord Server", Icons.DiscordIcon)))
-                Application.OpenURL(Strings.LINK_DISCORD);
-            EditorGUILayout.LabelField("I'm not sure why the button is so big. Help");            
-#endif
-#if PUMKIN_OK
-            HandleRepaint(ToolsWindow);
+            else
+            {
                 Repaint();
-#else
-            Repaint();
-            EditorGUILayout.LabelField(Strings.Main.title, Styles.Label_mainTitle, GUILayout.MinHeight(Styles.Label_mainTitle.fontSize + 6));
-            EditorGUILayout.HelpBox("Thanks for getting my tools!\nPress the button below to set everything up.", MessageType.Info, true);            
+                EditorGUILayout.LabelField(Strings.Main.title, Styles.Label_mainTitle, GUILayout.MinHeight(Styles.Label_mainTitle.fontSize + 6));
+                EditorGUILayout.HelpBox("Thanks for getting my tools!\nPress the button below to set everything up.", MessageType.Info, true);
 
-            EditorGUI.BeginDisabledGroup(pressedReloadButton);
-            {
-                if(GUILayout.Button(pressedReloadButton ? "Loading..." : "The Button", Styles.BigButton))
+                EditorGUI.BeginDisabledGroup(pressedReloadButton);
                 {
-                    _DependencyChecker.CheckForDependencies();
-                    pressedReloadButton = true;
+                    if(GUILayout.Button(pressedReloadButton ? "Loading..." : "The Button", Styles.BigButton))
+                    {
+                        _DependencyChecker.CheckForDependencies();
+                        pressedReloadButton = true;
+                    }
                 }
-            }
-            EditorGUI.EndDisabledGroup();
+                EditorGUI.EndDisabledGroup();
 
-            Helpers.DrawGUILine();
+                Helpers.DrawGUILine();
 
-            EditorGUILayout.HelpBox("If you need help, you can join my Discord server!", MessageType.Info, true);
-            EditorGUIUtility.SetIconSize(new Vector2(25, 25));
-            if(GUILayout.Button(new GUIContent("Join Discord Server", Icons.DiscordIcon ?? null)))
-                Application.OpenURL(Strings.LINK_DISCORD);
-#endif
+                EditorGUILayout.HelpBox("If you need help, you can join my Discord server!", MessageType.Info, true);
+                EditorGUIUtility.SetIconSize(new Vector2(25, 25));
+                if(GUILayout.Button(new GUIContent("Join Discord Server", Icons.DiscordIcon ?? null)))
+                    Application.OpenURL(Strings.LINK_DISCORD);
+            }           
         }
     }
 }

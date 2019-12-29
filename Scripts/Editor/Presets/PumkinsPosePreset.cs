@@ -163,10 +163,8 @@ namespace Pumkin.Presets
                     humanPoseHandler.GetHumanPose(ref humanPose);
                                         
                     humanPose.muscles = muscles;
-
-                    //A bit of a hack but should only apply in a few cases with very old avatars with armature scale set to 100 by CATS
-                    Transform armature = avatar.transform.Find("Armature");
-                    if(Mathf.Approximately(armature.localScale.x, 100) && Mathf.Approximately(armature.localScale.y, 100) && Mathf.Approximately(armature.localScale.z, 100))
+                                                            
+                    if(PumkinsAvatarTools.Instance.posePresetTryFixSinking)
                     {
                         if(humanPose.bodyPosition.y < 1 && !Mathf.Approximately(humanPose.bodyPosition.y, 0))
                         {

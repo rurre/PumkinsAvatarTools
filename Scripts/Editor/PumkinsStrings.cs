@@ -10,12 +10,10 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-#if PUMKIN_VRCSDK2
-        public const string TOOLS_VERSION_NUMBER = "0.7b - Release Candidate";
-#elif PUMKIN_VRCSDK1
+#if PUMKIN_VRCSDK1
         public const string TOOLS_VERSION_NUMBER = "0.7b - Release Candidate - Old SDK";
 #else
-        public const string TOOLS_VERSION_NUMBER = "0.7b - Release Candidate - No SDK";
+        public const string TOOLS_VERSION_NUMBER = "0.7b - Release Candidate";
 #endif
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -279,6 +277,7 @@ namespace Pumkin.DataStructures
             public static string centerCameraFixClippingPlanes = "_Fix Clipping Planes";
             public static string positionOffset = "_Position Offset";
             public static string rotationOffset = "_Rotation Offset";
+            public static string tryFixPoseSinking = "_Try to Fix Pose Sinking";
 
             static Thumbnails()
             {
@@ -311,6 +310,7 @@ namespace Pumkin.DataStructures
                 centerCameraFixClippingPlanes = Translation.thumbnails.centerCameraFixClippingPlanes;
                 positionOffset = Translation.thumbnails.positionOffset;
                 rotationOffset = Translation.thumbnails.rotationOffset;
+                tryFixPoseSinking = Translation.thumbnails.tryFixPoseSinking;
             }
         }
         public static class Copier

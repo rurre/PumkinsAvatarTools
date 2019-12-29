@@ -230,6 +230,8 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool centerCameraFixClippingPlanes = true;
         [SerializeField] bool centerCameraScaleDistanceWithAvatarScale = true;
 
+        [SerializeField] public bool posePresetTryFixSinking = true;
+
         readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET = new Vector3(0, 0, 0.28f);
         readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET = new Vector3(0, 180f, 0);
 
@@ -328,18 +330,10 @@ namespace Pumkin.AvatarTools
 
         public static PumkinsAvatarTools Instance
         {
-
             get 
             {
-#if PUMKIN_OK
                 return _PumkinsAvatarToolsWindow.ToolsWindow; 
-#else
-                return null;
-#endif
             }
-
-
-
         }
 
 
@@ -392,6 +386,8 @@ namespace Pumkin.AvatarTools
             }
         }
 
+        static string _sdkPath = null;
+
         public static string MainFolderPath
         {
             get
@@ -422,9 +418,16 @@ namespace Pumkin.AvatarTools
         {
             get
             {
-                var textures = AssetDatabase.FindAssets("VRCSDK/Dependencies/VRChat/Materials/BlueprintCam");
-                if(textures.Length > 0)                
-                    _vrcRT = AssetDatabase.LoadAssetAtPath(textures[0], typeof(RenderTexture)) as RenderTexture;
+                if(!_vrcRT)
+                {
+                    var camObj = Resources.Load<GameObject>("VRCCam");
+                    if(camObj)
+                    {
+                        var cam = camObj.GetComponent<Camera>();
+                        if(cam)
+                            _vrcRT = cam.targetTexture;
+                    }
+                }
                 return _vrcRT;
             }
         }
@@ -823,6 +826,15 @@ namespace Pumkin.AvatarTools
                 }
 
                 HideAllOtherAvatars(shouldHideOtherAvatars, SelectedAvatar);
+
+                //Find the vrc ui camera and set it's depth higher than defaul to make sure it's the one that's rendering
+                var camObj = GameObject.Find("VRCUICamera");
+                if(camObj)
+                {
+                    var uiCam = camObj.GetComponent<Camera>();
+                    if(uiCam)
+                        uiCam.depth = 1f;
+                }
             }
         }
 
@@ -1705,6 +1717,10 @@ namespace Pumkin.AvatarTools
             {
                 PumkinsMuscleEditor.ShowWindow();
             }
+
+            Helpers.DrawGUILine();
+
+            posePresetTryFixSinking = GUILayout.Toggle(posePresetTryFixSinking, Strings.Thumbnails.tryFixPoseSinking);
 
             Helpers.DrawGUILine();
         }
@@ -2659,9 +2675,7 @@ namespace Pumkin.AvatarTools
             {
                 Debug.Log(e.Message);
             }
-#if PUMKIN_OK
             _PumkinsAvatarToolsWindow.RequestRepaint(_PumkinsAvatarToolsWindow.ToolsWindow);
-#endif
         }        
 
         /// <summary>

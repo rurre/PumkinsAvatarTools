@@ -242,6 +242,7 @@ namespace Pumkin.Translations
         public string centerCameraFixClippingPlanes = "Fix Clipping Planes";        
         public string positionOffset = "Position Offset";
         public string rotationOffset = "Rotation Offset";
+        public string tryFixPoseSinking = "Try to Fix Pose Sinking";
     };
 
     [Serializable]

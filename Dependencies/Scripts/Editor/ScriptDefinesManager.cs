@@ -56,7 +56,7 @@ namespace Pumkin.Dependencies
 
             if(definesChanged)
             {
-                string finalDefineString = string.Join(";", defineSet);
+                string finalDefineString = string.Join(";", defineSet.ToArray());
                 PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTarget, finalDefineString);
                 Debug.LogFormat("Set Scripting Define Symbols for selected build target ({0}) to: {1}", buildTarget.ToString(), finalDefineString);
             }
@@ -86,7 +86,7 @@ namespace Pumkin.Dependencies
             if(!removedSomething)
                 return;
 
-            string finalDefineString = string.Join(";", defineSet);
+            string finalDefineString = string.Join(";", defineSet.ToArray());
             PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTarget, finalDefineString);
             Debug.LogFormat("Set Scripting Define Symbols for selected build target ({0}) to: {1}", buildTarget.ToString(), finalDefineString);            
         }

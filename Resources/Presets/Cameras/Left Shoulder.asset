@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a722b864b617955438a3effb19b2c444, type: 3}
-  m_Name: left shoulder
+  m_Name: Left Shoulder
   m_EditorClassIdentifier: 
-  name: left shoulder
+  name: Pink Left Shoulder
   offsetMode: 2
-  positionOffset: {x: -0.24872696, y: -0.21303539, z: -0.22144139}
-  rotationAnglesOffset: {x: 359.04395, y: 72.68477, z: 107.31522}
+  positionOffset: {x: -0.0874473, y: 0.019161241, z: -0.024186842}
+  rotationAnglesOffset: {x: 359.04395, y: 72.68475, z: 107.31524}
   transformPath: Armature/Hips/Spine/Chest/Left shoulder
   useOverlay: 0
   overlayImagePath: 
   overlayImageTint: {r: 1, g: 1, b: 1, a: 1}
-  useBackground: 0
+  useBackground: 1
   backgroundType: 0
-  backgroundColor: {r: 1, g: 1, b: 1, a: 1}
+  backgroundColor: {r: 0.6132076, g: 0.34420612, b: 0.34420612, a: 1}
   backgroundImagePath: 
   backgroundImageTint: {r: 1, g: 1, b: 1, a: 1}
   backgroundMaterial: {fileID: 0}

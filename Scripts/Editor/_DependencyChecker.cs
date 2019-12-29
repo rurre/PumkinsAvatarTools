@@ -14,8 +14,7 @@ namespace Pumkin.DependencyChecker
         const string HAS_DBONES = "PUMKIN_DBONES";
         const string HAS_OLD_DBONES = "PUMKIN_OLD_DBONES";
         const string HAS_SDK1 = "PUMKIN_VRCSDK1";
-        const string HAS_SDK2 = "PUMKIN_VRCSDK2";
-        const string PUMKIN_TOOLS_OK = "PUMKIN_OK";
+        const string HAS_SDK2 = "PUMKIN_VRCSDK2";        
 
         public static string MainScriptPath { get; private set; }        
 
@@ -29,11 +28,13 @@ namespace Pumkin.DependencyChecker
         public static PumkinsDBonesVersion DBonesVersion
         {
             get; private set;
-        }        
+        }
+
+        static bool _mainToolsOK = true;
 
         public static bool MainToolsOK
         {
-            get; private set;
+            get { return _mainToolsOK; } private set { _mainToolsOK = value; }
         }
 
         static _DependencyChecker() { }
@@ -41,7 +42,7 @@ namespace Pumkin.DependencyChecker
         public static void ResetDependencies()
         {
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Resetting tool preferences...");
-            ScriptDefinesManager.RemoveDefines(HAS_SDK1, HAS_SDK2, HAS_DBONES, HAS_OLD_DBONES, PUMKIN_TOOLS_OK);
+            ScriptDefinesManager.RemoveDefines(HAS_SDK1, HAS_SDK2, HAS_DBONES, HAS_OLD_DBONES);
         }
 
         public static void CheckForDependencies()
@@ -51,10 +52,7 @@ namespace Pumkin.DependencyChecker
             MainToolsOK = GetType("Pumkin.AvatarTools.PumkinsAvatarTools") != null ? true : false;            
 
             var definesToAdd = new HashSet<string>();
-            var currentDefines = ScriptDefinesManager.GetDefinesAsArray();
-
-            if(MainToolsOK)
-                definesToAdd.Add(PUMKIN_TOOLS_OK);
+            var currentDefines = ScriptDefinesManager.GetDefinesAsArray();                
 
             switch(SDKVersion)
             {
