@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a722b864b617955438a3effb19b2c444, type: 3}
-  m_Name: Bad Thumbnail
+  m_Name: left shoulder
   m_EditorClassIdentifier: 
-  name: Examples/Bad Thumbnail
+  name: left shoulder
   offsetMode: 2
-  positionOffset: {x: 0, y: 0, z: 0.5}
-  rotationAnglesOffset: {x: 0, y: 180, z: 0}
-  transformPath: Armature/Hips
+  positionOffset: {x: -0.24872696, y: -0.21303539, z: -0.22144139}
+  rotationAnglesOffset: {x: 359.04395, y: 72.68477, z: 107.31522}
+  transformPath: Armature/Hips/Spine/Chest/Left shoulder
   useOverlay: 0
   overlayImagePath: 
   overlayImageTint: {r: 1, g: 1, b: 1, a: 1}
-  useBackground: 1
-  backgroundType: 1
+  useBackground: 0
+  backgroundType: 0
   backgroundColor: {r: 1, g: 1, b: 1, a: 1}
   backgroundImagePath: 
   backgroundImageTint: {r: 1, g: 1, b: 1, a: 1}
-  backgroundMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  backgroundMaterial: {fileID: 0}

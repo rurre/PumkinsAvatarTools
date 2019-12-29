@@ -77,8 +77,8 @@ namespace Pumkin.AvatarTools
 
         private void OnEnable()
         {
-            Application.logMessageReceived -= HandleError;
-            Application.logMessageReceived += HandleError;
+            //Application.logMessageReceived -= HandleError;
+            //Application.logMessageReceived += HandleError;
 
 #if PUMKIN_OK
             if(ToolsWindow)
@@ -88,7 +88,7 @@ namespace Pumkin.AvatarTools
 
         private void OnDisable()
         {
-            Application.logMessageReceived -= HandleError;
+            //Application.logMessageReceived -= HandleError;
 
 #if PUMKIN_OK
             if(ToolsWindow)
@@ -178,7 +178,7 @@ namespace Pumkin.AvatarTools
             EditorGUI.EndDisabledGroup();
 
             EditorGUILayout.HelpBox("If you need help, you can join my Discord server!", MessageType.Info, true);
-            if(GUILayout.Button(new GUIContent(Strings.Buttons.joinDiscordServer ?? "Join Discord Server", Icons.DiscordIcon)))
+            if(GUILayout.Button(new GUIContent("Join Discord Server", Icons.DiscordIcon)))
                 Application.OpenURL(Strings.LINK_DISCORD);
             EditorGUILayout.LabelField("I'm not sure why the button is so big. Help");            
 #endif
@@ -188,11 +188,11 @@ namespace Pumkin.AvatarTools
 #else
             Repaint();
             EditorGUILayout.LabelField(Strings.Main.title, Styles.Label_mainTitle, GUILayout.MinHeight(Styles.Label_mainTitle.fontSize + 6));
-            EditorGUILayout.HelpBox("Tool preferences have been reset.\nIf you just installed these, just press reload.\nIf not, and reload doesn't fix it, consider asking for help.", MessageType.Warning, true);            
+            EditorGUILayout.HelpBox("Thanks for getting my tools!\nPress the button below to set everything up.", MessageType.Info, true);            
 
             EditorGUI.BeginDisabledGroup(pressedReloadButton);
             {
-                if(GUILayout.Button(pressedReloadButton ? "Loading..." : "Reload", Styles.BigButton))
+                if(GUILayout.Button(pressedReloadButton ? "Loading..." : "The Button", Styles.BigButton))
                 {
                     _DependencyChecker.CheckForDependencies();
                     pressedReloadButton = true;
@@ -204,7 +204,7 @@ namespace Pumkin.AvatarTools
 
             EditorGUILayout.HelpBox("If you need help, you can join my Discord server!", MessageType.Info, true);
             EditorGUIUtility.SetIconSize(new Vector2(25, 25));
-            if(GUILayout.Button(new GUIContent(Strings.Buttons.joinDiscordServer ?? "Join Discord Server", Icons.DiscordIcon ?? null)))
+            if(GUILayout.Button(new GUIContent("Join Discord Server", Icons.DiscordIcon ?? null)))
                 Application.OpenURL(Strings.LINK_DISCORD);
 #endif
         }

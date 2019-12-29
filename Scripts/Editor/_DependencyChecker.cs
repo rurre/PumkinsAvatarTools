@@ -36,13 +36,11 @@ namespace Pumkin.DependencyChecker
             get; private set;
         }
 
-        static _DependencyChecker()
-        {
-            
-        }
+        static _DependencyChecker() { }
 
         public static void ResetDependencies()
         {
+            Debug.Log("<color=blue>PumkinsAvatarTools</color>: Resetting tool preferences...");
             ScriptDefinesManager.RemoveDefines(HAS_SDK1, HAS_SDK2, HAS_DBONES, HAS_OLD_DBONES, PUMKIN_TOOLS_OK);
         }
 
@@ -53,6 +51,7 @@ namespace Pumkin.DependencyChecker
             MainToolsOK = GetType("Pumkin.AvatarTools.PumkinsAvatarTools") != null ? true : false;            
 
             var definesToAdd = new HashSet<string>();
+            var currentDefines = ScriptDefinesManager.GetDefinesAsArray();
 
             if(MainToolsOK)
                 definesToAdd.Add(PUMKIN_TOOLS_OK);
@@ -82,9 +81,8 @@ namespace Pumkin.DependencyChecker
                 default:
                     break;
             }
-
-            if(definesToAdd.Count > 0)
-                ScriptDefinesManager.AddDefinesIfMissing(definesToAdd.ToArray());
+            
+            ScriptDefinesManager.AddDefinesIfMissing(definesToAdd.ToArray());
         }
 
         /// <summary>

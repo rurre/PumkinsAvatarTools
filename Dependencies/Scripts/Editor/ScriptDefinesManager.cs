@@ -42,17 +42,19 @@ namespace Pumkin.Dependencies
         /// <param name="buildTarget">Build target to add defines for. Different for every platform</param>
         /// <param name="newDefines">New defines to add</param>
         public static void AddDefinesIfMissing(BuildTargetGroup buildTarget, params string[] newDefines)
-        {               
+        {
+            bool definesChanged = false;
             string existingDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTarget);
             HashSet<string> defineSet = new HashSet<string>();
 
             if(existingDefines.Length > 0)
                 defineSet = new HashSet<string>(existingDefines.Split(';'));
 
-            foreach(string def in newDefines)            
-                defineSet.Add(def);            
+            foreach(string def in newDefines)
+                if(defineSet.Add(def))
+                    definesChanged = true;
 
-            if(defineSet.Count > 0)
+            if(definesChanged)
             {
                 string finalDefineString = string.Join(";", defineSet);
                 PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTarget, finalDefineString);

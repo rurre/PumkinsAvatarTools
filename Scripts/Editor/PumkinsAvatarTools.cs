@@ -225,11 +225,12 @@ namespace Pumkin.AvatarTools
         [SerializeField] public string _selectedBlendshapePresetString = "";
         [SerializeField] public int _selectedBlendshapePresetIndex = 0;
 
-        [SerializeField] Vector3 centerCameraPositionOffset = new Vector3(-0.085f, 0.23f, 0.188f);
-        [SerializeField] Vector3 centerCameraRotationOffset = new Vector3(2.92f, 159.378f, 0);
+        [SerializeField] Vector3 centerCameraPositionOffset = new Vector3(-0.096f, 0.025f, 0.269f);
+        [SerializeField] Vector3 centerCameraRotationOffset = new Vector3(4.193f, 164.274f, 0);
         [SerializeField] bool centerCameraFixClippingPlanes = true;
+        [SerializeField] bool centerCameraScaleDistanceWithAvatarScale = true;
 
-        readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET = new Vector3(0, 0, 0.225f);
+        readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET = new Vector3(0, 0, 0.28f);
         readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET = new Vector3(0, 180f, 0);
 
         static Camera _selectedCamera;
@@ -439,7 +440,9 @@ namespace Pumkin.AvatarTools
             set
             {
                 if(SelectedCamera)
+                {                    
                     SelectedCamera.targetTexture = value;
+                }
             }
         }
         public static Material RTMaterial
@@ -468,22 +471,26 @@ namespace Pumkin.AvatarTools
                 return _selectedCamera;
             }
             set
-            {                
-                if(_selectedCamera)
-                {
-                    //Restore BlueprintCam render texture if it's VRCCam we're changing from
-                    if(_selectedCamera.name == "VRCCam")
-                        SelectedCamRT = VRCCamRT;
-                    else
-                        SelectedCamRT = null;
-                }
-
+            {     
                 if(_selectedCamera != value)
                 {
+                    RestoreCameraRT(_selectedCamera);
                     _selectedCamera = value;
                     OnCameraSelectionChanged(_selectedCamera);
                 }
             }
+        }
+
+        public static void RestoreCameraRT(Camera camera)
+        {
+            if(!camera)
+                return;
+            
+            //Restore BlueprintCam render texture if it's VRCCam we're changing from
+            if(camera.name == "VRCCam")
+                camera.targetTexture = VRCCamRT;
+            else
+                camera.targetTexture = null;            
         }
 
         public GameObject GetCameraOverlay(bool createIfMissing = false)
@@ -1738,7 +1745,7 @@ namespace Pumkin.AvatarTools
                     if(GUILayout.Button(Strings.Thumbnails.centerCameraOnViewpoint, Styles.BigButton))
                     {
                         if(SelectedCamera)
-                            CenterCameraOnViewpoint(SelectedAvatar, centerCameraPositionOffset, centerCameraRotationOffset, centerCameraFixClippingPlanes);
+                            CenterCameraOnViewpoint(SelectedAvatar, centerCameraPositionOffset, centerCameraRotationOffset, centerCameraScaleDistanceWithAvatarScale, centerCameraFixClippingPlanes);
                         else
                             Log(Strings.Warning.cameraNotFound, LogType.Warning);
                     }
@@ -2133,7 +2140,7 @@ namespace Pumkin.AvatarTools
                 if(GUILayout.Button(Strings.Buttons.reset))
                 {
                     if(typeof(T) == typeof(PumkinsCameraPreset))
-                        CenterCameraOnViewpoint(SelectedAvatar, DEFAULT_CAMERA_POSITION_OFFSET, DEFAULT_CAMERA_ROTATION_OFFSET, centerCameraFixClippingPlanes);
+                        CenterCameraOnViewpoint(SelectedAvatar, DEFAULT_CAMERA_POSITION_OFFSET, DEFAULT_CAMERA_ROTATION_OFFSET, centerCameraFixClippingPlanes, false);
                     else if(typeof(T) == typeof(PumkinsPosePreset))
                         DoAction(SelectedAvatar, ToolMenuActions.ResetPose);
                     else if(typeof(T) == typeof(PumkinsBlendshapePreset))
@@ -4611,11 +4618,11 @@ namespace Pumkin.AvatarTools
         /// <param name="positionOffset">Position offset to apply</param>
         /// <param name="rotationOffset">Rotation offset to apply</param>
         /// <param name="fixClippingPlanes">Should change near clipping plane to 0.1 and far to 1000?</param>
-        void CenterCameraOnViewpoint(GameObject avatarOverride, Vector3 positionOffset, Vector3 rotationOffset, bool fixClippingPlanes)
+        void CenterCameraOnViewpoint(GameObject avatarOverride, Vector3 positionOffset, Vector3 rotationOffset, bool fixClippingPlanes, bool scaleDistanceWithAvatarScale)
         {
             if(fixClippingPlanes)            
-                Helpers.FixCameraClippingPlanes(SelectedCamera);            
-            PumkinsCameraPreset.ApplyPositionAndRotationWithViewpointOffset(avatarOverride, SelectedCamera, positionOffset, rotationOffset);
+                Helpers.FixCameraClippingPlanes(SelectedCamera);
+            PumkinsCameraPreset.ApplyPositionAndRotationWithViewpointOffset(avatarOverride, SelectedCamera, positionOffset, rotationOffset, scaleDistanceWithAvatarScale);
         }
         
         /// <summary>

@@ -280,6 +280,19 @@ namespace Pumkin.HelperFunctions
             }
         }
 
+        /// <summary>
+        /// Destroys an object. If in edit mode DestroyImmediate is used, if in play mode Destroy is used
+        /// </summary>        
+        public static void DestroyAppropriate(GameObject gameObject)
+        {
+            if(!gameObject)
+                return;
+            if(EditorApplication.isPlaying)
+                UnityEngine.Object.Destroy(gameObject);
+            else
+                UnityEngine.Object.DestroyImmediate(gameObject);
+        }
+
         public static void DrawBlendshapeSlidersWithLabels(ref List<PumkinsRendererBlendshapesHolder> rendererHolders, GameObject avatar, int indentLevel = 0, float labelWidthOverride = 0)
         {               
             if(rendererHolders == null || avatar == null)

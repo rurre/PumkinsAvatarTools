@@ -36,7 +36,6 @@ namespace Pumkin.Presets
         void OnEnable()
         {
             PumkinsAvatarTools.CameraSelectionChanged += HandleCameraSelectionChanged;
-
             PumkinsAvatarTools.SelectedCamera.targetTexture = PumkinsAvatarTools.DefaultRT;
             
             RefreshReferenceTransform();
@@ -55,6 +54,7 @@ namespace Pumkin.Presets
 
         private void OnDestroy()
         {
+            PumkinsAvatarTools.RestoreCameraRT(PumkinsAvatarTools.SelectedCamera);
             if(editingExistingPreset)            
                 GetNewOffsetsAndApplyToPreset();            
         }
@@ -86,8 +86,8 @@ namespace Pumkin.Presets
         {
             if(!camera)
                 return;
-            camera.targetTexture = PumkinsAvatarTools.DefaultRT;
 
+            camera.targetTexture = PumkinsAvatarTools.DefaultRT;
             RefreshReferenceTransform();
         }
 

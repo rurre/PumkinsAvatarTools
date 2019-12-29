@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Examples/Simple Dark
   offsetMode: 0
-  positionOffset: {x: 0, y: 2.004, z: 0.329}
+  positionOffset: {x: 0, y: 0, z: 0.329}
   rotationAnglesOffset: {x: -0, y: 180, z: 0}
   transformPath: 
   useOverlay: 0

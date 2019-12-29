@@ -11,11 +11,11 @@ namespace Pumkin.DataStructures
     public class Strings : SingletonScriptableObject<Strings>
     {
 #if PUMKIN_VRCSDK2
-        public const string TOOLS_VERSION_NUMBER = "0.7b - Work in Progress";
+        public const string TOOLS_VERSION_NUMBER = "0.7b - Release Candidate";
 #elif PUMKIN_VRCSDK1
-        public const string TOOLS_VERSION_NUMBER = "0.7b - Work in Progress - Old SDK";
+        public const string TOOLS_VERSION_NUMBER = "0.7b - Release Candidate - Old SDK";
 #else
-        public const string TOOLS_VERSION_NUMBER = "0.7b - No SDK";
+        public const string TOOLS_VERSION_NUMBER = "0.7b - Release Candidate - No SDK";
 #endif
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";

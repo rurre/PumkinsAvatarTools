@@ -39,6 +39,8 @@ namespace Pumkin.Presets
             Camera cam = PumkinsAvatarTools.SelectedCamera;
             if(!cam || !avatar)
                 return false;
+            
+            Undo.RegisterFullObjectHierarchyUndo(cam.gameObject, "Apply Camera Preset");                 
 
             Transform dummy = null;
             try
@@ -71,13 +73,13 @@ namespace Pumkin.Presets
             {
                 Debug.LogError(e.Message);
                 if(dummy)
-                    DestroyImmediate(dummy.gameObject);
+                    Helpers.DestroyAppropriate(dummy.gameObject);
                 return false;
             }
             finally
             {
                 if(dummy)
-                    DestroyImmediate(dummy.gameObject);
+                    Helpers.DestroyAppropriate(dummy.gameObject);
             }
 
             PumkinsAvatarTools.Instance.bThumbnails_use_camera_overlay = useOverlay;
@@ -178,10 +180,28 @@ namespace Pumkin.Presets
                 offsetMode = CameraOffsetMode.AvatarRoot;
             else
                 offsetMode = CameraOffsetMode.Transform;
-            
-            positionOffset = cam.transform.localPosition - target.position;
-            rotationAnglesOffset = cam.transform.localEulerAngles - target.eulerAngles;
-            transformPath = Helpers.GetGameObjectPath(target);            
+
+            Transform dummy = null;
+            try
+            {
+                dummy = new GameObject("Dummy").transform;
+                dummy.position = target.position;
+                dummy.rotation = target.rotation;
+
+                Transform oldParent = cam.transform.parent;
+                cam.transform.parent = dummy;
+
+                positionOffset = cam.transform.localPosition;
+                rotationAnglesOffset = cam.transform.localEulerAngles;
+                transformPath = Helpers.GetGameObjectPath(target);
+
+                cam.transform.parent = oldParent;
+            }
+            finally
+            {
+                if(dummy)
+                    Helpers.DestroyAppropriate(dummy.gameObject);
+            }
         }
 
         public void CalculateOffsets(VRC_AvatarDescriptor desc, Camera cam)
@@ -204,7 +224,7 @@ namespace Pumkin.Presets
             ApplyPositionAndRotationWithViewpointOffset(avatar, cam, trans.position, trans.localEulerAngles);
         }
 
-        public static void ApplyPositionAndRotationWithViewpointOffset(GameObject avatar, Camera cam, Vector3 position, Vector3 rotationAngles)
+        public static void ApplyPositionAndRotationWithViewpointOffset(GameObject avatar, Camera cam, Vector3 position, Vector3 rotationAngles, bool scaleDistanceWithAvatarScale = false)
         {
             if(!cam || !avatar)
                 return;
@@ -216,7 +236,25 @@ namespace Pumkin.Presets
                 var desc = avatar.GetComponent<VRC_AvatarDescriptor>();
                 dummy.localPosition = desc.ViewPosition + desc.gameObject.transform.position;
 
-                cam.transform.localPosition = position + dummy.transform.position;
+                //Get multiplier to add to distance
+                //float distanceToAddZ = 0;
+                //if(scaleDistanceWithAvatarScale)
+                //{
+#if UNITY_2017
+                    //var pref = PrefabUtility.GetPrefabParent(avatar) as GameObject;
+#else
+                    //var pref = PrefabUtility.GetCorrespondingObjectFromSource(avatar) as GameObject;
+#endif
+                    //I have no idea what i'm doing. TODO: Figure out what I'm doing.
+                    //if(pref)
+                    //{
+                        //float multiplier = Helpers.GetDeltaMultiplier(pref.transform.localScale.z, avatar.transform.localScale.z);
+                        //float posZ = position.z + dummy.transform.localPosition.z;
+                        //distanceToAddZ = posZ * multiplier;
+                    //}
+                //}
+
+                cam.transform.localPosition = position + dummy.transform.position; //+ new Vector3(0, 0, distanceToAddZ);
                 cam.transform.localEulerAngles = rotationAngles + dummy.transform.eulerAngles;                
             }
             catch(Exception e)
@@ -226,7 +264,7 @@ namespace Pumkin.Presets
             finally
             {
                 if(dummy)
-                    DestroyImmediate(dummy.gameObject);
+                    Helpers.DestroyAppropriate(dummy.gameObject);
             }
         }
 
@@ -253,7 +291,7 @@ namespace Pumkin.Presets
             finally
             {
                 if(dummy)
-                    DestroyImmediate(dummy.gameObject);                
+                    Helpers.DestroyAppropriate(dummy.gameObject);
             }
             return offsets;
         }
