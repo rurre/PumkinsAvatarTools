@@ -298,7 +298,7 @@ namespace Pumkin.Presets
                 dummy = new GameObject("Dummy").transform;
                 dummy.localPosition = desc.ViewPosition + desc.gameObject.transform.position;                
 
-                offsets.position = cam.transform.localPosition - dummy.localPosition;
+                offsets.localPosition = cam.transform.localPosition - dummy.localPosition;
                 offsets.localEulerAngles = cam.transform.localEulerAngles - dummy.localEulerAngles;
             }
             catch(Exception e)
@@ -326,7 +326,7 @@ namespace Pumkin.Presets
             cam.transform.parent = transform;
             SerialTransform offsets = new SerialTransform()
             {
-                position = cam.transform.position,                
+                localPosition = cam.transform.localPosition,
                 localRotation = cam.transform.localRotation,
                 localEulerAngles = cam.transform.localEulerAngles,
             };

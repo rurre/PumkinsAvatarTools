@@ -245,7 +245,7 @@ namespace Pumkin.AvatarTools
         readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET_VIEWPOINT = new Vector3(0, 0, 0.28f);
         readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET_VIEWPOINT = new Vector3(0, 180f, 0);
 
-        readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET_TRANSFORM = new Vector3(0, 0.83f, 0.227f);
+        readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET_TRANSFORM = new Vector3(0, 0.083f, 0.388f);
         readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET_TRANSFORM = new Vector3(0, 180f, 0);
 
         readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET_AVATAR = new Vector3(0, 0.025f, 0.269f);
@@ -692,19 +692,7 @@ namespace Pumkin.AvatarTools
 
 
             //Handle skinned mesh renderer container for blendshape preset gui
-            if(_selectedAvatarRendererHolders == null)
-                _selectedAvatarRendererHolders = new List<PumkinsRendererBlendshapesHolder>();
-            _selectedAvatarRendererHolders.Clear();
-
-            if(selection)
-            {
-                SkinnedMeshRenderer[] smRenderers = selection.GetComponentsInChildren<SkinnedMeshRenderer>();
-                foreach(var smRender in smRenderers)
-                {
-                    if(smRender)
-                        _selectedAvatarRendererHolders.Add((PumkinsRendererBlendshapesHolder)smRender);
-                }
-            }
+            SetupBlendeshapeRendererHolders(selection);
 
             //Cancel editing viewpoint and scaling
             if(Instance._editingScale)
@@ -713,6 +701,39 @@ namespace Pumkin.AvatarTools
                 Instance.EndEditingViewpoint(null, true);
 
             Instance.centerCameraTransform = null;
+        }
+
+        private static void SetupBlendeshapeRendererHolders(GameObject selection)
+        {
+            //Save old expanded values to prevent calling this from collapsing all blendshape holders in menus
+            Dictionary<string, bool> oldHolderExpandValues = new Dictionary<string, bool>();
+            if(_selectedAvatarRendererHolders == null)
+            {
+                _selectedAvatarRendererHolders = new List<PumkinsRendererBlendshapesHolder>();
+            }
+            else
+            {
+                foreach(var h in _selectedAvatarRendererHolders)
+                    oldHolderExpandValues.Add(h.rendererPath, h.expandedInUI);
+            }
+
+            _selectedAvatarRendererHolders.Clear();
+
+            if(selection)
+            {
+                SkinnedMeshRenderer[] smRenderers = selection.GetComponentsInChildren<SkinnedMeshRenderer>();
+                foreach(var smRender in smRenderers)
+                {
+                    if(smRender)
+                    {
+                        var newHolder = (PumkinsRendererBlendshapesHolder)smRender;
+                        if(oldHolderExpandValues.ContainsKey(newHolder.rendererPath))
+                            newHolder.expandedInUI = oldHolderExpandValues[newHolder.rendererPath];
+
+                        _selectedAvatarRendererHolders.Add(newHolder);
+                    }
+                }
+            }
         }
 
         public static void OnPoseWasChanged(PoseChangeType changeType)
@@ -1686,7 +1707,17 @@ namespace Pumkin.AvatarTools
 
                 Helpers.DrawGUILine();
 
-                _presetToolbarSelectedIndex = GUILayout.Toolbar(_presetToolbarSelectedIndex, new string[] { Strings.Thumbnails.cameras, Strings.Thumbnails.poses, Strings.Thumbnails.blendshapes }, Styles.ToolbarBigButtons);
+                EditorGUI.BeginChangeCheck();
+                {
+                    _presetToolbarSelectedIndex = GUILayout.Toolbar(_presetToolbarSelectedIndex, new string[] { Strings.Thumbnails.cameras, Strings.Thumbnails.poses, Strings.Thumbnails.blendshapes }, Styles.ToolbarBigButtons);
+                }
+                if(EditorGUI.EndChangeCheck())
+                {
+                    if(_presetToolbarSelectedIndex == (int)PresetToolbarOptions.Blendshape)
+                    {
+                        SetupBlendeshapeRendererHolders(SelectedAvatar);
+                    }
+                }
 
                 EditorGUILayout.Space();
                 Helpers.DrawGUILine();
@@ -1895,7 +1926,7 @@ namespace Pumkin.AvatarTools
                                     st = PumkinsCameraPreset.GetCameraOffsetFromViewpoint(SelectedAvatar, SelectedCamera);
                                     if(st)
                                     {
-                                        centerCameraPositionOffsetViewpoint = Helpers.RoundVectorValues(st.position, 3);
+                                        centerCameraPositionOffsetViewpoint = Helpers.RoundVectorValues(st.localPosition, 3);
                                         centerCameraRotationOffsetViewpoint = Helpers.RoundVectorValues(st.localEulerAngles, 3);
                                     }
                                     break;
@@ -1903,7 +1934,7 @@ namespace Pumkin.AvatarTools
                                     st = PumkinsCameraPreset.GetOffsetsFromTransform(SelectedAvatar.transform, SelectedCamera);
                                     if(st)
                                     {
-                                        centerCameraPositionOffsetAvatar = Helpers.RoundVectorValues(st.position, 3);
+                                        centerCameraPositionOffsetAvatar = Helpers.RoundVectorValues(st.localPosition, 3);
                                         centerCameraRotationOffsetAvatar = Helpers.RoundVectorValues(st.localEulerAngles, 3);
                                     }
                                     break;
@@ -1911,7 +1942,7 @@ namespace Pumkin.AvatarTools
                                     st = PumkinsCameraPreset.GetOffsetsFromTransform(centerCameraTransform, SelectedCamera);
                                     if(st)
                                     {
-                                        centerCameraPositionOffsetTransform = Helpers.RoundVectorValues(st.position, 3);
+                                        centerCameraPositionOffsetTransform = Helpers.RoundVectorValues(st.localPosition, 3);
                                         centerCameraRotationOffsetTransform = Helpers.RoundVectorValues(st.localEulerAngles, 3);
                                     }
                                     break;                                
@@ -2239,6 +2270,9 @@ namespace Pumkin.AvatarTools
                             pSelectedPresetIndex.intValue = newIndex;
 
                         pr[pSelectedPresetIndex.intValue].ApplyPreset(SelectedAvatar);
+
+                        if(typeof(T) == typeof(PumkinsBlendshapePreset))
+                            SetupBlendeshapeRendererHolders(SelectedAvatar);
                     }
                 }
                 GUILayout.EndHorizontal();
@@ -2452,7 +2486,9 @@ namespace Pumkin.AvatarTools
                         overlay.SetActive(true);
                 }
                 else
+                {
                     overlay.SetActive(false);
+                }
             }
             else
             {
