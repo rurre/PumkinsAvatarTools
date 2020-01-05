@@ -258,8 +258,7 @@ namespace Pumkin.DataStructures
         {
             public static string overlayCameraImage = "_Overlay Image";
             public static string overlayTexture = "_Overlay Texture";
-            public static string startUploadingFirst = "_Start uploading an Avatar, or get into Play mode";
-            public static string centerCameraOnViewpoint = "_Center Camera on Viewpoint";
+            public static string startUploadingFirst = "_Start uploading an Avatar, or get into Play mode";                        
             public static string backgroundType = "_Background Type";
             public static string backgroundType_None = "_None";
             public static string backgroundType_Material = "_Skybox";
@@ -278,6 +277,8 @@ namespace Pumkin.DataStructures
             public static string positionOffset = "_Position Offset";
             public static string rotationOffset = "_Rotation Offset";
             public static string tryFixPoseSinking = "_Try to Fix Pose Sinking";
+            public static string centerCameraOn = "_Center Camera on {0}";
+            public static string viewpoint = "_Viewpoint";
 
             static Thumbnails()
             {
@@ -291,8 +292,7 @@ namespace Pumkin.DataStructures
 
                 overlayCameraImage = Translation.thumbnails.overlayCameraImage;
                 overlayTexture = Translation.thumbnails.overlayTexture;
-                startUploadingFirst = Translation.thumbnails.startUploadingFirst;
-                centerCameraOnViewpoint = Translation.thumbnails.centerCameraOnViewpoint;
+                startUploadingFirst = Translation.thumbnails.startUploadingFirst;                
                 backgroundType = Translation.thumbnails.backgroundType;
                 backgroundType_None = Translation.thumbnails.backgroundType_None;
                 backgroundType_Material = Translation.thumbnails.backgroundType_Material;
@@ -311,6 +311,8 @@ namespace Pumkin.DataStructures
                 positionOffset = Translation.thumbnails.positionOffset;
                 rotationOffset = Translation.thumbnails.rotationOffset;
                 tryFixPoseSinking = Translation.thumbnails.tryFixPoseSinking;
+                centerCameraOn = Translation.thumbnails.centerCameraOn;
+                viewpoint = Translation.thumbnails.viewpoint;
             }
         }
         public static class Copier
@@ -617,6 +619,8 @@ namespace Pumkin.DataStructures
             public static string muscles = "_Muscles";
             public static string transformRotations = "_Transform Rotations";
             public static string selectHumanoidAvatar = "_Select a Humanoid Avatar";
+            public static string animationTime = "_Time";
+            public static string poseFromAnimation = "_Pose from Animation";
 
             static PoseEditor()
             {
@@ -653,6 +657,8 @@ namespace Pumkin.DataStructures
                 muscles = Translation.poseEditor.muscles;
                 transformRotations = Translation.poseEditor.transformRotations;
                 selectHumanoidAvatar = Translation.poseEditor.selectHumanoidAvatar;
+                animationTime = Translation.poseEditor.animationTime;
+                poseFromAnimation = Translation.poseEditor.poseFromAnimation;
             }
         }
         public static class Presets

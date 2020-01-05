@@ -12,15 +12,22 @@ namespace Pumkin.PoseEditor
 {
     public class PumkinsMuscleEditor : EditorWindow
     {
+        //Main
         static bool windowIsFocused = false;
         static HumanPose avatarPose;
         static HumanPoseHandler avatarPoseHandler;
-
-        float sliderRange = 2f;
-        int toolbarSelection = 0;
         Vector2 scroll = Vector2.zero;
 
-        static Animator _avatarAnimator;
+        //Toolbar and sliders
+        float sliderRange = 2f;
+        int toolbarSelection = 0;
+        
+        //Pose from animation
+        AnimationClip animClip;
+        float animTimeCurrent = 0;
+
+
+        static Animator _avatarAnimator;        
 
         static bool _drawSkeleton = false;
 
@@ -99,47 +106,46 @@ namespace Pumkin.PoseEditor
             SceneView.onSceneGUIDelegate -= DrawHandlesGUI;
         }
 
+        public void OnGUI()
+        {
+            EditorGUILayout.BeginHorizontal();
+            {
+                EditorGUILayout.LabelField(Strings.PoseEditor.title, Styles.Label_mainTitle);
+
+                if(GUILayout.Button(Icons.Settings, Styles.IconButton))
+                    _openedSettings = !_openedSettings;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.LabelField(Strings.PoseEditor.version);
+            EditorGUILayout.Space();
+
+            EditorGUI.BeginChangeCheck();
+            {
+                PumkinsAvatarTools.DrawAvatarSelectionWithButton();
+            }
+
+            //if(GUILayout.Button("Dump muscle names"))
+            //{            
+            //    string s = "";
+            //    foreach(string m in HumanTrait.MuscleName)
+            //    {
+            //        s += "\"" + m + "\",\n";
+            //    }
+            //    Debug.Log(s);
+            //}
+
+            Helpers.DrawGUILine();
+
+            if(_openedSettings)
+                DrawSettingsGUI();
+            else
+                DrawMainGUI();
+        }
+
         static void HandleAvatarSelectionChanged(GameObject newAvatar)
         {
             ReloadPoseVariables(newAvatar);
-        }
-
-        private static void ReloadPoseVariables(GameObject newAvatar)
-        {            
-            if(newAvatar)
-                _avatarAnimator = newAvatar.GetComponent<Animator>();
-            else
-                _avatarAnimator = null;
-
-            if(bones == null)
-                bones = new List<PoseEditorBone>();
-            bones.Clear();
-
-            if(newAvatar && AvatarAnimator && AvatarAnimator.isHuman)
-            {
-                avatarPose = new HumanPose();
-                avatarPoseHandler = new HumanPoseHandler(AvatarAnimator.avatar, AvatarAnimator.transform);
-                avatarPoseHandler.GetHumanPose(ref avatarPose);
-
-                //Human bone transforms to compare against
-                HashSet<Transform> humanBoneTransforms = new HashSet<Transform>();                
-                for(int i = 0; i < HumanTrait.BoneCount; i++)
-                    humanBoneTransforms.Add(AvatarAnimator.GetBoneTransform((HumanBodyBones)i));
-
-                //Get bone human bone root and tip positions
-                for(int i = 0; i < HumanTrait.BoneCount; i++)
-                {                    
-                    Transform bone = AvatarAnimator.GetBoneTransform((HumanBodyBones)i);
-                    if(!bone || bone.childCount == 0)
-                        continue;
-                    for(int j = 0; j < bone.childCount; j++)
-                    {
-                        Transform child = bone.GetChild(j);
-                        if(humanBoneTransforms.Contains(child))
-                            bones.Add(new PoseEditorBone(bone, child));
-                    }
-                }
-            }
         }
 
         static void HandlePoseChange(PumkinsAvatarTools.PoseChangeType changeType)
@@ -162,43 +168,6 @@ namespace Pumkin.PoseEditor
                 PumkinsMuscleEditorUtils.DrawBones(bones);            
         }       
 
-        public void OnGUI()
-        {                        
-            EditorGUILayout.BeginHorizontal();
-            {
-                EditorGUILayout.LabelField(Strings.PoseEditor.title, Styles.Label_mainTitle);
-
-                if(GUILayout.Button(Icons.Settings, Styles.IconButton))                
-                    _openedSettings = !_openedSettings;                
-            }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.LabelField(Strings.PoseEditor.version);
-            EditorGUILayout.Space();
-            
-            EditorGUI.BeginChangeCheck();
-            {
-                PumkinsAvatarTools.DrawAvatarSelectionWithButton();
-            }           
-
-            //if(GUILayout.Button("Dump muscle names"))
-            //{            
-            //    string s = "";
-            //    foreach(string m in HumanTrait.MuscleName)
-            //    {
-            //        s += "\"" + m + "\",\n";
-            //    }
-            //    Debug.Log(s);
-            //}
-
-            Helpers.DrawGUILine();
-
-            if(_openedSettings)
-                DrawSettingsGUI();
-            else
-                DrawMainGUI();            
-        }
-
         private void DrawSettingsGUI()
         {
             _drawSkeleton = GUILayout.Toggle(_drawSkeleton, "_Show Skeleton");
@@ -213,48 +182,51 @@ namespace Pumkin.PoseEditor
                 return;
             }
 
+            DrawPoseFromAnimationGUI();
+
+            //Draw the toolbar then get the muscle ranges based on it's selection
             toolbarSelection = GUILayout.Toolbar(toolbarSelection, new string[] { "Body", "Head", "Arms", "Legs", "Fingers" });
 
             EditorGUILayout.Space();
 
             scroll = GUILayout.BeginScrollView(scroll);
             {
-                List<Vector2Int> ranges = new List<Vector2Int>();
+                List<Vector2Int> muscleRanges = new List<Vector2Int>();
 
                 switch(toolbarSelection)
                 {
                     case 0:
-                        ranges.Add(PumkinsMuscleDefinitions.bodyRange);
+                        muscleRanges.Add(PumkinsMuscleDefinitions.bodyRange);
                         break;
                     case 1:
-                        ranges.Add(PumkinsMuscleDefinitions.headRange);
+                        muscleRanges.Add(PumkinsMuscleDefinitions.headRange);
                         break;
                     case 2:
-                        ranges.Add(PumkinsMuscleDefinitions.leftArmRange);
-                        ranges.Add(PumkinsMuscleDefinitions.rightArmRange);
+                        muscleRanges.Add(PumkinsMuscleDefinitions.leftArmRange);
+                        muscleRanges.Add(PumkinsMuscleDefinitions.rightArmRange);
                         break;
                     case 3:
-                        ranges.Add(PumkinsMuscleDefinitions.leftLegRange);
-                        ranges.Add(PumkinsMuscleDefinitions.rightLegRange);
+                        muscleRanges.Add(PumkinsMuscleDefinitions.leftLegRange);
+                        muscleRanges.Add(PumkinsMuscleDefinitions.rightLegRange);
                         break;
                     case 4:
-                        ranges.Add(PumkinsMuscleDefinitions.leftFingersRange);
-                        ranges.Add(PumkinsMuscleDefinitions.rightFingersRange);
+                        muscleRanges.Add(PumkinsMuscleDefinitions.leftFingersRange);
+                        muscleRanges.Add(PumkinsMuscleDefinitions.rightFingersRange);
                         break;
                     default:
-                        ranges.Add(new Vector2Int(0, HumanTrait.MuscleCount));
+                        muscleRanges.Add(new Vector2Int(0, HumanTrait.MuscleCount));
                         break;
                 }
 
-
+                //Draw sliders for the muscle ranges and apply the changes if they've changed
                 EditorGUI.BeginChangeCheck();
                 {
-                    for(int i = 0; i < ranges.Count; i++)
+                    for(int i = 0; i < muscleRanges.Count; i++)
                     {
-                        Vector2Int range = ranges[i];
+                        Vector2Int range = muscleRanges[i];
                         for(int j = range.x; j < range.y; j++)
                             avatarPose.muscles[j] = EditorGUILayout.Slider(new GUIContent(HumanTrait.MuscleName[j]), avatarPose.muscles[j], -sliderRange, sliderRange);
-                        if(i != ranges.Count - 1)
+                        if(i != muscleRanges.Count - 1)
                             EditorGUILayout.Space();
                     }
                 }
@@ -275,6 +247,80 @@ namespace Pumkin.PoseEditor
                 PumkinsAvatarTools.Instance.DrawPresetGUI<PumkinsPosePreset>();
             }
             GUILayout.EndScrollView();
+        }
+
+        private void DrawPoseFromAnimationGUI()
+        {
+            bool applyAnimation = false;            
+            EditorGUI.BeginChangeCheck();
+            {
+                animClip = EditorGUILayout.ObjectField(Strings.PoseEditor.poseFromAnimation, animClip, typeof(AnimationClip), false) as AnimationClip;
+            }
+            if(EditorGUI.EndChangeCheck())
+            {                
+                animTimeCurrent = 0;
+                applyAnimation = true;
+            }
+
+            if(animClip)
+            {
+                EditorGUI.BeginChangeCheck();
+                {
+                    animTimeCurrent = EditorGUILayout.Slider(Strings.PoseEditor.animationTime, animTimeCurrent, 0, animClip.length);
+                }
+                if(EditorGUI.EndChangeCheck() || applyAnimation)
+                {                       
+                    //Save transform position and rotation to prevent root motion
+                    SerialTransform currentTrans = PumkinsAvatarTools.SelectedAvatar.transform;
+
+                    animClip.SampleAnimation(PumkinsAvatarTools.SelectedAvatar, animTimeCurrent);
+
+                    if(currentTrans) //Restore position and rotation
+                        PumkinsAvatarTools.SelectedAvatar.transform.SetPositionAndRotation(currentTrans.position, currentTrans.rotation);
+
+                    ReloadPoseVariables(PumkinsAvatarTools.SelectedAvatar);                    
+                }
+            }
+
+            Helpers.DrawGUILine();
+        }
+
+        private static void ReloadPoseVariables(GameObject newAvatar)
+        {
+            if(newAvatar)
+                _avatarAnimator = newAvatar.GetComponent<Animator>();
+            else
+                _avatarAnimator = null;
+
+            if(bones == null)
+                bones = new List<PoseEditorBone>();
+            bones.Clear();
+
+            if(newAvatar && AvatarAnimator && AvatarAnimator.isHuman)
+            {
+                avatarPose = new HumanPose();
+                avatarPoseHandler = new HumanPoseHandler(AvatarAnimator.avatar, AvatarAnimator.transform);
+                avatarPoseHandler.GetHumanPose(ref avatarPose);
+
+                //Human bone transforms to compare against
+                HashSet<Transform> humanBoneTransforms = new HashSet<Transform>();
+                for(int i = 0; i < HumanTrait.BoneCount; i++)
+                    humanBoneTransforms.Add(AvatarAnimator.GetBoneTransform((HumanBodyBones)i));
+
+                //Get bone human bone root and tip positions
+                for(int i = 0; i < HumanTrait.BoneCount; i++)
+                {
+                    Transform bone = AvatarAnimator.GetBoneTransform((HumanBodyBones)i);
+                    if(!bone || bone.childCount == 0)
+                        continue;
+                    for(int j = 0; j < bone.childCount; j++)
+                    {
+                        Transform child = bone.GetChild(j);
+                        if(humanBoneTransforms.Contains(child))
+                            bones.Add(new PoseEditorBone(bone, child));
+                    }
+                }
+            }
         }
     }
 }

@@ -209,7 +209,7 @@ namespace Pumkin.Presets
             if(!desc || !cam)
                 return;            
 
-            SerialTransform offsets = GetOffsets(desc, cam);
+            SerialTransform offsets = GetOffsetsFromViewpoint(desc, cam);
             if(offsets)
             {
                 offsetMode = CameraOffsetMode.Viewpoint;
@@ -219,12 +219,47 @@ namespace Pumkin.Presets
         }
 
         //Static Functions
-        public static void ApplyTransformWithViewpointOffset(GameObject avatar, Camera cam, SerialTransform trans)
+
+        /// <summary>
+        /// Sets camera position and rotation focusing focusTransform with position and rotation offsets
+        /// </summary>
+        /// <param name="focusTransform">Transform to fucs</param>
+        /// <param name="cam">Camera to move</param>
+        /// <param name="position">Position offset</param>
+        /// <param name="rotationAngles">Rotation offset</param>
+        /// <param name="scaleDistanceWithAvatarScale">Not working yet</param>
+        public static void ApplyPositionAndRotationWithTransformFocus(Transform focusTransform, Camera cam, Vector3 position, Vector3 rotationAngles, bool scaleDistanceWithAvatarScale = false)
         {
-            ApplyPositionAndRotationWithViewpointOffset(avatar, cam, trans.position, trans.localEulerAngles);
+            if(!cam || !focusTransform)
+                return;
+            
+            try
+            {
+                Transform oldCamParent = cam.transform.parent;
+                cam.transform.parent = focusTransform;
+                cam.transform.localPosition = position;
+                cam.transform.localEulerAngles = rotationAngles;
+                cam.transform.parent = oldCamParent;
+            }
+            catch(Exception e)
+            {
+                Debug.LogError(e.Message);
+            }            
         }
 
-        public static void ApplyPositionAndRotationWithViewpointOffset(GameObject avatar, Camera cam, Vector3 position, Vector3 rotationAngles, bool scaleDistanceWithAvatarScale = false)
+        /// <summary>
+        /// Sets camera position and rotation based on position and rotation offsets from transform
+        /// </summary>
+        public static void ApplyTransformWithViewpointFocus(GameObject avatar, Camera cam, SerialTransform trans)
+        {
+            ApplyPositionAndRotationWithViewpointFocus(avatar, cam, trans.position, trans.localEulerAngles);
+        }        
+
+        /// <summary>
+        /// Sets camera position and rotation focusing viewpoint with position and rotation offsets
+        /// </summary>        
+        /// <param name="scaleDistanceWithAvatarScale">Not working yet</param>
+        public static void ApplyPositionAndRotationWithViewpointFocus(GameObject avatar, Camera cam, Vector3 position, Vector3 rotationAngles, bool scaleDistanceWithAvatarScale = false)
         {
             if(!cam || !avatar)
                 return;
@@ -234,27 +269,9 @@ namespace Pumkin.Presets
             {
                 dummy = new GameObject("Dummy").transform;
                 var desc = avatar.GetComponent<VRC_AvatarDescriptor>();
-                dummy.localPosition = desc.ViewPosition + desc.gameObject.transform.position;
+                dummy.localPosition = desc.ViewPosition + desc.gameObject.transform.position;                
 
-                //Get multiplier to add to distance
-                //float distanceToAddZ = 0;
-                //if(scaleDistanceWithAvatarScale)
-                //{
-#if UNITY_2017
-                    //var pref = PrefabUtility.GetPrefabParent(avatar) as GameObject;
-#else
-                    //var pref = PrefabUtility.GetCorrespondingObjectFromSource(avatar) as GameObject;
-#endif
-                    //I have no idea what i'm doing. TODO: Figure out what I'm doing.
-                    //if(pref)
-                    //{
-                        //float multiplier = Helpers.GetDeltaMultiplier(pref.transform.localScale.z, avatar.transform.localScale.z);
-                        //float posZ = position.z + dummy.transform.localPosition.z;
-                        //distanceToAddZ = posZ * multiplier;
-                    //}
-                //}
-
-                cam.transform.localPosition = position + dummy.transform.position; //+ new Vector3(0, 0, distanceToAddZ);
+                cam.transform.localPosition = position + dummy.transform.position;
                 cam.transform.localEulerAngles = rotationAngles + dummy.transform.eulerAngles;                
             }
             catch(Exception e)
@@ -272,7 +289,7 @@ namespace Pumkin.Presets
         /// Gets camera offsets from viewpoint and returns a SerialTransform
         /// </summary>        
         /// <returns>SerialTransform only holds values, it doesn't reference a real transform</returns>
-        public static SerialTransform GetOffsets(VRC_AvatarDescriptor desc, Camera cam)
+        public static SerialTransform GetOffsetsFromViewpoint(VRC_AvatarDescriptor desc, Camera cam)
         {
             SerialTransform offsets = new SerialTransform();
             Transform dummy = null;            
@@ -296,13 +313,34 @@ namespace Pumkin.Presets
             return offsets;
         }
 
+        /// <summary>
+        /// Gets camera offsets from transform and returns a SerialTransform
+        /// </summary>        
+        /// <returns>SerialTransform only holds values, it doesn't reference a real transform</returns>
+        public static SerialTransform GetOffsetsFromTransform(Transform transform, Camera cam)
+        {
+            if(!cam || !transform)
+                return null;
+
+            Transform oldCamParent = cam.transform.parent;
+            cam.transform.parent = transform;
+            SerialTransform offsets = new SerialTransform()
+            {
+                position = cam.transform.position,                
+                localRotation = cam.transform.localRotation,
+                localEulerAngles = cam.transform.localEulerAngles,
+            };
+            cam.transform.parent = oldCamParent;
+            return offsets;
+        }
+
         public static SerialTransform GetCameraOffsetFromViewpoint(GameObject avatar, Camera cam)
         {            
             VRC_AvatarDescriptor desc = avatar.GetComponent<VRC_AvatarDescriptor>();
             SerialTransform offsets = null;
 
             if(desc)            
-                offsets = GetOffsets(desc, cam);
+                offsets = GetOffsetsFromViewpoint(desc, cam);
             return offsets;
         }
 

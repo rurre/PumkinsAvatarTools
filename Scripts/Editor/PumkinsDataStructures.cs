@@ -639,9 +639,8 @@ namespace Pumkin.DataStructures
             localRotation = t.localRotation;
 
             eulerAngles = t.eulerAngles;
-
-            if(localEulerAngles != null)
-                localEulerAngles = t.localEulerAngles;
+            
+            localEulerAngles = t.localEulerAngles;
         }
 
         public static implicit operator SerialTransform(Transform t)
@@ -661,7 +660,7 @@ namespace Pumkin.DataStructures
     /// Serializable Quaternion class
     /// </summary>
     [Serializable]
-    public class SerialQuaternion
+    public struct SerialQuaternion
     {
         public float x, y, z, w;
 
@@ -696,7 +695,7 @@ namespace Pumkin.DataStructures
     /// Serializable Vector3 class
     /// </summary>
     [Serializable]
-    public class SerialVector3
+    public struct SerialVector3
     {
         public float x, y ,z;
 

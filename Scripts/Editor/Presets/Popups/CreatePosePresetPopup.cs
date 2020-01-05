@@ -10,9 +10,6 @@ namespace Pumkin.Presets
     {
         public static string[] defaultMusclesNames;
 
-        bool muscles_expand = false;
-        bool transforms_expand = false;
-
         SerializedObject serializedPosePreset;
         SerializedProperty pMuscles,
             pTransformPaths,

@@ -43,7 +43,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool _tools_quickSetup_settings_expand = false;
         [SerializeField] bool _tools_quickSetup_fillVisemes = true;
         [SerializeField] bool _tools_quickSetup_setViewpoint = true;
-        [SerializeField] bool _tools_quickSetup_autoRig = true;
+        //[SerializeField] bool _tools_quickSetup_autoRig = true;
         [SerializeField] bool _tools_quickSetup_forceTPose = true;
 
         [SerializeField] float _tools_quickSetup_viewpointZDepth = 0.06f;
@@ -225,15 +225,31 @@ namespace Pumkin.AvatarTools
         [SerializeField] public string _selectedBlendshapePresetString = "";
         [SerializeField] public int _selectedBlendshapePresetIndex = 0;
 
-        [SerializeField] Vector3 centerCameraPositionOffset = new Vector3(-0.096f, 0.025f, 0.269f);
-        [SerializeField] Vector3 centerCameraRotationOffset = new Vector3(4.193f, 164.274f, 0);
-        [SerializeField] bool centerCameraFixClippingPlanes = true;
-        [SerializeField] bool centerCameraScaleDistanceWithAvatarScale = true;
-
         [SerializeField] public bool posePresetTryFixSinking = true;
 
-        readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET = new Vector3(0, 0, 0.28f);
-        readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET = new Vector3(0, 180f, 0);
+        [SerializeField] bool centerCameraFixClippingPlanes = true;
+        [SerializeField] bool centerCameraScaleDistanceWithAvatarScale = true;
+        [SerializeField] PumkinsCameraPreset.CameraOffsetMode centerCameraMode = PumkinsCameraPreset.CameraOffsetMode.Viewpoint;
+        [SerializeField] string centerCameraTransformPath = "Armature/Hips/Spine/Chest/Neck/Head";
+        Transform centerCameraTransform = null;
+
+        [SerializeField] Vector3 centerCameraPositionOffsetViewpoint = new Vector3(-0.096f, 0.025f, 0.269f);
+        [SerializeField] Vector3 centerCameraRotationOffsetViewpoint = new Vector3(4.193f, 164.274f, 0);
+
+        [SerializeField] Vector3 centerCameraPositionOffsetTransform = new Vector3(-0.096f, 0.025f, 0.269f);
+        [SerializeField] Vector3 centerCameraRotationOffsetTransform = new Vector3(4.193f, 164.274f, 0);
+
+        [SerializeField] Vector3 centerCameraPositionOffsetAvatar = new Vector3(-0.096f, 0.025f, 0.269f);
+        [SerializeField] Vector3 centerCameraRotationOffsetAvatar = new Vector3(4.193f, 164.274f, 0);
+
+        readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET_VIEWPOINT = new Vector3(0, 0, 0.28f);
+        readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET_VIEWPOINT = new Vector3(0, 180f, 0);
+
+        readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET_TRANSFORM = new Vector3(0, 0.83f, 0.227f);
+        readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET_TRANSFORM = new Vector3(0, 180f, 0);
+
+        readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET_AVATAR = new Vector3(0, 0.025f, 0.269f);
+        readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET_AVATAR = new Vector3(0, 180f, 0);
 
         static Camera _selectedCamera;
 
@@ -310,8 +326,7 @@ namespace Pumkin.AvatarTools
         GameObject oldSelectedAvatar = null;
 
         static string _mainScriptPath = null;
-        static string _mainFolderPath = null;
-        private static Camera _vrcCam = null; //use property
+        static string _mainFolderPath = null;        
 
         static bool _eventsAdded = false;
         static bool _loadedPrefs = false;
@@ -384,9 +399,7 @@ namespace Pumkin.AvatarTools
             {
                 _mainScriptPath = value;
             }
-        }
-
-        static string _sdkPath = null;
+        }        
 
         public static string MainFolderPath
         {
@@ -698,6 +711,8 @@ namespace Pumkin.AvatarTools
                 Instance.EndScalingAvatar(null, true);
             if(Instance._editingView)
                 Instance.EndEditingViewpoint(null, true);
+
+            Instance.centerCameraTransform = null;
         }
 
         public static void OnPoseWasChanged(PoseChangeType changeType)
@@ -1758,10 +1773,43 @@ namespace Pumkin.AvatarTools
                 //Center Camera on Viewpoint button
                 GUILayout.BeginHorizontal();
                 {
-                    if(GUILayout.Button(Strings.Thumbnails.centerCameraOnViewpoint, Styles.BigButton))
+                    string centerOnWhat = "?";
+                    switch(centerCameraMode)
+                    {
+                        case PumkinsCameraPreset.CameraOffsetMode.AvatarRoot:
+                            centerOnWhat = Strings.Main.avatar;
+                            break;                        
+                        case PumkinsCameraPreset.CameraOffsetMode.Transform:
+                            if(SelectedAvatar && !centerCameraTransform)                            
+                                centerCameraTransform = SelectedAvatar.transform.Find(centerCameraTransformPath);
+                            if(centerCameraTransform)
+                                centerOnWhat = centerCameraTransform.name;
+                            break;                        
+                        case PumkinsCameraPreset.CameraOffsetMode.Viewpoint:
+                        default:
+                            centerOnWhat = Strings.Thumbnails.viewpoint;
+                            break;                            
+                    }
+
+                    string centerCameraString = string.Format(Strings.Thumbnails.centerCameraOn, centerOnWhat);
+                    if(GUILayout.Button(centerCameraString, Styles.BigButton))
                     {
                         if(SelectedCamera)
-                            CenterCameraOnViewpoint(SelectedAvatar, centerCameraPositionOffset, centerCameraRotationOffset, centerCameraScaleDistanceWithAvatarScale, centerCameraFixClippingPlanes);
+                        {
+                            switch(centerCameraMode)
+                            {
+                                case PumkinsCameraPreset.CameraOffsetMode.AvatarRoot:                                    
+                                    CenterCameraOnTransform(SelectedAvatar.transform, centerCameraPositionOffsetAvatar, centerCameraRotationOffsetAvatar, centerCameraFixClippingPlanes);                                    
+                                    break;
+                                case PumkinsCameraPreset.CameraOffsetMode.Transform:
+                                    CenterCameraOnTransform(centerCameraTransform, centerCameraPositionOffsetTransform, centerCameraRotationOffsetTransform, centerCameraFixClippingPlanes);
+                                    break;                                
+                                case PumkinsCameraPreset.CameraOffsetMode.Viewpoint:
+                                default:
+                                    CenterCameraOnViewpoint(SelectedAvatar, centerCameraPositionOffsetViewpoint, centerCameraRotationOffsetViewpoint, centerCameraScaleDistanceWithAvatarScale, centerCameraFixClippingPlanes);
+                                    break;
+                            }
+                        }
                         else
                             Log(Strings.Warning.cameraNotFound, LogType.Warning);
                     }
@@ -1779,8 +1827,40 @@ namespace Pumkin.AvatarTools
 
                     EditorGUILayout.Space();
 
-                    centerCameraPositionOffset = EditorGUILayout.Vector3Field(Strings.Thumbnails.positionOffset, centerCameraPositionOffset);
-                    centerCameraRotationOffset = EditorGUILayout.Vector3Field(Strings.Thumbnails.rotationOffset, centerCameraRotationOffset);
+                    centerCameraMode = (PumkinsCameraPreset.CameraOffsetMode)EditorGUILayout.EnumPopup(Strings.Presets.mode, centerCameraMode);
+
+                    if(centerCameraMode == PumkinsCameraPreset.CameraOffsetMode.Transform)
+                    {
+                        EditorGUI.BeginChangeCheck();
+                        {
+                            centerCameraTransformPath = EditorGUILayout.TextField(Strings.Presets.transform, centerCameraTransformPath);
+                        }
+                        if(EditorGUI.EndChangeCheck())
+                        {
+                            centerCameraTransform = SelectedAvatar.transform.Find(centerCameraTransformPath);
+                        }
+                    }
+                    else
+                        GUILayout.Space(18);
+
+                    EditorGUILayout.Space();
+
+                    switch(centerCameraMode)
+                    {
+                        case PumkinsCameraPreset.CameraOffsetMode.Transform:
+                            centerCameraPositionOffsetTransform = EditorGUILayout.Vector3Field(Strings.Thumbnails.positionOffset, centerCameraPositionOffsetTransform);
+                            centerCameraRotationOffsetTransform = EditorGUILayout.Vector3Field(Strings.Thumbnails.rotationOffset, centerCameraRotationOffsetTransform);
+                            break;
+                        case PumkinsCameraPreset.CameraOffsetMode.Viewpoint:
+                            centerCameraPositionOffsetViewpoint = EditorGUILayout.Vector3Field(Strings.Thumbnails.positionOffset, centerCameraPositionOffsetViewpoint);
+                            centerCameraRotationOffsetViewpoint = EditorGUILayout.Vector3Field(Strings.Thumbnails.rotationOffset, centerCameraRotationOffsetViewpoint);
+                            break;
+                        case PumkinsCameraPreset.CameraOffsetMode.AvatarRoot:
+                            centerCameraPositionOffsetAvatar = EditorGUILayout.Vector3Field(Strings.Thumbnails.positionOffset, centerCameraPositionOffsetAvatar);
+                            centerCameraRotationOffsetAvatar = EditorGUILayout.Vector3Field(Strings.Thumbnails.rotationOffset, centerCameraRotationOffsetAvatar);
+                            break;
+                    }
+                    
 
                     EditorGUILayout.Space();
 
@@ -1788,17 +1868,54 @@ namespace Pumkin.AvatarTools
                     {
                         if(GUILayout.Button(Strings.Buttons.reset, GUILayout.MaxWidth(90f)))
                         {
-                            centerCameraPositionOffset = DEFAULT_CAMERA_POSITION_OFFSET;
-                            centerCameraRotationOffset = DEFAULT_CAMERA_ROTATION_OFFSET;
+                            switch(centerCameraMode)
+                            {
+                                default:
+                                case PumkinsCameraPreset.CameraOffsetMode.Viewpoint:
+                                    centerCameraPositionOffsetViewpoint = DEFAULT_CAMERA_POSITION_OFFSET_VIEWPOINT;
+                                    centerCameraRotationOffsetViewpoint = DEFAULT_CAMERA_ROTATION_OFFSET_VIEWPOINT;
+                                    break;
+                                case PumkinsCameraPreset.CameraOffsetMode.AvatarRoot:
+                                    centerCameraPositionOffsetAvatar = DEFAULT_CAMERA_POSITION_OFFSET_AVATAR;
+                                    centerCameraRotationOffsetAvatar = DEFAULT_CAMERA_ROTATION_OFFSET_AVATAR;
+                                    break;
+                                case PumkinsCameraPreset.CameraOffsetMode.Transform:
+                                    centerCameraPositionOffsetTransform = DEFAULT_CAMERA_POSITION_OFFSET_TRANSFORM;
+                                    centerCameraRotationOffsetTransform = DEFAULT_CAMERA_ROTATION_OFFSET_TRANSFORM;
+                                    break;
+                            }
                         }
                         if(GUILayout.Button(Strings.Buttons.setFromCamera))
                         {
-                            SerialTransform st = PumkinsCameraPreset.GetCameraOffsetFromViewpoint(SelectedAvatar, SelectedCamera);
-                            if(st)
+                            SerialTransform st = null;
+                            switch(centerCameraMode)
                             {
-                                centerCameraPositionOffset = Helpers.RoundVectorValues(st.position, 3);
-                                centerCameraRotationOffset = Helpers.RoundVectorValues(st.localEulerAngles, 3);
-                            }
+                                default:
+                                case PumkinsCameraPreset.CameraOffsetMode.Viewpoint:
+                                    st = PumkinsCameraPreset.GetCameraOffsetFromViewpoint(SelectedAvatar, SelectedCamera);
+                                    if(st)
+                                    {
+                                        centerCameraPositionOffsetViewpoint = Helpers.RoundVectorValues(st.position, 3);
+                                        centerCameraRotationOffsetViewpoint = Helpers.RoundVectorValues(st.localEulerAngles, 3);
+                                    }
+                                    break;
+                                case PumkinsCameraPreset.CameraOffsetMode.AvatarRoot:
+                                    st = PumkinsCameraPreset.GetOffsetsFromTransform(SelectedAvatar.transform, SelectedCamera);
+                                    if(st)
+                                    {
+                                        centerCameraPositionOffsetAvatar = Helpers.RoundVectorValues(st.position, 3);
+                                        centerCameraRotationOffsetAvatar = Helpers.RoundVectorValues(st.localEulerAngles, 3);
+                                    }
+                                    break;
+                                case PumkinsCameraPreset.CameraOffsetMode.Transform:
+                                    st = PumkinsCameraPreset.GetOffsetsFromTransform(centerCameraTransform, SelectedCamera);
+                                    if(st)
+                                    {
+                                        centerCameraPositionOffsetTransform = Helpers.RoundVectorValues(st.position, 3);
+                                        centerCameraRotationOffsetTransform = Helpers.RoundVectorValues(st.localEulerAngles, 3);
+                                    }
+                                    break;                                
+                            }                                                        
                         }
                     }
                     EditorGUILayout.EndHorizontal();
@@ -2156,7 +2273,7 @@ namespace Pumkin.AvatarTools
                 if(GUILayout.Button(Strings.Buttons.reset))
                 {
                     if(typeof(T) == typeof(PumkinsCameraPreset))
-                        CenterCameraOnViewpoint(SelectedAvatar, DEFAULT_CAMERA_POSITION_OFFSET, DEFAULT_CAMERA_ROTATION_OFFSET, centerCameraFixClippingPlanes, false);
+                        CenterCameraOnViewpoint(SelectedAvatar, DEFAULT_CAMERA_POSITION_OFFSET_VIEWPOINT, DEFAULT_CAMERA_ROTATION_OFFSET_VIEWPOINT, centerCameraFixClippingPlanes, false);
                     else if(typeof(T) == typeof(PumkinsPosePreset))
                         DoAction(SelectedAvatar, ToolMenuActions.ResetPose);
                     else if(typeof(T) == typeof(PumkinsBlendshapePreset))
@@ -2329,8 +2446,11 @@ namespace Pumkin.AvatarTools
             {
                 raw = GetCameraOverlayRawImage(true);
                 overlay = GetCameraOverlay(true);
-                if(raw.texture && !overlay.activeInHierarchy)
-                    overlay.SetActive(true);
+                if(raw.texture)
+                {
+                    if(!overlay.activeInHierarchy)
+                        overlay.SetActive(true);
+                }
                 else
                     overlay.SetActive(false);
             }
@@ -4636,7 +4756,14 @@ namespace Pumkin.AvatarTools
         {
             if(fixClippingPlanes)            
                 Helpers.FixCameraClippingPlanes(SelectedCamera);
-            PumkinsCameraPreset.ApplyPositionAndRotationWithViewpointOffset(avatarOverride, SelectedCamera, positionOffset, rotationOffset, scaleDistanceWithAvatarScale);
+            PumkinsCameraPreset.ApplyPositionAndRotationWithViewpointFocus(avatarOverride, SelectedCamera, positionOffset, rotationOffset, scaleDistanceWithAvatarScale);
+        }
+
+        void CenterCameraOnTransform(Transform transform, Vector3 positionOffset, Vector3 rotationOffset, bool fixClippingPlanes)
+        {
+            if(fixClippingPlanes)
+                Helpers.FixCameraClippingPlanes(SelectedCamera);
+            PumkinsCameraPreset.ApplyPositionAndRotationWithTransformFocus(transform, SelectedCamera, positionOffset, rotationOffset);
         }
         
         /// <summary>

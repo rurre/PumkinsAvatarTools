@@ -223,8 +223,7 @@ namespace Pumkin.Translations
     {
         public string overlayCameraImage = "Overlay Image";
         public string overlayTexture = "Overlay Texture";
-        public string startUploadingFirst = "Start uploading an Avatar, or get into Play mode";
-        public string centerCameraOnViewpoint = "Center Camera on Viewpoint";
+        public string startUploadingFirst = "Start uploading an Avatar, or get into Play mode";        
         public string backgroundType = "Background Type";
         public string backgroundType_None = "None";
         public string backgroundType_Material = "Skybox";
@@ -243,6 +242,9 @@ namespace Pumkin.Translations
         public string positionOffset = "Position Offset";
         public string rotationOffset = "Rotation Offset";
         public string tryFixPoseSinking = "Try to Fix Pose Sinking";
+        public string centerCameraOn = "Center Camera on {0}";
+        public string viewpoint = "Viewpoint";
+
     };
 
     [Serializable]
@@ -348,5 +350,7 @@ namespace Pumkin.Translations
         public string muscles = "Muscles";
         public string transformRotations = "Transform Rotations";
         public string selectHumanoidAvatar = "Select a Humanoid Avatar";
+        public string animationTime = "Time";
+        public string poseFromAnimation = "Pose from Animation";
     }
 }
