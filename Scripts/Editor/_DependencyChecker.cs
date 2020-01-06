@@ -3,139 +3,147 @@ using UnityEditor;
 using System;
 using System.IO;
 using System.Collections.Generic;
-using Pumkin.Dependencies;
-using System.Linq;
 
 namespace Pumkin.DependencyChecker
 {
     [InitializeOnLoad]
     public class _DependencyChecker
     {
-        const string HAS_DBONES = "PUMKIN_DBONES";
-        const string HAS_OLD_DBONES = "PUMKIN_OLD_DBONES";
-        const string HAS_SDK1 = "PUMKIN_VRCSDK1";
-        const string HAS_SDK2 = "PUMKIN_VRCSDK2";        
+        static readonly float checkCooldown = 0.5f;
 
-        public static string MainScriptPath { get; private set; }        
+        static string hasBonesString = "#define BONES\r\n";
+        static string hasOldBonesString = "#define OLD_BONES\r\n";
 
-        public enum PumkinsDBonesVersion { NotFound, OldVersion, NewVersionWithBaseColliders }
-        public enum PumkinsSDKVersion { NotFound, BeforePerformanceRanks, WithPerfromanceRanks }        
+        public static string MainScriptPath { get; private set; }
 
-        public static PumkinsSDKVersion SDKVersion
+        static bool needRewrite = false;
+        static bool needCheck = true;
+
+        static bool bonesAreOld = false;
+        
+        static float _now = 0f;
+        static float _canCheckNext = 0f;
+
+        static bool checkManually = true;
+        static bool missingBoneFiles = false;
+
+        public enum CheckerStatus { DEFAULT, NO_BONES, NO_SDK, OK, OK_OLDBONES };
+        public static CheckerStatus Status
         {
-            get; private set;
-        }
-        public static PumkinsDBonesVersion DBonesVersion
-        {
-            get; private set;
-        }
+            get; internal set;
+        }        
 
-        static bool _mainToolsOK = true;
-
-        public static bool MainToolsOK
-        {
-            get { return _mainToolsOK; } private set { _mainToolsOK = value; }
-        }
-
-        static _DependencyChecker() { }
-
-        public static void ResetDependencies()
-        {
-            Debug.Log("<color=blue>PumkinsAvatarTools</color>: Resetting tool preferences...");
-            ScriptDefinesManager.RemoveDefines(HAS_SDK1, HAS_SDK2, HAS_DBONES, HAS_OLD_DBONES);
-        }
-
-        public static void CheckForDependencies()
+        static _DependecyChecker()
         {            
-            SDKVersion = GetVRCSDKVersion();
-            DBonesVersion = GetDynamicBonesVersion();
-            MainToolsOK = GetType("Pumkin.AvatarTools.PumkinsAvatarTools") != null ? true : false;            
-
-            var definesToAdd = new HashSet<string>();
-            var currentDefines = ScriptDefinesManager.GetDefinesAsArray();                
-
-            switch(SDKVersion)
-            {
-                case PumkinsSDKVersion.BeforePerformanceRanks:
-                    definesToAdd.Add(HAS_SDK1);
-                    break;
-                case PumkinsSDKVersion.WithPerfromanceRanks:
-                    definesToAdd.Add(HAS_SDK2);
-                    break;
-                case PumkinsSDKVersion.NotFound:
-                default:
-                    break;
-            }
-
-            switch(DBonesVersion)
-            {
-                case PumkinsDBonesVersion.NewVersionWithBaseColliders:
-                    definesToAdd.Add(HAS_DBONES);
-                    break;
-                case PumkinsDBonesVersion.OldVersion:
-                    definesToAdd.Add(HAS_OLD_DBONES);
-                    break;
-                case PumkinsDBonesVersion.NotFound:
-                default:
-                    break;
-            }
-            
-            ScriptDefinesManager.AddDefinesIfMissing(definesToAdd.ToArray());
+            Check();  
         }
 
-        /// <summary>
-        /// Check if we have VRCSDK installed and get it's "version"
-        /// </summary>        
-        static PumkinsSDKVersion GetVRCSDKVersion()
+        [UnityEditor.Callbacks.DidReloadScripts]
+        private static void OnScriptsReloaded()
         {
+            if(!checkManually)
+                Check();
+        }
+
+        public static void ForceCheck()
+        {
+            needCheck = true;
+            Status = CheckerStatus.DEFAULT;
+            Check();
+        }
+
+        public static void Check()
+        {
+            _now = Time.time;
+            
+            if(!checkManually && (!needCheck || _now < _canCheckNext))
+                return;
+
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for VRChat SDK in project...");
             Type sdkType = GetType("VRCSDK2.VRC_AvatarDescriptor");
 
-            if(sdkType != null)
+            if(sdkType == null)
             {
-                Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found VRChat SDK.");
-                Type perfStatsType = GetType("VRCSDK2.Validation.Performance.Stats.AvatarPerformanceStats");
-                if(perfStatsType != null)
-                    return PumkinsSDKVersion.WithPerfromanceRanks;
-                return PumkinsSDKVersion.BeforePerformanceRanks;
-            }            
+                Debug.Log("<color=blue>PumkinsAvatarTools</color>: VRChat SDK not found. Please import the SDK to use these tools.");
+                Status = CheckerStatus.NO_SDK;
+                return;
+            }
+            else
+            {
+                Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found VRChat SDK.");                
+            }
 
-            Debug.Log("<color=blue>PumkinsAvatarTools</color>: VRChat SDK not found. Please import the SDK to use these tools.");
-            return PumkinsSDKVersion.NotFound;
-        }
-
-        /// <summary>
-        /// Check if we have DynamicBones and get their "version"
-        /// </summary>        
-        static PumkinsDBonesVersion GetDynamicBonesVersion()
-        {
-            Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for DynamicBones in project...");
+            Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for DynamicBones in project...");            
             Type boneColliderType = GetType("DynamicBoneCollider");
-            Type boneColliderBaseType = GetType("DynamicBoneColliderBase");                               
-
+            Type boneColliderBaseType = GetType("DynamicBoneColliderBase");
+            //Type toolsType = GetType("Pumkin.AvatarTools.PumkinsAvatarTools");            
+                        
             var dynPaths = new List<string>();
             dynPaths.AddRange(Directory.GetFiles(Application.dataPath, "DynamicBone.cs", SearchOption.AllDirectories));
-            dynPaths.AddRange(Directory.GetFiles(Application.dataPath, "DynamicBoneCollider.cs"));            
+            dynPaths.AddRange(Directory.GetFiles(Application.dataPath, "DynamicBoneCollider.cs"));
+            var toolScriptPath = Directory.GetFiles(Application.dataPath, "PumkinsAvatarTools.cs", SearchOption.AllDirectories);
+            
+            missingBoneFiles = dynPaths.Count == 0 ? true : false;            
 
-            if(dynPaths.Count == 0) //No bones in project
-            {                
-                Debug.Log("<color=blue>PumkinsAvatarTools</color>: DynamicBones not found in project.");
-                return PumkinsDBonesVersion.NotFound;
-            }
-            else //DynamicBones Present
+            if(toolScriptPath.Length > 0 && !string.IsNullOrEmpty(toolScriptPath[0]))
             {
-                if(boneColliderBaseType != null && boneColliderType.IsSubclassOf(boneColliderBaseType))
+                string toolsFile = File.ReadAllText(toolScriptPath[0]);
+                string header = toolsFile.Substring(0, toolsFile.IndexOf("using"));
+
+                toolsFile = toolsFile.Substring(toolsFile.IndexOf("using"));
+
+                int hasBonesIndex = header.IndexOf(hasBonesString);
+                int hasOldBonesIndex = header.IndexOf(hasOldBonesString);
+                                
+                if(missingBoneFiles) //No bones in project
                 {
-                    Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found DynamicBones in project!");
-                    return PumkinsDBonesVersion.NewVersionWithBaseColliders;
+                    Status = CheckerStatus.NO_BONES;
+                    Debug.Log("<color=blue>PumkinsAvatarTools</color>: DynamicBones not found in project.");                    
+                    if(hasBonesIndex != -1 || hasOldBonesIndex != -1) //#define BONES present, remove
+                    {
+                        header = "";
+                        needRewrite = true;                        
+                    }                    
                 }
-                else
+                else //DynamicBones Present
                 {
-                    Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found old version of DynamicBones in project!");
-                    return PumkinsDBonesVersion.OldVersion;
-                }                
+                    if(boneColliderType.IsSubclassOf(boneColliderBaseType))
+                        bonesAreOld = false;
+                    else
+                        bonesAreOld = true;
+
+                    if(bonesAreOld)
+                    {
+                        Status = CheckerStatus.OK_OLDBONES;
+                        Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found old version of DynamicBones in project!");
+                        if(hasOldBonesIndex == -1)
+                        {
+                            header = hasOldBonesString;
+                            needRewrite = true;
+                        }
+                    }
+                    else
+                    {
+                        Status = CheckerStatus.OK;
+                        Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found DynamicBones in project!");
+                        if(hasBonesIndex == -1)
+                        {
+                            header = hasBonesString;
+                            needRewrite = true;
+                        }
+                    }
+                }
+                if(needRewrite)
+                {
+                    File.WriteAllText(toolScriptPath[0], header + toolsFile);
+                    AssetDatabase.ImportAsset(RelativePath(toolScriptPath[0]));
+                    needRewrite = false;
+                }
             }
-        }        
+            if(!checkManually)
+                _canCheckNext = _now + checkCooldown;
+            needCheck = false;
+        }                
 
         static Type GetType(string typeName)
         {
@@ -151,10 +159,12 @@ namespace Pumkin.DependencyChecker
             return null;
         }
 
-        public static string GetRelativePath(string path)
+        public static string RelativePath(string path)
         {            
-            if(path.StartsWith(Application.dataPath))            
-                path = "Assets" + path.Substring(Application.dataPath.Length);            
+            if(path.StartsWith(Application.dataPath))
+            {
+                path = "Assets" + path.Substring(Application.dataPath.Length);
+            }
             return path;
         }
     }

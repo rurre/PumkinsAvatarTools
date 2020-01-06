@@ -11,15 +11,8 @@ using UnityEngine.UI;
 using UnityEditorInternal;
 using VRC.Core;
 using VRCSDK2;
-using Pumkin.DataStructures;
-using Pumkin.HelperFunctions;
-using Pumkin.Extensions;
-using UnityEngine.SceneManagement;
-using Pumkin.Presets;
-using Pumkin.Dependencies;
-#if UNITY_2018
-using UnityEditor.Experimental.SceneManagement;
-#endif
+using VRCSDK2.Validation.Performance.Stats;
+using VRCSDK2.Validation.Performance;
 
 /// <summary>
 /// PumkinsAvatarTools by, well, Pumkin
@@ -33,70 +26,12 @@ namespace Pumkin.AvatarTools
     {
         #region Variables        
 
-        #region Tools    
+        //Tools
+        [SerializeField] public static GameObject selectedAvatar;
+        [SerializeField] static bool _useSceneSelectionAvatar = false;       
 
-        [SerializeField] private static GameObject _selectedAvatar; // use property        
-
-        [SerializeField] static bool _useSceneSelectionAvatar = false;
-
-        //Quick Setup
-        [SerializeField] bool _tools_quickSetup_settings_expand = false;
-        [SerializeField] bool _tools_quickSetup_fillVisemes = true;
-        [SerializeField] bool _tools_quickSetup_setViewpoint = true;
-        //[SerializeField] bool _tools_quickSetup_autoRig = true;
-        [SerializeField] bool _tools_quickSetup_forceTPose = true;
-
-        [SerializeField] float _tools_quickSetup_viewpointZDepth = 0.06f;
-
-        [SerializeField] bool _tools_quickSetup_setRendererAnchor = true;
-        [SerializeField] string _tools_quickSetup_setRenderAnchor_path = "Armature/Hips/Spine";
-
-
-        //Editing Viewpoint        
-        bool _editingView = false;
-        Vector3 _viewPosOld;
-        Vector3 _viewPosTemp;
-        Tool _tempToolOld = Tool.None;
-        static readonly Vector3 DEFAULT_VIEWPOINT = new Vector3(0, 1.6f, 0.2f);        
-
-        //Editing Scale
-        bool _editingScale = false;
-        Vector3 _avatarScaleOld;
-        [SerializeField] float _avatarScaleTemp;
-        [SerializeField] SerializedProperty _serializedAvatarScaleTempProp;
-        Transform _scaleViewpointDummy;
-
-        VRC_AvatarDescriptor _tempAvatarDescriptor;
-
-        enum ToolMenuActions
-        {
-            RemoveDynamicBones,
-            RemoveDynamicBoneColliders,
-            RemoveColliders,
-            RemoveRigidBodies,
-            RemoveEmptyGameObjects,
-            RemoveParticleSystems,
-            RemoveTrailRenderers,
-            RemoveMeshRenderers,
-            RemoveAudioSources,
-            RemoveLights,
-            RemoveAnimatorsInChildren,
-            RemoveJoints,
-            ResetPose,
-            RevertBlendshapes,
-            ZeroBlendshapes,
-            EditViewpoint,
-            FillVisemes,
-            SetTPose,
-            EditScale,
-            RevertScale,
-        };
-
-        #endregion
-
-        #region Component Copier
-
-        [SerializeField] public static GameObject copierSelectedFrom;
+        //Component Copier
+        [SerializeField] public static GameObject copierSelectedFrom;        
 
         [SerializeField] bool bCopier_transforms_copy = true;
         [SerializeField] bool bCopier_transforms_copyPosition = false;
@@ -105,7 +40,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool bCopier_transforms_copyAvatarScale = true;
 
         [SerializeField] bool bCopier_dynamicBones_copy = true;
-        [SerializeField] bool bCopier_dynamicBones_copySettings = false;
+        [SerializeField] bool bCopier_dynamicBones_copySettings = true;
         [SerializeField] bool bCopier_dynamicBones_createMissing = true;
         [SerializeField] bool bCopier_dynamicBones_copyColliders = true;
         [SerializeField] bool bCopier_dynamicBones_removeOldColliders = false;
@@ -116,12 +51,10 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool bCopier_descriptor_copySettings = true;
         [SerializeField] bool bCopier_descriptor_copyPipelineId = false;
         [SerializeField] bool bCopier_descriptor_copyAnimationOverrides = true;
-        [SerializeField] bool bCopier_descriptor_copyViewpoint = true;
 
         [SerializeField] bool bCopier_colliders_copy = true;
         [SerializeField] bool bCopier_colliders_removeOld = false;
         [SerializeField] bool bCopier_colliders_copyBox = true;
-
         [SerializeField] bool bCopier_colliders_copyCapsule = true;
         [SerializeField] bool bCopier_colliders_copySphere = true;
         [SerializeField] bool bCopier_colliders_copyMesh = false;
@@ -158,7 +91,7 @@ namespace Pumkin.AvatarTools
 
         [SerializeField] bool bCopier_animators_copy = true;
         [SerializeField] bool bCopier_animators_copySettings = true;
-        [SerializeField] bool bCopier_animators_createMissing = true;
+        [SerializeField] bool bCopier_animators_createMissing = false;
         [SerializeField] bool bCopier_animators_createObjects = false;
         [SerializeField] bool bCopier_animators_copyMainAnimator = false;
 
@@ -177,7 +110,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool bCopier_audioSources_createMissing = true;
         [SerializeField] bool bCopier_audioSources_createObjects = true;
 
-        //UI Expand
+        //Editor
         [SerializeField] bool _copier_expand = false;
         [SerializeField] bool _copier_expand_transforms = false;
         [SerializeField] bool _copier_expand_dynamicBones = false;
@@ -190,197 +123,116 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool _copier_expand_meshRenderers = false;
         [SerializeField] bool _copier_expand_lights = false;
         [SerializeField] bool _copier_expand_animators = false;
+        ///[SerializeField] bool _copier_expand_joints = false;
         [SerializeField] bool _copier_expand_audioSources = false;
 
-        //Ignore Array        
-        [SerializeField] bool _copierIgnoreArray_expand = false;
-        [SerializeField] SerializedProperty _serializedIgnoreArrayProp;
-        [SerializeField] Transform[] _copierIgnoreArray = new Transform[0];
-        [SerializeField] bool bCopier_ignoreArray_includeChildren = false;
-        [SerializeField] Vector2 _copierIgnoreArrayScroll = Vector2.zero;
-
-        #endregion
-
-        #region Thumbnails
-
-        [SerializeField] public bool bThumbnails_use_camera_overlay = false;
-        [SerializeField] public bool bThumbnails_use_camera_background = false;
-        [SerializeField] bool shouldHideOtherAvatars = true;
+        //Thumbnails        
+        [SerializeField] bool bThumbnails_override_camera_image = false;
+        [SerializeField] bool hideAvatarsOnStart = true;
         GameObject _cameraOverlay = null;
         GameObject _cameraBackground = null;
         RawImage _cameraOverlayImage = null;
         RawImage _cameraBackgroundImage = null;
-        [SerializeField] bool _centerCameraOffsets_expand = false;
-        [SerializeField] int _presetToolbarSelectedIndex = 0;        
-        [SerializeField] CameraClearFlags _thumbsCameraBgClearFlagsOld = CameraClearFlags.Skybox;
-
-        public enum PresetToolbarOptions { Camera, Pose, Blendshape };
-
-        [SerializeField] public int _selectedCameraPresetIndex = 0;
-        [SerializeField] public string _selectedCameraPresetString = "";
-
-        [SerializeField] public string _selectedPosePresetString = "";
-        [SerializeField] public int _selectedPosePresetIndex = 0;
-
-        [SerializeField] public string _selectedBlendshapePresetString = "";
-        [SerializeField] public int _selectedBlendshapePresetIndex = 0;
-
-        [SerializeField] public bool posePresetTryFixSinking = true;
-
-        [SerializeField] bool centerCameraFixClippingPlanes = true;
-        [SerializeField] bool centerCameraScaleDistanceWithAvatarScale = true;
-        [SerializeField] PumkinsCameraPreset.CameraOffsetMode centerCameraMode = PumkinsCameraPreset.CameraOffsetMode.Viewpoint;
-        [SerializeField] string centerCameraTransformPath = "Armature/Hips/Spine/Chest/Neck/Head";
-        Transform centerCameraTransform = null;
-
-        [SerializeField] Vector3 centerCameraPositionOffsetViewpoint = new Vector3(-0.096f, 0.025f, 0.269f);
-        [SerializeField] Vector3 centerCameraRotationOffsetViewpoint = new Vector3(4.193f, 164.274f, 0);
-
-        [SerializeField] Vector3 centerCameraPositionOffsetTransform = new Vector3(-0.096f, 0.025f, 0.269f);
-        [SerializeField] Vector3 centerCameraRotationOffsetTransform = new Vector3(4.193f, 164.274f, 0);
-
-        [SerializeField] Vector3 centerCameraPositionOffsetAvatar = new Vector3(-0.096f, 0.025f, 0.269f);
-        [SerializeField] Vector3 centerCameraRotationOffsetAvatar = new Vector3(4.193f, 164.274f, 0);
-
-        readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET_VIEWPOINT = new Vector3(0, 0, 0.28f);
-        readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET_VIEWPOINT = new Vector3(0, 180f, 0);
-
-        readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET_TRANSFORM = new Vector3(0, 0.083f, 0.388f);
-        readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET_TRANSFORM = new Vector3(0, 180f, 0);
-
-        readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET_AVATAR = new Vector3(0, 0.025f, 0.269f);
-        readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET_AVATAR = new Vector3(0, 180f, 0);
-
-        static Camera _selectedCamera;
-
-        static Material _rtMat;        
-        static RenderTexture _defaultRT;
-        static RenderTexture _vrcRT;
-
-        static RenderTexture oldCamRt;
-
-        [SerializeField] public Color cameraBackgroundImageTint = Color.white;
-        [SerializeField] public Color cameraOverlayImageTint = Color.white;
 
         Texture2D _emptyTexture;
-        Texture2D EmptyTexture
-        {
-            get
-            {
-                if(_emptyTexture == null)
-                    _emptyTexture = new Texture2D(1, 1);
-                return _emptyTexture;
-            }
-        }
 
-        public Texture2D cameraBackgroundTexture;
-        public Texture2D cameraOverlayTexture;
-        [SerializeField] string _lastOpenFilePath = default(string);
-        [SerializeField] public string _backgroundPath = "";
-        [SerializeField] public string _overlayPath = "";
+        Texture2D cameraBackgroundTexture;
+        Texture2D cameraOverrideTexture;
+        string _lastOpenFilePath = "";
+        string _backgroundPathText = "";
+        string _overlayPathText = "";
 
-        public CameraBackgroundOverrideType cameraBackgroundType = CameraBackgroundOverrideType.Color;
-        
-        [SerializeField] public Color _thumbsCamBgColor = Colors.DarkCameraBackground;
+        CameraBackgroundOverrideType camBgOverrideType = CameraBackgroundOverrideType.None;
 
-        public enum CameraBackgroundOverrideType { Color, Skybox, Image };
+        bool vrcCamSetBgColor = false;
+        bool vrcCamSetSkybox = false;
+        bool vrcCamSetBackground = false;
+        [SerializeField] Color _vrcCamBgColor = Colors.DarkCameraBackground;
+        [SerializeField] Color _vrcCamColorOld = Colors.DefaultCameraBackground;
+        [SerializeField] CameraClearFlags _vrcCamClearFlagsOld = CameraClearFlags.Skybox;
+        Material _thumbsSkyboxOld = null;
 
-        static readonly string CAMERA_OVERLAY_NAME = "_PumkinsCameraOverlay";
-        static readonly string CAMERA_BACKGROUND_NAME = "_PumkinsCameraBackground";
-
-        [SerializeField] HumanPose _tempHumanPose = new HumanPose();
-        [SerializeField] float[] _tempHumanPoseMuscles;
-        [SerializeField] SerializedProperty _serializedTempHumanPoseMuscles;
-
-        static List<PumkinsRendererBlendshapesHolder> _selectedAvatarRendererHolders;
-
-        #endregion
-
-        #region Avatar Info
-
-        static AvatarInfo avatarInfo = new AvatarInfo();
-        static string _avatarInfoSpace = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-        static string _avatarInfoString = Strings.AvatarInfo.selectAvatarFirst + _avatarInfoSpace; //Please don't hurt me for this        
-
-        #endregion
-
-        #region Misc
+        public enum CameraBackgroundOverrideType { None, Color, Material, Image };
 
         //UI
-        [SerializeField] public bool _tools_expand = true;
+        [SerializeField] bool _tools_expand = true;
         [SerializeField] bool _tools_avatar_expand = true;
-        [SerializeField] bool _tools_removeAll_expand = false;
+        [SerializeField] bool _tools_removeAll_expand = true;
 
-        [SerializeField] public bool _avatarInfo_expand = false;
-        [SerializeField] public bool _thumbnails_expand = false;
+        [SerializeField] bool _avatarInfo_expand = false;
+        [SerializeField] bool _thumbnails_expand = false;
 
-        [SerializeField] public bool _misc_expand = true;
-        [SerializeField] bool _thumbnails_useCameraOverlay_expand = true;
-        [SerializeField] bool _thumbnails_useCameraBackground_expand = true;
+        [SerializeField] bool _misc_expand = true;
+                
+        //Ignore Array        
+        [SerializeField] bool _copierIgnoreArray_expand = false;
+        [SerializeField] SerializedProperty _serializedIgnoreArrayProp;        
+        [SerializeField] Transform[] _copierIgnoreArray = new Transform[0];
+        [SerializeField] bool bCopier_ignoreArray_includeChildren = false;
+        [SerializeField] Vector2 _copierIgnoreArrayScroll = Vector2.zero;
+
+        static string _mainScriptPath = null;
+        private static Camera _vrcCam = null; //use property
+        static bool _eventsAdded = false;
+
+        VRC_AvatarDescriptor _tempAvatarDescriptor;
+
+        //Editing Viewpoint        
+        bool _editingView = false;
+        Vector3 _viewPosOld;
+        Vector3 _viewPosTemp;
+        Tool _tempToolOld = Tool.None;        
+
+        //Editing Scale
+        bool _editingScale = false;
+        Vector3 _avatarScaleOld;
+        [SerializeField] float _avatarScaleTemp;
+        [SerializeField] SerializedProperty _serializedAvatarScaleTempProp;
+        Transform _scaleViewpointDummy;
+
+        //Avatar info
+        static AvatarInfo avatarInfo = null;
+        static string _avatarInfoSpace = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+        static string _avatarInfoString = Strings.AvatarInfo.SelectAvatarFirst + _avatarInfoSpace; //Please don't hurt me for this        
+
+        //Camera Overlay
+        readonly string cameraOverlayName = "_PumkinsCameraOverlay";
+        readonly string cameraBackgroundName = "_PumkinsCameraBackground";
 
         //Misc
         SerializedObject _serializedScript;
         [SerializeField] bool _openedInfo = false;
         [SerializeField] Vector2 _mainScroll = Vector2.zero;
-        [SerializeField] bool verboseLoggingEnabled = false;
-        GameObject oldSelectedAvatar = null;
+        static bool verboseLoggingEnabled = false;
 
-        static string _mainScriptPath = null;
-        static string _mainFolderPath = null;        
-
-        static bool _eventsAdded = false;
-        static bool _loadedPrefs = false;
-
-        [SerializeField] public string _selectedLanguageString = "English - Default";
-        [SerializeField] int _selectedLanguageIndex = 0;
-
-        readonly float COPIER_SETTINGS_INDENT_SIZE = 38f;
+        enum ToolMenuActions
+        {
+            RemoveDynamicBones,
+            RemoveDynamicBoneColliders,
+            RemoveColliders,
+            RemoveRigidBodies,
+            ResetPose,
+            RevertBlendshapes,
+            ZeroBlendshapes,
+            FixRandomMouth,
+            DisableBlinking,
+            EditViewpoint,
+            FillVisemes,
+            RemoveEmptyGameObjects,
+            RemoveParticleSystems,
+            SetTPose,
+            RemoveTrailRenderers,
+            RemoveMeshRenderers,
+            RemoveAudioSources,
+            RemoveLights,
+            RemoveAnimatorsInChildren,
+            RemoveJoints,
+            EditScale,
+        };
 
         #endregion
 
-#endregion
-
-#region Properties
-
-
-        public static PumkinsAvatarTools Instance
-        {
-            get 
-            {
-                return _PumkinsAvatarToolsWindow.ToolsWindow; 
-            }
-        }
-
-
-        public static GameObject SelectedAvatar
-        {
-            get
-            {
-                return _selectedAvatar;
-            }
-            set
-            {
-                if(value != _selectedAvatar)
-                {
-                    _selectedAvatar = value;
-                    OnAvatarSelectionChanged(_selectedAvatar);
-                }
-            }
-        }
-
-        public static bool SelectedAvatarIsHuman
-        {
-            get
-            {
-                if(!_selectedAvatar)
-                    return false;
-                Animator anim = _selectedAvatar.GetComponent<Animator>();
-                if(!anim || !anim.isHuman)
-                    return false;
-
-                return true;
-            }
-        }
+        #region Properties
 
         public static string MainScriptPath
         {
@@ -389,7 +241,7 @@ namespace Pumkin.AvatarTools
                 if(_mainScriptPath == null)
                 {
                     var toolScriptPath = Directory.GetFiles(Application.dataPath, "PumkinsAvatarTools.cs", SearchOption.AllDirectories)[0];
-                    string s = _DependencyChecker.GetRelativePath(toolScriptPath.Substring(0, toolScriptPath.LastIndexOf('\\')));
+                    string s = _DependecyChecker.RelativePath(toolScriptPath.Substring(0, toolScriptPath.LastIndexOf('\\')));                    
                     _mainScriptPath = s;
                 }
                 return _mainScriptPath;
@@ -399,167 +251,89 @@ namespace Pumkin.AvatarTools
             {
                 _mainScriptPath = value;
             }
-        }        
-
-        public static string MainFolderPath
-        {
-            get
-            {
-                if(_mainFolderPath == null)
-                {
-                    string[] folder = Directory.GetDirectories(Application.dataPath, "PumkinsAvatarTools", SearchOption.AllDirectories);
-                    _mainFolderPath = folder[0];
-                }
-                return _mainFolderPath;
-            }
-
-            private set
-            {
-                _mainScriptPath = value;
-            }
         }
 
-        public static RenderTexture DefaultRT
+        public static Camera VRCCam
         {
             get
             {
-                return _defaultRT = Resources.Load("Materials/PumkinsThumbnailCamRT", typeof(RenderTexture)) as RenderTexture;
-            }
-        }
-
-        public static RenderTexture VRCCamRT
-        {
-            get
-            {
-                if(!_vrcRT)
+                if(_vrcCam == null)
                 {
-                    var camObj = Resources.Load<GameObject>("VRCCam");
-                    if(camObj)
+                    var c = GameObject.Find("VRCCam");
+                    if(c != null)
                     {
-                        var cam = camObj.GetComponent<Camera>();
-                        if(cam)
-                            _vrcRT = cam.targetTexture;
+                        VRCCam = c.GetComponent<Camera>();
                     }
                 }
-                return _vrcRT;
+                return _vrcCam;
             }
-        }
 
-        public static RenderTexture SelectedCamRT
-        {
-            get
-            {
-                if(SelectedCamera)
-                    return SelectedCamera.targetTexture;
-                return null;
-            }
-            set
-            {
-                if(SelectedCamera)
-                {                    
-                    SelectedCamera.targetTexture = value;
-                }
-            }
-        }
-        public static Material RTMaterial
-        {
-            get
-            {
-                if(!_rtMat)
-                {
-                    _rtMat = Resources.Load("Materials/PumkinsThumbnailCamUnlit", typeof(Material)) as Material;
-                }
-                return _rtMat;
-            }
             private set
             {
-                _rtMat = value;
+                _vrcCam = value;
             }
         }
 
-        public static Camera SelectedCamera
+        public GameObject CameraOverlay
         {
             get
             {
-                if(!_selectedCamera)
-                    _selectedCamera = GetVRCCamOrMainCam();
+                if(!_cameraOverlay && _thumbnails_expand)
+                    _cameraOverlay = GameObject.Find(cameraOverlayName) ?? new GameObject(cameraOverlayName);
 
-                return _selectedCamera;
+                return _cameraOverlay;
             }
-            set
-            {     
-                if(_selectedCamera != value)
+        }
+
+        public RawImage CameraOverlayRawImage
+        {
+            get
+            {
+                if(!_cameraOverlayImage && CameraOverlay)
                 {
-                    RestoreCameraRT(_selectedCamera);
-                    _selectedCamera = value;
-                    OnCameraSelectionChanged(_selectedCamera);
+                    _cameraOverlayImage = CameraOverlay.GetComponent<RawImage>() ?? CameraOverlay.AddComponent<RawImage>();
+
+                    Canvas c = CameraOverlay.GetComponent<Canvas>();
+                    if(!c)
+                        c = CameraOverlay.AddComponent<Canvas>();
+                    c.worldCamera = VRCCam;
+                    c.renderMode = RenderMode.ScreenSpaceCamera;
+                    c.planeDistance = VRCCam.nearClipPlane + 0.01f;
+
                 }
+                return _cameraOverlayImage;
             }
         }
 
-        public static void RestoreCameraRT(Camera camera)
+        public GameObject CameraBackground
         {
-            if(!camera)
-                return;
-            
-            //Restore BlueprintCam render texture if it's VRCCam we're changing from
-            if(camera.name == "VRCCam")
-                camera.targetTexture = VRCCamRT;
-            else
-                camera.targetTexture = null;            
+            get
+            {
+                if(!_cameraBackground && _thumbnails_expand)
+                    _cameraBackground = GameObject.Find(cameraBackgroundName) ?? new GameObject(cameraBackgroundName);
+                return _cameraBackground;
+            }
         }
 
-        public GameObject GetCameraOverlay(bool createIfMissing = false)
+        public RawImage CameraBackgroundRawImage
         {
-            if(!_cameraOverlay)
+            get
             {
-                _cameraOverlay = Helpers.FindGameObjectEvenIfDisabled(CAMERA_OVERLAY_NAME);
-                if(!_cameraOverlay && createIfMissing)
-                    _cameraOverlay = new GameObject(CAMERA_OVERLAY_NAME);
+                if(_cameraBackgroundImage == null && CameraBackground)
+                {
+                    _cameraBackgroundImage = CameraBackground.GetComponent<RawImage>();
+                    if(_cameraBackgroundImage == null)
+                        _cameraBackgroundImage = CameraBackground.AddComponent<RawImage>();
+
+                    Canvas c = CameraBackground.GetComponent<Canvas>();
+                    if(!c)
+                        c = CameraBackground.AddComponent<Canvas>();
+                    c.worldCamera = VRCCam;
+                    c.renderMode = RenderMode.ScreenSpaceCamera;
+                    c.planeDistance = VRCCam.farClipPlane - 0.01f;
+                }
+                return _cameraBackgroundImage;
             }
-            return _cameraOverlay;
-        }
-        public GameObject GetCameraBackground(bool createIfMissing = false)
-        {
-            if(!_cameraBackground)
-            {
-                _cameraBackground = Helpers.FindGameObjectEvenIfDisabled(CAMERA_BACKGROUND_NAME);
-                if(!_cameraBackground && createIfMissing)
-                    _cameraBackground = new GameObject(CAMERA_BACKGROUND_NAME);
-            }
-            return _cameraBackground;
-        }                
-
-        public RawImage GetCameraOverlayRawImage(bool createIfMissing = false)
-        {
-            GameObject overlay = GetCameraOverlay(createIfMissing);
-            if(overlay && !_cameraOverlayImage)
-                _cameraOverlayImage = overlay.GetComponent<RawImage>();
-
-            if(!_cameraOverlayImage && createIfMissing)
-            {
-                SetupCameraRawImageAndCanvas(_cameraOverlay, ref _cameraOverlayImage, true);
-
-                if(!string.IsNullOrEmpty(_overlayPath))
-                    SetOverlayToImageFromPath(_overlayPath);
-            }
-            return _cameraOverlayImage;
-        }//
-
-        public RawImage GetCameraBackgroundRawImage(bool createIfMissing = false)
-        {
-            GameObject background = GetCameraBackground(createIfMissing);
-            if(background && !_cameraBackgroundImage)
-                _cameraBackgroundImage = background.GetComponent<RawImage>();
-
-            if(!_cameraBackgroundImage && createIfMissing)
-            {
-                SetupCameraRawImageAndCanvas(_cameraBackground, ref _cameraBackgroundImage, false);
-
-                if(!string.IsNullOrEmpty(_backgroundPath))
-                    SetBackgroundToImageFromPath(_backgroundPath);
-            }
-            return _cameraBackgroundImage;
         }
 
         public SerializedObject SerializedScript
@@ -583,8 +357,8 @@ namespace Pumkin.AvatarTools
         {
             get
             {
-                if(SerializedScript != null && _serializedIgnoreArrayProp == null)
-                    _serializedIgnoreArrayProp = SerializedScript.FindProperty("_copierIgnoreArray");
+                if(SerializedScript != null && _serializedIgnoreArrayProp == null)                                  
+                    _serializedIgnoreArrayProp = SerializedScript.FindProperty("_copierIgnoreArray");                
                 return _serializedIgnoreArrayProp;
             }
 
@@ -598,31 +372,15 @@ namespace Pumkin.AvatarTools
         {
             get
             {
-                if(SerializedScript != null && _serializedAvatarScaleTempProp == null)
-                    _serializedAvatarScaleTempProp = SerializedScript.FindProperty("_avatarScaleTemp");
+                if(SerializedScript != null && _serializedAvatarScaleTempProp == null)                
+                    _serializedAvatarScaleTempProp = SerializedScript.FindProperty("_avatarScaleTemp");                
                 return _serializedAvatarScaleTempProp;
             }
             private set
             {
                 _serializedAvatarScaleTempProp = value;
             }
-        }
-
-        public SerializedProperty SerializedHumanPoseMuscles
-        {
-            get
-            {
-                if(_tempHumanPoseMuscles == null)
-                    _tempHumanPoseMuscles = _tempHumanPose.muscles;
-
-                if(SerializedScript != null && _serializedTempHumanPoseMuscles == null)
-                {
-                    _serializedTempHumanPoseMuscles = SerializedScript.FindProperty("_tempHumanPoseMuscles");
-                }
-                return _serializedTempHumanPoseMuscles;
-            }
-            private set { _serializedTempHumanPoseMuscles = value; }
-        }
+        }        
 
         public bool DrawingHandlesGUI
         {
@@ -634,157 +392,30 @@ namespace Pumkin.AvatarTools
             }
         }
 
-#endregion
+        #endregion
 
-#region Events and Delegates
-
-        public delegate void AvatarChangedHandler(GameObject selection);
-        public delegate void PoseChangedHandler(PoseChangeType changeType);
-        public delegate void CameraChangeHandler(Camera camera);
-
-        public static event AvatarChangedHandler AvatarSelectionChanged;
-        public static event PoseChangedHandler PoseChanged;
-        public static event CameraChangeHandler CameraSelectionChanged;
-
-        public enum PoseChangeType { Reset, Normal, PoseEditor };
-
-#endregion
-
-#region Event Definitions
-
-        public static void OnCameraSelectionChanged(Camera camera)
-        {
-            if(CameraSelectionChanged != null)
-                CameraSelectionChanged.Invoke(camera);
-            string name = "none";
-            if(camera && camera.gameObject)
-                name = camera.gameObject.name;
-            LogVerbose("Camera selection changed to " + name);
-
-            //Handle overlay and background raw images camera references, setup canvas on foreground and background and camera clipping planes
-            RawImage bg = Instance.GetCameraBackgroundRawImage(false);
-            RawImage fg = Instance.GetCameraOverlayRawImage(false);
-            if(bg)
-            {
-                Canvas bgc = bg.GetComponent<Canvas>();
-                if(!bgc)
-                    bgc = bg.gameObject.AddComponent<Canvas>();
-                bgc.worldCamera = camera;
-                if(camera)
-                    bgc.planeDistance = camera.farClipPlane - 2;
-            }
-            if(fg)
-            {
-                Canvas fgc = fg.GetComponent<Canvas>();
-                if(!fgc)
-                    fgc = fg.gameObject.AddComponent<Canvas>();
-                fgc.worldCamera = camera;
-                if(camera)
-                    fgc.planeDistance = camera.nearClipPlane + 0.01f;
-            }
-        }
-
-        public static void OnAvatarSelectionChanged(GameObject selection)
-        {
-            if(AvatarSelectionChanged != null)
-                AvatarSelectionChanged.Invoke(selection);
-            LogVerbose("Avatar selection changed to " + (selection != null ? selection.name : "empty"));
-
-
-            //Handle skinned mesh renderer container for blendshape preset gui
-            SetupBlendeshapeRendererHolders(selection);
-
-            //Cancel editing viewpoint and scaling
-            if(Instance._editingScale)
-                Instance.EndScalingAvatar(null, true);
-            if(Instance._editingView)
-                Instance.EndEditingViewpoint(null, true);
-
-            Instance.centerCameraTransform = null;
-        }
-
-        private static void SetupBlendeshapeRendererHolders(GameObject selection)
-        {
-            //Save old expanded values to prevent calling this from collapsing all blendshape holders in menus
-            Dictionary<string, bool> oldHolderExpandValues = new Dictionary<string, bool>();
-            if(_selectedAvatarRendererHolders == null)
-            {
-                _selectedAvatarRendererHolders = new List<PumkinsRendererBlendshapesHolder>();
-            }
-            else
-            {
-                foreach(var h in _selectedAvatarRendererHolders)
-                    oldHolderExpandValues.Add(h.rendererPath, h.expandedInUI);
-            }
-
-            _selectedAvatarRendererHolders.Clear();
-
-            if(selection)
-            {
-                SkinnedMeshRenderer[] smRenderers = selection.GetComponentsInChildren<SkinnedMeshRenderer>();
-                foreach(var smRender in smRenderers)
-                {
-                    if(smRender)
-                    {
-                        var newHolder = (PumkinsRendererBlendshapesHolder)smRender;
-                        if(oldHolderExpandValues.ContainsKey(newHolder.rendererPath))
-                            newHolder.expandedInUI = oldHolderExpandValues[newHolder.rendererPath];
-
-                        _selectedAvatarRendererHolders.Add(newHolder);
-                    }
-                }
-            }
-        }
-
-        public static void OnPoseWasChanged(PoseChangeType changeType)
-        {
-            if(PoseChanged != null)
-                PoseChanged.Invoke(changeType);
-            LogVerbose("Pose was changed and OnPoseWasChanged() was called with changeType as " + changeType.ToString());
-        }
-
-#endregion
-
-#region Callback Handlers
+        #region Unity GUI             
 
         public void HandleOnEnable()
         {
             LogVerbose("Tools window: OnEnable()");
             SceneView.onSceneGUIDelegate += OnSceneGUI;
-            if(!_eventsAdded) //Not sure if this is necessary anymore
+            if(!_eventsAdded)
             {
                 EditorApplication.playModeStateChanged += HandlePlayModeStateChange;
                 Selection.selectionChanged += HandleSelectionChanged;
-                EditorSceneManager.sceneOpened += HandleSceneChange;
-#if UNITY_2018
-                PrefabStage.prefabStageOpened += HandlePrefabStageOpened;
-                PrefabStage.prefabStageClosing += HandlePrefabStageClosed;
-#endif
                 _eventsAdded = true;
-            }
-
-            SerializedScript = new SerializedObject(this);
+            }                        
+            
+            SerializedScript = new SerializedObject(this);            
             SerializedIgnoreArray = SerializedScript.FindProperty("_copierIgnoreArray");
             SerializedScaleTemp = SerializedScript.FindProperty("_avatarScaleTemp");
-            SerializedHumanPoseMuscles = SerializedScript.FindProperty("_tempHumanPoseMuscles");
-
+            
             _emptyTexture = new Texture2D(2, 2);
-            cameraOverlayTexture = new Texture2D(2, 2);
-            cameraBackgroundTexture = new Texture2D(2, 2);            
+            cameraOverrideTexture = new Texture2D(2, 2);
+            _thumbsSkyboxOld = RenderSettings.skybox;
 
             LoadPrefs();
-
-            RestoreTexturesFromPaths();
-            RefreshBackgroundOverrideType();
-
-            if(_lastOpenFilePath == default(string))
-                _lastOpenFilePath = MainFolderPath + PumkinsPresetManager.camerasPath + "/Example Images";
-        }
-
-        public void HandleSceneChange(Scene scene, OpenSceneMode mode)
-        {
-            if(mode == OpenSceneMode.Single)
-                RefreshLanguage();
         }
 
         public void HandleOnDisable()
@@ -793,11 +424,6 @@ namespace Pumkin.AvatarTools
             SceneView.onSceneGUIDelegate -= OnSceneGUI;
             Selection.selectionChanged -= HandleSelectionChanged;
             EditorApplication.playModeStateChanged -= HandlePlayModeStateChange;
-            EditorSceneManager.sceneOpened -= HandleSceneChange;
-#if UNITY_2018
-            PrefabStage.prefabStageOpened -= HandlePrefabStageOpened;
-            PrefabStage.prefabStageClosing -= HandlePrefabStageClosed;
-#endif
             _eventsAdded = false;
 
             if(SerializedScript != null)
@@ -809,41 +435,20 @@ namespace Pumkin.AvatarTools
             SavePrefs();
         }
 
-        public static void DestroyDummies()
-        {
-            GameObject bg = GameObject.Find(CAMERA_BACKGROUND_NAME);
-            GameObject fg = GameObject.Find(CAMERA_OVERLAY_NAME);
-
-            if(bg)
-            {
-                if(EditorApplication.isPlaying)
-                    Destroy(bg);
-                else
-                    DestroyImmediate(bg);
-            }
-            if(fg)
-            {
-                if(EditorApplication.isPlaying)
-                    Destroy(fg);
-                else
-                    DestroyImmediate(fg);
-            }
-        }
-
         void HandlePlayModeStateChange(PlayModeStateChange mode)
         {
             if(mode == PlayModeStateChange.ExitingEditMode || mode == PlayModeStateChange.ExitingPlayMode)
             {
                 if(_editingView)
-                    EndEditingViewpoint(SelectedAvatar, true);
+                    EndEditingViewpoint(selectedAvatar, true);
                 if(_editingScale)
-                    EndScalingAvatar(SelectedAvatar, true);
+                    EndScalingAvatar(selectedAvatar, true);
 
                 SavePrefs();
             }
             else if(mode == PlayModeStateChange.EnteredEditMode)
             {
-                LoadPrefs();                
+                LoadPrefs();
             }
             else if(mode == PlayModeStateChange.EnteredPlayMode)
             {
@@ -851,26 +456,27 @@ namespace Pumkin.AvatarTools
 
                 LoadPrefs();
                 _emptyTexture = new Texture2D(2, 2);
-                cameraOverlayTexture = new Texture2D(2, 2);                
+                cameraOverrideTexture = new Texture2D(2, 2);
+                _thumbsSkyboxOld = RenderSettings.skybox;
 
-                SelectedCamera = GetVRCCamOrMainCam();
-
-                var pm = FindObjectOfType<RuntimeBlueprintCreation>();
-                if(pm && pm.pipelineManager && pm.pipelineManager.contentType == PipelineManager.ContentType.avatar)
+                if(hideAvatarsOnStart)
                 {
-                    SelectedAvatar = pm.pipelineManager.transform.root.gameObject;
+                    var pm = FindObjectOfType<RuntimeBlueprintCreation>();
+                    if(pm != null)
+                    {
+                        var desc = pm.pipelineManager.GetComponent<VRC_AvatarDescriptor>();
+                        var av = GameObject.FindObjectsOfType<VRC_AvatarDescriptor>();
+                        if(desc != null)
+                        {
+                            for(int i = 0; i < av.Length; i++)
+                            {
+                                if(av[i] != desc)
+                                    av[i].transform.root.gameObject.SetActive(false);
+                            }
+                        }
+                    }
                 }
 
-                HideAllOtherAvatars(shouldHideOtherAvatars, SelectedAvatar);
-
-                //Find the vrc ui camera and set it's depth higher than defaul to make sure it's the one that's rendering
-                var camObj = GameObject.Find("VRCUICamera");
-                if(camObj)
-                {
-                    var uiCam = camObj.GetComponent<Camera>();
-                    if(uiCam)
-                        uiCam.depth = 1f;
-                }
             }
         }
 
@@ -878,34 +484,9 @@ namespace Pumkin.AvatarTools
         {
             if(_useSceneSelectionAvatar)
                 SelectAvatarFromScene();
-            _PumkinsAvatarToolsWindow.RequestRepaint(this);
         }
 
-#if UNITY_2018
-        private void HandlePrefabStageOpened(PrefabStage stage)
-        {
-            if(SelectedAvatar)
-                oldSelectedAvatar = SelectedAvatar;
-
-            SelectedAvatar = stage.prefabContentsRoot;
-        }
-
-        void HandlePrefabStageClosed(PrefabStage stage)
-        {
-            if(oldSelectedAvatar)
-            {
-                SelectedAvatar = oldSelectedAvatar;
-                oldSelectedAvatar = null;
-            }
-        }
-#endif
-
-#endregion
-
-
-
-#region Unity GUI
-
+        //[MenuItem("Tools/Pumkin/Avatar Tools")] //_PumkinsAvatarToolsWindow.cs is responsible for calling this, for now
         public static void ShowWindow()
         {
             //Show existing window instance. If one doesn't exist, make one.
@@ -913,59 +494,75 @@ namespace Pumkin.AvatarTools
             editorWindow.autoRepaintOnSceneChange = true;
 
             editorWindow.Show();
-            editorWindow.titleContent = new GUIContent("Pumkin Tools");
+            editorWindow.titleContent = new GUIContent(Strings.Main.WindowName);
 
-            _DependencyChecker.CheckForDependencies();
+            _DependecyChecker.Check();
         }
 
         public void OnGUI()
         {
             SerializedScript.Update();
-                        
+
+            int tempSize = Styles.Label_mainTitle.fontSize + 6;
             EditorGUILayout.BeginHorizontal();
             {
-                EditorGUILayout.LabelField(Strings.Main.title, Styles.Label_mainTitle);            
+                EditorGUILayout.LabelField(Strings.Main.Title, Styles.Label_mainTitle, GUILayout.MinHeight(tempSize));
 
-                if(GUILayout.Button(Icons.Star, Styles.IconLabel))
+                EditorGUIUtility.SetIconSize(new Vector2(tempSize - 3, tempSize - 3));
+
+                if(GUILayout.Button(Icons.Star, "IconButton", GUILayout.MaxWidth(tempSize + 3)))
+                {
                     _openedInfo = !_openedInfo;
+                }
             }
             EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.LabelField(Strings.Credits.version);
+            EditorGUILayout.LabelField(Strings.Credits.Version);
 
             if(_openedInfo) //Credits Screen
             {
                 EditorGUILayout.Space();
                 GUILayout.BeginVertical();
 
-                GUILayout.Label(Strings.Credits.redundantStrings);
+                //Who thought this was a good way of displaying credits
+                GUILayout.Label(Strings.Credits.Title);
+                GUILayout.Label(Strings.Credits.Version);
 
                 EditorGUILayout.Space();
 
-                GUILayout.Label(Strings.Credits.addMoreStuff);
+                GUILayout.Label(Strings.Credits.RedundantStrings);
+                GUILayout.Label(Strings.Credits.JsonDotNetCredit);
+
+                EditorGUILayout.Space();
+
+                GUILayout.Label(Strings.Credits.AddMoreStuff);
 
                 GUILayout.BeginHorizontal();
 
-                GUILayout.Label(Strings.Credits.pokeOnDiscord);
+                GUILayout.Label(Strings.Credits.PokeOnDiscord);
 
                 GUILayout.EndHorizontal();
                 GUILayout.EndVertical();
 
-                Helpers.DrawGUILine();
-                GUILayout.Label(Strings.Misc.superExperimental + ":");
-
                 EditorGUILayout.Space();
+                GUILayout.Label(Strings.Misc.SuperExperimental + ':');
+                if(GUILayout.Button(Strings.Buttons.OpenPoseEditor))
+                {
+                    PumkinsPoseEditor.ShowWindow();
+                }
 
-                verboseLoggingEnabled = EditorGUILayout.Toggle("Enable verbose logging", verboseLoggingEnabled);
+                //EditorGUILayout.Space();
+
+                //verboseLoggingEnabled = EditorGUILayout.Toggle("Enable verbose logging", verboseLoggingEnabled);
 
                 GUILayout.FlexibleSpace();
 
                 if(GUILayout.Button(Strings.Misc.uwu, "IconButton", GUILayout.ExpandWidth(false)))
                 {
-                    if(Strings.Misc.uwu == "uwu")
-                        Strings.Misc.uwu = "OwO";
+                    if(Strings.Language != Strings.DictionaryLanguage.uwu)
+                        Strings.Language = Strings.DictionaryLanguage.uwu;
                     else
-                        Strings.Misc.uwu = "uwu";
+                        Strings.Language = Strings.DictionaryLanguage.English;
                 }
             }
             else
@@ -973,68 +570,937 @@ namespace Pumkin.AvatarTools
                 EditorGUIUtility.SetIconSize(new Vector2(15, 15));
 
                 EditorGUILayout.Space();
+                
+                selectedAvatar = (GameObject)EditorGUILayout.ObjectField(Strings.Main.Avatar, selectedAvatar, typeof(GameObject), true);                
 
-                DrawAvatarSelectionWithButton(true);
+                if(_useSceneSelectionAvatar)
+                {
+                    if(Selection.activeObject != selectedAvatar)
+                        SelectAvatarFromScene();
+                }
 
-                Helpers.DrawGUILine();
+                if(GUILayout.Button(Strings.Buttons.SelectFromScene))
+                {
+                    if(Selection.activeObject != null)
+                    {
+                        SelectAvatarFromScene();
+                    }
+                }
+
+                _useSceneSelectionAvatar = GUILayout.Toggle(_useSceneSelectionAvatar, Strings.Main.UseSceneSelection);
+
+                EditorGUILayout.Space();
+
+                DrawGuiLine();
 
                 _mainScroll = EditorGUILayout.BeginScrollView(_mainScroll);
                 {
-                    DrawToolsMenuGUI();
+
+                    //Tools menu
+                    if(_tools_expand = GUILayout.Toggle(_tools_expand, Strings.Main.Tools, Styles.Foldout_title))
+                    {
+                        EditorGUI.BeginDisabledGroup(selectedAvatar == null);
+                        {
+                            EditorGUILayout.Space();
+
+                            if(_tools_avatar_expand = GUILayout.Toggle(_tools_avatar_expand, Strings.Main.Avatar, Styles.Foldout))
+                            {
+                                GUILayout.BeginHorizontal(); //Row
+                                {
+                                    GUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
+                                    {
+                                        if(GUILayout.Button(Strings.Tools.FillVisemes))
+                                            ActionButton(ToolMenuActions.FillVisemes);
+                                        if(GUILayout.Button(Strings.Tools.RevertBlendshapes))
+                                            ActionButton(ToolMenuActions.RevertBlendshapes);
+                                        if(GUILayout.Button(Strings.Tools.ResetPose))
+                                            ActionButton(ToolMenuActions.ResetPose);
+                                    }
+                                    GUILayout.EndVertical();
+
+                                    GUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
+                                    {
+                                        EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
+                                        {
+                                            if(GUILayout.Button(Strings.Tools.EditViewpoint))
+                                                ActionButton(ToolMenuActions.EditViewpoint);
+                                        }
+                                        EditorGUI.EndDisabledGroup();
+
+                                        if(GUILayout.Button(Strings.Tools.ZeroBlendshapes))
+                                            ActionButton(ToolMenuActions.ZeroBlendshapes);
+
+                                        if(GUILayout.Button(Strings.Tools.ResetToTPose))
+                                            ActionButton(ToolMenuActions.SetTPose);
+                                        EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
+                                        {
+                                            if(GUILayout.Button(Strings.Tools.EditScale))
+                                                ActionButton(ToolMenuActions.EditScale);
+                                        }
+                                        EditorGUI.EndDisabledGroup();
+                                    }
+                                    GUILayout.EndVertical();
+                                }
+                                GUILayout.EndHorizontal();
+                            }
+
+                            EditorGUILayout.Space();
+
+                            if(_tools_removeAll_expand = GUILayout.Toggle(_tools_removeAll_expand, Strings.Main.RemoveAll, Styles.Foldout))
+                            {
+
+                                EditorGUILayout.BeginHorizontal();
+
+                                EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
+#if !BONES
+                            EditorGUI.BeginDisabledGroup(true);
+#endif
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones, Icons.BoneIcon)))
+                                    ActionButton(ToolMenuActions.RemoveDynamicBones);
+#if !BONES
+                            EditorGUI.EndDisabledGroup();
+#endif
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.ParticleSystems, Icons.ParticleSystem)))
+                                    ActionButton(ToolMenuActions.RemoveParticleSystems);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.Lights, Icons.Light)))
+                                    ActionButton(ToolMenuActions.RemoveLights);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.Joints, Icons.Joint)))
+                                    ActionButton(ToolMenuActions.RemoveJoints);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.Animators_inChildren, Icons.Animator)))
+                                    ActionButton(ToolMenuActions.RemoveAnimatorsInChildren);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.Colliders, Icons.ColliderBox)))
+                                    ActionButton(ToolMenuActions.RemoveColliders);
+
+                                EditorGUILayout.EndVertical();
+
+#if !BONES
+                            EditorGUI.BeginDisabledGroup(true);
+#endif
+                                EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.DynamicBones_colliders, Icons.BoneColliderIcon)))
+                                    ActionButton(ToolMenuActions.RemoveDynamicBoneColliders);
+#if !BONES
+                            EditorGUI.EndDisabledGroup();
+#endif
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.TrailRenderers, Icons.TrailRenderer)))
+                                    ActionButton(ToolMenuActions.RemoveTrailRenderers);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.AudioSources, Icons.AudioSource)))
+                                    ActionButton(ToolMenuActions.RemoveAudioSources);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.RigidBodies, Icons.RigidBody)))
+                                    ActionButton(ToolMenuActions.RemoveRigidBodies);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.MeshRenderers, Icons.MeshRenderer)))
+                                    ActionButton(ToolMenuActions.RemoveMeshRenderers);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.EmptyGameObjects, Icons.Prefab)))
+                                    ActionButton(ToolMenuActions.RemoveEmptyGameObjects);
+
+                                EditorGUILayout.EndVertical();
+
+                                EditorGUILayout.EndHorizontal();
+                            }
+                            EditorGUI.EndDisabledGroup();
+                            EditorGUILayout.Space();
+                        }
+                    }
+
+                    DrawGuiLine();
+
+                    //Component Copier menu
+                    if(_copier_expand = GUILayout.Toggle(_copier_expand, Strings.Main.Copier, Styles.Foldout_title))
+                    {
+                        EditorGUILayout.Space();
+                        copierSelectedFrom = (GameObject)EditorGUILayout.ObjectField(Strings.Copier.CopyFrom, copierSelectedFrom, typeof(GameObject), true);
+
+                        EditorGUILayout.BeginHorizontal();
+                        if(GUILayout.Button(Strings.Buttons.SelectFromScene))
+                        {
+                            if(Selection.activeGameObject != null)
+                                copierSelectedFrom = Selection.activeGameObject.transform.root.gameObject;
+                        }
+                        EditorGUILayout.EndHorizontal();
+
+                        EditorGUILayout.Space();
+
+                        EditorGUI.BeginDisabledGroup(copierSelectedFrom == null || selectedAvatar == null);
+                        {
+                            //Transforms menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_transforms = GUILayout.Toggle(_copier_expand_transforms, Icons.Transform, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_transforms_copy = GUILayout.Toggle(bCopier_transforms_copy, Strings.Copier.Transforms, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_transforms)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_transforms_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_transforms_copyPosition = EditorGUILayout.Toggle(Strings.Copier.Transforms_position, bCopier_transforms_copyPosition, GUILayout.ExpandWidth(false));
+                                bCopier_transforms_copyRotation = EditorGUILayout.Toggle(Strings.Copier.Transforms_rotation, bCopier_transforms_copyRotation, GUILayout.ExpandWidth(false));
+                                bCopier_transforms_copyScale = EditorGUILayout.Toggle(Strings.Copier.Transforms_scale, bCopier_transforms_copyScale);
+
+                                bCopier_transforms_copyAvatarScale = EditorGUILayout.Toggle(Strings.Copier.Transforms_avatarScale, bCopier_transforms_copyAvatarScale);
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //DynamicBones menu
+#if !BONES && !OLD_BONES
+                        EditorGUI.BeginDisabledGroup(true);
+                        {
+#endif
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_dynamicBones = GUILayout.Toggle(_copier_expand_dynamicBones, Icons.BoneIcon, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+#if !BONES && !OLD_BONES
+                        }
+                        bCopier_dynamicBones_copy = GUILayout.Toggle(false, Strings.Copier.DynamicBones + " " + Strings.Warning.NotFound, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+#endif
+#if BONES || OLD_BONES
+                            bCopier_dynamicBones_copy = GUILayout.Toggle(bCopier_dynamicBones_copy, Strings.Copier.DynamicBones, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+#endif
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_dynamicBones)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_dynamicBones_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_dynamicBones_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_dynamicBones_copySettings, GUILayout.ExpandWidth(false));
+                                bCopier_dynamicBones_createMissing = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_createMissing, bCopier_dynamicBones_createMissing, GUILayout.ExpandWidth(false));
+                                bCopier_dynamicBones_removeOldBones = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_removeOldBones, bCopier_dynamicBones_removeOldBones, GUILayout.ExpandWidth(false));
+                                EditorGUILayout.Space();
+                                bCopier_dynamicBones_copyColliders = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_colliders, bCopier_dynamicBones_copyColliders, GUILayout.ExpandWidth(false));
+                                bCopier_dynamicBones_removeOldColliders = EditorGUILayout.Toggle(Strings.Copier.DynamicBones_removeOldColliders, bCopier_dynamicBones_removeOldColliders, GUILayout.ExpandWidth(false));
+                                bCopier_dynamicBones_createObjectsColliders = EditorGUILayout.Toggle(Strings.Copier.CopyColliderObjects, bCopier_dynamicBones_createObjectsColliders, GUILayout.ExpandWidth(false));
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+#if !BONES && !OLD_BONES
+                        EditorGUI.EndDisabledGroup();
+#endif
+
+                            //AvatarDescriptor menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_avatarDescriptor = GUILayout.Toggle(_copier_expand_avatarDescriptor, Icons.Avatar, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_descriptor_copy = GUILayout.Toggle(bCopier_descriptor_copy, Strings.Copier.Descriptor, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_avatarDescriptor)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_descriptor_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_descriptor_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_descriptor_copySettings, GUILayout.ExpandWidth(false));
+                                bCopier_descriptor_copyPipelineId = EditorGUILayout.Toggle(Strings.Copier.Descriptor_pipelineId, bCopier_descriptor_copyPipelineId, GUILayout.ExpandWidth(false));
+                                bCopier_descriptor_copyAnimationOverrides = EditorGUILayout.Toggle(Strings.Copier.Descriptor_animationOverrides, bCopier_descriptor_copyAnimationOverrides, GUILayout.ExpandWidth(false));
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //SkinnedMeshRenderer menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_skinnedMeshRenderer = GUILayout.Toggle(_copier_expand_skinnedMeshRenderer, Icons.SkinnedMeshRenderer, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_skinMeshRender_copy = GUILayout.Toggle(bCopier_skinMeshRender_copy, Strings.Copier.SkinMeshRender, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_skinnedMeshRenderer)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_skinMeshRender_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_skinMeshRender_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_skinMeshRender_copySettings, GUILayout.ExpandWidth(false));
+                                bCopier_skinMeshRender_copyMaterials = EditorGUILayout.Toggle(Strings.Copier.SkinMeshRender_materials, bCopier_skinMeshRender_copyMaterials, GUILayout.ExpandWidth(false));
+                                bCopier_skinMeshRender_copyBlendShapeValues = EditorGUILayout.Toggle(Strings.Copier.SkinMeshRender_blendShapeValues, bCopier_skinMeshRender_copyBlendShapeValues, GUILayout.ExpandWidth(false));
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //MeshRenderers menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_meshRenderers = GUILayout.Toggle(_copier_expand_meshRenderers, Icons.MeshRenderer, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_meshRenderers_copy = GUILayout.Toggle(bCopier_meshRenderers_copy, Strings.Copier.MeshRenderers, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_meshRenderers)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_meshRenderers_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_meshRenderers_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_meshRenderers_copySettings);
+                                bCopier_meshRenderers_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_meshRenderers_createMissing);
+                                bCopier_meshRenderers_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_meshRenderers_createObjects);
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //Particles menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_particleSystems = GUILayout.Toggle(_copier_expand_particleSystems, Icons.ParticleSystem, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_particleSystems_copy = GUILayout.Toggle(bCopier_particleSystems_copy, Strings.Copier.ParticleSystems, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_particleSystems)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_particleSystems_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_particleSystems_replace = EditorGUILayout.Toggle(Strings.Copier.ReplaceOld, bCopier_particleSystems_replace);
+                                bCopier_particleSystems_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_particleSystems_createObjects);
+
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //TrailRenderers menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_trailRenderers = GUILayout.Toggle(_copier_expand_trailRenderers, Icons.TrailRenderer, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_trailRenderers_copy = GUILayout.Toggle(bCopier_trailRenderers_copy, Strings.Copier.TrailRenderers, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_trailRenderers)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_trailRenderers_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_trailRenderers_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_trailRenderers_copySettings);
+                                bCopier_trailRenderers_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_trailRenderers_createMissing);
+                                bCopier_trailRenderers_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_trailRenderers_createObjects);
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //AudioSources menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_audioSources = GUILayout.Toggle(_copier_expand_audioSources, Icons.AudioSource, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_audioSources_copy = GUILayout.Toggle(bCopier_audioSources_copy, Strings.Copier.AudioSources, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_audioSources)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_audioSources_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_audioSources_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_audioSources_copySettings);
+                                bCopier_audioSources_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_audioSources_createMissing);
+                                bCopier_audioSources_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_audioSources_createObjects);
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //Lights menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_lights = GUILayout.Toggle(_copier_expand_lights, Icons.Light, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_lights_copy = GUILayout.Toggle(bCopier_lights_copy, Strings.Copier.Lights, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_lights)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_lights_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_lights_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_lights_copySettings);
+                                bCopier_lights_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_lights_createMissing);
+                                bCopier_lights_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_lights_createObjects);
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //RidigBodies menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_rigidBodies = GUILayout.Toggle(_copier_expand_rigidBodies, Icons.RigidBody, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_rigidBodies_copy = GUILayout.Toggle(bCopier_rigidBodies_copy, Strings.Copier.RigidBodies, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_rigidBodies)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_rigidBodies_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_rigidBodies_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_rigidBodies_copySettings);
+                                bCopier_rigidBodies_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_rigidBodies_createMissing);
+                                bCopier_rigidBodies_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_rigidBodies_createObjects);
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //Collider menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_colliders = GUILayout.Toggle(_copier_expand_colliders, Icons.ColliderBox, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_colliders_copy = GUILayout.Toggle(bCopier_colliders_copy, Strings.Copier.Colliders, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_colliders)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_colliders_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_colliders_copyBox = EditorGUILayout.Toggle(Strings.Copier.Colliders_box, bCopier_colliders_copyBox, GUILayout.ExpandWidth(false));
+                                bCopier_colliders_copyCapsule = EditorGUILayout.Toggle(Strings.Copier.Colliders_capsule, bCopier_colliders_copyCapsule, GUILayout.ExpandWidth(false));
+                                bCopier_colliders_copySphere = EditorGUILayout.Toggle(Strings.Copier.Colliders_sphere, bCopier_colliders_copySphere, GUILayout.ExpandWidth(false));
+                                bCopier_colliders_copyMesh = EditorGUILayout.Toggle(Strings.Copier.Colliders_mesh, bCopier_colliders_copyMesh, GUILayout.ExpandWidth(false));
+
+                                bCopier_colliders_removeOld = EditorGUILayout.Toggle(Strings.Copier.Colliders_removeOld, bCopier_colliders_removeOld, GUILayout.ExpandWidth(false));
+                                bCopier_colliders_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_colliders_createObjects, GUILayout.ExpandWidth(false));
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            //Animators menu
+                            EditorGUILayout.BeginHorizontal();
+                            _copier_expand_animators = GUILayout.Toggle(_copier_expand_animators, Icons.Animator, "Foldout", GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxWidth(30), GUILayout.MaxHeight(10));
+                            bCopier_animators_copy = GUILayout.Toggle(bCopier_animators_copy, Strings.Copier.Animators, GUILayout.ExpandWidth(false), GUILayout.MinWidth(20));
+                            EditorGUILayout.EndHorizontal();
+
+                            if(_copier_expand_animators)
+                            {
+                                EditorGUI.BeginDisabledGroup(!bCopier_animators_copy);
+                                EditorGUILayout.Space();
+
+                                bCopier_animators_copySettings = EditorGUILayout.Toggle(Strings.Copier.CopySettings, bCopier_animators_copySettings);
+                                bCopier_animators_createMissing = EditorGUILayout.Toggle(Strings.Copier.CreateMissing, bCopier_animators_createMissing);
+                                bCopier_animators_createObjects = EditorGUILayout.Toggle(Strings.Copier.CopyGameObjects, bCopier_animators_createObjects);
+                                bCopier_animators_copyMainAnimator = EditorGUILayout.Toggle(Strings.Copier.CopyMainAnimator, bCopier_animators_copyMainAnimator);
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
+                            }
+
+                            EditorGUILayout.Space();
+
+                            EditorGUI.BeginChangeCheck();
+                            {
+                                DrawPropertyArrayScrolling(SerializedIgnoreArray, Strings.Copier.Exclusions, ref _copierIgnoreArray_expand, ref _copierIgnoreArrayScroll, 0, 100);                                
+                            }
+                            if(EditorGUI.EndChangeCheck())
+                            {
+                                RefreshIgnoreArray();                            
+                            }
+
+                            if(_copierIgnoreArray_expand)
+                            {
+                                EditorGUILayout.Space();
+                                bCopier_ignoreArray_includeChildren = EditorGUILayout.Toggle(Strings.Copier.IncludeChildren, bCopier_ignoreArray_includeChildren);
+                            }
+
+                            EditorGUILayout.Space();
+
+                            EditorGUI.BeginDisabledGroup(
+                                !(
+                                bCopier_dynamicBones_copyColliders || bCopier_dynamicBones_copy || bCopier_colliders_copy || bCopier_particleSystems_copy ||
+                                bCopier_descriptor_copy || bCopier_skinMeshRender_copy || bCopier_meshRenderers_copy || bCopier_lights_copy ||
+                                bCopier_rigidBodies_copy || bCopier_trailRenderers_copy || bCopier_animators_copy
+                                ));
+                            {
+                                EditorGUILayout.BeginHorizontal();
+                                {
+                                    if(GUILayout.Button(Strings.Buttons.SelectNone, GUILayout.MinWidth(100)))
+                                    {
+#if BONES || OLD_BONES
+                                        bCopier_dynamicBones_copy = false;
+#endif
+                                        bCopier_colliders_copy = false;
+                                        bCopier_joints_copy = false;
+                                        bCopier_descriptor_copy = false;
+                                        bCopier_lights_copy = false;
+                                        bCopier_meshRenderers_copy = false;
+                                        bCopier_particleSystems_copy = false;
+                                        bCopier_rigidBodies_copy = false;
+                                        bCopier_skinMeshRender_copy = false;
+                                        bCopier_trailRenderers_copy = false;
+                                        bCopier_transforms_copy = false;
+                                        bCopier_animators_copy = false;
+                                        bCopier_audioSources_copy = false;
+                                    }
+                                    if(GUILayout.Button(Strings.Buttons.SelectAll, GUILayout.MinWidth(100)))
+                                    {
+#if BONES || OLD_BONES
+                                        bCopier_dynamicBones_copy = true;
+#endif
+                                        bCopier_colliders_copy = true;
+                                        bCopier_joints_copy = true;
+                                        bCopier_descriptor_copy = true;
+                                        bCopier_lights_copy = true;
+                                        bCopier_meshRenderers_copy = true;
+                                        bCopier_particleSystems_copy = true;
+                                        bCopier_rigidBodies_copy = true;
+                                        bCopier_skinMeshRender_copy = true;
+                                        bCopier_trailRenderers_copy = true;
+                                        bCopier_transforms_copy = true;
+                                        bCopier_animators_copy = true;
+                                        bCopier_audioSources_copy = true;
+                                    }
+                                }
+                                EditorGUILayout.EndHorizontal();
+
+                                EditorGUI.BeginDisabledGroup(!CopierHasSelections());
+                                {
+                                    if(GUILayout.Button(Strings.Buttons.CopySelected, Styles.BigButton))
+                                    {
+                                        string log = "";
+                                        if(copierSelectedFrom == null)
+                                        {
+                                            log += Strings.Log.CopyFromInvalid;
+                                            Log(log, LogType.Warning);
+                                        }
+                                        else
+                                        {
+                                            //Cancel Checks
+                                            if(copierSelectedFrom == selectedAvatar)
+                                            {
+                                                Log(log + Strings.Log.CantCopyToSelf, LogType.Warning);
+                                                return;
+                                            }
+
+                                            //Figure out how to prevent undo from adding multiple copies of the same component on
+                                            /*//Record Undo
+                                            Undo.RegisterFullObjectHierarchyUndo(selectedAvatar, "Copy Components");
+                                            if(selectedAvatar.gameObject.scene.name == null) //In case it's a prefab instance, which it probably is
+                                                PrefabUtility.RecordPrefabInstancePropertyModifications(selectedAvatar);*/
+
+                                            RefreshIgnoreArray();
+
+                                            CopyComponents(copierSelectedFrom, selectedAvatar);
+
+                                            EditorUtility.SetDirty(selectedAvatar);
+                                            EditorSceneManager.MarkSceneDirty(selectedAvatar.scene);
+
+                                            avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);
+
+                                            log += Strings.Log.Done;
+                                            Log(log, LogType.Log);
+                                        }
+                                    }
+                                }
+                                EditorGUI.EndDisabledGroup();
+                            }
+                            EditorGUI.EndDisabledGroup();
+                        }
+                        EditorGUI.EndDisabledGroup();
+                        EditorGUILayout.Space();
+                    }
+
+                    DrawGuiLine();
+
+                    //Avatar Info menu
+                    if(_avatarInfo_expand = GUILayout.Toggle(_avatarInfo_expand, Strings.Main.AvatarInfo, Styles.Foldout_title))
+                    {
+                        if(selectedAvatar == null)
+                        {
+                            if(avatarInfo != null)
+                            {
+                                avatarInfo = null;
+                                _avatarInfoString = Strings.AvatarInfo.SelectAvatarFirst;
+                            }
+                        }
+                        else
+                        {
+                            if(avatarInfo == null)
+                            {
+                                avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);
+                            }
+                        }
+
+                        EditorGUILayout.SelectableLabel(_avatarInfoString, Styles.HelpBox, GUILayout.MinHeight(240));
+
+                        EditorGUI.BeginDisabledGroup(selectedAvatar == null);
+                        {
+                            EditorGUILayout.BeginHorizontal();
+                            {
+                                if(GUILayout.Button(Strings.Buttons.Copy))
+                                {
+                                    EditorGUIUtility.systemCopyBuffer = _avatarInfoString;
+                                }
+                                if(GUILayout.Button(Strings.Buttons.Refresh))
+                                {
+                                    avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);
+                                }
+                            }
+                            EditorGUILayout.EndHorizontal();
+                        }
+                        EditorGUI.EndDisabledGroup();
+                    }
+
+                    DrawGuiLine();
+
+                    //Thumbnails menu                
+                    if(_thumbnails_expand = GUILayout.Toggle(_thumbnails_expand, Strings.Main.Thumbnails, Styles.Foldout_title))
+                    {
+                        if(!EditorApplication.isPlaying)
+                        {
+                            EditorGUILayout.SelectableLabel(Strings.Thumbnails.StartUploadingFirst, Styles.HelpBox_OneLine);
+                            hideAvatarsOnStart = GUILayout.Toggle(hideAvatarsOnStart, Strings.Thumbnails.HideOtherAvatars);
+                        }
+
+                        EditorGUILayout.Space();
+
+                        //Camera Override Image
+                        EditorGUI.BeginDisabledGroup(!EditorApplication.isPlaying);
+                        {
+                            GUILayout.BeginHorizontal();
+                            {
+                                EditorGUILayout.LabelField(Strings.Thumbnails.OverlayCameraImage, GUILayout.MaxWidth(100));
+                                EditorGUILayout.SelectableLabel(_overlayPathText, Styles.HelpBox_OneLine);
+
+                                EditorGUI.BeginChangeCheck();
+                                {
+                                    if(GUILayout.Button(Strings.Buttons.Browse, GUILayout.MaxWidth(60)) && VRCCam)
+                                    {
+                                        cameraOverrideTexture = OpenImageTexture(ref _lastOpenFilePath);
+                                        _overlayPathText = _lastOpenFilePath;
+                                    }
+                                    if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
+                                    {
+                                        if(!CameraOverlayRawImage)
+                                            CameraOverlayRawImage.color = Color.clear;
+                                        _overlayPathText = null;
+                                    }
+                                }
+                                if(EditorGUI.EndChangeCheck() && cameraOverrideTexture != null)
+                                {
+                                    Repaint();
+                                    if(cameraOverrideTexture.name != _emptyTexture.name)
+                                    {
+                                        if(VRCCam)
+                                        {
+                                            CameraOverlayRawImage.texture = cameraOverrideTexture;
+                                            CameraOverlayRawImage.color = Color.white;
+                                            cameraOverrideTexture.name = _emptyTexture.name;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if(CameraOverlay != null)
+                                            DestroyImmediate(CameraOverlay);
+                                    }
+                                }                                
+                            }
+                            GUILayout.EndHorizontal();
+                        }
+                        EditorGUI.EndDisabledGroup();
+
+                        //Background Type
+                        EditorGUI.BeginDisabledGroup(!EditorApplication.isPlaying);
+                        {
+                            EditorGUI.BeginChangeCheck();
+                            {
+                                camBgOverrideType = (CameraBackgroundOverrideType)EditorGUILayout.EnumPopup(Strings.Thumbnails.BackgroundType, camBgOverrideType);
+                            }
+                            if(EditorGUI.EndChangeCheck())
+                            {
+                                if(VRCCam)
+                                {
+                                    vrcCamSetBgColor = false;
+                                    vrcCamSetSkybox = false;
+                                    vrcCamSetBackground = false;
+
+                                    VRCCam.clearFlags = _vrcCamClearFlagsOld;
+                                    VRCCam.backgroundColor = _vrcCamColorOld;
+                                    RenderSettings.skybox = _thumbsSkyboxOld;
+                                    if(CameraBackgroundRawImage)
+                                        CameraBackgroundRawImage.enabled = false;
+
+                                    switch(camBgOverrideType)
+                                    {
+                                        case CameraBackgroundOverrideType.Color:
+                                            vrcCamSetBgColor = true;
+                                            VRCCam.clearFlags = CameraClearFlags.SolidColor;
+                                            VRCCam.backgroundColor = _vrcCamBgColor;
+                                            break;
+                                        case CameraBackgroundOverrideType.Image:
+                                            vrcCamSetBackground = true;
+                                            if(CameraBackgroundRawImage)
+                                                CameraBackgroundRawImage.enabled = true;
+                                            break;
+                                        case CameraBackgroundOverrideType.Material:
+                                            vrcCamSetSkybox = true;
+                                            VRCCam.clearFlags = CameraClearFlags.Skybox;
+                                            break;
+                                        case CameraBackgroundOverrideType.None:
+                                        default:
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    Log(Strings.Warning.VRCCamNotFound, LogType.Warning);
+                                }
+                            }
+
+                            if(VRCCam)
+                            {
+                                if(vrcCamSetBgColor)
+                                {
+                                    EditorGUI.BeginChangeCheck();
+                                    {
+                                        _vrcCamBgColor = EditorGUILayout.ColorField(Strings.Thumbnails.BackgroundType_Color, _vrcCamBgColor);
+                                    }
+                                    if(EditorGUI.EndChangeCheck())
+                                    {
+                                        if(VRCCam)
+                                            VRCCam.backgroundColor = _vrcCamBgColor;
+                                    }
+                                }
+                                else if(vrcCamSetSkybox)
+                                {
+                                    EditorGUI.BeginChangeCheck();
+                                    {
+                                        RenderSettings.skybox = (Material)EditorGUILayout.ObjectField(Strings.Thumbnails.BackgroundType_Material, RenderSettings.skybox, typeof(Material), false);
+                                    }
+                                    if(EditorGUI.EndChangeCheck())
+                                    {
+                                        if(VRCCam)
+                                            VRCCam.backgroundColor = _vrcCamBgColor;
+                                    }
+                                }
+                                else if(vrcCamSetBackground)
+                                {
+                                    GUILayout.BeginHorizontal();
+                                    {
+                                        EditorGUILayout.LabelField(Strings.Thumbnails.BackgroundType_Image, GUILayout.MaxWidth(100));
+                                        EditorGUILayout.SelectableLabel(_backgroundPathText, Styles.HelpBox, GUILayout.MaxHeight(18), GUILayout.ExpandHeight(false));
+
+                                        EditorGUI.BeginChangeCheck();
+                                        {
+                                            if(GUILayout.Button(Strings.Buttons.Browse, GUILayout.MaxWidth(60)))
+                                            {
+                                                cameraBackgroundTexture = OpenImageTexture(ref _lastOpenFilePath);
+                                                _backgroundPathText = _lastOpenFilePath;
+                                            }
+                                            if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
+                                            {
+                                                if(CameraBackgroundRawImage)
+                                                    CameraBackgroundRawImage.color = Color.clear;
+                                                _backgroundPathText = null;
+                                            }
+                                        }
+                                        if(EditorGUI.EndChangeCheck())
+                                        {
+                                            if(cameraBackgroundTexture != null)
+                                            {
+                                                if(cameraBackgroundTexture.name != _emptyTexture.name)
+                                                {
+                                                    if(VRCCam)
+                                                    {
+                                                        CameraBackgroundRawImage.texture = cameraBackgroundTexture;
+                                                        CameraBackgroundRawImage.color = Color.white;
+                                                        cameraBackgroundTexture.name = _emptyTexture.name;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if(CameraBackground != null)
+                                                        DestroyImmediate(CameraBackground);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                CameraBackgroundRawImage.color = Color.clear;
+                                            }
+                                        }
+                                    }
+                                    GUILayout.EndHorizontal();
+                                }
+
+                                EditorGUILayout.Space();
+
+                                if(GUILayout.Button(Strings.Thumbnails.CenterCameraOnViewpoint, Styles.BigButton))
+                                {
+                                    if(VRCCam)
+                                        CenterCameraOnViewpoint(selectedAvatar);
+                                    else
+                                        Log(Strings.Warning.VRCCamNotFound, LogType.Warning);
+                                }
+                            }
+                        }
+                        EditorGUI.EndDisabledGroup();
+
+                        if(!EditorApplication.isPlaying)
+                        {
+                            if(bThumbnails_override_camera_image)
+                            {
+                                cameraOverrideTexture = null;
+                                bThumbnails_override_camera_image = false;
+                            }
+
+                            if(CameraOverlay)
+                                GameObject.DestroyImmediate(CameraOverlay);
+
+                            if(CameraBackground)
+                                GameObject.DestroyImmediate(CameraBackground);
+                        }
+                    }
+
+                    DrawGuiLine();
+
+                    //Misc menu
+                    if(_misc_expand = GUILayout.Toggle(_misc_expand, Strings.Main.Misc, Styles.Foldout_title))
+                    {
+                        EditorGUILayout.Space();
+#if !BONES && !OLD_BONES
+                        if(GUILayout.Button(Strings.Misc.SearchForBones, Styles.BigButton))
+                        {
+                            _DependecyChecker.Check();
+                        }
+                        EditorGUILayout.Space();
+#endif
+                        GUILayout.BeginHorizontal();
+                        {
+
+                            if(GUILayout.Button(new GUIContent(Strings.Buttons.OpenGithubPage, Icons.GithubIcon)))
+                            {
+                                Application.OpenURL(Strings.toolsPage);
+                            }
+                            if(GUILayout.Button(new GUIContent(Strings.Buttons.OpenHelpPage, Icons.Help)))
+                            {
+                                Application.OpenURL(Strings.toolsPage + "wiki");
+                            }
+                        }
+                        GUILayout.EndHorizontal();
+
+                        if(GUILayout.Button(new GUIContent(Strings.Buttons.JoinDiscordServer, Icons.DiscordIcon)))
+                        {
+                            Application.OpenURL(Strings.discordLink);
+                        }
+                        if(GUILayout.Button(new GUIContent(Strings.Buttons.OpenDonationPage, Icons.KofiIcon)))
+                        {
+                            Application.OpenURL(Strings.donationLink);
+                        }
+                    }
 
                     EditorGUILayout.Space();
-
-                    DrawCopierMenuGUI();
-
-                    EditorGUILayout.Space();
-
-                    DrawAvatarInfoMenuGUI();
-
-                    EditorGUILayout.Space();
-
-                    DrawThumbnailsMenuGUI();
-
-                    EditorGUILayout.Space();
-
-                    DrawMiscMenuGUI();
-
-                    Helpers.DrawGUILine();
                 }
                 EditorGUILayout.EndScrollView();
 
 
                 if(GUI.changed)
-                {
+                {                    
                     SerializedScript.ApplyModifiedProperties();
-                    EditorUtility.SetDirty(this);
-                }
+                    EditorUtility.SetDirty(this);                 
+                }                                             
             }
         }
 
         /// <summary>
-        /// Draws the small windows inside the scene view when scaling the avatar or moving the viewpoint
-        /// </summary>        
-        void OnSceneGUI(SceneView sceneView)
+        /// Refreshes ignore list for the copier by making the transform references local to the selected avatar
+        /// </summary>
+        private void RefreshIgnoreArray()
+        {              
+            if(_copierIgnoreArray == null)
+            {
+                _copierIgnoreArray = new Transform[0];
+                return;
+            }
+            else if(_copierIgnoreArray.Length == 0)
+            {                                
+                return;
+            }
+
+            var newList = new List<Transform>(_copierIgnoreArray.Length);
+
+            foreach(var t in _copierIgnoreArray)
+            {
+                if(!t)
+                    newList.Add(t);
+                
+                var tt = FindTransformInAnotherHierarchy(t, copierSelectedFrom.transform, false);
+                if(tt && !newList.Contains(tt))
+                    newList.Add(tt);
+            }
+
+            _copierIgnoreArray = newList.ToArray();                  
+        }
+
+        Texture2D OpenImageTexture(ref string startPath)
         {
+            Texture2D tex = null;
+            string path = EditorUtility.OpenFilePanel("Pick an Image", startPath, "png,jpg,jpeg");
+            if(File.Exists(path))
+            {
+                byte[] data = File.ReadAllBytes(path);
+                try
+                {
+                    tex = new Texture2D(2, 2);
+                    tex.LoadImage(data);
+                    tex.alphaIsTransparency = true;
+                    tex.name = path;
+                }
+                catch
+                {
+                    tex = null;
+                }
+            }
+            startPath = path;
+            return tex;
+        }
+
+        bool CopierHasSelections()
+        {
+            if(!(bCopier_animators_copy || bCopier_colliders_copy || bCopier_joints_copy || bCopier_descriptor_copy ||
+              bCopier_lights_copy || bCopier_meshRenderers_copy || bCopier_particleSystems_copy || bCopier_rigidBodies_copy ||
+              bCopier_trailRenderers_copy || bCopier_transforms_copy || bCopier_skinMeshRender_copy || bCopier_dynamicBones_copy ||
+              bCopier_audioSources_copy))
+                return false;
+            return true;
+        }
+
+        private static void SelectAvatarFromScene()
+        {
+            try
+            {
+                var sel = Selection.activeGameObject;
+                if(sel == null)
+                    return;
+
+                sel = Selection.activeGameObject.transform.root.gameObject;
+                if(sel != null)
+                {
+                    if(sel.gameObject.scene.name != null)
+                    {
+                        selectedAvatar = sel;
+                        avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);
+                        
+                    }
+                    else if(!_useSceneSelectionAvatar)
+                    {
+                        Log(Strings.Warning.SelectSceneObject, LogType.Warning);
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                Debug.Log(e.Message);
+            }
+        }
+
+        //Scene GUI
+        void OnSceneGUI(SceneView sceneView)
+        {            
             if(_editingScale)
             {
                 bool propertyChanged = false;
-                if(!SelectedAvatar)
+                if(!selectedAvatar)
                 {
                     EndScalingAvatar(null, true);
                     return;
                 }
 
-                DrawScalingRuler();
-
                 Vector2 windowSize = new Vector2(200, 65);
 
                 Handles.BeginGUI();
-                {
+                {                    
                     var r = SceneView.currentDrawingSceneView.camera.pixelRect;
                     GUILayout.BeginArea(new Rect(10, r.height - 10 - windowSize.y, windowSize.x, windowSize.y), Styles.Box);
-                    {
-                        GUILayout.Label(Strings.Tools.editScale);
+                    {                        
+                        GUILayout.Label(Strings.Tools.EditScale);
                         if(SerializedScaleTemp != null)
                         {
                             EditorGUILayout.PropertyField(SerializedScaleTemp, GUIContent.none);
@@ -1045,17 +1511,17 @@ namespace Pumkin.AvatarTools
                         {
                             EditorGUILayout.LabelField(_avatarScaleTemp.ToString());
                         }
-
+                        
                         GUILayout.BeginHorizontal();
-                        {
-                            if(GUILayout.Button(Strings.Buttons.cancel, GUILayout.MinWidth(80)))
+                        {                            
+                            if(GUILayout.Button(Strings.Buttons.Cancel, GUILayout.MinWidth(80)))
                             {
-                                EndScalingAvatar(SelectedAvatar, true);
+                                EndScalingAvatar(selectedAvatar, true);
                             }
 
-                            if(GUILayout.Button(Strings.Buttons.apply, GUILayout.MinWidth(80)))
+                            if(GUILayout.Button(Strings.Buttons.Apply, GUILayout.MinWidth(80)))
                             {
-                                EndScalingAvatar(SelectedAvatar, false);
+                                EndScalingAvatar(selectedAvatar, false);
                             }
                         }
                         GUILayout.EndHorizontal();
@@ -1068,7 +1534,7 @@ namespace Pumkin.AvatarTools
                 {
                     EditorGUI.BeginChangeCheck();
                     {
-                        _avatarScaleTemp = Handles.ScaleSlider(_avatarScaleTemp, SelectedAvatar.transform.position, Vector3.up, Quaternion.identity, HandleUtility.GetHandleSize(SelectedAvatar.transform.position) * 2, 0.01f);
+                        _avatarScaleTemp = Handles.ScaleSlider(_avatarScaleTemp, selectedAvatar.transform.position, Vector3.up, Quaternion.identity, HandleUtility.GetHandleSize(selectedAvatar.transform.position) * 2, 0.01f);
                     }
                     if(EditorGUI.EndChangeCheck() || propertyChanged)
                     {
@@ -1083,7 +1549,7 @@ namespace Pumkin.AvatarTools
             }
             if(_editingView)
             {
-                if(!SelectedAvatar)
+                if(!selectedAvatar)
                 {
                     EndEditingViewpoint(null, true);
                     return;
@@ -1096,1956 +1562,156 @@ namespace Pumkin.AvatarTools
                     var r = SceneView.currentDrawingSceneView.camera.pixelRect;
                     GUILayout.BeginArea(new Rect(10, r.height - 10 - windowSize.y, windowSize.x, windowSize.y), Styles.Box);
                     {
-                        GUILayout.Label(Strings.Tools.editViewpoint);
+                        GUILayout.Label(Strings.Tools.EditViewpoint);
                         GUILayout.BeginHorizontal();
                         {
-                            if(GUILayout.Button(Strings.Buttons.cancel, GUILayout.MinWidth(80)))
+                            if(GUILayout.Button(Strings.Buttons.Cancel, GUILayout.MinWidth(80)))
                             {
-                                EndEditingViewpoint(SelectedAvatar, true);
+                                EndEditingViewpoint(selectedAvatar, true);
                             }
 
-                            if(GUILayout.Button(Strings.Buttons.apply, GUILayout.MinWidth(80)))
+                            if(GUILayout.Button(Strings.Buttons.Apply, GUILayout.MinWidth(80)))
                             {
-                                EndEditingViewpoint(SelectedAvatar, false);
+                                EndEditingViewpoint(selectedAvatar, false);
                             }
                         }
                         GUILayout.EndHorizontal();
                     }
                     GUILayout.EndArea();
                 }
-                Handles.EndGUI();
+                Handles.EndGUI();                
 
                 if(_tempAvatarDescriptor)
                 {
                     _viewPosTemp = Handles.PositionHandle(_viewPosTemp, Quaternion.identity);
                     Handles.color = Colors.BallHandle;
-                    Handles.SphereHandleCap(0, _viewPosTemp, Quaternion.identity, 0.02f, EventType.Repaint);
+                    Handles.SphereHandleCap(0, _viewPosTemp, Quaternion.identity, 0.02f, EventType.Repaint);				
                 }                
             }
             if(DrawingHandlesGUI)
-            {                
-                _PumkinsAvatarToolsWindow.RequestRepaint(this);
-            }
+                sceneView.Repaint();
         }
 
-        /// <summary>
-        /// Draws the scaling ruler when editing avatar scale. Does nothing for now, will show example avatar sizes later
-        /// </summary>
-        void DrawScalingRuler()
+        private void SetAvatarScale(VRC_AvatarDescriptor desc, object newScale)
         {
-            ////Actually pretty laggy
-            //Vector3 rulerStartPos;
-            //rulerStartPos = SelectedAvatar.transform.position + new Vector3(-0.3f, 0, 0);
-            //float rulerEndHeight = rulerStartPos.y + 5;
-            //float currentHeight = rulerStartPos.y;
-            //float step = 0.01f;
-
-            //bool flip = false;
-            //for(; currentHeight < rulerEndHeight; currentHeight += step)
-            //{
-            //    if(flip = !flip)
-            //        Handles.color = Color.black;
-            //    else
-            //        Handles.color = Color.white;
-
-            //    Handles.CubeHandleCap(0, new Vector3(rulerStartPos.x, currentHeight, rulerStartPos.z), Quaternion.identity, step, EventType.Repaint);
-            //}
-        }
-
-        public static void DrawAvatarSelectionWithButton(bool showSelectFromSceneButton = true, bool showSceneSelectionCheckBox = true)
-        {
-            SelectedAvatar = (GameObject)EditorGUILayout.ObjectField(Strings.Main.avatar, SelectedAvatar, typeof(GameObject), true);
-
-            if(_useSceneSelectionAvatar)
-                if(Selection.activeObject != SelectedAvatar)
-                    SelectAvatarFromScene();
-
-            if(showSelectFromSceneButton)
-                if(GUILayout.Button(Strings.Buttons.selectFromScene))
-                    if(Selection.activeObject)
-                        SelectAvatarFromScene();
-
-
-            if(showSceneSelectionCheckBox)
-                _useSceneSelectionAvatar = GUILayout.Toggle(_useSceneSelectionAvatar, Strings.Main.useSceneSelection);
-        }
-
-        private void DrawCopierMenuGUI()
-        {
-            if(_copier_expand = GUILayout.Toggle(_copier_expand, Strings.Main.copier, Styles.Foldout_title))
-            {
-                EditorGUILayout.Space();
-                copierSelectedFrom = (GameObject)EditorGUILayout.ObjectField(Strings.Copier.copyFrom, copierSelectedFrom, typeof(GameObject), true);
-
-                EditorGUILayout.BeginHorizontal();
-                if(GUILayout.Button(Strings.Buttons.selectFromScene))
-                {
-                    if(Selection.activeGameObject != null)
-                        copierSelectedFrom = Selection.activeGameObject.transform.root.gameObject;
-                }
-                EditorGUILayout.EndHorizontal();
-
-                EditorGUILayout.Space();
-
-                EditorGUI.BeginDisabledGroup(copierSelectedFrom == null || SelectedAvatar == null);
-                {
-                    Helpers.DrawGUILine(1, false);
-
-                    //Transforms menu                    
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_transforms, ref bCopier_transforms_copy, Strings.Copier.transforms, Icons.Transform);
-                    if(_copier_expand_transforms)
-                    {
-                        EditorGUI.BeginDisabledGroup(!bCopier_transforms_copy);
-                        EditorGUILayout.Space();
-
-                        using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                        {
-                            GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                            using(var cVerticalScope = new GUILayout.VerticalScope())
-                            {
-                                bCopier_transforms_copyPosition = GUILayout.Toggle(bCopier_transforms_copyPosition, Strings.Copier.transforms_position, Styles.CopierToggle);
-                                bCopier_transforms_copyRotation = GUILayout.Toggle(bCopier_transforms_copyRotation, Strings.Copier.transforms_rotation, Styles.CopierToggle);
-                                bCopier_transforms_copyScale = GUILayout.Toggle(bCopier_transforms_copyScale, Strings.Copier.transforms_scale, Styles.CopierToggle);
-
-                                bCopier_transforms_copyAvatarScale = GUILayout.Toggle(bCopier_transforms_copyAvatarScale, Strings.Copier.transforms_avatarScale, Styles.CopierToggle);
-                            }
-                        }
-
-                        EditorGUILayout.Space();
-                        EditorGUI.EndDisabledGroup();
-                    }
-
-                    Helpers.DrawGUILine(1, false);
-
-                    //DynamicBones menu
-#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
-                    EditorGUI.BeginDisabledGroup(true);
-                    {
-                        Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones + " (" + Strings.Warning.notFound + ")", Icons.BoneIcon);
-                        bCopier_dynamicBones_copy = false;
-                    }
-                    EditorGUI.EndDisabledGroup();
-#elif PUMKIN_OLD_DBONES
-                        Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones + " (" + Strings.Warning.oldVersion + ")", Icons.BoneIcon);
-#elif PUMKIN_DBONES
-                        Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones, Icons.BoneIcon);
-#endif
-
-                    if(_copier_expand_dynamicBones)
-                    {
-                        EditorGUI.BeginDisabledGroup(!bCopier_dynamicBones_copy);
-                        EditorGUILayout.Space();
-
-                        using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                        {
-                            GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                            using(var cVerticalScope = new GUILayout.VerticalScope())
-                            {
-                                bCopier_dynamicBones_copySettings = GUILayout.Toggle(bCopier_dynamicBones_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
-                                bCopier_dynamicBones_createMissing = GUILayout.Toggle(bCopier_dynamicBones_createMissing, Strings.Copier.dynamicBones_createMissing, Styles.CopierToggle);
-                                bCopier_dynamicBones_removeOldBones = GUILayout.Toggle(bCopier_dynamicBones_removeOldBones, Strings.Copier.dynamicBones_removeOldBones, Styles.CopierToggle);
-                                EditorGUILayout.Space();
-                                bCopier_dynamicBones_copyColliders = GUILayout.Toggle(bCopier_dynamicBones_copyColliders, Strings.Copier.dynamicBones_colliders, Styles.CopierToggle);
-                                bCopier_dynamicBones_removeOldColliders = GUILayout.Toggle(bCopier_dynamicBones_removeOldColliders, Strings.Copier.dynamicBones_removeOldColliders, Styles.CopierToggle);
-                                bCopier_dynamicBones_createObjectsColliders = GUILayout.Toggle(bCopier_dynamicBones_createObjectsColliders, Strings.Copier.copyColliderObjects, Styles.CopierToggle);
-                            }
-                        }
-
-                        EditorGUILayout.Space();
-                        EditorGUI.EndDisabledGroup();
-                    }
-
-                    Helpers.DrawGUILine(1, false);
-
-                    //AvatarDescriptor menu
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_avatarDescriptor, ref bCopier_descriptor_copy, Strings.Copier.descriptor, Icons.Avatar);
-                    if(_copier_expand_avatarDescriptor)
-                    {
-                        EditorGUI.BeginDisabledGroup(!bCopier_descriptor_copy);
-                        EditorGUILayout.Space();
-
-                        using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                        {
-                            GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                            using(var cVerticalScope = new GUILayout.VerticalScope())
-                            {
-                                bCopier_descriptor_copySettings = GUILayout.Toggle(bCopier_descriptor_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
-                                bCopier_descriptor_copyViewpoint = GUILayout.Toggle(bCopier_descriptor_copyViewpoint, Strings.Copier.descriptor_copyViewpoint, Styles.CopierToggle);
-                                bCopier_descriptor_copyPipelineId = GUILayout.Toggle(bCopier_descriptor_copyPipelineId, Strings.Copier.descriptor_pipelineId, Styles.CopierToggle);
-                                bCopier_descriptor_copyAnimationOverrides = GUILayout.Toggle(bCopier_descriptor_copyAnimationOverrides, Strings.Copier.descriptor_animationOverrides, Styles.CopierToggle);
-                            }
-                        }
-
-                        EditorGUILayout.Space();
-                        EditorGUI.EndDisabledGroup();
-                    }
-
-                    Helpers.DrawGUILine(1, false);
-
-                    //SkinnedMeshRenderer menu
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_skinnedMeshRenderer, ref bCopier_skinMeshRender_copy, Strings.Copier.skinMeshRender, Icons.SkinnedMeshRenderer);
-                    if(_copier_expand_skinnedMeshRenderer)
-                    {
-                        EditorGUI.BeginDisabledGroup(!bCopier_skinMeshRender_copy);
-                        EditorGUILayout.Space();
-
-                        using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                        {
-                            GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                            using(var cVerticalScope = new GUILayout.VerticalScope())
-                            {
-                                bCopier_skinMeshRender_copySettings = GUILayout.Toggle(bCopier_skinMeshRender_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
-                                bCopier_skinMeshRender_copyMaterials = GUILayout.Toggle(bCopier_skinMeshRender_copyMaterials, Strings.Copier.skinMeshRender_materials, Styles.CopierToggle);
-                                bCopier_skinMeshRender_copyBlendShapeValues = GUILayout.Toggle(bCopier_skinMeshRender_copyBlendShapeValues, Strings.Copier.skinMeshRender_blendShapeValues, Styles.CopierToggle);
-                            }
-                        }
-
-                        EditorGUILayout.Space();
-                        EditorGUI.EndDisabledGroup();
-                    }
-
-                    Helpers.DrawGUILine(1, false);
-
-                    //MeshRenderers menu
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_meshRenderers, ref bCopier_meshRenderers_copy, Strings.Copier.meshRenderers, Icons.MeshRenderer);
-                    if(_copier_expand_meshRenderers)
-                    {
-                        EditorGUI.BeginDisabledGroup(!bCopier_meshRenderers_copy);
-                        EditorGUILayout.Space();
-
-                        using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                        {
-                            GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                            using(var cVerticalScope = new GUILayout.VerticalScope())
-                            {
-                                bCopier_meshRenderers_copySettings = GUILayout.Toggle(bCopier_meshRenderers_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
-                                bCopier_meshRenderers_createMissing = GUILayout.Toggle(bCopier_meshRenderers_createMissing, Strings.Copier.createMissing, Styles.CopierToggle);
-                                bCopier_meshRenderers_createObjects = GUILayout.Toggle(bCopier_meshRenderers_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                            }
-                        }
-
-                        EditorGUILayout.Space();
-                        EditorGUI.EndDisabledGroup();
-                    }
-
-                    Helpers.DrawGUILine(1, false);
-
-                    //Particles menu
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_particleSystems, ref bCopier_particleSystems_copy, Strings.Copier.particleSystems, Icons.ParticleSystem);
-                    if(_copier_expand_particleSystems)
-                    {
-                        EditorGUI.BeginDisabledGroup(!bCopier_particleSystems_copy);
-                        EditorGUILayout.Space();
-
-                        using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                        {
-                            GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                            using(var cVerticalScope = new GUILayout.VerticalScope())
-                            {
-                                bCopier_particleSystems_replace = GUILayout.Toggle(bCopier_particleSystems_replace, Strings.Copier.replaceOld, Styles.CopierToggle);
-                                bCopier_particleSystems_createObjects = GUILayout.Toggle(bCopier_particleSystems_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                            }
-                        }
-
-                        EditorGUILayout.Space();
-                        EditorGUI.EndDisabledGroup();
-                    }
-
-                    Helpers.DrawGUILine(1, false);
-
-                    //TrailRenderers menu
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_trailRenderers, ref bCopier_trailRenderers_copy, Strings.Copier.trailRenderers, Icons.TrailRenderer);
-                    if(_copier_expand_trailRenderers)
-                    {
-                        EditorGUI.BeginDisabledGroup(!bCopier_trailRenderers_copy);
-                        EditorGUILayout.Space();
-
-                        using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                        {
-                            GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                            using(var cVerticalScope = new GUILayout.VerticalScope())
-                            {
-                                bCopier_trailRenderers_copySettings = GUILayout.Toggle(bCopier_trailRenderers_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
-                                bCopier_trailRenderers_createMissing = GUILayout.Toggle(bCopier_trailRenderers_createMissing, Strings.Copier.createMissing, Styles.CopierToggle);
-                                bCopier_trailRenderers_createObjects = GUILayout.Toggle(bCopier_trailRenderers_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                            }
-                        }
-
-                        EditorGUILayout.Space();
-                        EditorGUI.EndDisabledGroup();
-                    }
-
-                    Helpers.DrawGUILine(1, false);
-
-                    //AudioSources menu
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_audioSources, ref bCopier_audioSources_copy, Strings.Copier.audioSources, Icons.AudioSource);
-                    if(_copier_expand_audioSources)
-                    {
-                        EditorGUI.BeginDisabledGroup(!bCopier_audioSources_copy);
-                        EditorGUILayout.Space();
-
-                        using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                        {
-                            GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                            using(var cVerticalScope = new GUILayout.VerticalScope())
-                            {
-                                bCopier_audioSources_copySettings = GUILayout.Toggle(bCopier_audioSources_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
-                                bCopier_audioSources_createMissing = GUILayout.Toggle(bCopier_audioSources_createMissing, Strings.Copier.createMissing, Styles.CopierToggle);
-                                bCopier_audioSources_createObjects = GUILayout.Toggle(bCopier_audioSources_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                            }
-                        }
-
-                        EditorGUILayout.Space();
-                        EditorGUI.EndDisabledGroup();
-                    }
-
-                    Helpers.DrawGUILine(1, false);
-
-                    //Lights menu
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_lights, ref bCopier_lights_copy, Strings.Copier.lights, Icons.Light);
-                    if(_copier_expand_lights)
-                    {
-                        EditorGUI.BeginDisabledGroup(!bCopier_lights_copy);
-                        EditorGUILayout.Space();
-                        using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                        {
-                            GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                            using(var cVerticalScope = new GUILayout.VerticalScope())
-                            {
-                                bCopier_lights_copySettings = GUILayout.Toggle(bCopier_lights_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
-                                bCopier_lights_createMissing = GUILayout.Toggle(bCopier_lights_createMissing, Strings.Copier.createMissing, Styles.CopierToggle);
-                                bCopier_lights_createObjects = GUILayout.Toggle(bCopier_lights_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                            }
-                        }
-
-                        EditorGUILayout.Space();
-                        EditorGUI.EndDisabledGroup();
-                    }
-
-                    Helpers.DrawGUILine(1, false);
-
-                    //RidigBodies menu
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_rigidBodies, ref bCopier_rigidBodies_copy, Strings.Copier.rigidBodies, Icons.RigidBody);
-                    if(_copier_expand_rigidBodies)
-                    {
-                        EditorGUI.BeginDisabledGroup(!bCopier_rigidBodies_copy);
-                        EditorGUILayout.Space();
-
-                        using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                        {
-                            GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                            using(var cVerticalScope = new GUILayout.VerticalScope())
-                            {
-                                bCopier_rigidBodies_copySettings = GUILayout.Toggle(bCopier_rigidBodies_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
-                                bCopier_rigidBodies_createMissing = GUILayout.Toggle(bCopier_rigidBodies_createMissing, Strings.Copier.createMissing, Styles.CopierToggle);
-                                bCopier_rigidBodies_createObjects = GUILayout.Toggle(bCopier_rigidBodies_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                            }
-                        }
-
-                        EditorGUILayout.Space();
-                        EditorGUI.EndDisabledGroup();
-                    }
-
-                    Helpers.DrawGUILine(1, false);
-
-                    //Collider menu
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_colliders, ref bCopier_colliders_copy, Strings.Copier.colliders, Icons.ColliderBox);
-                    if(_copier_expand_colliders)
-                    {
-                        EditorGUI.BeginDisabledGroup(!bCopier_colliders_copy);
-                        EditorGUILayout.Space();
-
-                        using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                        {
-                            GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                            using(var cVerticalScope = new GUILayout.VerticalScope())
-                            {
-                                bCopier_colliders_copyBox = GUILayout.Toggle(bCopier_colliders_copyBox, Strings.Copier.colliders_box, Styles.CopierToggle);
-                                bCopier_colliders_copyCapsule = GUILayout.Toggle(bCopier_colliders_copyCapsule, Strings.Copier.colliders_capsule, Styles.CopierToggle);
-                                bCopier_colliders_copySphere = GUILayout.Toggle(bCopier_colliders_copySphere, Strings.Copier.colliders_sphere, Styles.CopierToggle);
-                                bCopier_colliders_copyMesh = GUILayout.Toggle(bCopier_colliders_copyMesh, Strings.Copier.colliders_mesh, Styles.CopierToggle);
-
-                                bCopier_colliders_removeOld = GUILayout.Toggle(bCopier_colliders_removeOld, Strings.Copier.colliders_removeOld, Styles.CopierToggle);
-                                bCopier_colliders_createObjects = GUILayout.Toggle(bCopier_colliders_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                            }
-                        }
-
-                        EditorGUILayout.Space();
-                        EditorGUI.EndDisabledGroup();
-                    }
-
-                    Helpers.DrawGUILine(1, false);
-
-                    //Animators menu
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_animators, ref bCopier_animators_copy, Strings.Copier.animators, Icons.Animator);
-                    if(_copier_expand_animators)
-                    {
-                        EditorGUI.BeginDisabledGroup(!bCopier_animators_copy);
-                        EditorGUILayout.Space();
-
-                        using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                        {
-                            GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                            using(var cVerticalScope = new GUILayout.VerticalScope())
-                            {
-                                bCopier_animators_copySettings = GUILayout.Toggle(bCopier_animators_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
-                                bCopier_animators_createMissing = GUILayout.Toggle(bCopier_animators_createMissing, Strings.Copier.createMissing, Styles.CopierToggle);
-                                bCopier_animators_createObjects = GUILayout.Toggle(bCopier_animators_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                                bCopier_animators_copyMainAnimator = GUILayout.Toggle(bCopier_animators_copyMainAnimator, Strings.Copier.copyMainAnimator, Styles.CopierToggle);
-                            }
-                        }
-
-                        EditorGUILayout.Space();
-                        EditorGUI.EndDisabledGroup();
-                    }
-
-                    Helpers.DrawGUILine(1, false);
-
-                    EditorGUILayout.Space();
-
-                    //Ignore Array
-                    EditorGUI.BeginChangeCheck();
-                    {
-                        Helpers.DrawPropertyArrayScrolling(SerializedIgnoreArray, Strings.Copier.exclusions, ref _copierIgnoreArray_expand, ref _copierIgnoreArrayScroll, 0, 100);
-                    }
-                    if(EditorGUI.EndChangeCheck())
-                    {
-                        RefreshIgnoreArray();
-                    }
-
-                    if(_copierIgnoreArray_expand && SerializedIgnoreArray.arraySize > 0)
-                    {
-                        using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                        {
-                            GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE * 4); // horizontal indent size
-                            using(var cVerticalScope = new GUILayout.VerticalScope())
-                            {
-                                bCopier_ignoreArray_includeChildren = GUILayout.Toggle(bCopier_ignoreArray_includeChildren, Strings.Copier.includeChildren);
-                            }
-                        }
-                    }
-
-                    EditorGUILayout.Space();
-
-                    EditorGUI.BeginDisabledGroup(
-                        !(
-                        bCopier_dynamicBones_copyColliders || bCopier_dynamicBones_copy || bCopier_colliders_copy || bCopier_particleSystems_copy ||
-                        bCopier_descriptor_copy || bCopier_skinMeshRender_copy || bCopier_meshRenderers_copy || bCopier_lights_copy ||
-                        bCopier_rigidBodies_copy || bCopier_trailRenderers_copy || bCopier_animators_copy
-                        ));
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        {
-                            if(GUILayout.Button(Strings.Buttons.selectNone, GUILayout.MinWidth(100)))
-                            {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                                    bCopier_dynamicBones_copy = false;
-#endif
-                                bCopier_colliders_copy = false;
-                                bCopier_joints_copy = false;
-                                bCopier_descriptor_copy = false;
-                                bCopier_lights_copy = false;
-                                bCopier_meshRenderers_copy = false;
-                                bCopier_particleSystems_copy = false;
-                                bCopier_rigidBodies_copy = false;
-                                bCopier_skinMeshRender_copy = false;
-                                bCopier_trailRenderers_copy = false;
-                                bCopier_transforms_copy = false;
-                                bCopier_animators_copy = false;
-                                bCopier_audioSources_copy = false;
-                            }
-                            if(GUILayout.Button(Strings.Buttons.selectAll, GUILayout.MinWidth(100)))
-                            {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                                    bCopier_dynamicBones_copy = true;
-#endif
-                                bCopier_colliders_copy = true;
-                                bCopier_joints_copy = true;
-                                bCopier_descriptor_copy = true;
-                                bCopier_lights_copy = true;
-                                bCopier_meshRenderers_copy = true;
-                                bCopier_particleSystems_copy = true;
-                                bCopier_rigidBodies_copy = true;
-                                bCopier_skinMeshRender_copy = true;
-                                bCopier_trailRenderers_copy = true;
-                                bCopier_transforms_copy = true;
-                                bCopier_animators_copy = true;
-                                bCopier_audioSources_copy = true;
-                            }
-                        }
-                        EditorGUILayout.EndHorizontal();
-
-                        EditorGUI.BeginDisabledGroup(!CopierHasSelections());
-                        {
-                            if(GUILayout.Button(Strings.Buttons.copySelected, Styles.BigButton))
-                            {
-                                string log = "";
-                                if(copierSelectedFrom == null)
-                                {
-                                    log += Strings.Log.copyFromInvalid;
-                                    Log(log, LogType.Warning);
-                                }
-                                else
-                                {
-                                    //Cancel Checks
-                                    if(copierSelectedFrom == SelectedAvatar)
-                                    {
-                                        Log(log + Strings.Log.cantCopyToSelf, LogType.Warning);
-                                        return;
-                                    }
-
-                                    RefreshIgnoreArray();
-
-                                    CopyComponents(copierSelectedFrom, SelectedAvatar);
-
-                                    EditorUtility.SetDirty(SelectedAvatar);
-                                    EditorSceneManager.MarkSceneDirty(SelectedAvatar.scene);
-
-                                    avatarInfo = AvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
-
-                                    log += Strings.Log.done;
-                                    Log(log, LogType.Log);
-                                }
-                            }
-                        }
-                        EditorGUI.EndDisabledGroup();
-                    }
-                    EditorGUI.EndDisabledGroup();
-                }
-                EditorGUI.EndDisabledGroup();
-                EditorGUILayout.Space();
-            }
-        }
-
-        public void DrawMiscMenuGUI()
-        {
-            if(_misc_expand = GUILayout.Toggle(_misc_expand, Strings.Main.misc, Styles.Foldout_title))
-            {
-                if(PumkinsLanguageManager.Languages.Count == 0)
-                    PumkinsLanguageManager.LoadTranslations();
-
-                EditorGUILayout.Space();
-                EditorGUILayout.BeginHorizontal();
-                {
-                    EditorGUI.BeginChangeCheck();
-                    {
-                        if(_selectedLanguageIndex >= PumkinsLanguageManager.Languages.Count)
-                            _selectedLanguageIndex = PumkinsLanguageManager.GetIndexOfLanguage(_selectedLanguageString);
-
-                        _selectedLanguageIndex = EditorGUILayout.Popup(Strings.Misc.language, _selectedLanguageIndex, PumkinsLanguageManager.Languages.Select(o => o.ToString()).ToArray(), Styles.Popup);
-                    }
-                    if(EditorGUI.EndChangeCheck() && PumkinsLanguageManager.Languages.Count > 1)
-                    {
-                        PumkinsLanguageManager.SetLanguage(PumkinsLanguageManager.Languages[_selectedLanguageIndex]);
-                        _selectedLanguageString = Strings.Translation.ToString();
-                    }
-
-                    if(GUILayout.Button(Icons.Refresh, Styles.IconButton))
-                    {
-                        PumkinsLanguageManager.LoadTranslations();
-                    }
-                }
-                EditorGUILayout.EndHorizontal();
-
-                Helpers.DrawGUILine();
-
-#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
-                if(GUILayout.Button(Strings.Misc.searchForBones, Styles.BigButton))
-                {
-                    _DependencyChecker.CheckForDependencies();
-                }
-                Helpers.DrawGUILine();
-#endif
-                GUILayout.BeginHorizontal();
-                {
-
-                    if(GUILayout.Button(new GUIContent(Strings.Buttons.openGithubPage, Icons.GithubIcon)))
-                    {
-                        Application.OpenURL(Strings.LINK_GITHUB);
-                    }
-                    if(GUILayout.Button(new GUIContent(Strings.Buttons.openHelpPage, Icons.Help)))
-                    {
-                        Application.OpenURL(Strings.LINK_GITHUB + "wiki");
-                    }
-                }
-                GUILayout.EndHorizontal();
-
-                if(GUILayout.Button(new GUIContent(Strings.Buttons.joinDiscordServer, Icons.DiscordIcon)))
-                {
-                    Application.OpenURL(Strings.LINK_DISCORD);
-                }
-                if(GUILayout.Button(new GUIContent(Strings.Buttons.openDonationPage, Icons.KofiIcon)))
-                {
-                    Application.OpenURL(Strings.LINK_DONATION);
-                }
-            }
-        }
-
-        public void DrawThumbnailsMenuGUI()
-        {
-            if(_thumbnails_expand = GUILayout.Toggle(_thumbnails_expand, Strings.Main.thumbnails, Styles.Foldout_title))
-            {
-                Helpers.DrawGUILine();
-
-                EditorGUI.BeginChangeCheck();
-                {
-                    shouldHideOtherAvatars = GUILayout.Toggle(shouldHideOtherAvatars, Strings.Thumbnails.hideOtherAvatars);
-                }
-                if(EditorGUI.EndChangeCheck())
-                {
-                    HideAllOtherAvatars(shouldHideOtherAvatars, SelectedAvatar);
-                }
-
-                Helpers.DrawGUILine();
-
-                EditorGUI.BeginChangeCheck();
-                {
-                    _presetToolbarSelectedIndex = GUILayout.Toolbar(_presetToolbarSelectedIndex, new string[] { Strings.Thumbnails.cameras, Strings.Thumbnails.poses, Strings.Thumbnails.blendshapes }, Styles.ToolbarBigButtons);
-                }
-                if(EditorGUI.EndChangeCheck())
-                {
-                    if(_presetToolbarSelectedIndex == (int)PresetToolbarOptions.Blendshape)
-                    {
-                        SetupBlendeshapeRendererHolders(SelectedAvatar);
-                    }
-                }
-
-                EditorGUILayout.Space();
-                Helpers.DrawGUILine();
-
-                switch(_presetToolbarSelectedIndex)
-                {
-                    case 0:
-                        DrawThumbnailCameraGUI();
-                        DrawPresetGUI<PumkinsCameraPreset>();
-                        break;
-                    case 1:
-                        DrawThumbnailPoseGUI();
-                        DrawPresetGUI<PumkinsPosePreset>();
-                        break;
-                    case 2:
-                        DrawThumbanailBlendshapeGUI();
-                        DrawPresetGUI<PumkinsBlendshapePreset>();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        public void DrawThumbanailBlendshapeGUI()
-        {
-            EditorGUILayout.LabelField(new GUIContent(Strings.Thumbnails.blendshapes));
-            if(SelectedAvatar)
-            {
-                Helpers.DrawBlendshapeSlidersWithLabels(ref _selectedAvatarRendererHolders, SelectedAvatar);
-            }
+            selectedAvatar.transform.localScale = RoundVectorValues(new Vector3(_avatarScaleTemp, _avatarScaleTemp, _avatarScaleTemp), 3);
+            if(_scaleViewpointDummy)
+                _viewPosTemp = _scaleViewpointDummy.position;
             else
-            {
-                EditorGUILayout.LabelField(new GUIContent(Strings.PoseEditor.selectHumanoidAvatar), Styles.HelpBox_OneLine);
-                Helpers.DrawGUILine();
-            }
-            EditorGUILayout.Space();
+                EndScalingAvatar(desc.gameObject, true);
         }
 
-        public void DrawThumbnailPoseGUI()
-        {
-            if(GUILayout.Button(Strings.Buttons.openPoseEditor, Styles.BigButton))            
-                PumkinsMuscleEditor.ShowWindow();            
-
-            Helpers.DrawGUILine();
-
-            posePresetTryFixSinking = GUILayout.Toggle(posePresetTryFixSinking, Strings.Thumbnails.tryFixPoseSinking);
-
-            Helpers.DrawGUILine();
+        private float GetDeltaMultiplier(float startValue, float endValue)
+        {               
+            return (endValue - startValue) / startValue;            
         }
 
-        public void DrawThumbnailCameraGUI()
-        {
-            SelectedCamera = EditorGUILayout.ObjectField(Strings.Thumbnails.selectedCamera, SelectedCamera, typeof(Camera), true) as Camera;
-
-            Helpers.DrawGUILine();
-
-            DrawOverlayGUI();
-
-            Helpers.DrawGUILine();
-
-            DrawBackgroundGUI();
-
-            Helpers.DrawGUILine();
-
-            DrawCameraControlButtons();            
-        }
-
-        public void DrawCameraControlButtons()
-        {
-            EditorGUI.BeginDisabledGroup(!SelectedCamera || !SelectedAvatar);
+        void OnDrawGizmos()
+        {            
+            if(DrawingHandlesGUI)
             {
-                //Camera to scene view button
-                if(GUILayout.Button(Strings.Buttons.alignCameraToView, Styles.BigButton))
-                {
-                    SelectedCamera.transform.position = SceneView.lastActiveSceneView.camera.transform.position;
-                    SelectedCamera.transform.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
-                }
-
-                Helpers.DrawGUILine();
-
-                //Center Camera on Viewpoint button
-                GUILayout.BeginHorizontal();
-                {
-                    string centerOnWhat = "?";
-                    switch(centerCameraMode)
-                    {
-                        case PumkinsCameraPreset.CameraOffsetMode.AvatarRoot:
-                            centerOnWhat = Strings.Main.avatar;
-                            break;                        
-                        case PumkinsCameraPreset.CameraOffsetMode.Transform:
-                            if(SelectedAvatar && !centerCameraTransform)                            
-                                centerCameraTransform = SelectedAvatar.transform.Find(centerCameraTransformPath);
-                            if(centerCameraTransform)
-                                centerOnWhat = centerCameraTransform.name;
-                            break;                        
-                        case PumkinsCameraPreset.CameraOffsetMode.Viewpoint:
-                        default:
-                            centerOnWhat = Strings.Thumbnails.viewpoint;
-                            break;                            
-                    }
-
-                    string centerCameraString = string.Format(Strings.Thumbnails.centerCameraOn, centerOnWhat);
-                    if(GUILayout.Button(centerCameraString, Styles.BigButton))
-                    {
-                        if(SelectedCamera)
-                        {
-                            switch(centerCameraMode)
-                            {
-                                case PumkinsCameraPreset.CameraOffsetMode.AvatarRoot:                                    
-                                    CenterCameraOnTransform(SelectedAvatar.transform, centerCameraPositionOffsetAvatar, centerCameraRotationOffsetAvatar, centerCameraFixClippingPlanes);                                    
-                                    break;
-                                case PumkinsCameraPreset.CameraOffsetMode.Transform:
-                                    CenterCameraOnTransform(centerCameraTransform, centerCameraPositionOffsetTransform, centerCameraRotationOffsetTransform, centerCameraFixClippingPlanes);
-                                    break;                                
-                                case PumkinsCameraPreset.CameraOffsetMode.Viewpoint:
-                                default:
-                                    CenterCameraOnViewpoint(SelectedAvatar, centerCameraPositionOffsetViewpoint, centerCameraRotationOffsetViewpoint, centerCameraScaleDistanceWithAvatarScale, centerCameraFixClippingPlanes);
-                                    break;
-                            }
-                        }
-                        else
-                            Log(Strings.Warning.cameraNotFound, LogType.Warning);
-                    }
-                    if(GUILayout.Button(Icons.Settings, Styles.BigIconButton))
-                    {
-                        _centerCameraOffsets_expand = !_centerCameraOffsets_expand;
-                    }
-                }
-                GUILayout.EndHorizontal();
-                if(_centerCameraOffsets_expand)
-                {
-                    EditorGUILayout.Space();
-
-                    centerCameraFixClippingPlanes = GUILayout.Toggle(centerCameraFixClippingPlanes, Strings.Thumbnails.centerCameraFixClippingPlanes);
-
-                    EditorGUILayout.Space();
-
-                    centerCameraMode = (PumkinsCameraPreset.CameraOffsetMode)EditorGUILayout.EnumPopup(Strings.Presets.mode, centerCameraMode);
-
-                    if(centerCameraMode == PumkinsCameraPreset.CameraOffsetMode.Transform)
-                    {
-                        EditorGUI.BeginChangeCheck();
-                        {
-                            centerCameraTransformPath = EditorGUILayout.TextField(Strings.Presets.transform, centerCameraTransformPath);
-                        }
-                        if(EditorGUI.EndChangeCheck())
-                        {
-                            centerCameraTransform = SelectedAvatar.transform.Find(centerCameraTransformPath);
-                        }
-                    }
-                    else
-                        GUILayout.Space(18);
-
-                    EditorGUILayout.Space();
-
-                    switch(centerCameraMode)
-                    {
-                        case PumkinsCameraPreset.CameraOffsetMode.Transform:
-                            centerCameraPositionOffsetTransform = EditorGUILayout.Vector3Field(Strings.Thumbnails.positionOffset, centerCameraPositionOffsetTransform);
-                            centerCameraRotationOffsetTransform = EditorGUILayout.Vector3Field(Strings.Thumbnails.rotationOffset, centerCameraRotationOffsetTransform);
-                            break;
-                        case PumkinsCameraPreset.CameraOffsetMode.Viewpoint:
-                            centerCameraPositionOffsetViewpoint = EditorGUILayout.Vector3Field(Strings.Thumbnails.positionOffset, centerCameraPositionOffsetViewpoint);
-                            centerCameraRotationOffsetViewpoint = EditorGUILayout.Vector3Field(Strings.Thumbnails.rotationOffset, centerCameraRotationOffsetViewpoint);
-                            break;
-                        case PumkinsCameraPreset.CameraOffsetMode.AvatarRoot:
-                            centerCameraPositionOffsetAvatar = EditorGUILayout.Vector3Field(Strings.Thumbnails.positionOffset, centerCameraPositionOffsetAvatar);
-                            centerCameraRotationOffsetAvatar = EditorGUILayout.Vector3Field(Strings.Thumbnails.rotationOffset, centerCameraRotationOffsetAvatar);
-                            break;
-                    }
-                    
-
-                    EditorGUILayout.Space();
-
-                    EditorGUILayout.BeginHorizontal();
-                    {
-                        if(GUILayout.Button(Strings.Buttons.reset, GUILayout.MaxWidth(90f)))
-                        {
-                            switch(centerCameraMode)
-                            {
-                                default:
-                                case PumkinsCameraPreset.CameraOffsetMode.Viewpoint:
-                                    centerCameraPositionOffsetViewpoint = DEFAULT_CAMERA_POSITION_OFFSET_VIEWPOINT;
-                                    centerCameraRotationOffsetViewpoint = DEFAULT_CAMERA_ROTATION_OFFSET_VIEWPOINT;
-                                    break;
-                                case PumkinsCameraPreset.CameraOffsetMode.AvatarRoot:
-                                    centerCameraPositionOffsetAvatar = DEFAULT_CAMERA_POSITION_OFFSET_AVATAR;
-                                    centerCameraRotationOffsetAvatar = DEFAULT_CAMERA_ROTATION_OFFSET_AVATAR;
-                                    break;
-                                case PumkinsCameraPreset.CameraOffsetMode.Transform:
-                                    centerCameraPositionOffsetTransform = DEFAULT_CAMERA_POSITION_OFFSET_TRANSFORM;
-                                    centerCameraRotationOffsetTransform = DEFAULT_CAMERA_ROTATION_OFFSET_TRANSFORM;
-                                    break;
-                            }
-                        }
-                        if(GUILayout.Button(Strings.Buttons.setFromCamera))
-                        {
-                            SerialTransform st = null;
-                            switch(centerCameraMode)
-                            {
-                                default:
-                                case PumkinsCameraPreset.CameraOffsetMode.Viewpoint:
-                                    st = PumkinsCameraPreset.GetCameraOffsetFromViewpoint(SelectedAvatar, SelectedCamera);
-                                    if(st)
-                                    {
-                                        centerCameraPositionOffsetViewpoint = Helpers.RoundVectorValues(st.localPosition, 3);
-                                        centerCameraRotationOffsetViewpoint = Helpers.RoundVectorValues(st.localEulerAngles, 3);
-                                    }
-                                    break;
-                                case PumkinsCameraPreset.CameraOffsetMode.AvatarRoot:
-                                    st = PumkinsCameraPreset.GetOffsetsFromTransform(SelectedAvatar.transform, SelectedCamera);
-                                    if(st)
-                                    {
-                                        centerCameraPositionOffsetAvatar = Helpers.RoundVectorValues(st.localPosition, 3);
-                                        centerCameraRotationOffsetAvatar = Helpers.RoundVectorValues(st.localEulerAngles, 3);
-                                    }
-                                    break;
-                                case PumkinsCameraPreset.CameraOffsetMode.Transform:
-                                    st = PumkinsCameraPreset.GetOffsetsFromTransform(centerCameraTransform, SelectedCamera);
-                                    if(st)
-                                    {
-                                        centerCameraPositionOffsetTransform = Helpers.RoundVectorValues(st.localPosition, 3);
-                                        centerCameraRotationOffsetTransform = Helpers.RoundVectorValues(st.localEulerAngles, 3);
-                                    }
-                                    break;                                
-                            }                                                        
-                        }
-                    }
-                    EditorGUILayout.EndHorizontal();
-                }
-
-                Helpers.DrawGUILine();
-
-                EditorGUILayout.Space();
-            }
-            EditorGUI.EndDisabledGroup();
-        }
-
-        public void DrawAvatarInfoMenuGUI()
-        {
-            if(_avatarInfo_expand = GUILayout.Toggle(_avatarInfo_expand, Strings.Main.avatarInfo, Styles.Foldout_title))
-            {
-                if(SelectedAvatar == null)
-                {
-                    if(avatarInfo != null)
-                    {
-                        avatarInfo = null;
-                        _avatarInfoString = Strings.AvatarInfo.selectAvatarFirst;
-                    }
-                }
-                else
-                {
-                    if(avatarInfo == null)
-                    {
-                        avatarInfo = AvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
-                    }
-                }
-
-                EditorGUILayout.SelectableLabel(_avatarInfoString, Styles.HelpBox, GUILayout.MinHeight(240));
-
-                EditorGUI.BeginDisabledGroup(SelectedAvatar == null);
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    {
-                        if(GUILayout.Button(Strings.Buttons.copy))
-                        {
-                            EditorGUIUtility.systemCopyBuffer = _avatarInfoString;
-                        }
-                        if(GUILayout.Button(Strings.Buttons.refresh))
-                        {
-                            avatarInfo = AvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
-                        }
-                    }
-                    EditorGUILayout.EndHorizontal();
-                }
-                EditorGUI.EndDisabledGroup();
-            }
-        }
-
-        public void DrawToolsMenuGUI()
-        {
-            if(_tools_expand = GUILayout.Toggle(_tools_expand, Strings.Main.tools, Styles.Foldout_title))
-            {
-                EditorGUI.BeginDisabledGroup(SelectedAvatar == null);
-                {
-                    Helpers.DrawGUILine();
-
-                    GUILayout.BeginHorizontal();
-                    {
-                        if(GUILayout.Button(Strings.Buttons.quickSetupAvatar, Styles.BigButton))
-                        {
-                            //if(_tools_quickSetup_autoRig)
-                            //    SetupRig(SelectedAvatar);
-                            if(_tools_quickSetup_fillVisemes)
-                                DoAction(SelectedAvatar, ToolMenuActions.FillVisemes);
-                            if(_tools_quickSetup_setViewpoint)
-                                QuickSetViewpoint(SelectedAvatar, _tools_quickSetup_viewpointZDepth);
-                            if(_tools_quickSetup_forceTPose)
-                                DoAction(SelectedAvatar, ToolMenuActions.SetTPose);
-                            if(_tools_quickSetup_setRendererAnchor)
-                                SetRendererAnchor(SelectedAvatar, _tools_quickSetup_setRenderAnchor_path);
-                        }
-
-                        if(GUILayout.Button(Icons.Settings, Styles.BigIconButton))
-                            _tools_quickSetup_settings_expand = !_tools_quickSetup_settings_expand;
-                    }
-                    GUILayout.EndHorizontal();
-
-                    if(_tools_quickSetup_settings_expand)
-                    {
-                        EditorGUILayout.Space();
-
-                        GUILayout.BeginHorizontal();
-                        {
-                            float oldWidth = EditorGUIUtility.labelWidth;
-                            EditorGUIUtility.labelWidth = Helpers.CalculateTextWidth(Strings.Tools.autoViewpoint);
-                            _tools_quickSetup_setViewpoint = GUILayout.Toggle(_tools_quickSetup_setViewpoint, Strings.Tools.autoViewpoint);
-
-                            EditorGUIUtility.labelWidth = Helpers.CalculateTextWidth(Strings.Tools.viewpointZDepth);
-                            EditorGUI.BeginDisabledGroup(!_tools_quickSetup_setViewpoint);
-                            {
-                                _tools_quickSetup_viewpointZDepth = EditorGUILayout.FloatField(Strings.Tools.viewpointZDepth, _tools_quickSetup_viewpointZDepth);
-                            }
-                            EditorGUI.EndDisabledGroup();
-                            EditorGUIUtility.labelWidth = oldWidth;
-                        }
-                        GUILayout.EndHorizontal();
-
-                        _tools_quickSetup_fillVisemes = GUILayout.Toggle(_tools_quickSetup_fillVisemes, Strings.Tools.fillVisemes);
-                        _tools_quickSetup_forceTPose = GUILayout.Toggle(_tools_quickSetup_forceTPose, Strings.Tools.setTPose);
-                        //_tools_quickSetup_autoRig = GUILayout.Toggle(_tools_quickSetup_autoRig, "_Setup Rig");
-
-                        GUILayout.BeginHorizontal();
-                        {
-                            _tools_quickSetup_setRendererAnchor = GUILayout.Toggle(_tools_quickSetup_setRendererAnchor, Strings.Tools.setRendererAnchors);
-                            EditorGUI.BeginDisabledGroup(!_tools_quickSetup_setRendererAnchor);
-                            {
-                                _tools_quickSetup_setRenderAnchor_path = EditorGUILayout.TextField(_tools_quickSetup_setRenderAnchor_path);
-                            }
-                            EditorGUI.EndDisabledGroup();
-                        }
-                        GUILayout.EndHorizontal();
-
-                    }
-
-                    Helpers.DrawGUILine();
-
-
-                    if(_tools_avatar_expand = GUILayout.Toggle(_tools_avatar_expand, Strings.Main.avatar, Styles.Foldout))
-                    {
-                        GUILayout.BeginHorizontal(); //Row
-                        {
-                            GUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
-                            {
-                                if(GUILayout.Button(Strings.Tools.fillVisemes))
-                                    DoAction(SelectedAvatar, ToolMenuActions.FillVisemes);
-                                if(GUILayout.Button(Strings.Tools.revertBlendshapes))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RevertBlendshapes);
-                                if(GUILayout.Button(Strings.Tools.resetPose))
-                                    DoAction(SelectedAvatar, ToolMenuActions.ResetPose);
-                                EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
-                                {
-                                    if(GUILayout.Button(Strings.Tools.revertScale))
-                                        DoAction(SelectedAvatar, ToolMenuActions.RevertScale);
-                                }
-                                EditorGUI.EndDisabledGroup();
-                            }
-                            GUILayout.EndVertical();
-
-                            GUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
-                            {
-                                EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
-                                {
-                                    if(GUILayout.Button(Strings.Tools.editViewpoint))
-                                        DoAction(SelectedAvatar, ToolMenuActions.EditViewpoint);
-                                }
-                                EditorGUI.EndDisabledGroup();
-
-                                if(GUILayout.Button(Strings.Tools.zeroBlendshapes))
-                                    DoAction(SelectedAvatar, ToolMenuActions.ZeroBlendshapes);
-
-                                if(GUILayout.Button(Strings.Tools.resetToTPose))
-                                    DoAction(SelectedAvatar, ToolMenuActions.SetTPose);
-                                EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
-                                {
-                                    if(GUILayout.Button(Strings.Tools.editScale))
-                                        DoAction(SelectedAvatar, ToolMenuActions.EditScale);
-                                }
-                                EditorGUI.EndDisabledGroup();
-                            }
-                            GUILayout.EndVertical();
-                        }
-                        GUILayout.EndHorizontal();
-                    }
-
-                    Helpers.DrawGUILine();
-
-                    if(_tools_removeAll_expand = GUILayout.Toggle(_tools_removeAll_expand, Strings.Main.removeAll, Styles.Foldout))
-                    {
-
-                        EditorGUILayout.BeginHorizontal();
-
-                        EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
-#if !PUMKIN_DBONES
-                        EditorGUI.BeginDisabledGroup(true);
-#endif
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones, Icons.BoneIcon)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBones);
-#if !PUMKIN_DBONES
-                        EditorGUI.EndDisabledGroup();
-#endif
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.particleSystems, Icons.ParticleSystem)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveParticleSystems);
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.lights, Icons.Light)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveLights);
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.joints, Icons.Joint)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveJoints);
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.animators_inChildren, Icons.Animator)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveAnimatorsInChildren);
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.colliders, Icons.ColliderBox)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveColliders);
-
-                        EditorGUILayout.EndVertical();
-
-#if !PUMKIN_DBONES
-                        EditorGUI.BeginDisabledGroup(true);
-#endif
-                        EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones_colliders, Icons.BoneColliderIcon)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBoneColliders);
-#if !PUMKIN_DBONES
-                        EditorGUI.EndDisabledGroup();
-#endif
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.trailRenderers, Icons.TrailRenderer)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveTrailRenderers);
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.audioSources, Icons.AudioSource)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveAudioSources);
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.rigidBodies, Icons.RigidBody)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveRigidBodies);
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.meshRenderers, Icons.MeshRenderer)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveMeshRenderers);
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.emptyGameObjects, Icons.Prefab)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveEmptyGameObjects);
-
-                        EditorGUILayout.EndVertical();
-
-                        EditorGUILayout.EndHorizontal();
-                    }
-                    EditorGUI.EndDisabledGroup();
-                    EditorGUILayout.Space();
-                }
-            }
-        }
-
-        public void DrawPresetGUI<T>() where T : PumkinPreset
-        {
-            List<PumkinPreset> pr = new List<PumkinPreset>();
-            string labelString = "Preset";
-            IEnumerable<string> dropdownOptions = new List<string>();
-
-            SerializedProperty pSelectedPresetString = null;
-            SerializedProperty pSelectedPresetIndex = null;
-
-            if(typeof(T) == typeof(PumkinsCameraPreset))
-            {
-                pSelectedPresetString = Instance.SerializedScript.FindProperty("_selectedCameraPresetString");
-                pSelectedPresetIndex = Instance.SerializedScript.FindProperty("_selectedCameraPresetIndex");
-
-                pr = PumkinsPresetManager.CameraPresets.Cast<PumkinPreset>().ToList();
-
-                labelString = Strings.Thumbnails.cameras;
-                dropdownOptions = PumkinsPresetManager.CameraPresets.Select(o => o.name);
-            }
-            else if(typeof(T) == typeof(PumkinsPosePreset))
-            {
-                pSelectedPresetString = Instance.SerializedScript.FindProperty("_selectedPosePresetString");
-                pSelectedPresetIndex = Instance.SerializedScript.FindProperty("_selectedPosePresetIndex");
-
-                pr = PumkinsPresetManager.PosePresets.Cast<PumkinPreset>().ToList();
-
-                labelString = Strings.Thumbnails.poses;
-                dropdownOptions = PumkinsPresetManager.PosePresets.Select(o => o.name);
-            }
-            else if(typeof(T) == typeof(PumkinsBlendshapePreset))
-            {
-                pSelectedPresetString = Instance.SerializedScript.FindProperty("_selectedBlendshapePresetString");
-                pSelectedPresetIndex = Instance.SerializedScript.FindProperty("_selectedBlendshapePresetIndex");
-
-                pr = PumkinsPresetManager.BlendshapePresets.Cast<PumkinPreset>().ToList();
-
-                labelString = Strings.Thumbnails.blendshapes;
-                dropdownOptions = PumkinsPresetManager.BlendshapePresets.Select(o => o.name);
-            }
-
-            if(pSelectedPresetIndex.intValue == -1)
-                RefreshPresetIndex<T>();
-
-            bool shouldDisable = !SelectedAvatar || (pr.Count > 0 && pSelectedPresetIndex.intValue >= pr.Count && pr[pSelectedPresetIndex.intValue] == null);
-
-            GUILayout.BeginHorizontal();
-            {
-                EditorGUI.BeginChangeCheck();
-                {
-                    pSelectedPresetIndex.intValue = EditorGUILayout.Popup(labelString, pSelectedPresetIndex.intValue, dropdownOptions.ToArray(), Styles.Popup);
-                }
-                if(EditorGUI.EndChangeCheck())
-                {
-                    pSelectedPresetString.stringValue = pr[pSelectedPresetIndex.intValue].ToString() ?? "";
-                }
-
-                if(GUILayout.Button(Icons.Refresh, Styles.IconButton))
-                {
-                    PumkinsPresetManager.LoadPresets<T>();
-                }
-            }
-            GUILayout.EndHorizontal();
-
-            EditorGUILayout.Space();
-
-            EditorGUI.BeginDisabledGroup(pr.Count == 0 || shouldDisable);
-            {
-                GUILayout.BeginHorizontal();
-                {
-                    if(GUILayout.Button(Strings.Buttons.edit))
-                    {
-                        int newIndex = PumkinsPresetManager.GetPresetIndex<T>(pSelectedPresetString.stringValue);
-                        if(newIndex == -1)
-                            RefreshPresetStringByIndex<T>(pSelectedPresetIndex.intValue);
-                        else
-                            pSelectedPresetIndex.intValue = newIndex;
-
-                        pr[pSelectedPresetIndex.intValue].ApplyPreset(SelectedAvatar);
-
-                        if(typeof(T) == typeof(PumkinsCameraPreset))
-                            CreateCamerePresetPopup.ShowWindow(pr[pSelectedPresetIndex.intValue] as PumkinsCameraPreset);
-                        else if(typeof(T) == typeof(PumkinsPosePreset))
-                            CreatePosePresetPopup.ShowWindow(pr[pSelectedPresetIndex.intValue] as PumkinsPosePreset);
-                        else if(typeof(T) == typeof(PumkinsBlendshapePreset))
-                        {                            
-                            CreateBlendshapePopup.ShowWindow(pr[pSelectedPresetIndex.intValue] as PumkinsBlendshapePreset);
-                            PumkinsAvatarTools.SetupBlendeshapeRendererHolders(SelectedAvatar);
-                        }
-                            
-                    }
-                    if(GUILayout.Button(Strings.Buttons.load))
-                    {
-                        if(typeof(T) == typeof(PumkinsBlendshapePreset))                        
-                            Instance.DoAction(SelectedAvatar, ToolMenuActions.RevertBlendshapes);                        
-
-                        int newIndex = PumkinsPresetManager.GetPresetIndex<T>(pSelectedPresetString.stringValue);
-                        if(newIndex == -1)
-                            RefreshPresetStringByIndex<T>(pSelectedPresetIndex.intValue);
-                        else
-                            pSelectedPresetIndex.intValue = newIndex;
-
-                        pr[pSelectedPresetIndex.intValue].ApplyPreset(SelectedAvatar);
-
-                        if(typeof(T) == typeof(PumkinsBlendshapePreset))
-                            SetupBlendeshapeRendererHolders(SelectedAvatar);
-                    }
-                }
-                GUILayout.EndHorizontal();
-            }
-            EditorGUI.EndDisabledGroup();
-
-            EditorGUI.BeginDisabledGroup(pr.Count == 0);
-            {
-                if(GUILayout.Button(Strings.Buttons.selectInAssets))
-                {
-                    var asset = pr[pSelectedPresetIndex.intValue];
-                    if(asset)
-                        Selection.activeObject = asset;
-                }
-            }
-            EditorGUI.EndDisabledGroup();
-
-            Helpers.DrawGUILine();
-
-            EditorGUI.BeginDisabledGroup(!SelectedAvatar);
-            {
-                if(GUILayout.Button(Strings.Buttons.createNewPreset, Styles.BigButton))
-                {
-                    if(typeof(T) == typeof(PumkinsCameraPreset))
-                        CreateCamerePresetPopup.ShowWindow();
-                    else if(typeof(T) == typeof(PumkinsPosePreset))
-                        CreatePosePresetPopup.ShowWindow();
-                    else if(typeof(T) == typeof(PumkinsBlendshapePreset))
-                        CreateBlendshapePopup.ShowWindow();
-                }
-                
-                if(GUILayout.Button(Strings.Buttons.reset))
-                {
-                    if(typeof(T) == typeof(PumkinsCameraPreset))
-                        CenterCameraOnViewpoint(SelectedAvatar, DEFAULT_CAMERA_POSITION_OFFSET_VIEWPOINT, DEFAULT_CAMERA_ROTATION_OFFSET_VIEWPOINT, centerCameraFixClippingPlanes, false);
-                    else if(typeof(T) == typeof(PumkinsPosePreset))
-                        DoAction(SelectedAvatar, ToolMenuActions.ResetPose);
-                    else if(typeof(T) == typeof(PumkinsBlendshapePreset))
-                    {
-                        DoAction(SelectedAvatar, ToolMenuActions.RevertBlendshapes);
-                        PumkinsAvatarTools.SetupBlendeshapeRendererHolders(SelectedAvatar);
-                    }
-                }
-            }
-            EditorGUI.EndDisabledGroup();
-
-            Helpers.DrawGUILine();
-
-            SerializedScript.ApplyModifiedProperties();
-        }
-
-        /// <summary>
-        /// Draws the "Use Background" part of the thumbnail menu
-        /// </summary>
-        public void DrawBackgroundGUI()
-        {
-            if(!SelectedCamera)
-                return;
-
-            bool needsRefresh = false;
-            RawImage raw = GetCameraBackgroundRawImage(false);
-            GameObject background = GetCameraBackground();
-            //
-            if(Helpers.DrawDropdownWithToggle(ref _thumbnails_useCameraBackground_expand, ref bThumbnails_use_camera_background, Strings.Thumbnails.useCameraBackground))
-            {                
-                RefreshBackgroundOverrideType();
-                needsRefresh = true;                
-
-                if(bThumbnails_use_camera_background)                
-                    _thumbsCameraBgClearFlagsOld = SelectedCamera.clearFlags;                
-                else                
-                    RestoreCameraClearFlags();
-            }
-
-            if(bThumbnails_use_camera_background)
-            {
-                raw = GetCameraBackgroundRawImage(true);
-                background = GetCameraBackground(true);
-                if(cameraBackgroundType == CameraBackgroundOverrideType.Image)
-                {
-                    if(raw.texture && !background.activeInHierarchy)
-                        background.SetActive(true);
-                    else if(!raw.texture && background.activeInHierarchy)
-                        background.SetActive(false);
-                }
-                else
-                {
-                    if(background.activeInHierarchy)
-                        background.SetActive(false);                    
-                }
-            }
-            else
-            {
-                if(background)
-                    background.SetActive(false);
-            }
-
-            if(_thumbnails_useCameraBackground_expand || needsRefresh)
-            {                
-                EditorGUILayout.Space();
-                EditorGUI.BeginDisabledGroup(!bThumbnails_use_camera_background);
-                {
-                    EditorGUI.BeginChangeCheck();
-                    {
-                        cameraBackgroundType = (CameraBackgroundOverrideType)EditorGUILayout.EnumPopup(Strings.Thumbnails.backgroundType, cameraBackgroundType);
-                    }
-                    if(EditorGUI.EndChangeCheck())
-                    {
-                        RefreshBackgroundOverrideType();
-                    }
-                    EditorGUILayout.Space();
-
-                    switch(cameraBackgroundType)
-                    {
-                        case CameraBackgroundOverrideType.Color:
-                            {
-                                EditorGUI.BeginChangeCheck();
-                                {
-                                    _thumbsCamBgColor = EditorGUILayout.ColorField(Strings.Thumbnails.backgroundType_Color, SelectedCamera.backgroundColor);
-                                }
-                                if(EditorGUI.EndChangeCheck())
-                                {
-                                    SetCameraBackgroundToColor(Instance._thumbsCamBgColor);
-                                }
-                            }
-                            break;
-                        case CameraBackgroundOverrideType.Skybox:
-                            {
-                                if(bThumbnails_use_camera_background)
-                                    SelectedCamera.clearFlags = CameraClearFlags.Skybox;
-
-                                Material mat = RenderSettings.skybox;
-                                EditorGUI.BeginChangeCheck();
-                                {
-                                    mat = EditorGUILayout.ObjectField(Strings.Thumbnails.backgroundType_Material, mat, typeof(Material), true) as Material;
-                                }
-                                if(EditorGUI.EndChangeCheck())
-                                {
-                                    SetCameraBackgroundToSkybox(mat);
-                                }
-                            }
-                            break;
-                        case CameraBackgroundOverrideType.Image:
-                            {
-                                if(bThumbnails_use_camera_background)
-                                    SelectedCamera.clearFlags = _thumbsCameraBgClearFlagsOld;
-
-                                EditorGUILayout.Space();
-                                GUILayout.BeginHorizontal();
-                                {
-                                    EditorGUILayout.SelectableLabel(_backgroundPath, Styles.TextField);
-                                    if(GUILayout.Button(Strings.Buttons.browse, GUILayout.MaxWidth(60)) && SelectedCamera)
-                                    {
-                                        string newPath = Helpers.OpenImageGetPath(_lastOpenFilePath);
-                                        if(!string.IsNullOrEmpty(newPath))
-                                        {
-                                            _lastOpenFilePath = newPath;
-                                            SetBackgroundToImageFromPath(_lastOpenFilePath);
-                                        }
-                                    }
-                                    if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
-                                    {
-                                        _backgroundPath = null;
-                                        SetBackgroundToImageFromTexture((Texture2D)null);
-                                    }
-                                }
-                                EditorGUILayout.EndHorizontal();
-
-                                EditorGUI.BeginDisabledGroup(!cameraBackgroundTexture);
-                                {
-                                    EditorGUI.BeginChangeCheck();
-                                    {
-                                        cameraBackgroundImageTint = EditorGUILayout.ColorField(Strings.Thumbnails.tint, cameraBackgroundImageTint);
-                                    }
-                                    if(EditorGUI.EndChangeCheck())
-                                    {
-                                        if(raw)
-                                            raw.color = cameraBackgroundImageTint;
-                                    }
-                                }
-                                EditorGUI.EndDisabledGroup();
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                EditorGUI.EndDisabledGroup();
-            }
-        }
-
-        /// <summary>
-        /// Draws the "Use Overlay" section in the thumbnails menu
-        /// </summary>
-        public void DrawOverlayGUI()
-        {
-            bool needsRefresh = false;
-            RawImage raw = GetCameraOverlayRawImage(false);
-            GameObject overlay = GetCameraOverlay(false);
-            
-            if(Helpers.DrawDropdownWithToggle(ref _thumbnails_useCameraOverlay_expand, ref bThumbnails_use_camera_overlay, Strings.Thumbnails.useCameraOverlay))
-            {
-                if(cameraOverlayTexture == null && !string.IsNullOrEmpty(_overlayPath))
-                    SetOverlayToImageFromPath(_overlayPath);
-
-                needsRefresh = true;
-            }
-
-            if(bThumbnails_use_camera_overlay)
-            {
-                raw = GetCameraOverlayRawImage(true);
-                overlay = GetCameraOverlay(true);
-                if(raw.texture)
-                {
-                    if(!overlay.activeInHierarchy)
-                        overlay.SetActive(true);
-                }
-                else
-                {
-                    overlay.SetActive(false);
-                }
-            }
-            else
-            {
-                if(overlay)
-                    overlay.SetActive(false);
-            }
-
-            if(_thumbnails_useCameraOverlay_expand || needsRefresh)
-            {
-                EditorGUI.BeginDisabledGroup(!bThumbnails_use_camera_overlay);
-                {
-                    EditorGUILayout.Space();                    
-                    GUILayout.BeginHorizontal();
-                    {
-                        EditorGUILayout.SelectableLabel(_overlayPath, Styles.TextField);
-                        if(GUILayout.Button(Strings.Buttons.browse, GUILayout.MaxWidth(60)) && SelectedCamera)
-                        {
-                            string newPath = Helpers.OpenImageGetPath(_lastOpenFilePath);
-                            if(!string.IsNullOrEmpty(newPath))
-                            {
-                                _lastOpenFilePath = newPath;
-                                SetOverlayToImageFromPath(_lastOpenFilePath);
-                            }                            
-                        }
-                        if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
-                        {
-                            _overlayPath = null;
-                            SetOverlayToImageFromTexture(null);
-                        }
-                    }
-                    EditorGUILayout.EndHorizontal();
-
-                    EditorGUI.BeginDisabledGroup(!cameraOverlayTexture);
-                    {
-                        EditorGUI.BeginChangeCheck();
-                        {
-                            cameraOverlayImageTint = EditorGUILayout.ColorField(Strings.Thumbnails.tint, cameraOverlayImageTint);
-                        }
-                        if(EditorGUI.EndChangeCheck())
-                        {
-                            if(raw)
-                                raw.color = cameraOverlayImageTint;
-                        }
-                    }
-                    EditorGUI.EndDisabledGroup();
-                }
-                EditorGUI.EndDisabledGroup();
-            }
-        }
-
-        /// <summary>
-        /// Selects the thumbnail preset option and scrolls down
-        /// </summary>
-        /// <param name="option"></param>
-        public void SelectThumbnailPresetToolbarOption(PresetToolbarOptions option)
-        {
-            _presetToolbarSelectedIndex = (int)option;
-            _mainScroll = new Vector2(0, 1000);
-        }
-
-#endregion
-
-#region Main Functions
-
-        /// <summary>
-        /// This will hide or show all avatars except avatarToKeep
-        /// </summary>        
-        public void HideAllOtherAvatars(bool hidden, GameObject avatarToKeep)
-        {
-            if(hidden && !avatarToKeep)
-                return;
-
-            VRC_AvatarDescriptor desc = avatarToKeep.GetComponent<VRC_AvatarDescriptor>();
-
-            if(!desc)
-                return;
-
-            var av = FindObjectsOfType<VRC_AvatarDescriptor>();
-            if(desc != null)
-            {
-                for(int i = 0; i < av.Length; i++)
-                {
-                    if(av[i] != desc)
-                        av[i].transform.root.gameObject.SetActive(hidden);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Loads textures back into overlay and background objects if we have a path for them still stored. Useful for when we restart unity
-        /// </summary>
-        private void RestoreTexturesFromPaths()
-        {
-            RawImage overlayImg = GetCameraOverlayRawImage(bThumbnails_use_camera_overlay);
-            RawImage backgroundImg = GetCameraBackgroundRawImage(bThumbnails_use_camera_background);
-
-            if(!string.IsNullOrEmpty(_overlayPath))
-            {
-                if(overlayImg && overlayImg.texture)
-                {
-                    cameraOverlayTexture = (Texture2D)overlayImg.texture;
-                    overlayImg.color = cameraOverlayImageTint;
-                }
-            }
-            else
-            {
-                if(overlayImg && overlayImg.texture)
-                {
-                    cameraOverlayTexture = null;
-                    overlayImg.texture = null;
-                }
-            }
-
-            if(!string.IsNullOrEmpty(_backgroundPath))
-            {
-                if(backgroundImg && backgroundImg.texture)
-                {
-                    cameraBackgroundTexture = (Texture2D)backgroundImg.texture;
-                    backgroundImg.color = cameraBackgroundImageTint;
-                }
-            }
-            else
-            {
-                if(backgroundImg && backgroundImg.texture)
-                {
-                    cameraBackgroundTexture = null;
-                    backgroundImg.texture = null;
-                }
-            }
-        }
-                
-        /// <summary>
-        /// Sets overlay texture to image from path
-        /// </summary>
-        /// <param name="texturePath"></param>
-        public void SetOverlayToImageFromPath(string texturePath)
-        {
-            _overlayPath = texturePath;
-            if(!GetCameraOverlay() || !GetCameraOverlayRawImage())
-                return;
-
-            Texture2D tex = Helpers.GetImageTextureFromPath(texturePath);
-            SetOverlayToImageFromTexture(tex);
-            if(tex)
-            {
-                string texName = string.IsNullOrEmpty(texturePath) ? "empty" : Path.GetFileName(texturePath);
-                Log(Strings.Log.loadedImageAsOverlay, LogType.Log, texName);
-            }
-            else
-            {
-                Log(Strings.Warning.cantLoadImageAtPath, LogType.Warning, texturePath);
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawSphere(_viewPosTemp, 0.1f);
             }            
         }
-        /// <summary>
-        /// Sets overlay image to texture
-        /// </summary>        
-        public void SetOverlayToImageFromTexture(Texture2D newTexture)
-        {
-            var img = GetCameraOverlayRawImage();
-            var fg = GetCameraOverlay();
-            if(fg && img)
-            {
-                img.color = cameraOverlayImageTint;
-                img.texture = newTexture;
-                if(newTexture)
-                    fg.SetActive(true);
-                else
-                    fg.SetActive(false);
-            }
-        }
 
-        /// <summary>
-        /// Sets background texture to image from path
-        /// </summary>
-        /// <param name="texturePath"></param>
-        public void SetBackgroundToImageFromPath(string texturePath)
-        {            
-            _backgroundPath = texturePath;
-            if(!GetCameraOverlay() || !GetCameraOverlayRawImage())
-                return;
+        #endregion
 
-            Texture2D tex = Helpers.GetImageTextureFromPath(texturePath);
-            SetBackgroundToImageFromTexture(tex);
-            if(tex)
-            {
-                string texName = string.IsNullOrEmpty(texturePath) ? "empty" : Path.GetFileName(texturePath);
-                Log(Strings.Log.loadedImageAsBackground, LogType.Log, texName);
-            }
-            else
-            {
-                Log(Strings.Warning.cantLoadImageAtPath, LogType.Warning, texturePath);
-            }           
-        }
-        /// <summary>
-        /// Sets background to image from texture
-        /// </summary>
-        /// <param name="newTexture"></param>
-        public void SetBackgroundToImageFromTexture(Texture2D newTexture)
-        {            
-            var img = GetCameraBackgroundRawImage();
-            var bg = GetCameraBackground();
-            if(bg && img)
-            {
-                img.color = cameraBackgroundImageTint;
-                img.texture = newTexture;
-                if(newTexture)
-                    bg.SetActive(true);
-                else
-                    bg.SetActive(false);
-            }
-        }
-
-        /// <summary>
-        /// Sets camera background clear flags to skybox and changes skybox to material
-        /// </summary>        
-        public void SetCameraBackgroundToSkybox(Material skyboxMaterial)
-        {
-            SelectedCamera.clearFlags = CameraClearFlags.Skybox;
-            RenderSettings.skybox = skyboxMaterial;
-        }
-
-        /// <summary>
-        /// Changes camera clear flags to solid color and sets background color
-        /// </summary>        
-        public void SetCameraBackgroundToColor(Color color)
-        {
-            _thumbsCamBgColor = color;
-            SelectedCamera.backgroundColor = color;
-            SelectedCamera.clearFlags = CameraClearFlags.SolidColor;
-        }
-
-#if UNITY_2018
-        /// <summary>
-        /// Doesn't work
-        /// </summary>        
-        public void SetupRig(GameObject avatar)
-        {
-            GameObject pref = PrefabUtility.GetCorrespondingObjectFromOriginalSource(avatar);
-            string prefabPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(pref);
-            var prefType = PrefabUtility.GetPrefabAssetType(pref);
-            //Helpers.MakeHumanAvatar("Assets/Avatars/Stylish Energy Ukon/Models/original.fbx", false);
-
-            if(prefType == PrefabAssetType.Model)
-            {
-                //GameObject newAvatar = PrefabUtility.InstantiatePrefab(pref) as GameObject;
-                try
-                {
-                    ////Animator anim = newAvatar.GetComponent<Animator>();
-                    ////if(anim == null)
-                    ////{
-                    ////    anim = newAvatar.AddComponent<Animator>();
-                    ////    anim.applyRootMotion = true;
-                    ////    anim.updateMode = AnimatorUpdateMode.Normal;
-                    ////    anim.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
-                    ////}
-
-                    ////HumanBone[] humanBones = new HumanBone[HumanTrait.BoneName.Length];
-                    ////for(int i = 0; i < humanBones.Length; i++)
-                    ////{
-                    ////    humanBones[i] = HumanRig.GetHumanBone(HumanTrait.BoneName[i], newAvatar.transform);
-                    ////}
-
-                    ////List<SkeletonBone> skeletonBones = new List<SkeletonBone>();
-                    ////foreach(Transform t in newAvatar.GetComponentsInChildren<Transform>())
-                    ////{
-                    ////    skeletonBones.Add(new SkeletonBone()
-                    ////    {
-                    ////        name = t.name,
-                    ////        position = t.localPosition,
-                    ////        rotation = t.localRotation,
-                    ////        scale = t.localScale
-                    ////    });
-                    ////}
-
-                    ////HumanDescription h = new HumanDescription()
-                    ////{
-                    ////    human = humanBones,
-                    ////    skeleton = skeletonBones.ToArray(),
-                    ////    armStretch = 0.05f,
-                    ////    hasTranslationDoF = false,
-                    ////    feetSpacing = 0,
-                    ////    legStretch = 0.05f,
-                    ////    lowerArmTwist = 0.5f,
-                    ////    lowerLegTwist = 0.5f,
-                    ////    upperArmTwist = 0.5f,
-                    ////    upperLegTwist = 0.5f,
-                    ////};
-
-                    ////Avatar ava = AvatarBuilder.BuildHumanAvatar(newAvatar, h);
-
-                    ////string avPath = "Assets/_tempAvatar.asset";
-                    ////AssetDatabase.CreateAsset(ava, avPath);
-                    ////AssetDatabase.SaveAssets();
-
-                    //if(!anim.isHuman && ava.isValid)
-                    //{
-                    //    anim.avatar = ava;                    
-                    //}
-                    //else
-                    //{
-                    //    anim.avatar = AvatarBuilder.BuildGenericAvatar(newAvatar, "");
-                    //}
-                }
-                finally
-                {
-                    //DestroyImmediate(newAvatar);
-                }
-            }
-        }
-#endif
-
-        /// <summary>
-        /// Quickly sets viewpoint to eye height if avatar is humanoid
-        /// </summary>        
-        /// <param name="zDepth">Z Depth value of viewpoint</param>
-        public void QuickSetViewpoint(GameObject avatar, float zDepth)
-        {
-            VRC_AvatarDescriptor desc = avatar.GetComponent<VRC_AvatarDescriptor>() ?? avatar.AddComponent<VRC_AvatarDescriptor>();
-            var anim = SelectedAvatar.GetComponent<Animator>();
-
-            if(anim && anim.isHuman)
-            {
-                Vector3 pos = anim.GetBoneTransform(HumanBodyBones.Head).position;
-                float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y - 0.005f;
-                pos.y = eyeHeight;
-                pos.z = zDepth;
-
-                desc.ViewPosition = Helpers.RoundVectorValues(pos, 3);
-                Log(Strings.Log.settingQuickViewpoint, LogType.Log, desc.ViewPosition.ToString());
-            }
-            else
-            {
-                Log(Strings.Log.cantSetViewpointNonHumanoid, LogType.Log, desc.ViewPosition.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Tries to get the VRCCam, returns Camera.main if not found
-        /// </summary>        
-        private static Camera GetVRCCamOrMainCam()
-        {
-            var obj = GameObject.Find("VRCCam");
-            if(!obj)
-            {
-                Camera cam = Camera.main;
-                if(cam)
-                    obj = cam.gameObject;
-            }
-            if(obj)
-                return obj.GetComponent<Camera>();
-            return null;
-        }
-
-        /// <summary>
-        /// Sets the root object of our current scene selection as our selected avatar
-        /// </summary>
-        public static void SelectAvatarFromScene()
-        {
-            try
-            {
-                var sel = Selection.activeGameObject;
-                if(sel == null)
-                    return;
-
-                sel = Selection.activeGameObject.transform.root.gameObject;
-                if(sel != null)
-                {
-                    if(sel.gameObject.scene.name != null)
-                    {
-                        SelectedAvatar = sel;
-                        avatarInfo = AvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
-
-                    }
-                    else if(!_useSceneSelectionAvatar)
-                    {
-                        Log(Strings.Warning.selectSceneObject, LogType.Warning);
-                    }
-                }
-            }
-            catch(Exception e)
-            {
-                Debug.Log(e.Message);
-            }
-            _PumkinsAvatarToolsWindow.RequestRepaint(_PumkinsAvatarToolsWindow.ToolsWindow);
-        }        
-
-        /// <summary>
-        /// Returns true if we have any components selected in the copier
-        /// </summary>
-        /// <returns></returns>
-        bool CopierHasSelections()
-        {
-            if(!(bCopier_animators_copy || bCopier_colliders_copy || bCopier_joints_copy || bCopier_descriptor_copy ||
-              bCopier_lights_copy || bCopier_meshRenderers_copy || bCopier_particleSystems_copy || bCopier_rigidBodies_copy ||
-              bCopier_trailRenderers_copy || bCopier_transforms_copy || bCopier_skinMeshRender_copy || bCopier_dynamicBones_copy ||
-              bCopier_audioSources_copy))
-                return false;
-            return true;
-        }
-
-        /// <summary>
-        /// Sets the avatar scale and moves the viewpoint to compensate
-        /// </summary>        
-        private void SetAvatarScale(VRC_AvatarDescriptor desc, float newScale)
-        {
-            if(_editingScale)
-            {
-                SelectedAvatar.transform.localScale = Helpers.RoundVectorValues(new Vector3(newScale, newScale, newScale), 3);
-                if(_scaleViewpointDummy)
-                    _viewPosTemp = _scaleViewpointDummy.position;
-                else
-                    EndScalingAvatar(desc.gameObject, true);
-            }
-            else
-            {
-                var tempDummy = new GameObject("_tempDummy").transform;
-                tempDummy.position = desc.ViewPosition + desc.transform.root.position;
-                tempDummy.parent = SelectedAvatar.transform;
-                desc.transform.root.localScale = Helpers.RoundVectorValues(new Vector3(newScale, newScale, newScale), 3);
-                SetViewpoint(desc, tempDummy.position);
-                DestroyImmediate(tempDummy.gameObject);
-                Log(Strings.Log.setAvatarScaleTo, LogType.Log, newScale.ToString(), desc.ViewPosition.ToString());
-            }
-        }
+        #region Main Functions
 
         /// <summary>
         /// Function for all the actions in the tool menu. Use this instead of calling
         /// button functions directly.
         /// </summary>        
-        void DoAction(GameObject avatar, ToolMenuActions action)
+        void ActionButton(ToolMenuActions action)
         {
-            if(SelectedAvatar == null)
+            if(selectedAvatar == null)
             {
                 //Shouldn't be possible with disable group
-                Log(Strings.Log.nothingSelected, LogType.Warning);
+                Log(Strings.Log.NothingSelected, LogType.Warning);
                 return;
             }
 
             //Record Undo            
-            Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Tools menu: " + action.ToString());
-            if(SelectedAvatar.gameObject.scene.name == null) //In case it's a prefab instance, which it probably is
-                PrefabUtility.RecordPrefabInstancePropertyModifications(SelectedAvatar);
+            Undo.RegisterFullObjectHierarchyUndo(selectedAvatar, "Tools menu: " + action.ToString());
+            if(selectedAvatar.gameObject.scene.name == null) //In case it's a prefab instance, which it probably is
+                PrefabUtility.RecordPrefabInstancePropertyModifications(selectedAvatar);
 
             switch(action)
             {
                 case ToolMenuActions.RemoveColliders:
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(Collider), false, false);
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(Collider), false, false);
                     break;
                 case ToolMenuActions.RemoveDynamicBoneColliders:
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                        DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, false);
+#if BONES || OLD_BONES
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBoneCollider), false, false);
 #endif
                     break;
                 case ToolMenuActions.RemoveDynamicBones:
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                        DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, false);
+#if BONES || OLD_BONES
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBone), false, false);
 #endif
                     break;
                 case ToolMenuActions.ResetPose:
-                    ResetPose(SelectedAvatar);
+                    ResetPose(selectedAvatar);
                     break;
                 case ToolMenuActions.RevertBlendshapes:
-                    ResetBlendshapes(SelectedAvatar, true);
+                    ResetBlendShapes(selectedAvatar, true);
                     break;
                 case ToolMenuActions.FillVisemes:
-                    FillVisemes(SelectedAvatar);
+                    FillVisemes(selectedAvatar);
                     break;
                 case ToolMenuActions.EditViewpoint:
-                    BeginEdittingViewpoint(SelectedAvatar);
+                    BeginEdittingViewpoint(selectedAvatar);
                     break;
                 case ToolMenuActions.ZeroBlendshapes:
-                    ResetBlendshapes(SelectedAvatar, false);
+                    ResetBlendShapes(selectedAvatar, false);
                     break;
                 case ToolMenuActions.SetTPose:
-                    PumkinsPoseEditor.SetTPoseHardcoded(SelectedAvatar);                    
+                    PumkinsPoseEditor.SetTPose(selectedAvatar);
                     break;
                 case ToolMenuActions.RemoveEmptyGameObjects:
-                    DestroyEmptyGameObjects(SelectedAvatar);
+                    DestroyEmptyGameObjects(selectedAvatar);
                     break;
                 case ToolMenuActions.RemoveParticleSystems:
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(ParticleSystem), false, false);
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(ParticleSystemRenderer), false, false);
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(ParticleSystem), false, false);
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(ParticleSystemRenderer), false, false);
                     break;
                 case ToolMenuActions.RemoveRigidBodies:
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(Rigidbody), false, false);
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(Rigidbody), false, false);
                     break;
                 case ToolMenuActions.RemoveTrailRenderers:
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(TrailRenderer), false, false);
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(TrailRenderer), false, false);
                     break;
                 case ToolMenuActions.RemoveMeshRenderers:
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(MeshFilter), false, false);
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(MeshRenderer), false, false);
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(MeshFilter), false, false);
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(MeshRenderer), false, false);
                     break;
                 case ToolMenuActions.RemoveLights:
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(Light), false, false);
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(Light), false, false);
                     break;
                 case ToolMenuActions.RemoveAnimatorsInChildren:
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(Animator), true, false);
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(Animator), true, false);
                     break;
                 case ToolMenuActions.RemoveAudioSources:
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(AudioSource), false, false);
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(ONSPAudioSource), false, false);
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(AudioSource), false, false);
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(ONSPAudioSource), false, false);
                     break;
                 case ToolMenuActions.RemoveJoints:
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(Joint), false, false);
+                    DestroyAllComponentsOfType(selectedAvatar, typeof(Joint), false, false);
                     break;
                 case ToolMenuActions.EditScale:
-                    BeginScalingAvatar(SelectedAvatar);
-                    break;
-                case ToolMenuActions.RevertScale:
-                    RevertScale(SelectedAvatar);
+                    BeginScalingAvatar(selectedAvatar);
                     break;
                 default:
                     break;
             }
 
-            avatarInfo = AvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
+            avatarInfo = AvatarInfo.GetInfo(selectedAvatar, out _avatarInfoString);
 
-            EditorUtility.SetDirty(SelectedAvatar);
-            if(!EditorApplication.isPlaying)
-                EditorSceneManager.MarkSceneDirty(SelectedAvatar.scene);
-        }
-
-        /// <summary>
-        /// Reverts avatar scale to prefab values and moves the viewpoint to compensate for the change if avatar a descriptor is present
-        /// </summary>        
-        private void RevertScale(GameObject avatar)
-        {
-            if(!avatar)
-                return;
-
-#if UNITY_2018
-            GameObject pref = PrefabUtility.GetCorrespondingObjectFromSource(avatar);
-#else
-            GameObject pref = PrefabUtility.GetPrefabObject(avatar) as GameObject;
-#endif
-            var desc = avatar.GetComponent<VRC_AvatarDescriptor>();
-            Vector3 newScale = pref != null ? pref.transform.localScale : Vector3.one;
-
-            if(desc)
-                SetAvatarScale(desc, newScale.y);
-
-            avatar.transform.localScale = newScale;
-        }
+            EditorUtility.SetDirty(selectedAvatar);
+            EditorSceneManager.MarkSceneDirty(selectedAvatar.scene);
+        }       
 
         /// <summary>
         /// Begin scaling Avatar. 
@@ -3061,7 +1727,7 @@ namespace Pumkin.AvatarTools
             _avatarScaleOld = avatar.transform.localScale;
             _avatarScaleTemp = _avatarScaleOld.z;
             _viewPosOld = _tempAvatarDescriptor.ViewPosition;
-            _viewPosTemp = _viewPosOld + SelectedAvatar.transform.position;
+            _viewPosTemp = _viewPosOld + selectedAvatar.transform.position;
 
             if(!_scaleViewpointDummy)
             {
@@ -3073,50 +1739,12 @@ namespace Pumkin.AvatarTools
             }
 
             _scaleViewpointDummy.position = _viewPosTemp;
-            _scaleViewpointDummy.parent = SelectedAvatar.transform;
+            _scaleViewpointDummy.parent = selectedAvatar.transform;                 
 
             _editingScale = true;
             _tempToolOld = Tools.current;
             Tools.current = Tool.None;
-            Selection.activeGameObject = SelectedAvatar;            
-        }
-
-        /// <summary>
-        /// Ends scaling the avatar
-        /// </summary>        
-        /// <param name="cancelled">If canceled returnt to old scale and viewpoint</param>
-        private void EndScalingAvatar(GameObject avatar, bool cancelled)
-        {
-            if(avatar == null)
-            {
-                _editingScale = false;
-            }
-            else
-            {
-                if(_tempAvatarDescriptor == null)
-                {
-                    Log(Strings.Log.descriptorIsNull, LogType.Error);
-                    return;
-                }
-
-                _editingScale = false;
-                Tools.current = _tempToolOld;
-                if(!cancelled)
-                {
-                    SetViewpoint(_tempAvatarDescriptor, _viewPosTemp);
-                    Log(Strings.Log.setAvatarScaleAndViewpointTo, LogType.Log, avatar.transform.localScale.z.ToString(), _tempAvatarDescriptor.ViewPosition.ToString());
-                }
-                else
-                {
-                    _tempAvatarDescriptor.ViewPosition = _viewPosOld;
-                    SelectedAvatar.transform.localScale = _avatarScaleOld;
-                    Log(Strings.Log.canceledScaleChanges);
-                }
-            }
-            _tempAvatarDescriptor = null;
-
-            if(_scaleViewpointDummy)
-                DestroyImmediate(_scaleViewpointDummy.gameObject);
+            Selection.activeGameObject = selectedAvatar;
         }
 
         /// <summary>
@@ -3130,18 +1758,19 @@ namespace Pumkin.AvatarTools
 
             _tempAvatarDescriptor = avatar.GetComponent<VRC_AvatarDescriptor>() ?? avatar.AddComponent<VRC_AvatarDescriptor>();
 
+            Vector3 defaultView = new Vector3(0, 1.6f, 0.2f);
             _viewPosOld = _tempAvatarDescriptor.ViewPosition;
 
-            if(_tempAvatarDescriptor.ViewPosition == DEFAULT_VIEWPOINT)
+            if(_tempAvatarDescriptor.ViewPosition == defaultView)
             {
-                var anim = SelectedAvatar.GetComponent<Animator>();
+                var anim = selectedAvatar.GetComponent<Animator>();
 
                 if(anim != null && anim.isHuman)
                 {
                     _viewPosTemp = anim.GetBoneTransform(HumanBodyBones.Head).position;
                     float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y - 0.005f;
                     _viewPosTemp.y = eyeHeight;
-                    _viewPosTemp.z = DEFAULT_VIEWPOINT.z - 0.1f;
+                    _viewPosTemp.z = defaultView.z - 0.1f;
                 }
             }
             else
@@ -3151,11 +1780,45 @@ namespace Pumkin.AvatarTools
             _editingView = true;
             _tempToolOld = Tools.current;
             Tools.current = Tool.None;
-            Selection.activeGameObject = SelectedAvatar;
+            Selection.activeGameObject = selectedAvatar;
         }
 
+        private void EndScalingAvatar(GameObject avatar, bool cancelled)
+        {
+            if(avatar == null)
+            {
+                _editingScale = false;
+            }
+            else
+            {
+                if(_tempAvatarDescriptor == null)
+                {
+                    Log(Strings.Log.DescriptorIsNull, LogType.Error);
+                    return;
+                }
+
+                _editingScale = false;
+                Tools.current = _tempToolOld;
+                if(!cancelled)
+                {
+                    _tempAvatarDescriptor.ViewPosition = RoundVectorValues(_viewPosTemp - _tempAvatarDescriptor.gameObject.transform.position, 3);
+                    Log("_Set Avatar scale to {0} and Viewpoint to {1}", LogType.Log, avatar.transform.localScale.z.ToString(), _tempAvatarDescriptor.ViewPosition.ToString());                    
+                }
+                else
+                {
+                    _tempAvatarDescriptor.ViewPosition = _viewPosOld;
+                    selectedAvatar.transform.localScale = _avatarScaleOld;                    
+                    Log("_Cancelled Scale changes");                    
+                }
+            }
+            _tempAvatarDescriptor = null;
+
+            if(_scaleViewpointDummy)
+                DestroyImmediate(_scaleViewpointDummy.gameObject);
+        }        
+
         /// <summary>
-        /// Ends editing Viewposition
+        /// End editing Viewposition
         /// </summary>        
         /// <param name="cancelled">If cancelled revert viewposition to old value, if not leave it</param>
         private void EndEditingViewpoint(GameObject avatar, bool cancelled)
@@ -3168,7 +1831,7 @@ namespace Pumkin.AvatarTools
             {
                 if(_tempAvatarDescriptor == null)
                 {
-                    Log(Strings.Log.descriptorIsNull, LogType.Error);
+                    Log(Strings.Log.DescriptorIsNull, LogType.Error);
                     return;
                 }
 
@@ -3176,63 +1839,49 @@ namespace Pumkin.AvatarTools
                 Tools.current = _tempToolOld;
                 if(!cancelled)
                 {
-                    SetViewpoint(_tempAvatarDescriptor, _viewPosTemp);
-                    Log(Strings.Log.viewpointApplied, LogType.Log, _tempAvatarDescriptor.ViewPosition.ToString());
+                    _tempAvatarDescriptor.ViewPosition = RoundVectorValues(_viewPosTemp - _tempAvatarDescriptor.gameObject.transform.position, 3);
+                    Log(Strings.Log.ViewpointApplied, LogType.Log, _tempAvatarDescriptor.ViewPosition.ToString());                    
                 }
                 else
                 {
                     _tempAvatarDescriptor.ViewPosition = _viewPosOld;
-                    Log(Strings.Log.viewpointCancelled, LogType.Log);
+                    Log(Strings.Log.ViewpointCancelled, LogType.Log);                    
                 }
             }
             _tempAvatarDescriptor = null;
         }
 
         /// <summary>
-        /// Sets the descriptor's viewpoint to a vector and rounds it's value to 3 decimals
-        /// </summary>        
-        void SetViewpoint(VRC_AvatarDescriptor desc, Vector3 position)
-        {
-            if(!desc)
-            {
-                Log("Avatar has no Avatar Descriptor. Ignoring", LogType.Warning);
-                return;
-            }
-
-            desc.ViewPosition = Helpers.RoundVectorValues(position - desc.gameObject.transform.position, 3);
-        }
-
-        /// <summary>
-        /// Fill viseme tree on avatar descriptor or assign jaw flap bone if missing
+        /// Fill viseme tree on avatar descriptor
         /// </summary>        
         private void FillVisemes(GameObject avatar)
         {
-            string log = Strings.Log.tryFillVisemes + " - ";
+            string log = Strings.Log.TryFillVisemes + " - ";
             string logFormat = avatar.name;
 
             string[] visemes =
             {
-                    "vrc.v_sil",
-                    "vrc.v_pp",
-                    "vrc.v_ff",
-                    "vrc.v_th",
-                    "vrc.v_dd",
-                    "vrc.v_kk",
-                    "vrc.v_ch",
-                    "vrc.v_ss",
-                    "vrc.v_nn",
-                    "vrc.v_rr",
-                    "vrc.v_aa",
-                    "vrc.v_e",
-                    "vrc.v_ih",
-                    "vrc.v_oh",
-                    "vrc.v_ou",
-                };
+                "vrc.v_sil",
+                "vrc.v_pp",
+                "vrc.v_ff",
+                "vrc.v_th",
+                "vrc.v_dd",
+                "vrc.v_kk",
+                "vrc.v_ch",
+                "vrc.v_ss",
+                "vrc.v_nn",
+                "vrc.v_rr",
+                "vrc.v_aa",
+                "vrc.v_e",
+                "vrc.v_ih",
+                "vrc.v_oh",
+                "vrc.v_ou",
+            };
 
             var d = avatar.GetComponent<VRC_AvatarDescriptor>();
             if(!d)
             {
-                d = avatar.AddComponent<VRC_AvatarDescriptor>();
+                d = avatar.AddComponent<VRC_AvatarDescriptor>();                
             }
             if(d.VisemeBlendShapes == null || d.VisemeBlendShapes.Length != visemes.Length)
             {
@@ -3267,7 +1916,7 @@ namespace Pumkin.AvatarTools
 
             if(d.VisemeSkinnedMesh == null)
             {
-                log += Strings.Log.noSkinnedMeshFound;
+                log += Strings.Log.NoSkinnedMeshFound;
                 Log(log, LogType.Error, logFormat);
             }
             else
@@ -3275,54 +1924,14 @@ namespace Pumkin.AvatarTools
                 if(foundShape)
                 {
                     d.lipSync = VRC_AvatarDescriptor.LipSyncStyle.VisemeBlendShape;
-                    log += Strings.Log.success;
+                    log += Strings.Log.Success;
                     Log(log, LogType.Log, logFormat);
                 }
                 else
                 {
-                    var anim = avatar.GetComponent<Animator>();
-                    if(anim && anim.isHuman)
-                    {
-                        var jaw = anim.GetBoneTransform(HumanBodyBones.Jaw);
-                        if(jaw)
-                        {
-                            d.lipSync = VRC_AvatarDescriptor.LipSyncStyle.JawFlapBone;
-                            d.lipSyncJawBone = jaw;
-                        }
-                        else
-                        {
-                            d.lipSync = VRC_AvatarDescriptor.LipSyncStyle.Default;
-                        }
-                    }
-                    else
-                    {
-                        d.lipSync = VRC_AvatarDescriptor.LipSyncStyle.Default;
-                    }
-                    log += Strings.Log.meshHasNoVisemes;
+                    d.lipSync = VRC_AvatarDescriptor.LipSyncStyle.Default;
+                    log += Strings.Log.MeshHasNoVisemes;
                     Log(log, LogType.Warning, logFormat);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Sets the Probe Anchor of all Skinned Mesh Renderers to transform by path
-        /// </summary>        
-        private void SetRendererAnchor(GameObject avatar, string anchorPath)
-        {
-            Transform anchor = avatar.transform.Find(anchorPath);
-            if(!anchor)
-            {
-                Log(Strings.Log.noSkinnedMeshFound);
-                return;
-            }
-
-            var renders = avatar.GetComponentsInChildren<SkinnedMeshRenderer>();
-            foreach(var render in renders)
-            {
-                if(render)
-                {
-                    render.probeAnchor = anchor;
-                    Log(Strings.Log.setProbeAnchorTo, LogType.Log, render.name, anchor.name);
                 }
             }
         }
@@ -3336,31 +1945,21 @@ namespace Pumkin.AvatarTools
             //Cancel Checks
             if(objFrom == objTo)
             {
-                log += Strings.Log.cantCopyToSelf;
+                log += Strings.Log.CantCopyToSelf;
                 Log(log, LogType.Warning);
                 return;
             }
 
-            VRC_AvatarDescriptor desc;
-
             //Run statment only if root so only run this once
             if(objTo != null && objTo.transform == objTo.transform.root)
             {
+                if(bCopier_transforms_copyAvatarScale)
+                {
+                    objTo.transform.localScale = objFrom.transform.localScale;
+                }
                 if(bCopier_descriptor_copy)
                 {
                     CopyAvatarDescriptor(objFrom, objTo, true);
-                }
-                if(bCopier_transforms_copy && bCopier_transforms_copyAvatarScale)
-                {
-                    desc = objTo.GetComponentInChildren<VRC_AvatarDescriptor>();
-                    if(desc)
-                    {
-                        if(!(bCopier_descriptor_copy && bCopier_descriptor_copyViewpoint))
-                            SetAvatarScale(desc, objFrom.transform.localScale.z);
-                        objTo.transform.localScale = new Vector3(objFrom.transform.localScale.x, objFrom.transform.localScale.y, objTo.transform.localScale.z);
-                    }
-                    else
-                        objTo.transform.localScale = objFrom.transform.localScale;
                 }
                 if(bCopier_particleSystems_copy)
                 {
@@ -3400,19 +1999,19 @@ namespace Pumkin.AvatarTools
                 {
                     CopyAllAudioSources(objFrom, objTo, bCopier_audioSources_createObjects, true);
                 }
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                    if(bCopier_dynamicBones_copy)
-                    {
-                        if(bCopier_dynamicBones_removeOldColliders)
-                            DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, true);
-                        if(bCopier_dynamicBones_copyColliders)
-                            CopyAllDynamicBoneColliders(objFrom, objTo, bCopier_dynamicBones_createObjectsColliders, true);
+#if BONES || OLD_BONES
+                if(bCopier_dynamicBones_copy)
+                {
+                    if(bCopier_dynamicBones_removeOldColliders)
+                        DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBoneCollider), false, true);
+                    if(bCopier_dynamicBones_copyColliders)
+                        CopyAllDynamicBoneColliders(objFrom, objTo, bCopier_dynamicBones_createObjectsColliders, true);
 
-                        if(bCopier_dynamicBones_removeOldBones)
-                            DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, true);
-                        if(bCopier_dynamicBones_copySettings || bCopier_dynamicBones_createMissing)
-                            CopyAllDynamicBonesNew(objFrom, objTo, bCopier_dynamicBones_createMissing, true);
-                    }
+                    if(bCopier_dynamicBones_removeOldBones)
+                        DestroyAllComponentsOfType(selectedAvatar, typeof(DynamicBone), false, true);
+                    if(bCopier_dynamicBones_copySettings)
+                        CopyAllDynamicBones(objFrom, objTo, bCopier_dynamicBones_createMissing, true);
+                }
 #endif
             }
             //End run once
@@ -3458,14 +2057,14 @@ namespace Pumkin.AvatarTools
                 var aFrom = aFromArr[i];
                 var oFrom = aFromArr[i].GetComponent<ONSPAudioSource>();
 
-                var tTo = Helpers.FindTransformInAnotherHierarchy(aFrom.transform, to.transform, createGameObjects);
+                var tTo = FindTransformInAnotherHierarchy(aFrom.transform, to.transform, createGameObjects);
 
-                if((!tTo) || (useignoreList && Helpers.ShouldIgnoreObject(aFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
+                if((!tTo) || (useignoreList && ShouldIgnoreObject(aFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
                     continue;
 
                 var aToObj = tTo.gameObject;
 
-                string log = String.Format(Strings.Log.copyAttempt, aFromArr[i].GetType().ToString(), aFrom.gameObject, tTo.gameObject);
+                string log = String.Format(Strings.Log.CopyAttempt, aFromArr[i].GetType().ToString(), aFrom.gameObject, tTo.gameObject);
 
                 if(aFrom != null)
                 {
@@ -3489,12 +2088,12 @@ namespace Pumkin.AvatarTools
                             ComponentUtility.CopyComponent(oFrom);
                             ComponentUtility.PasteComponentValues(oTo);
                         }
-                        Log(log + ": " + Strings.Log.success);
+                        Log(log + ": " + Strings.Log.Success);
                     }
                 }
                 else
                 {
-                    Log(log + " " + Strings.Log.failedDoesntHave, LogType.Warning, aFrom.gameObject.name.ToString(), aFrom.GetType().ToString());
+                    Log(log + " " + Strings.Log.FailedDoesntHave, LogType.Warning, aFrom.gameObject.name.ToString(), aFrom.GetType().ToString());
                 }
             }
         }
@@ -3516,12 +2115,12 @@ namespace Pumkin.AvatarTools
                 if(!copyRootAnimator && aFromArr[i].transform.parent == null)
                     continue;
 
-                string log = Strings.Log.copyAttempt;
+                string log = Strings.Log.CopyAttempt;
 
                 var aFrom = aFromArr[i];
-                var tTo = Helpers.FindTransformInAnotherHierarchy(aFrom.transform, to.transform, createGameObjects);
+                var tTo = FindTransformInAnotherHierarchy(aFrom.transform, to.transform, createGameObjects);
 
-                if((!tTo) || (useignoreList && Helpers.ShouldIgnoreObject(aFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
+                if((!tTo) || (useignoreList && ShouldIgnoreObject(aFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
                     continue;
 
                 var aToObj = tTo.gameObject;
@@ -3539,12 +2138,12 @@ namespace Pumkin.AvatarTools
                     {
                         ComponentUtility.CopyComponent(aFrom);
                         ComponentUtility.PasteComponentValues(lTo);
-                        Log(log + ": " + Strings.Log.success, LogType.Log, lTo.GetType().ToString(), tTo.gameObject.name, aFrom.gameObject.name);
+                        Log(log + ": " + Strings.Log.Success, LogType.Log, lTo.GetType().ToString(), tTo.gameObject.name, aFrom.gameObject.name);
                     }
                 }
                 else
                 {
-                    Log(log + " " + Strings.Log.failedDoesntHave, LogType.Warning, aFrom.gameObject.name.ToString(), aFrom.GetType().ToString());
+                    Log(log + " " + Strings.Log.FailedDoesntHave, LogType.Warning, aFrom.gameObject.name.ToString(), aFrom.GetType().ToString());
                 }
             }
         }
@@ -3562,13 +2161,13 @@ namespace Pumkin.AvatarTools
 
             for(int i = 0; i < lFromArr.Length; i++)
             {
-                string log = Strings.Log.copyAttempt;
+                string log = Strings.Log.CopyAttempt;
 
                 var lFrom = lFromArr[i];
-                var tTo = Helpers.FindTransformInAnotherHierarchy(lFrom.transform, to.transform, createGameObjects);
+                var tTo = FindTransformInAnotherHierarchy(lFrom.transform, to.transform, createGameObjects);
 
                 if((!tTo) ||
-                    (useignoreList && Helpers.ShouldIgnoreObject(lFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
+                    (useignoreList && ShouldIgnoreObject(lFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
                     continue;
 
                 var lToObj = tTo.gameObject;
@@ -3586,12 +2185,12 @@ namespace Pumkin.AvatarTools
                     {
                         ComponentUtility.CopyComponent(lFrom);
                         ComponentUtility.PasteComponentValues(lTo);
-                        Log(log + ": " + Strings.Log.success);
+                        Log(log + ": " + Strings.Log.Success);
                     }
                 }
                 else
                 {
-                    Log(log + " " + Strings.Log.failedDoesntHave, LogType.Warning, lFrom.gameObject.name.ToString(), lFrom.GetType().ToString());
+                    Log(log + " " + Strings.Log.FailedDoesntHave, LogType.Warning, lFrom.gameObject.name.ToString(), lFrom.GetType().ToString());
                 }
             }
         }
@@ -3609,11 +2208,13 @@ namespace Pumkin.AvatarTools
 
             for(int i = 0; i < mFromArr.Length; i++)
             {
+                string log = Strings.Log.CopyAttempt;
+
                 var rFrom = mFromArr[i];
-                var tTo = Helpers.FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
+                var tTo = FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
 
                 if((!tTo) ||
-                    (useignoreList && Helpers.ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
+                    (useignoreList && ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
                     continue;
 
                 var rToObj = tTo.gameObject;
@@ -3643,7 +2244,7 @@ namespace Pumkin.AvatarTools
                 }
                 else
                 {
-                    Log(Strings.Log.failedHasNo, LogType.Warning, rFrom.gameObject.name, rFrom.GetType().ToString());
+                    Log(Strings.Log.FailedHasNo, LogType.Warning, rFrom.gameObject.name, rFrom.GetType().ToString());
                 }
             }
         }
@@ -3656,7 +2257,7 @@ namespace Pumkin.AvatarTools
             if(to == null || from == null)
                 return;
 
-            if(useignoreList && Helpers.ShouldIgnoreObject(from.transform, _copierIgnoreArray))
+            if(useignoreList && ShouldIgnoreObject(from.transform, _copierIgnoreArray))
                 return;
 
             var dFrom = from.GetComponent<VRC_AvatarDescriptor>();
@@ -3694,11 +2295,12 @@ namespace Pumkin.AvatarTools
                 dTo.Name = dFrom.Name;
                 dTo.ScaleIPD = dFrom.ScaleIPD;
                 dTo.unityVersion = dFrom.unityVersion;
+                dTo.ViewPosition = dFrom.ViewPosition;
                 dTo.VisemeBlendShapes = dFrom.VisemeBlendShapes;
 
                 if(dFrom.VisemeSkinnedMesh != null)
                 {
-                    string s = Helpers.GetGameObjectPath(dFrom.VisemeSkinnedMesh.gameObject, true);
+                    string s = GetGameObjectPath(dFrom.VisemeSkinnedMesh.gameObject, true);
                     Transform t = dTo.transform.Find(s);
                     if(t != null)
                     {
@@ -3712,378 +2314,175 @@ namespace Pumkin.AvatarTools
                     dTo.CustomStandingAnims = dFrom.CustomStandingAnims;
                 }
             }
-
-            if(bCopier_descriptor_copyViewpoint)
-            {
-                dTo.ViewPosition = dFrom.ViewPosition;
-            }
         }
 
         /// <summary>
         /// Copies all DynamicBoneColliders from object and it's children to another object.
         /// </summary>        
         /// <param name="removeOldColliders">Whether to remove all DynamicBoneColliders from target before copying</param>
-        void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useignoreList)
         {
-#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
+#if !BONES && !OLD_BONES
             Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
             return;
 #else
-                if(from == null || to == null)
-                    return;
+            if(from == null || to == null)
+                return;
 
-                var dbcFromArr = from.GetComponentsInChildren<DynamicBoneCollider>();
-                if(dbcFromArr == null || dbcFromArr.Length == 0)
-                    return;
+            var dbcFromArr = from.GetComponentsInChildren<DynamicBoneCollider>();
+            if(dbcFromArr == null || dbcFromArr.Length == 0)
+                return;
 
-                for(int i = 0; i < dbcFromArr.Length; i++)
+            for(int i = 0; i < dbcFromArr.Length; i++)
+            {
+                var dbcFrom = dbcFromArr[i];
+                var tTo = FindTransformInAnotherHierarchy(dbcFrom.transform, to.transform, createGameObjects);
+                if((!tTo) || (useignoreList && ShouldIgnoreObject(dbcFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
+                    continue;
+
+                var dbcToArr = tTo.GetComponentsInChildren<DynamicBoneCollider>();
+                if(tTo != null)
                 {
-                    var dbcFrom = dbcFromArr[i];
-                    var tTo = Helpers.FindTransformInAnotherHierarchy(dbcFrom.transform, to.transform, createGameObjects);
-                    if((!tTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(dbcFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
-                        continue;
-
-                    var dbcToArr = tTo.GetComponentsInChildren<DynamicBoneCollider>();
-                    if(tTo != null)
+                    bool found = false;
+                    for(int z = 0; z < dbcToArr.Length; z++)
                     {
-                        bool found = false;
-                        for(int z = 0; z < dbcToArr.Length; z++)
+                        var d = dbcToArr[z];
+                        if(d.m_Bound == dbcFrom.m_Bound && d.m_Center == dbcFrom.m_Center &&
+                            d.m_Direction == dbcFrom.m_Direction && d.m_Height == dbcFrom.m_Height && d.m_Radius == dbcFrom.m_Radius)
                         {
-                            var d = dbcToArr[z];
-                            if(d.m_Bound == dbcFrom.m_Bound && d.m_Center == dbcFrom.m_Center &&
-                                d.m_Direction == dbcFrom.m_Direction && d.m_Height == dbcFrom.m_Height && d.m_Radius == dbcFrom.m_Radius)
-                            {
-                                found = true;
-                                break;
-                            }
+                            found = true;
+                            break;
                         }
+                    }
 
-                        if(!found)
-                        {
-                            ComponentUtility.CopyComponent(dbcFrom);
-                            ComponentUtility.PasteComponentAsNew(tTo.gameObject);
-                        }
+                    if(!found)
+                    {
+                        ComponentUtility.CopyComponent(dbcFrom);
+                        ComponentUtility.PasteComponentAsNew(tTo.gameObject);
                     }
                 }
-#endif
-        }
-
-        void CopyAllDynamicBonesNew(GameObject from, GameObject to, bool createMissing, bool useIgnoreList)
-        {
-#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
-            Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
-            return;
-#else
-                if(!from || !to)
-                    return;
-
-                var dFromArr = from.GetComponentsInChildren<DynamicBone>();
-
-                List<DynamicBone> newBones = new List<DynamicBone>();
-                foreach(var dFrom in dFromArr)
-                {
-                    if(useIgnoreList && Helpers.ShouldIgnoreObject(dFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-                        continue;
-
-                    var tTo = Helpers.FindTransformInAnotherHierarchy(dFrom.transform, to.transform, false);
-                    if(!tTo)
-                        continue;
-
-                    var dToArr = tTo.GetComponents<DynamicBone>();
-
-                    if(!dFrom.m_Root)
-                    {
-                        LogVerbose("DynamicBone {0} of {1} doesn't have a root assigned. Ignoring", LogType.Warning, dFrom.transform.name, dFrom.transform.root.name);
-                        continue;
-                    }
-
-                    bool foundSameDynBone = false;
-
-                    foreach(var d in dToArr)
-                    {                    
-                        if(!d.m_Root || newBones.Contains(d))
-                            continue;                    
-
-                        //Check if the roots are the same to decide if it's supposed to be the same dyn bone script
-                        if(d.m_Root.name == dFrom.m_Root.name)
-                        {
-                            //Check if exclusions are the same
-                            List<string> exToPaths = d.m_Exclusions
-                                 .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
-                                 .Where(o => o != null)
-                                 .ToList();
-
-                            List<string> exFromPaths = dFrom.m_Exclusions
-                                .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
-                                .Where(o => o != null)
-                                .ToList();
-
-                            bool exclusionsDifferent = false;
-                            var exArr = exToPaths.Intersect(exFromPaths).ToArray();
-
-                            if(exArr != null && (exToPaths.Count != 0 && exFromPaths.Count != 0) && exArr.Length == 0)                        
-                                exclusionsDifferent = true;      
-
-                            //Check if colliders are the same
-                            List<string> colToPaths = d.m_Colliders
-                                .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
-                                .Where(c => c != null)
-                                .ToList();
-
-                            List<string> colFromPaths = d.m_Colliders
-                                .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
-                                .Where(c => c != null)
-                                .ToList();
-
-                            bool collidersDifferent = false;
-                            var colArr = colToPaths.Intersect(colFromPaths).ToArray();
-
-                            if(colArr != null && (colToPaths.Count != 0 && colFromPaths.Count != 0) && colArr.Length == 0)
-                                collidersDifferent = true;
-
-                            //Found the same bone because root, exclusions and colliders are the same
-                            if(!exclusionsDifferent && !collidersDifferent)
-                            {                        
-                                foundSameDynBone = true;
-                                if(bCopier_dynamicBones_copySettings)
-                                {
-                                    LogVerbose("{0} already has this DynamicBone, but we have to copy settings. Copying.", LogType.Log, d.name);
-
-                                    d.m_Damping = dFrom.m_Damping;
-                                    d.m_DampingDistrib = dFrom.m_DampingDistrib;
-                                    d.m_DistanceToObject = dFrom.m_DistanceToObject;
-                                    d.m_DistantDisable = dFrom.m_DistantDisable;
-                                    d.m_Elasticity = dFrom.m_Elasticity;
-                                    d.m_ElasticityDistrib = dFrom.m_ElasticityDistrib;
-                                    d.m_EndLength = dFrom.m_EndLength;
-                                    d.m_EndOffset = dFrom.m_EndOffset;
-                                    d.m_Force = dFrom.m_Force;
-                                    d.m_FreezeAxis = dFrom.m_FreezeAxis;
-                                    d.m_Gravity = dFrom.m_Gravity;
-                                    d.m_Inert = dFrom.m_Inert;
-                                    d.m_InertDistrib = dFrom.m_InertDistrib;
-                                    d.m_Radius = dFrom.m_Radius;
-                                    d.m_RadiusDistrib = dFrom.m_RadiusDistrib;
-                                    d.m_Stiffness = dFrom.m_Stiffness;
-                                    d.m_StiffnessDistrib = dFrom.m_StiffnessDistrib;                                
-
-                                    d.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dFrom.m_ReferenceObject, d.transform, false);                                
-                                }
-                                else
-                                {
-                                    LogVerbose("{0} already has this DynamicBone but we aren't copying settings. Ignoring", LogType.Log, d.name);
-                                }
-                                break;
-                            }
-                        }
-                    }
-
-                    if(!foundSameDynBone)
-                    {
-                        if(createMissing)
-                        {
-                            LogVerbose("{0} doesn't have has this DynamicBone but we have to create one. Creating.", LogType.Log, dFrom.name);
-
-                            var newDynBone = tTo.gameObject.AddComponent<DynamicBone>();
-                            ComponentUtility.CopyComponent(dFrom);
-                            ComponentUtility.PasteComponentValues(newDynBone);
-
-                            newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dFrom.m_Root.transform, newDynBone.transform.root, false);
-
-                            if(!newDynBone.m_Root)
-                            {
-                                Log("_Couldn't set root {0} for new DynamicBone in {1}'s {2}. GameObject is missing. Removing.", LogType.Warning, dFrom.m_Root.name ?? "null", newDynBone.transform.root.name, newDynBone.transform.name == newDynBone.transform.root.name ? "root" : newDynBone.transform.root.name);
-                                DestroyImmediate(newDynBone);
-                            }
-
-                            if(dFrom.m_ReferenceObject)
-                                newDynBone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dFrom.m_ReferenceObject, newDynBone.transform.root, false);
-
-#if PUMKIN_DBONES
-                            var newColliders = new List<DynamicBoneColliderBase>();
-#elif PUMKIN_OLD_DBONES
-                            var newColliders = new List<DynamicBoneCollider>();
-#endif
-
-
-                            for(int i = 0; i < newDynBone.m_Colliders.Count; i++)
-                            {
-                                var badRefCollider = newDynBone.m_Colliders[i];
-
-                                if(!badRefCollider)
-                                    continue;
-
-#if PUMKIN_DBONES
-                                DynamicBoneColliderBase fixedRefCollider = null;
-#elif PUMKIN_OLD_DBONES
-                                DynamicBoneCollider fixedRefCollider = null;
-#endif
-                                var t = Helpers.FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
-
-                                if(t == null)
-                                    continue;
-
-                                var toColls = t.GetComponents<DynamicBoneCollider>();
-                                foreach(var c in toColls)
-                                {
-                                    if(c.m_Bound == badRefCollider.m_Bound && c.m_Center == badRefCollider.m_Center && c.m_Direction == badRefCollider.m_Direction &&
-                                       !newDynBone.m_Colliders.Contains(c))
-                                        fixedRefCollider = c;
-                                }
-
-                                if(fixedRefCollider)
-                                {
-                                    LogVerbose("Fixed reference for {0} in {1}", LogType.Log, fixedRefCollider.name, newDynBone.name);
-                                    newColliders.Add(fixedRefCollider);
-                                }
-                            }
-
-                            newDynBone.m_Colliders = newColliders;
-
-                            var newExclusions = new HashSet<Transform>();
-
-                            foreach(var ex in newDynBone.m_Exclusions)
-                            {
-                                if(!ex)
-                                    continue;
-
-                                var t = Helpers.FindTransformInAnotherHierarchy(ex.transform, to.transform, false);
-                                if(t)
-                                    newExclusions.Add(t);
-                            }
-
-                            newDynBone.m_Exclusions = newExclusions.ToList();
-                            newBones.Add(newDynBone);
-
-                            Log("_Copied DynamicBone from {0}'s {1} to {2}'s {1}", LogType.Log, dFrom.transform.root.name, dFrom.transform.name == dFrom.transform.root.name ? "root" : dFrom.transform.name, tTo.root.name);                                                
-                        }
-                        else
-                        {
-                            LogVerbose("{0} doesn't have has this DynamicBone and we aren't creating a new one. Ignoring.", LogType.Log, dFrom.name);
-                        }
-                    }
-                }
+            }
 #endif
         }
 
         /// <summary>
         /// Copies all DynamicBones from one object and all of it's children to another
         /// </summary>        
-        void CopyAllDynamicBones(GameObject from, GameObject to, bool createIfMissing, bool useignoreList)
+		void CopyAllDynamicBones(GameObject from, GameObject to, bool createIfMissing, bool useignoreList)
         {
-#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
+#if !BONES && !OLD_BONES
             Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
             return;
 #else
-                if(!from || !to)
-                    return;
+            if(!from || !to)
+                return;
 
-                var dFromArr = from.GetComponentsInChildren<DynamicBone>();
-                bool foundSameDynBone = false;
+            var dFromArr = from.GetComponentsInChildren<DynamicBone>();
+            bool found = false;
 
-                foreach(var dFrom in dFromArr)
+            foreach(var dFrom in dFromArr)
+            {
+                if(useignoreList && ShouldIgnoreObject(dFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
+                    continue;
+
+                var tTo = FindTransformInAnotherHierarchy(dFrom.transform, to.transform, false);
+                var dToArr = tTo.GetComponents<DynamicBone>();
+
+                if(!dFrom.m_Root)
                 {
-                    if(useignoreList && Helpers.ShouldIgnoreObject(dFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
+                    LogVerbose("DynamicBone {0} of {1} doesn't have a root assigned. Ignoring", LogType.Warning, dFrom.transform.name, dFrom.transform.root.name);
+                    continue;
+                }
+
+                foreach(var d in dToArr)
+                {
+                    if(!d.m_Root)
                         continue;
 
-                    var tTo = Helpers.FindTransformInAnotherHierarchy(dFrom.transform, to.transform, false);
-                    var dToArr = tTo.GetComponents<DynamicBone>();
-
-                    if(!dFrom.m_Root)
+                    if(d.m_Root.name == dFrom.m_Root.name)
                     {
-                        LogVerbose("DynamicBone {0} of {1} doesn't have a root assigned. Ignoring", LogType.Warning, dFrom.transform.name, dFrom.transform.root.name);
-                        continue;
-                    }
-
-                    foreach(var d in dToArr)
-                    {
-                        if(!d.m_Root)
-                            continue;
-                    
-                        if(d.m_Root.name == dFrom.m_Root.name)
-                        {
-                            foundSameDynBone = true;
-                            LogVerbose("{0} already has this DynamicBone. Ignoring", LogType.Log, d.name);
-                        }
-                    }
-
-                    if(!foundSameDynBone)
-                    {
-                        var newDynBone = tTo.gameObject.AddComponent<DynamicBone>();
-                        ComponentUtility.CopyComponent(dFrom);
-                        ComponentUtility.PasteComponentValues(newDynBone);
-
-                        newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dFrom.m_Root.transform, newDynBone.transform.root, false);
-
-                        if(dFrom.m_ReferenceObject)
-                            newDynBone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dFrom.m_ReferenceObject, newDynBone.transform.root, false);
-
-#if PUMKIN_DBONES
-                        var newColliders = new List<DynamicBoneColliderBase>();
-#elif PUMKIN_OLD_DBONES
-                        var newColliders = new List<DynamicBoneCollider>();
-#endif
-
-
-                        for(int i = 0; i < newDynBone.m_Colliders.Count; i++)
-                        {
-                            var badRefCollider = newDynBone.m_Colliders[i];
-
-                            if(!badRefCollider)
-                                continue;
-
-#if PUMKIN_DBONES
-                            DynamicBoneColliderBase fixedRefCollider = null;
-#elif PUMKIN_OLD_DBONES
-                            DynamicBoneCollider fixedRefCollider = null;
-#endif
-                            var t = Helpers.FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
-
-                            if(t == null)
-                                continue;
-
-                            var toColls = t.GetComponents<DynamicBoneCollider>();
-                            foreach(var c in toColls)
-                            {
-                                if(c.m_Bound == badRefCollider.m_Bound && c.m_Center == badRefCollider.m_Center && c.m_Direction == badRefCollider.m_Direction &&
-                                   !newDynBone.m_Colliders.Contains(c))
-                                    fixedRefCollider = c;
-                            }
-
-                            if(fixedRefCollider)
-                            {
-                                LogVerbose("Fixed reference for {0} in {1}", LogType.Log, fixedRefCollider.name, newDynBone.name);
-                                newColliders.Add(fixedRefCollider);
-                            }
-                        }
-
-                        newDynBone.m_Colliders = newColliders;
-
-                        var newExclusions = new HashSet<Transform>();
-
-                        foreach(var ex in newDynBone.m_Exclusions)
-                        {
-                            if(!ex)
-                                continue;
-
-                            var t = Helpers.FindTransformInAnotherHierarchy(ex.transform, to.transform, false);
-                            if(t)
-                                newExclusions.Add(t);
-                        }
-
-                        newDynBone.m_Exclusions = newExclusions.ToList();
-
-                        if(!newDynBone.m_Root)
-                        {
-                            Log("_Couldn't set root {0} for new DynamicBone in {1}'s {2}. Removing.", LogType.Warning, newDynBone.m_Root.name, newDynBone.transform.root.name, newDynBone.transform.name);
-                            DestroyImmediate(newDynBone);
-                        }
-                        else
-                        {                        
-                            Log("_Copied DynamicBone from {0}'s {1} to {2}'s", LogType.Log, dFrom.transform.root.name, dFrom.transform.name == dFrom.transform.root.name ? "root" : dFrom.transform.name, tTo.root.name);
-                        }
+                        LogVerbose("{0} already has this DynamicBone. Ignoring", LogType.Log, d.name);
+                        found = true;
                     }
                 }
+
+                if(!found)
+                {
+                    var newDynBone = tTo.gameObject.AddComponent<DynamicBone>();
+                    ComponentUtility.CopyComponent(dFrom);
+                    ComponentUtility.PasteComponentValues(newDynBone);
+
+                    newDynBone.m_Root = FindTransformInAnotherHierarchy(dFrom.m_Root.transform, newDynBone.transform.root, false);
+
+                    if(dFrom.m_ReferenceObject)
+                        newDynBone.m_ReferenceObject = FindTransformInAnotherHierarchy(dFrom.m_ReferenceObject, newDynBone.transform.root, false);
+
+#if BONES
+                    var newColliders = new List<DynamicBoneColliderBase>();
+#elif OLD_BONES
+                    var newColliders = new List<DynamicBoneCollider>();
+#endif
+
+
+                    for(int i = 0; i < newDynBone.m_Colliders.Count; i++)
+                    {
+                        var badRefCollider = newDynBone.m_Colliders[i];
+
+                        if(!badRefCollider)
+                            continue;
+
+#if BONES
+                        DynamicBoneColliderBase fixedRefCollider = null;
+#elif OLD_BONES
+                        DynamicBoneCollider fixedRefCollider = null;
+#endif
+                        var t = FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
+
+                        if(t == null)
+                            continue;
+
+                        var toColls = t.GetComponents<DynamicBoneCollider>();
+                        foreach(var c in toColls)
+                        {
+                            if(c.m_Bound == badRefCollider.m_Bound && c.m_Center == badRefCollider.m_Center && c.m_Direction == badRefCollider.m_Direction &&
+                               !newDynBone.m_Colliders.Contains(c))
+                                fixedRefCollider = c;
+                        }
+
+                        if(fixedRefCollider)
+                        {
+                            LogVerbose("Fixed reference for {0} in {1}", LogType.Log, fixedRefCollider.name, newDynBone.name);
+                            newColliders.Add(fixedRefCollider);
+                        }
+                    }
+
+                    newDynBone.m_Colliders = newColliders;
+
+                    var newExclusions = new HashSet<Transform>();
+
+                    foreach(var ex in newDynBone.m_Exclusions)
+                    {
+                        if(!ex)
+                            continue;
+
+                        var t = FindTransformInAnotherHierarchy(ex.transform, to.transform, false);
+                        if(t)
+                            newExclusions.Add(t);
+                    }
+
+                    newDynBone.m_Exclusions = newExclusions.ToList();
+
+                    if(!newDynBone.m_Root)
+                    {
+                        Log("_Couldn't set root {0} for new DynamicBone in {1}'s {2}. Removing.", LogType.Warning, newDynBone.m_Root.name, newDynBone.transform.root.name, newDynBone.transform.name);
+                        DestroyImmediate(newDynBone);
+                    }
+                    else
+                    {
+                        Log("_Copied DynamicBone from {0}'s {1} to {2}'s", LogType.Log, dFrom.transform.root.name, dFrom.transform.name, tTo.name);
+                    }
+                }
+            }
 #endif
         }
 
@@ -4103,13 +2502,13 @@ namespace Pumkin.AvatarTools
 
             for(int i = 0; i < cFromArr.Length; i++)
             {
-                string log = Strings.Log.copyAttempt;
-                var type = cFromArr[i].GetType();
-
+                string log = Strings.Log.CopyAttempt;
+                var t = cFromArr[i].GetType();
+                
                 var cc = cFromArr[i];
-                var cFromPath = Helpers.GetGameObjectPath(cc.gameObject);
+                var cFromPath = GetGameObjectPath(cc.gameObject);
 
-                if(useignoreList && Helpers.ShouldIgnoreObject(cc.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
+                if(useignoreList && ShouldIgnoreObject(cc.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
                     continue;
 
                 if(cFromPath != null)
@@ -4126,10 +2525,10 @@ namespace Pumkin.AvatarTools
 
                     for(int z = 0; z < cToArr.Length; z++)
                     {
-                        if(Helpers.CollidersAreIdentical(cToArr[z], cFromArr[i]))
+                        if(CollidersAreIdentical(cToArr[z], cFromArr[i]))
                         {
                             found = true;
-                            Log(log + " - " + Strings.Log.failedAlreadyHas, LogType.Warning, cToObj.name, type.ToString());
+                            Log(log + " - " + Strings.Log.FailedAlreadyHas, LogType.Warning, t.ToString(), cFromArr[i].gameObject.name, cToObj.name);
                             break;
                         }
                     }
@@ -4138,7 +2537,7 @@ namespace Pumkin.AvatarTools
                         ComponentUtility.CopyComponent(cFromArr[i]);
                         ComponentUtility.PasteComponentAsNew(cToObj);
 
-                        Log(log + " - " + Strings.Log.success, LogType.Log, type.ToString(), cFromArr[i].gameObject.name, cToObj.name);
+                        Log(log + " - " + Strings.Log.Success, LogType.Log, t.ToString(), cFromArr[i].gameObject.name, cToObj.name);
                     }
                 }
             }
@@ -4155,10 +2554,10 @@ namespace Pumkin.AvatarTools
             var tFrom = from.transform;
             var tTo = to.transform;
 
-            if(useignoreList && Helpers.ShouldIgnoreObject(tFrom, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
+            if(useignoreList && ShouldIgnoreObject(tFrom, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
                 return;
 
-            string log = Strings.Log.copyAttempt + " ";
+            string log = Strings.Log.CopyAttempt + " ";
             string[] logFormat = { "Transforms", from.name, to.name };
 
             if(tTo == null || tFrom == null)
@@ -4198,21 +2597,21 @@ namespace Pumkin.AvatarTools
             if((from == null || to == null) || (!(bCopier_skinMeshRender_copyBlendShapeValues || bCopier_skinMeshRender_copyMaterials || bCopier_skinMeshRender_copySettings)))
                 return;
 
-            string log = String.Format(Strings.Log.copyAttempt + " - ", Strings.Copier.skinMeshRender, from.name, to.name);
+            string log = String.Format(Strings.Log.CopyAttempt + " - ", Strings.Copier.SkinMeshRender, from.name, to.name);
 
             var rFromArr = from.GetComponentsInChildren<SkinnedMeshRenderer>();
 
             for(int i = 0; i < rFromArr.Length; i++)
             {
                 var rFrom = rFromArr[i];
-                var rFromPath = Helpers.GetGameObjectPath(rFrom.gameObject);
+                var rFromPath = GetGameObjectPath(rFrom.gameObject);
 
                 if(rFromPath != null)
                 {
                     var tTo = to.transform.root.Find(rFromPath);
 
                     if((!tTo) ||
-                        (useignoreList && Helpers.ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
+                        (useignoreList && ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
                         continue;
 
                     GameObject rToObj = tTo.gameObject;
@@ -4223,9 +2622,9 @@ namespace Pumkin.AvatarTools
                     {
                         if(bCopier_skinMeshRender_copySettings)
                         {
-                            var t = Helpers.FindTransformInAnotherHierarchy(rFrom.rootBone, rTo.transform, false);
+                            var t = FindTransformInAnotherHierarchy(rFrom.rootBone, rTo.transform, false);
                             rTo.rootBone = t ?? rTo.rootBone;
-                            t = Helpers.FindTransformInAnotherHierarchy(rFrom.probeAnchor, rTo.transform, false);
+                            t = FindTransformInAnotherHierarchy(rFrom.probeAnchor, rTo.transform, false);
 
                             rTo.allowOcclusionWhenDynamic = rFrom.allowOcclusionWhenDynamic;
                             rTo.quality = rFrom.quality;
@@ -4253,11 +2652,11 @@ namespace Pumkin.AvatarTools
                         if(bCopier_skinMeshRender_copyMaterials)
                             rTo.sharedMaterials = rFrom.sharedMaterials;
 
-                        Log(log + Strings.Log.success);
+                        Log(log + Strings.Log.Success);
                     }
                     else
                     {
-                        Log(log + Strings.Log.failedDoesntHave, LogType.Warning, rTo.gameObject.name, rFrom.GetType().ToString());
+                        Log(log + Strings.Log.FailedDoesntHave, LogType.Warning, rTo.gameObject.name, rFrom.GetType().ToString());
                     }
 
                 }
@@ -4278,12 +2677,12 @@ namespace Pumkin.AvatarTools
             for(int i = 0; i < rFromArr.Length; i++)
             {
                 var rFrom = rFromArr[i];
-                var tTo = Helpers.FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
+                var tTo = FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
 
                 if(!tTo)
                     continue;
 
-                if(useignoreList && Helpers.ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
+                if(useignoreList && ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
                     continue;
 
                 var rToObj = tTo.gameObject;
@@ -4315,12 +2714,12 @@ namespace Pumkin.AvatarTools
             for(int i = 0; i < rFromArr.Length; i++)
             {
                 var rFrom = rFromArr[i];
-                var tTo = Helpers.FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
+                var tTo = FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
 
                 if(!tTo)
                     continue;
 
-                if(useignoreList && Helpers.ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
+                if(useignoreList && ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
                     continue;
 
                 var rToObj = tTo.gameObject;
@@ -4351,10 +2750,10 @@ namespace Pumkin.AvatarTools
             {
                 var pp = pFromArr[i];
 
-                if(useignoreList && Helpers.ShouldIgnoreObject(pp.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
+                if(useignoreList && ShouldIgnoreObject(pp.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
                     continue;
 
-                var tTo = Helpers.FindTransformInAnotherHierarchy(pp.transform, to.transform, createGameObjects);
+                var tTo = FindTransformInAnotherHierarchy(pp.transform, to.transform, createGameObjects);
 
                 if(tTo != null)
                 {
@@ -4366,20 +2765,20 @@ namespace Pumkin.AvatarTools
                         ComponentUtility.CopyComponent(pp);
                         ComponentUtility.PasteComponentAsNew(tTo.gameObject);
 
-                        Log(Strings.Log.successCopiedOverFromTo, LogType.Log, "ParticleSystem", copierSelectedFrom.name, pp.gameObject.name, SelectedAvatar.name, tTo.gameObject.name);
+                        Log("_Success: Copied over {0} from {1}'s {2} to {3}'s {4}", LogType.Log, "ParticleSystem", copierSelectedFrom.name, pp.gameObject.name, selectedAvatar.name, tTo.gameObject.name);
                     }
                     else
                     {
-                        Log(Strings.Log.failedAlreadyHas, LogType.Log, pp.gameObject.name, "ParticleSystem");
+                        Log("_Failed: {0}'s {1} already has a ParticleSystem. Ignoring.", LogType.Log, selectedAvatar.name, pp.gameObject.name);
                     }
                 }
 
             }
         }
+                
+        #endregion
 
-#endregion
-
-#region Destroy Functions    
+        #region Destroy Functions    
 
         /// <summary>
         /// Destroys ParticleSystem in object
@@ -4400,7 +2799,7 @@ namespace Pumkin.AvatarTools
                 if(rend != null)
                     DestroyImmediate(rend);
 
-                Log(Strings.Log.removeAttempt + ": " + "_Success.", LogType.Log, p.ToString(), from.name);
+                Log(Strings.Log.RemoveAttempt + ": " + "_Success.", LogType.Log, p.ToString(), from.name);
                 DestroyImmediate(p);
             }
         }
@@ -4434,22 +2833,10 @@ namespace Pumkin.AvatarTools
                         if(!bones.Contains(n))
                             c--;
                     }
-                    if(c <= 0 && (t.name.ToLower() != (t.parent.name.ToLower() + "_end")))
+                    if(c <= 0)
                     {
-#if UNITY_2018
-                        if(PrefabUtility.GetPrefabInstanceStatus(t) == PrefabInstanceStatus.NotAPrefab || PrefabUtility.GetPrefabInstanceStatus(t) == PrefabInstanceStatus.Disconnected)
-                        {
-                            Log(Strings.Log.hasNoComponentsOrChildrenDestroying, LogType.Log, t.name);
-                            DestroyImmediate(t.gameObject);
-                        }
-                        else
-                        {
-                            Log(Strings.Log.cantBeDestroyedPartOfPrefab, LogType.Warning, t.name, "GameObject");
-                        }
-#elif UNITY_2017
-                            Log(Strings.Log.hasNoComponentsOrChildrenDestroying, LogType.Log, t.name);
-                            DestroyImmediate(t.gameObject);
-#endif
+                        Log("_{0} has no components or children. Destroying", LogType.Log, t.name);
+                        DestroyImmediate(t.gameObject);
                     }
                 }
             }
@@ -4461,6 +2848,7 @@ namespace Pumkin.AvatarTools
         void DestroyAllComponentsOfType(GameObject obj, Type type, bool ignoreRoot, bool useignoreList)
         {
             string log = "";
+            string[] logFormat = { type.ToString(), obj.name };
 
             Component[] comps = obj.transform.GetComponentsInChildren(type, true);
 
@@ -4469,251 +2857,102 @@ namespace Pumkin.AvatarTools
                 for(int i = 0; i < comps.Length; i++)
                 {
                     if((ignoreRoot && comps[i].transform.parent == null) ||
-                        (useignoreList && Helpers.ShouldIgnoreObject(comps[i].transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
+                        (useignoreList && ShouldIgnoreObject(comps[i].transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
                         continue;
 
-                    log = Strings.Log.removeAttempt + " - ";
+                    log = Strings.Log.RemoveAttempt + " - ";
                     string name = comps[i].name;
 
-#if UNITY_2018
-                    if(!PrefabUtility.IsPartOfPrefabInstance(comps[i]))
+                    try
                     {
-                        try
-                        {
-                            DestroyImmediate(comps[i]);
-                            log += Strings.Log.success;
-                            Log(log, LogType.Log, type.ToString(), name);
-                        }
-                        catch(Exception e)
-                        {
-                            log += Strings.Log.failed + ": " + e.Message;
-                            Log(log, LogType.Exception, type.ToString(), name);
-                        }
+                        DestroyImmediate(comps[i]);
+                        log += Strings.Log.Success;
+                        Log(log, LogType.Log, type.ToString(), name);
                     }
-                    else
+                    catch(Exception e)
                     {
-                        Log(Strings.Log.cantBeDestroyedPartOfPrefab, LogType.Warning, name, type.Name);
+                        log += Strings.Log.Failed + ": " + e.Message;
+                        Log(log, LogType.Exception, type.ToString(), name);
                     }
-#elif UNITY_2017
-                        try
-                        {
-                            DestroyImmediate(comps[i]);
-                            log += Strings.Log.success;
-                            Log(log, LogType.Log, type.ToString(), name);
-                        }
-                        catch(Exception e)
-                        {
-                            log += Strings.Log.failed + ": " + e.Message;
-                            Log(log, LogType.Exception, type.ToString(), name);
-                        }
+                }
+            }
+        }
+
+        #endregion
+
+        #region Helper Functions
+
+        /// <summary>
+        /// Reset transforms back to prefab values
+        /// </summary>        
+        public static bool ResetPose(GameObject objTo)
+        {
+            if(objTo == null)
+                return false;
+
+            string toPath = GetGameObjectPath(objTo);
+#if UNITY_2017
+            var pref = PrefabUtility.GetPrefabParent(objTo.transform.root.gameObject) as GameObject;
+#else
+			var pref = PrefabUtility.GetCorrespondingObjectFromSource(objTo.transform.root.gameObject) as GameObject;
 #endif
-                }
-            }
-        }
-
-#endregion
-
-#region Utility Functions        
-
-        /// <summary>
-        /// Not actually resets everything but backgrounnd and overlay stuff
-        /// </summary>
-        public void ResetEverything()
-        {
-            _backgroundPath = null;
-            _overlayPath = null;
-            bThumbnails_use_camera_background = false;
-            bThumbnails_use_camera_overlay = false;
-            cameraBackgroundTexture = null;
-            cameraOverlayTexture = null;
-            DestroyDummies();
-        }
-
-        /// <summary>
-        /// Refreshes the background override setting
-        /// </summary>
-        public void RefreshBackgroundOverrideType()
-        {
-            if(bThumbnails_use_camera_background)
+            if(!pref)
             {
-                switch(cameraBackgroundType)
+                Log("_Mesh prefab is missing, can't revert to default pose.", LogType.Error);
+                return false;
+            }
+
+            Transform tr = pref.transform.Find(toPath);
+
+            if(!tr)
+                return false;
+
+            GameObject objFrom = tr.gameObject;
+
+            if(objTo.transform != objTo.transform.root)
+            {
+                objTo.transform.localPosition = objFrom.transform.localPosition;
+                objTo.transform.localEulerAngles = objFrom.transform.localEulerAngles;
+                objTo.transform.localRotation = objFrom.transform.localRotation;
+            }
+
+            //Loop through Children
+            for(int i = 0; i < objFrom.transform.childCount; i++)
+            {
+                var fromChild = objFrom.transform.GetChild(i).gameObject;
+                var t = objTo.transform.Find(fromChild.name);
+
+                if(t == null)
+                    continue;
+
+                var toChild = t.gameObject;
+
+                if(fromChild != null && toChild != null)
                 {
-                    case CameraBackgroundOverrideType.Color:
-                        Color color = SelectedCamera != null ? SelectedCamera.backgroundColor : _thumbsCamBgColor;
-                        SetCameraBackgroundToColor(color);
-                        break;
-                    case CameraBackgroundOverrideType.Image:
-                        SetBackgroundToImageFromPath(_backgroundPath);
-                        break;
-                    case CameraBackgroundOverrideType.Skybox:
-                        SetCameraBackgroundToSkybox(RenderSettings.skybox);
-                        break;
+                    ResetPose(toChild);
                 }
             }
-            else
-                RestoreCameraClearFlags();
-        }
-
-        /// <summary>
-        /// Refreshes ignore array for the copier by making the transform references local to the selected avatar
-        /// </summary>
-        private void RefreshIgnoreArray()
-        {
-            if(_copierIgnoreArray == null)
-            {
-                _copierIgnoreArray = new Transform[0];
-                return;
-            }
-            else if(_copierIgnoreArray.Length == 0)
-            {
-                return;
-            }
-
-            var newList = new List<Transform>(_copierIgnoreArray.Length);
-
-            foreach(var t in _copierIgnoreArray)
-            {
-                if(!t)
-                    newList.Add(t);
-
-                var tt = Helpers.FindTransformInAnotherHierarchy(t, copierSelectedFrom.transform, false);
-                if(tt && !newList.Contains(tt))
-                    newList.Add(tt);
-            }
-
-            _copierIgnoreArray = newList.ToArray();
-        }
-
-        /// <summary>
-        /// Refreshes the chosen language in the UI. Needed for when we go into and out of play mode
-        /// </summary>
-        public void RefreshLanguage()
-        {
-            PumkinsLanguageManager.LoadTranslations();
-            PumkinsLanguageManager.SetLanguage(_selectedLanguageString);
-            _selectedLanguageIndex = PumkinsLanguageManager.GetIndexOfLanguage(_selectedLanguageString);
-        }
-
-        /// <summary>
-        /// Refreshes the cached selected preset index of a PumkinPreset type
-        /// </summary>        
-        public static void RefreshPresetIndex<T>() where T : PumkinPreset
-        {
-            if(typeof(T) == typeof(PumkinsCameraPreset))
-                RefreshPresetIndexByString<T>(Instance._selectedCameraPresetString);
-            else if(typeof(T) == typeof(PumkinsPosePreset))
-                RefreshPresetIndexByString<T>(Instance._selectedPosePresetString);
-            else if(typeof(T) == typeof(PumkinsBlendshapePreset))
-                RefreshPresetIndexByString<T>(Instance._selectedBlendshapePresetString);
-        }
-
-        /// <summary>
-        /// Refreshes preset index by string. Used to refresh the index based on the cached string
-        /// </summary>                
-        public static void RefreshPresetIndexByString<T>(string selectedPresetString) where T : PumkinPreset
-        {
-            int count = PumkinsPresetManager.GetPresetCountOfType<T>();
-            int selectedPresetIndex = PumkinsPresetManager.GetPresetIndex<T>(selectedPresetString);            
-            selectedPresetIndex = Mathf.Clamp(selectedPresetIndex, 0, count - 1);
-            
-            if(typeof(T) == typeof(PumkinsCameraPreset))
-            {
-                if(count == 0)                
-                   selectedPresetString = "";                
-                else                
-                    selectedPresetString = PumkinsPresetManager.CameraPresets[selectedPresetIndex].ToString() ?? "";                
-                Instance._selectedCameraPresetIndex = selectedPresetIndex;
-            }
-            else if(typeof(T) == typeof(PumkinsPosePreset))
-            {
-                if(count == 0)
-                    selectedPresetString = "";
-                else
-                    selectedPresetString = PumkinsPresetManager.PosePresets[selectedPresetIndex].ToString() ?? "";
-                Instance._selectedPosePresetIndex = selectedPresetIndex;
-            }
-            else if(typeof(T) == typeof(PumkinsBlendshapePreset))
-            {
-                if(count == 0)
-                    selectedPresetString = "";
-                else
-                    selectedPresetString = PumkinsPresetManager.BlendshapePresets[selectedPresetIndex].ToString() ?? "";
-                Instance._selectedBlendshapePresetIndex = selectedPresetIndex;
-            }            
-        }
-
-        /// <summary>
-        /// Refreshes the cached selected preset string by index
-        /// </summary>        
-        public static void RefreshPresetStringByIndex<T>(int index) where T : PumkinPreset
-        {
-            string presetString = PumkinsPresetManager.GetPresetName<T>(index);
-            if(string.IsNullOrEmpty(presetString))
-            {
-                index = 0;
-                presetString = PumkinsPresetManager.GetPresetName<T>(0);
-            }
-
-            if(typeof(T) == typeof(PumkinsCameraPreset))
-                Instance._selectedCameraPresetString = presetString;
-            else if(typeof(T) == typeof(PumkinsPosePreset))
-                Instance._selectedPosePresetString = presetString;
-            else if(typeof(T) == typeof(PumkinsBlendshapePreset))
-                Instance._selectedBlendshapePresetString = presetString;
-        }
-
-#endregion
-
-#region Helper Functions        
-
-        /// <summary>
-        /// Sets selected camera clear flags back to _thumbsCameraBgClearFlagsOld
-        /// </summary>
-        public void RestoreCameraClearFlags()
-        {
-            if(SelectedCamera)
-                SelectedCamera.clearFlags = _thumbsCameraBgClearFlagsOld;
-        }
-
-        /// <summary>
-        /// Used to set up CameraBackground and CameraOverlay dummies
-        /// </summary>        
-        /// <param name="clipPlaneIsNear">Whether to set the clipping plane to be near or far</param>
-        public void SetupCameraRawImageAndCanvas(GameObject dummyGameObject, ref RawImage rawImage, bool clipPlaneIsNear)
-        {
-            rawImage = dummyGameObject.GetComponent<RawImage>();
-            if(!rawImage)
-                rawImage = dummyGameObject.AddComponent<RawImage>();
-            Canvas canvas = dummyGameObject.GetComponent<Canvas>();
-            if(!canvas)
-                canvas = dummyGameObject.AddComponent<Canvas>();
-
-            canvas.worldCamera = SelectedCamera;
-            canvas.renderMode = RenderMode.ScreenSpaceCamera;
-            if(clipPlaneIsNear)
-                canvas.planeDistance = SelectedCamera.nearClipPlane + 0.01f;
-            else
-                canvas.planeDistance = SelectedCamera.farClipPlane - 2f;
+            return true;
         }
 
         /// <summary>
         /// Resets all BlendShape weights to 0 on all SkinnedMeshRenderers or to prefab values
         /// </summary>        
-        /// <param name="revertToPrefab">Revert weights to prefab instead of 0</param>
-        public static void ResetBlendshapes(GameObject objTo, bool revertToPrefab)
+        /// <param name="revertToPrefab">Revert weights to prefab instead</param>
+        public static void ResetBlendShapes(GameObject objTo, bool revertToPrefab)
         {
             var renders = objTo.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             foreach(var r in renders)
             {
-                ResetRendererBlendshapes(r, revertToPrefab);
+                ResetBlendShapes(r, revertToPrefab);
             }
         }
 
         /// <summary>
         /// Reset all BlendShape weights to 0 on SkinnedMeshRenderer or to prefab values
         /// </summary>        
-        /// <param name="revertToPrefab">Revert weights to prefab instead of 0</param>        
-        public static void ResetRendererBlendshapes(SkinnedMeshRenderer render, bool revertToPrefab)
+        /// <param name="revertToPrefab">Revert weights to prefab instead</param>        
+        public static void ResetBlendShapes(SkinnedMeshRenderer render, bool revertToPrefab)
         {
             GameObject pref = null;
             SkinnedMeshRenderer prefRender = null;
@@ -4725,17 +2964,12 @@ namespace Pumkin.AvatarTools
             }
             else
             {
-#if UNITY_2017
                 pref = PrefabUtility.GetPrefabParent(render.gameObject) as GameObject;
-#else
-                pref = PrefabUtility.GetCorrespondingObjectFromSource(render.gameObject) as GameObject;
-#endif
-
                 if(pref != null)
                     prefRender = pref.GetComponent<SkinnedMeshRenderer>();
                 else
                 {
-                    Log(Strings.Log.meshPrefabMissingCantRevertBlednshapes, LogType.Error);
+                    Log("_Mesh prefab is missing, can't revert to default blendshapes.", LogType.Error);
                     return;
                 }
 
@@ -4772,46 +3006,15 @@ namespace Pumkin.AvatarTools
         }
 
         /// <summary>
-        /// Resets avatar pose to prefab values
-        /// </summary>        
-        public static bool ResetPose(GameObject avatar)
+        /// Returns true if GameObject has no children or components
+        /// </summary>                
+        bool GameObjectIsEmpty(GameObject obj)
         {
-            if(!avatar)
+            if(obj.GetComponentsInChildren<Component>().Length > obj.GetComponentsInChildren<Transform>().Length)
                 return false;
-
-#if UNITY_2017
-                var pref = PrefabUtility.GetPrefabParent(avatar.transform.root.gameObject) as GameObject;
-#else
-            var pref = PrefabUtility.GetCorrespondingObjectFromSource(avatar.transform.root.gameObject) as GameObject;
-#endif
-            if(!pref)
-            {
-                Log(Strings.Log.meshPrefabMissingCantRevertPose, LogType.Error);
-                return false;
-            }
-
-            var trans = avatar.GetComponentsInChildren<Transform>();
-
-            foreach(var t in trans)
-            {
-                if(t == t.root)
-                    continue;
-
-                string tPath = Helpers.GetGameObjectPath(t.gameObject);
-                Transform tPref = pref.transform.Find(tPath);
-
-                if(!tPref)
-                    continue;
-
-                t.localPosition = tPref.localPosition;
-                t.localRotation = tPref.localRotation;
-                t.localEulerAngles = tPref.localEulerAngles;
-            }
-
-            OnPoseWasChanged(PoseChangeType.Reset);
             return true;
         }
-        
+
         /// <summary>
         /// Looks for child object in an object's children. Can create if not found.
         /// </summary>
@@ -4836,26 +3039,80 @@ namespace Pumkin.AvatarTools
         }
 
         /// <summary>
-        /// Centers camera on viewpoint and fixes the near and far clipping planes
+        /// This will move the VRCCam thumbnail camera on the avatar's face, with an offset
         /// </summary>
-        /// <param name="avatarOverride">Avatar to center on</param>
-        /// <param name="positionOffset">Position offset to apply</param>
-        /// <param name="rotationOffset">Rotation offset to apply</param>
-        /// <param name="fixClippingPlanes">Should change near clipping plane to 0.1 and far to 1000?</param>
-        void CenterCameraOnViewpoint(GameObject avatarOverride, Vector3 positionOffset, Vector3 rotationOffset, bool fixClippingPlanes, bool scaleDistanceWithAvatarScale)
+        /// <param name="avatarOverride">If this is null, get the avatar we're currently uploading</param>
+        void CenterCameraOnViewpoint(GameObject avatarOverride = null)
         {
-            if(fixClippingPlanes)            
-                Helpers.FixCameraClippingPlanes(SelectedCamera);
-            PumkinsCameraPreset.ApplyPositionAndRotationWithViewpointFocus(avatarOverride, SelectedCamera, positionOffset, rotationOffset, scaleDistanceWithAvatarScale);
+            if(!VRCCam)
+                return;
+
+            VRC_AvatarDescriptor desc;
+            if(avatarOverride == null)
+            {
+                var pm = FindObjectOfType<RuntimeBlueprintCreation>();
+                if(pm == null)
+                {
+                    Debug.Log("_RuntimeBlueprintCreation script not found. Start uploading an avatar to use this");
+                    return;
+                }
+                desc = pm.pipelineManager.GetComponent<VRC_AvatarDescriptor>();
+            }
+            else
+            {
+                desc = avatarOverride.GetComponent<VRC_AvatarDescriptor>();
+            }
+
+            if(desc == null)
+            {
+                Debug.Log("_Failed to center camera on Viewpoint. Avatar descriptor not found");
+                return;
+            }
+
+            VRCCam.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+            GameObject focusObj = new GameObject("FocusDummy");
+            focusObj.transform.position = desc.transform.position + desc.ViewPosition;
+            focusObj.transform.rotation = desc.transform.rotation;
+
+            Transform oldParent = VRCCam.transform.parent;
+            VRCCam.transform.parent = focusObj.transform;
+
+            focusObj.transform.localEulerAngles = focusObj.transform.localEulerAngles + new Vector3(5, 166, 0);
+
+            VRCCam.transform.localPosition = Vector3.zero + new Vector3(0, desc.ViewPosition.z * 0.05f, desc.ViewPosition.y * -0.28f);
+            VRCCam.transform.parent = null;
+            VRCCam.transform.position = VRCCam.transform.position + new Vector3(-0.02f, 0, 0);
+            VRCCam.transform.parent = oldParent;
+
+            DestroyImmediate(focusObj);
         }
 
-        void CenterCameraOnTransform(Transform transform, Vector3 positionOffset, Vector3 rotationOffset, bool fixClippingPlanes)
+        /// <summary>
+        /// Check whether or not we should ignore the object based on it being in the set.
+        /// </summary>
+        static bool ShouldIgnoreObject(Transform trans, Transform[] ignoreArray, bool includeChildren = false)
         {
-            if(fixClippingPlanes)
-                Helpers.FixCameraClippingPlanes(SelectedCamera);
-            PumkinsCameraPreset.ApplyPositionAndRotationWithTransformFocus(transform, SelectedCamera, positionOffset, rotationOffset);
+            if((!trans || ignoreArray == null) || trans == trans.root)
+                return false;
+
+            if(ignoreArray.Length > 0 && includeChildren)
+            {
+                var t = trans;
+                do
+                {
+                    if(ignoreArray.Contains(t))
+                        return true;
+                    t = t.parent;
+                } while(t != null && t != t.root);
+                return false;
+            }
+
+            if(ignoreArray.Contains(trans))
+                return true;
+            return false;
         }
-        
+
         /// <summary>
         /// Saves serialized variables to PlayerPrefs. 
         /// Used to keep same settings when restarting unity or going into play mode
@@ -4873,33 +3130,124 @@ namespace Pumkin.AvatarTools
         /// </summary>
         void LoadPrefs()
         {
-            if(_loadedPrefs)
-                return;
-
             var data = EditorPrefs.GetString("PumkinToolsWindow", JsonUtility.ToJson(this, false));
-            if(data != null)
-            {
-                JsonUtility.FromJsonOverwrite(data, this);
-                RefreshLanguage();
-                RefreshPresetIndex<PumkinsCameraPreset>();
-                RefreshPresetIndex<PumkinsPosePreset>();
-                RefreshPresetIndex<PumkinsBlendshapePreset>();
-                LogVerbose("Loaded tool window preferences");
-            }
-            else
-            {
-                LogVerbose("Failed to load window preferences");
-            }
-            _loadedPrefs = true;
+            JsonUtility.FromJsonOverwrite(data, this);
+            LogVerbose("Loaded tool window preferences");
+        }        
+
+        /// <summary>
+        /// Get path of transform in hierarchy (ex. Armature/Hips/Chest/Neck/Head/Hair01)
+        /// </summary>
+        /// <param name="trans">Transform to get path of</param>
+        /// <param name="skipRoot">Whether to skip the root transform in the hierarchy. We want to 99% of the time.</param>        
+        public static string GetGameObjectPath(Transform trans, bool skipRoot = true)
+        {
+            if(trans != null)
+                return GetGameObjectPath(trans.gameObject, skipRoot);
+            return null;
         }
 
         /// <summary>
-        /// Logs a message to console with a red PumkinsAvatarTools: prefix. Only if verbose logging is enabled.
+        /// Get path of GameObject's transform in hierarchy (ex. Armature/Hips/Chest/Neck/Head/Hair01)
+        /// </summary>
+        /// <param name="obj">GameObject to get path of</param>
+        /// <param name="skipRoot">Whether to skip the root transform in the hierarchy. We want to 99% of the time.</param>        
+        public static string GetGameObjectPath(GameObject obj, bool skipRoot = true)
+        {
+            if(!obj)
+                return string.Empty;
+
+            string path = null;
+            if(obj.transform != obj.transform.root)
+            {
+                if(!skipRoot)
+                    path = obj.transform.root.name + "/";
+                path += (AnimationUtility.CalculateTransformPath(obj.transform, obj.transform.root));
+            }
+            else
+            {
+                if(!skipRoot)
+                    path = obj.transform.root.name;
+            }
+            return path;
+        }
+
+        /// <summary>
+        /// Get name of object from path. Really just returns the text after last / or \
         /// </summary>        
-        /// <param name="logFormat">Same as string.format()</param>
+        public static string GetNameFromPath(string path)
+        {
+            if(string.IsNullOrEmpty(path))
+                return path;
+
+            for(int i = path.Length - 1; i >= 0; i--)
+            {
+                if(path[i] == '\\' || path[i] == '/')
+                {
+                    try
+                    {
+                        return path.Substring(i + 1);
+                    }
+                    catch
+                    {
+                        return path;
+                    }
+                }
+            }
+            return path;
+        }
+
+        /// <summary>
+        /// Get path without object name.
+        /// </summary>        
+        /// <returns>Returns all text before last / or \. A paths ending like this (Armature/Hips/) will return Armature/ </returns>
+        public static string GetPathNoName(string path)
+        {
+            if(string.IsNullOrEmpty(path))
+                return path;
+
+            for(int i = path.Length - 1; i >= 0; i--)
+            {
+                if((path[i] == '\\' || path[i] == '/'))
+                {
+                    if(i + 1 < path.Length - 1 && (path[i + 1] != '\r' && path[i + 1] != '\n'))
+                    {
+                        return path.Substring(0, i) + '/';
+                    }
+                }
+            }
+            return path;
+        }
+
+        /// <summary>
+        /// Returns path as a string array split by / or \
+        /// </summary>        
+        public static string[] GetPathAsArray(string path)
+        {
+            if(string.IsNullOrEmpty(path))
+                return null;
+
+            return path.Split('\\', '/');
+        }
+
+        /// <summary>
+        /// Looks for object in another object's child hierarchy. Can create if missing.
+        /// </summary>                
+        /// <returns>Transform of found object</returns>
+        public Transform FindTransformInAnotherHierarchy(Transform trans, Transform otherHierarchyTrans, bool createIfMissing)
+        {
+            if(!trans || !otherHierarchyTrans)
+                return null;
+
+            var childPath = GetGameObjectPath(trans);
+            var childTrans = otherHierarchyTrans.Find(childPath, createIfMissing, trans);
+
+            return childTrans;
+        }
+
         public static void LogVerbose(string message, LogType logType = LogType.Log, params string[] logFormat)
         {
-            if(!Instance.verboseLoggingEnabled)
+            if(!verboseLoggingEnabled)
                 return;
 
             if(logFormat.Length > 0)
@@ -4926,24 +3274,12 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        /// <summary>
-        /// Logs a message to console with a blue PumkinsAvatarTools: prefix.
-        /// </summary>        
-        /// <param name="logFormat">Same as string.format</param>
         public static void Log(string message, LogType logType = LogType.Log, params string[] logFormat)
         {
-            string msg = message;
-            try
-            {
-                if(logFormat.Length > 0)
-                    message = string.Format(message, logFormat);
-                message = "<color=blue>PumkinsAvatarTools</color>: " + message;
-            }
-            catch
-            {
-                message = msg;
-                logType = LogType.Warning;
-            }
+            if(logFormat.Length > 0)
+                message = string.Format(message, logFormat);
+            message = "<color=blue>PumkinsAvatarTools</color>: " + message;
+
             switch(logType)
             {
                 case LogType.Error:
@@ -4964,6 +3300,1832 @@ namespace Pumkin.AvatarTools
             }
         }
 
-#endregion
+        public static bool PhysMaterialsAreIdentical(PhysicMaterial mat1, PhysicMaterial mat2)
+        {
+            if(mat1 == null && mat2 == null)
+                return true;
+
+            if(mat1.bounceCombine == mat2.bounceCombine && mat1.bounciness == mat2.bounciness && mat1.dynamicFriction == mat2.dynamicFriction &&
+                mat1.frictionCombine == mat2.frictionCombine && mat1.staticFriction == mat2.staticFriction)
+                return true;
+            else
+                return false;
+        }
+
+        public static bool JointsAreIdentical(Joint j1, Joint j2)
+        {
+            throw new NotImplementedException();
+
+            //if(j1 == null && j2 == null)
+            //    return true;
+            //else if(j1.GetType() != j2.GetType())
+            //    return false;            
+
+            //if(j1 is FixedJoint)
+            //{
+            //    var j = (FixedJoint)j1;
+            //    var jj = (FixedJoint)j2;                
+            //}
+
+            //if(j1 is HingeJoint)
+            //{
+            //    var j = (HingeJoint)j1;
+            //    var jj = (HingeJoint)j2;
+            //}
+
+            //if(j1 is SpringJoint)
+            //{
+            //    var j = (SpringJoint)j1;
+            //    var jj = (SpringJoint)j2;
+            //}
+
+            //if(j1 is CharacterJoint)
+            //{
+            //    var j = (CharacterJoint)j1;
+            //    var jj = (CharacterJoint)j2;
+            //}
+
+            //if(j1 is ConfigurableJoint)
+            //{
+            //    var j = (ConfigurableJoint)j1;
+            //    var jj = (ConfigurableJoint)j2;
+            //}            
+        }
+
+        public static bool CollidersAreIdentical(Collider col1, Collider col2)
+        {
+            if(col1 == null && col2 == null)
+                return true;
+            else if(col1.GetType() != col2.GetType())
+                return false;
+
+            if(!PhysMaterialsAreIdentical(col1.material, col2.material) ||
+                !PhysMaterialsAreIdentical(col1.sharedMaterial, col2.sharedMaterial) || col1.isTrigger != col2.isTrigger)
+                return false;
+
+            if(col1 is BoxCollider)
+            {
+                var c = (BoxCollider)col1;
+                var cc = (BoxCollider)col2;
+
+                if(c.size != cc.size || c.center != c.center)
+                    return false;
+            }
+            else if(col1 is CapsuleCollider)
+            {
+                var c = (CapsuleCollider)col1;
+                var cc = (CapsuleCollider)col2;
+
+                if(c.center != cc.center || c.radius != c.radius || c.height != cc.height || c.direction != cc.direction)
+                    return false;
+
+            }
+            else if(col1 is SphereCollider)
+            {
+                var c = (SphereCollider)col1;
+                var cc = (SphereCollider)col2;
+
+                if(c.center != cc.center || c.radius != cc.radius)
+                    return false;
+            }
+            return true;
+        }
+
+        public static Vector3 RoundVectorValues(Vector3 v, int decimals)
+        {
+            return new Vector3((float)Math.Round(v.x, decimals), (float)Math.Round(v.y, decimals), (float)Math.Round(v.z, decimals));
+        }
+
+        public static string NextAvailableFilename(string path)
+        {
+            string numberPattern = " {0}";
+
+            // Short-cut if already available
+            if(!File.Exists(path))
+                return path;
+
+            // If path has extension then insert the number pattern just before the extension and return next filename
+            if(Path.HasExtension(path))
+                return GetNextFilename(path.Insert(path.LastIndexOf(Path.GetExtension(path)), numberPattern));
+
+            // Otherwise just append the pattern to the path and return next filename
+            return GetNextFilename(path + numberPattern);
+        }
+
+        private static string GetNextFilename(string pattern)
+        {
+            string tmp = string.Format(pattern, 1);
+            if(tmp == pattern)
+                throw new System.ArgumentException("The pattern must include an index place-holder", "pattern");
+
+            if(!File.Exists(tmp))
+                return tmp; // short-circuit if no matches
+
+            int min = 1, max = 2; // min is inclusive, max is exclusive/untested
+
+            while(File.Exists(string.Format(pattern, max)))
+            {
+                min = max;
+                max *= 2;
+            }
+
+            while(max != min + 1)
+            {
+                int pivot = (max + min) / 2;
+                if(File.Exists(string.Format(pattern, pivot)))
+                    min = pivot;
+                else
+                    max = pivot;
+            }
+
+            return string.Format(pattern, max);
+        }
+
+        public static bool TransformIsInDefaultPosition(Transform t, bool onlyRotation)
+        {
+            if(t == null)
+                return false;
+
+            string tPath = GetGameObjectPath(t.gameObject);
+            var pref = PrefabUtility.GetPrefabParent(t.root.gameObject) as GameObject;
+
+            if(pref == null)
+                return false;
+
+            Transform tP = pref.transform.Find(tPath);
+
+            if(tP == null)
+                return false;
+
+            if(onlyRotation)
+            {
+                return t.localRotation == tP.localRotation;
+            }
+            else
+            {
+                if(t.localPosition == tP.localPosition && t.localRotation == tP.localRotation && t.localEulerAngles == tP.localEulerAngles)
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        public static void DrawGuiLine(float height = 1f)
+        {
+            EditorGUILayout.Space();
+            GUILayout.Box(GUIContent.none, Styles.Editor_line, GUILayout.ExpandWidth(true), GUILayout.Height(height));
+            EditorGUILayout.Space();
+        }
+
+        public static void DrawPropertyArrayScrolling(SerializedProperty property, string displayName, ref bool expanded, ref Vector2 scrollPosition, float minHeight, float maxHeight)
+        {
+            if(property == null)
+                return;
+
+            expanded = EditorGUILayout.Foldout(expanded, displayName);
+            if(expanded)
+            {
+                SerializedProperty arraySizeProp = property.FindPropertyRelative("Array.size");
+                EditorGUILayout.PropertyField(arraySizeProp, new GUIContent(Strings.Copier.Size ?? "Size"));
+
+                scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.MinHeight(Mathf.Clamp(arraySizeProp.intValue * 20, 0, maxHeight)), GUILayout.MaxHeight(maxHeight));
+                EditorGUI.indentLevel++;
+                for(int i = 0; i < arraySizeProp.intValue; i++)
+                {
+                    EditorGUILayout.PropertyField(property.GetArrayElementAtIndex(i));
+                }                
+                EditorGUI.indentLevel--;
+                EditorGUILayout.EndScrollView();
+            }            
+        }
+
+        public static void DrawPropertyArray(SerializedProperty property, string displayName, ref bool expanded)
+        {
+            if(property == null)
+                return;
+
+            expanded = EditorGUILayout.Foldout(expanded, displayName);
+            if(expanded)
+            {
+                SerializedProperty arraySizeProp = property.FindPropertyRelative("Array.size");
+				EditorGUILayout.PropertyField(arraySizeProp, new GUIContent(Strings.Copier.Size ?? "Size"));
+
+                EditorGUI.indentLevel++;
+
+                for(int i = 0; i < arraySizeProp.intValue; i++)
+                {
+                    EditorGUILayout.PropertyField(property.GetArrayElementAtIndex(i));
+                }
+
+                EditorGUI.indentLevel--;
+            }
+        }
+
+        #endregion
     }
+    #region Data Structures
+
+    public static class Colors
+    {
+        public static Color SceneGUIWindow { get; internal set; }
+        public static Color DefaultCameraBackground { get; internal set; }
+        public static Color DarkCameraBackground { get; internal set; }
+        public static Color BallHandle { get; internal set; }
+        public static Color LightLabelText { get; internal set; }
+
+        static Colors()
+        {
+            SceneGUIWindow = new Color(0.3804f, 0.3804f, 0.3804f, 0.7f);
+            DefaultCameraBackground = new Color(0.192f, 0.302f, 0.475f);
+            DarkCameraBackground = new Color(0.235f, 0.22f, 0.22f);
+            BallHandle = new Color(1, 0.92f, 0.016f, 0.5f);
+            LightLabelText = Color.white;
+        }
+    }
+
+    public static class Styles
+    {
+        public static GUIStyle Foldout_title { get; internal set; }
+        public static GUIStyle Label_mainTitle { get; internal set; }
+        public static GUIStyle Label_centered { get; internal set; }
+        public static GUIStyle Editor_line { get; internal set; }
+        public static GUIStyle Label_rightAligned { get; internal set; }
+        public static GUIStyle Foldout { get; internal set; }
+        public static GUIStyle HelpBox { get; internal set; }
+        public static GUIStyle HelpBox_OneLine { get; internal set; }
+        public static GUIStyle Box { get; internal set; }
+        public static GUIStyle BigButton { get; internal set; }
+        public static GUIStyle LightTextField { get; internal set; }
+
+        static Styles()
+        {
+            BigButton = new GUIStyle("Button")
+            {
+                fixedHeight = 28f,
+                stretchHeight = false,
+            };
+            Foldout_title = new GUIStyle("Foldout")
+            {
+                fontStyle = FontStyle.Bold,
+                fontSize = 12,
+            };
+
+            Label_mainTitle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontStyle = FontStyle.Bold,
+                fontSize = 14,
+            };
+
+            Label_centered = new GUIStyle(EditorStyles.label)
+            {
+                alignment = TextAnchor.UpperCenter,
+            };
+
+            Label_rightAligned = new GUIStyle(EditorStyles.label)
+            {
+                alignment = TextAnchor.MiddleRight,
+                stretchWidth = true,
+            };
+
+            Editor_line = new GUIStyle("box")
+            {
+                border = new RectOffset(1, 1, 1, 1),
+                margin = new RectOffset(5, 5, 1, 1),
+                padding = new RectOffset(1, 1, 1, 1),
+            };
+
+            HelpBox_OneLine = new GUIStyle("HelpBox")
+            {
+                fixedHeight = 17,
+                stretchHeight = false,
+            };
+
+            LightTextField = new GUIStyle("TextField");
+            LightTextField.normal.textColor = Color.white;
+
+            Foldout = new GUIStyle("Foldout");
+            HelpBox = new GUIStyle("HelpBox");
+            Box = new GUIStyle("box");
+        }
+    }
+
+    public struct Icons
+    {
+
+        public static Texture2D Star { get; internal set; }
+        public static Texture2D CsScript { get; internal set; }
+        public static Texture2D Transform { get; internal set; }
+        public static Texture2D Avatar { get; internal set; }
+        public static Texture2D SkinnedMeshRenderer { get; internal set; }
+        public static Texture2D ColliderBox { get; internal set; }
+        public static Texture2D DefaultAsset { get; internal set; }
+        public static Texture2D Help { get; internal set; }
+        public static Texture2D ParticleSystem { get; internal set; }
+        public static Texture2D RigidBody { get; internal set; }
+        public static Texture2D Prefab { get; internal set; }
+        public static Texture2D TrailRenderer { get; internal set; }
+        public static Texture2D BoneIcon { get; internal set; }
+        public static Texture2D BoneColliderIcon { get; internal set; }
+        public static Texture2D MeshRenderer { get; internal set; }
+        public static Texture2D Light { get; internal set; }
+        public static Texture2D Animator { get; internal set; }
+        public static Texture2D AudioSource { get; internal set; }
+        public static Texture2D Joint { get; internal set; }
+
+        public static Texture2D DiscordIcon { get; internal set; }
+        public static Texture2D GithubIcon { get; internal set; }
+        public static Texture2D KofiIcon { get; internal set; }
+
+        static Icons()
+        {
+#if UNITY_2017
+            Star = EditorGUIUtility.FindTexture("Favorite Icon");
+            CsScript = EditorGUIUtility.FindTexture("cs Script Icon");
+            Transform = EditorGUIUtility.FindTexture("Transform Icon");
+            Avatar = EditorGUIUtility.FindTexture("Avatar Icon");
+            SkinnedMeshRenderer = EditorGUIUtility.FindTexture("SkinnedMeshRenderer Icon");
+            ColliderBox = EditorGUIUtility.FindTexture("BoxCollider Icon");
+            DefaultAsset = EditorGUIUtility.FindTexture("DefaultAsset Icon");
+            Help = EditorGUIUtility.FindTexture("_Help");
+            ParticleSystem = EditorGUIUtility.FindTexture("ParticleSystem Icon");
+            RigidBody = EditorGUIUtility.FindTexture("Rigidbody Icon");
+            Prefab = EditorGUIUtility.FindTexture("Prefab Icon");
+            TrailRenderer = EditorGUIUtility.FindTexture("TrailRenderer Icon");
+            MeshRenderer = EditorGUIUtility.FindTexture("MeshRenderer Icon");
+            Light = EditorGUIUtility.FindTexture("Light Icon");
+            Animator = EditorGUIUtility.FindTexture("Animator Icon");
+            AudioSource = EditorGUIUtility.FindTexture("AudioSource Icon");
+            Joint = EditorGUIUtility.FindTexture("FixedJoint Icon");
+
+            BoneIcon = Resources.Load("icons/bone-icon") as Texture2D ?? CsScript;
+            BoneColliderIcon = Resources.Load("icons/bonecollider-icon") as Texture2D ?? DefaultAsset;
+            DiscordIcon = Resources.Load("icons/discord-logo") as Texture2D ?? Star;
+            GithubIcon = Resources.Load("icons/github-logo") as Texture2D ?? Star;
+            KofiIcon = Resources.Load("icons/kofi-logo") as Texture2D ?? Star;
+#else
+            Star = (Texture2D)EditorGUIUtility.IconContent("Favorite Icon").image;
+            CsScript = (Texture2D)EditorGUIUtility.IconContent("cs Script Icon").image;
+            Transform = (Texture2D)EditorGUIUtility.IconContent("Transform Icon").image;
+            Avatar = (Texture2D)EditorGUIUtility.IconContent("Avatar Icon").image;
+            SkinnedMeshRenderer = (Texture2D)EditorGUIUtility.IconContent("SkinnedMeshRenderer Icon").image;
+            ColliderBox = (Texture2D)EditorGUIUtility.IconContent("BoxCollider Icon").image;
+            DefaultAsset = (Texture2D)EditorGUIUtility.IconContent("DefaultAsset Icon").image;
+            Help = (Texture2D)EditorGUIUtility.IconContent("_Help").image;
+            ParticleSystem = (Texture2D)EditorGUIUtility.IconContent("ParticleSystem Icon").image;
+            RigidBody = (Texture2D)EditorGUIUtility.IconContent("Rigidbody Icon").image;
+            Prefab = (Texture2D)EditorGUIUtility.IconContent("Prefab Icon").image;
+            TrailRenderer = (Texture2D)EditorGUIUtility.IconContent("TrailRenderer Icon").image;
+            MeshRenderer = (Texture2D)EditorGUIUtility.IconContent("MeshRenderer Icon").image;
+            Light = (Texture2D)EditorGUIUtility.IconContent("Light Icon").image;
+            Animator = (Texture2D)EditorGUIUtility.IconContent("Animator Icon").image;
+            AudioSource = (Texture2D)EditorGUIUtility.IconContent("AudioSource Icon").image;
+            Joint = (Texture2D)EditorGUIUtility.IconContent("FixedJoint Icon").image;
+
+            BoneIcon = Resources.Load("icons/bone-icon") as Texture2D ?? CsScript;
+            BoneColliderIcon = Resources.Load("icons/bonecollider-icon") as Texture2D ?? DefaultAsset;
+            DiscordIcon = Resources.Load("icons/discord-logo") as Texture2D ?? Star;
+            GithubIcon = Resources.Load("icons/github-logo") as Texture2D ?? Star;
+            KofiIcon = Resources.Load("icons/kofi-logo") as Texture2D ?? Star;        
+#endif
+        }
+
+    }
+
+    /// <summary>
+    /// Strings. Need to move these to files eventually
+    /// </summary>
+    public static class Strings
+    {
+        public static readonly string version = "0.7b - Work in Progress";
+        public static readonly string toolsPage = "https://github.com/rurre/PumkinsAvatarTools/";
+        public static readonly string donationLink = "https://ko-fi.com/notpumkin";
+        public static readonly string discordLink = "https://discord.gg/7vyekJv";
+        readonly static Dictionary<string, string> dictionary_english, dictionary_uwu;
+        static Dictionary<string, string> stringDictionary;
+        static DictionaryLanguage language;
+
+        public enum DictionaryLanguage { English, uwu = 100 };
+
+        static public DictionaryLanguage Language
+        {
+            get { return language; }
+            set
+            {
+                if(value != language)
+                {
+                    switch(value)
+                    {
+                        case DictionaryLanguage.English:
+                            stringDictionary = dictionary_english;
+                            break;
+                        case DictionaryLanguage.uwu:
+                            stringDictionary = dictionary_uwu;
+                            break;
+                        default:
+                            stringDictionary = dictionary_english;
+                            break;
+                    }
+                    language = value;
+                    ReloadStrings();
+                }
+            }
+        }
+
+        public static class AvatarInfo
+        {
+            public static string SelectAvatarFirst { get; internal set; }
+
+            public static string Name { get; internal set; }
+            public static string GameObjects { get; internal set; }
+            public static string Bones { get; internal set; }
+            public static string SkinnedMeshRenderers { get; internal set; }
+            public static string MeshRenderers { get; internal set; }
+            public static string Polygons { get; internal set; }
+            public static string UsedMaterialSlots { get; internal set; }
+            public static string UniqueMaterials { get; internal set; }
+            public static string Shaders { get; internal set; }
+            public static string DynamicBoneTransforms { get; internal set; }
+            public static string DynamicBoneColliders { get; internal set; }
+            public static string DynamicBoneColliderTransforms { get; internal set; }
+            public static string ParticleSystems { get; internal set; }
+            public static string MaxParticles { get; internal set; }
+            public static string OverallPerformance { get; internal set; }
+            public static string Line { get; internal set; }
+
+            static AvatarInfo()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                Name = GetString("ui_avatarInfo_name") ?? "_{0}";
+                Line = GetString("ui_avatarInfo_line") ?? "---------------------";
+                GameObjects = GetString("ui_avatarInfo_gameobjects") ?? "_GameObjects: {0} ({1})";
+                Bones = GetString("ui_avatarInfo_bones") ?? "_Bones: {0} - {1}";
+                SkinnedMeshRenderers = GetString("ui_avatarInfo_skinnedMeshRenderers") ?? "_Skinned Mesh Renderers: {0} ({1}) - {2}";
+                MeshRenderers = GetString("ui_avatarInfo_meshRenderers") ?? "_Mesh Renderers: {0} ({1}) - {2}";
+                Polygons = GetString("ui_avatarInfo_polygons") ?? "_Polygons: {0} ({1}) - {2}";
+                UsedMaterialSlots = GetString("ui_avatarInfo_usedMaterialSlots") ?? "_Used Material Slots: {0} ({1}) - {2}";
+                UniqueMaterials = GetString("ui_avatarInfo_uniqueMaterials") ?? "_Unique Materials: {0} ({1})";
+                Shaders = GetString("ui_avatarInfo_shaders") ?? "_Shaders: {0}";
+                DynamicBoneTransforms = GetString("ui_avatarInfo_dynamicBoneTransforms") ?? "_Dynamic Bone Transforms: {0} ({1}) - {2}";
+                DynamicBoneColliders = GetString("ui_avatarInfo_dynamicBoneColliders") ?? "_Dynamic Bone Colliders: {0} ({1}) - {2}";
+                DynamicBoneColliderTransforms = GetString("ui_avatarInfo_dynamicBoneColliderTransforms") ?? "_Collider Affected Transforms: {0} ({1}) - {2}";
+                ParticleSystems = GetString("ui_avatarInfo_particleSystems") ?? "_Particle Systems: {0} ({1}) - {2}";
+                MaxParticles = GetString("ui_avatarInfo_maxParticles") ?? "_Max Particles: {0} ({1}) - {2}";
+                OverallPerformance = GetString("ui_avatarInfo_overallPerformance") ?? "_Overall Performance: {0}";
+                SelectAvatarFirst = GetString("ui_avatarInfo_selectAvatarFirst") ?? "_Select an Avatar first";
+            }
+        }
+
+        public static class Main
+        {
+            public static string Title { get; internal set; }
+            public static string WindowName { get; internal set; }
+            public static string Version { get; internal set; }
+            public static string Avatar { get; internal set; }
+            public static string Tools { get; internal set; }
+            public static string Copier { get; internal set; }
+            public static string RemoveAll { get; internal set; }
+            public static string AvatarInfo { get; internal set; }
+            public static string Thumbnails { get; internal set; }
+
+            public static string Misc { get; internal set; }
+            public static string UseSceneSelection { get; internal set; }
+
+            static Main()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                Avatar = GetString("ui_main_avatar") ?? "_Avatar";
+                Title = GetString("ui_main_title") ?? "_Pumkin's Avatar Tools";
+                Version = GetString("ui_main_version") ?? "_Version";
+                WindowName = GetString("ui_main_windowName") ?? "_Pumkin Tools";
+                Tools = GetString("ui_tools") ?? "_Tools";
+                Copier = GetString("ui_copier") ?? "_Copy Components";
+                AvatarInfo = GetString("ui_avatarInfo") ?? "_Avatar Info";
+                RemoveAll = GetString("ui_removeAll") ?? "_Remove All";
+                Misc = GetString("ui_misc") ?? "_Misc";
+                Thumbnails = GetString("ui_thumbnails") ?? "_Thumbnails";
+                UseSceneSelection = GetString("ui_useSceneSelection") ?? "_Use Scene Selection";
+            }
+
+        };
+        public static class Buttons
+        {
+            public static string SelectFromScene { get; internal set; }
+            public static string CopySelected { get; internal set; }
+            public static string Cancel { get; internal set; }
+            public static string Apply { get; internal set; }
+            public static string Refresh { get; internal set; }
+            public static string Copy { get; internal set; }
+            public static string OpenHelpPage { get; internal set; }
+            public static string OpenGithubPage { get; internal set; }
+            public static string OpenDonationPage { get; internal set; }
+            public static string OpenPoseEditor { get; internal set; }
+            public static string JoinDiscordServer { get; internal set; }
+            public static string SelectNone { get; internal set; }
+            public static string SelectAll { get; internal set; }
+            public static string Browse { get; internal set; }
+
+            static Buttons()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                SelectFromScene = GetString("buttons_selectFromScene") ?? "_Select from Scene";
+                CopySelected = GetString("buttons_copySelected") ?? "_Copy Selected";
+                Refresh = GetString("buttons_refresh") ?? "_Refresh";
+                Cancel = GetString("buttons_cancel") ?? "_Cancel";
+                Apply = GetString("buttons_apply") ?? "_Apply";
+                Copy = GetString("buttons_copyText") ?? "_Copy Text";
+                OpenHelpPage = GetString("buttons_openHelpPage") ?? "_Open Help Page";
+                OpenGithubPage = GetString("buttons_openGithubPage") ?? "_Open Github Page";
+                OpenDonationPage = GetString("buttons_openDonationPage") ?? "_Buy me a Ko-Fi~";
+                OpenPoseEditor = GetString("buttons_openPoseEditor") ?? "_Open Pose Editor";
+                JoinDiscordServer = GetString("buttons_joinDiscordServer") ?? "_Join Discord Server!";
+                SelectNone = GetString("buttons_selectNone") ?? "_Select None";
+                SelectAll = GetString("buttons_selectAll") ?? "_Select All";
+                Browse = GetString("buttons_browse") ?? "_Browse";
+            }
+        };
+        public static class Tools
+        {
+            public static string FillVisemes { get; internal set; }
+            public static string EditViewpoint { get; internal set; }
+            public static string RevertBlendshapes { get; internal set; }
+            public static string ZeroBlendshapes { get; internal set; }
+            public static string ResetPose { get; internal set; }
+            public static string ResetToTPose { get; internal set; }
+            public static string EditScale { get; internal set; }
+
+            static Tools()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                FillVisemes = GetString("ui_tools_fillVisemes") ?? "_Fill Visemes";
+                EditViewpoint = GetString("ui_tools_editViewpoint") ?? "_Edit Viewpoint";
+                RevertBlendshapes = GetString("ui_tools_revertBlendShapes") ?? "_Revert Blendshapes";
+                ZeroBlendshapes = GetString("ui_tools_zeroBlendShapes") ?? "_Zero Blendshapes";
+                ResetPose = GetString("ui_tools_resetPose") ?? "_Reset Pose";
+                ResetToTPose = GetString("ui_tools_resetToTPose") ?? "_Reset to T-Pose";
+                EditScale = GetString("ui_tools_editScale") ?? "_Edit Scale";
+            }
+        };
+        public static class Thumbnails
+        {
+            public static string OverlayCameraImage { get; internal set; }
+            public static string OverlayTexture { get; internal set; }
+            public static string StartUploadingFirst { get; internal set; }
+            public static string CenterCameraOnViewpoint { get; internal set; }
+            public static string BackgroundType { get; internal set; }
+            public static string BackgroundType_None { get; internal set; }
+            public static string BackgroundType_Material { get; internal set; }
+            public static string BackgroundType_Color { get; internal set; }
+            public static string HideOtherAvatars { get; internal set; }
+            public static string BackgroundType_Image { get; internal set; }
+
+            static Thumbnails()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                OverlayCameraImage = GetString("ui_thumbnails_overlayCameraImage") ?? "_Overlay Image";
+                OverlayTexture = GetString("ui_thumbnails_overlayTexture") ?? "_Overlay Texture";
+                StartUploadingFirst = GetString("ui_thumbnails_startUploadingFirst") ?? "_Start uploading an Avatar first";
+                CenterCameraOnViewpoint = GetString("ui_thumbnails_centerCameraOnViewpoint") ?? "_Center Camera on Viewpoint";
+
+                BackgroundType = GetString("ui_thumbnails_backgroundType") ?? "_Background Type";
+
+                BackgroundType_None = GetString("ui_thumbnails_backgroundType_none") ?? "_None";
+                BackgroundType_Material = GetString("ui_thumbnails_backgroundType_material") ?? "_Material";
+                BackgroundType_Color = GetString("ui_thumbnails_backgroundType_color") ?? "_Color";
+                BackgroundType_Image = GetString("ui_thumbnails_backgroundType_image") ?? "_Image";
+
+                HideOtherAvatars = GetString("ui_thumbnails_hideOtherAvatars") ?? "_Hide Other Avatars when Uploading";
+            }
+        }
+        public static class Copier
+        {
+            public static string CopyFrom { get; internal set; }
+            public static string CopyGameObjects { get; internal set; }
+            public static string CopyColliderObjects { get; internal set; }
+            public static string CopySettings { get; internal set; }
+            public static string CreateMissing { get; internal set; }
+
+            public static string Transforms { get; internal set; }
+            public static string Transforms_position { get; internal set; }
+            public static string Transforms_rotation { get; internal set; }
+            public static string Transforms_scale { get; internal set; }
+            public static string Transforms_avatarScale { get; internal set; }
+            public static string DynamicBones { get; internal set; }
+            public static string DynamicBones_colliders { get; internal set; }
+            public static string DynamicBones_removeOldBones { get; internal set; }
+            public static string DynamicBones_removeOldColliders { get; internal set; }
+            public static string DynamicBones_createMissing { get; internal set; }
+            public static string Colliders { get; internal set; }
+            public static string Colliders_box { get; internal set; }
+            public static string Colliders_capsule { get; internal set; }
+            public static string Colliders_sphere { get; internal set; }
+            public static string Colliders_mesh { get; internal set; }
+            public static string Colliders_removeOld { get; internal set; }
+            public static string Descriptor { get; internal set; }
+            public static string Descriptor_pipelineId { get; internal set; }
+            public static string Descriptor_animationOverrides { get; internal set; }
+            public static string SkinMeshRender { get; internal set; }
+            public static string SkinMeshRender_materials { get; internal set; }
+            public static string SkinMeshRender_blendShapeValues { get; internal set; }
+            public static string ParticleSystems { get; internal set; }
+            public static string RigidBodies { get; internal set; }
+            public static string TrailRenderers { get; internal set; }
+            public static string EmptyGameObjects { get; internal set; }
+            public static string MeshRenderers { get; internal set; }
+            public static string Lights { get; internal set; }
+            public static string Animators { get; internal set; }
+            public static string CopyMainAnimator { get; internal set; }
+            public static string ReplaceOld { get; internal set; }
+            public static string Animators_inChildren { get; internal set; }
+            public static string AudioSources { get; internal set; }
+            public static string Joints { get; internal set; }
+			public static string Exclusions { get; internal set; }
+			public static string IncludeChildren { get; private set; }
+			public  static string Size { get; private set; }
+
+			static Copier()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                CopyFrom = GetString("ui_copier_copyFrom") ?? "_Copy From";
+
+                CopySettings = GetString("ui_copier_copySettings") ?? "_Settings";
+                CreateMissing = GetString("ui_copier_createMissing") ?? "_Create Missing";
+                EmptyGameObjects = GetString("ui_copier_emptyGameObjects") ?? "_Empty GameObjects";
+                ReplaceOld = GetString("ui_copier_replaceOld") ?? "_Replace Old";
+
+                Transforms = GetString("ui_copier_transforms") ?? "_Transforms";
+                Transforms_position = GetString("ui_copier_transforms_position") ?? "_Position";
+                Transforms_rotation = GetString("ui_copier_transforms_rotation") ?? "_Rotation";
+                Transforms_scale = GetString("ui_copier_transforms_scale") ?? "_Scale";
+                Transforms_avatarScale = GetString("ui_copier_transforms_avatarScale") ?? "_Avatar Scale";
+                DynamicBones = GetString("ui_copier_dynamicBones") ?? "_Dynamic Bones";
+                DynamicBones_colliders = GetString("ui_copier_dynamicBones_colliders") ?? "_Colliders";
+                DynamicBones_removeOldBones = GetString("ui_copier_dynamicBones_removeOld") ?? "_Remove Old Bones";
+                DynamicBones_removeOldColliders = GetString("ui_copier_dynamicBones_removeOldColliders") ?? "_Remove Old Colliders";
+                DynamicBones_createMissing = GetString("ui_copier_dynamicBones_createMissing") ?? "_Create Missing Bones";
+                Colliders = GetString("ui_copier_colliders") ?? "_Colliders";
+                Colliders_box = GetString("ui_copier_colliders_box") ?? "_Box Colliders";
+                Colliders_capsule = GetString("ui_copier_colliders_capsule") ?? "_Capsule Colliders";
+                Colliders_sphere = GetString("ui_copier_colliders_sphere") ?? "_Sphere Colliders";
+                Colliders_mesh = GetString("ui_copier_colliders_mesh") ?? "_Mesh Colliders";
+                Colliders_removeOld = GetString("ui_copier_colliders_removeOld") ?? "_Remove Old Colliders";
+                Descriptor = GetString("ui_copier_descriptor") ?? "_Avatar Descriptor";
+                Descriptor_pipelineId = GetString("ui_copier_descriptor_pipelineId") ?? "_Pipeline Id";
+                Descriptor_animationOverrides = GetString("ui_copier_descriptor_animationOverrides") ?? "_Animation Overrides";
+                SkinMeshRender = GetString("ui_copier_skinMeshRender") ?? "_Skinned Mesh Renderers";
+                SkinMeshRender_materials = GetString("ui_copier_skinMeshRender_materials") ?? "_Materials";
+                SkinMeshRender_blendShapeValues = GetString("ui_copier_skinMeshRender_blendShapeValues") ?? "_BlendShape Values";
+                ParticleSystems = GetString("ui_copier_particleSystem") ?? "_Particle Systems";
+                RigidBodies = GetString("ui_copier_rigidBodies") ?? "_Rigid Bodies";
+                TrailRenderers = GetString("ui_copier_trailRenderers") ?? "_Trail Renderers";
+                MeshRenderers = GetString("ui_copier_meshRenderers") ?? "_Mesh Renderers";
+                CopyGameObjects = GetString("ui_copier_copyGameObjects") ?? "_Copy GameObjects";
+                CopyColliderObjects = GetString("ui_copier_dynamicBones_copyColliderObjects") ?? "_Copy Collider Objects";
+                Lights = GetString("ui_copier_lights") ?? "_Lights";
+                Animators = GetString("ui_copier_animators") ?? "_Animators";
+                CopyMainAnimator = GetString("ui_copier_animators_copyMain") ?? "_Copy Main Animator";
+                Animators_inChildren = GetString("ui_copier_animatorsInChildren") ?? "_Child Animators";
+                AudioSources = GetString("ui_copier_audioSources") ?? "_Audio Sources";
+                Joints = GetString("ui_copier_joints") ?? "_Joints";
+				Exclusions = GetString("ui_copier_exclusions") ?? "_Exclusions";
+				IncludeChildren = GetString("ui_copier_includeChildren") ?? "_Include Children";	
+				Size = GetString("ui_copier_size") ?? "_Size";
+            }
+        };
+        public static class Log
+        {
+            public static string CopyAttempt { get; internal set; }
+            public static string RemoveAttempt { get; internal set; }
+            public static string CopyFromInvalid { get; internal set; }
+            public static string Done { get; internal set; }
+            public static string Failed { get; internal set; }
+            public static string CantCopyToSelf { get; internal set; }
+            public static string ViewpointApplied { get; internal set; }
+            public static string ViewpointCancelled { get; internal set; }
+            public static string Cancelled { get; internal set; }
+            public static string NoSkinnedMeshFound { get; internal set; }
+            public static string DescriptorIsNull { get; internal set; }
+            public static string Success { get; internal set; }
+            public static string TryFillVisemes { get; internal set; }
+            public static string TryRemoveUnsupportedComponent { get; internal set; }
+            public static string MeshHasNoVisemes { get; internal set; }
+            public static string FailedIsNull { get; internal set; }
+            public static string NameIsEmpty { get; internal set; }
+            public static string LoadedPose { get; internal set; }
+            public static string LoadedBlendshapePreset { get; internal set; }
+            public static string NothingSelected { get; internal set; }
+            public static string FailedDoesntHave { get; internal set; }            
+            public static string FailedAlreadyHas { get; internal set; }
+            public static string LoadedCameraOverlay { get; internal set; }
+            public static string FailedHasNo { get; internal set; }
+
+            static Log()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                Done = GetString("log_done") ?? "_Done";
+                Cancelled = GetString("log_cancelled") ?? "_Cancelled";
+                NothingSelected = GetString("log_nothingSelected") ?? "_Select something first";
+                CantCopyToSelf = GetString("log_cantCopyToSelf") ?? "_Can't copy Components from an object to itself. What are you doing?";
+                CopyAttempt = GetString("log_copyAttempt") ?? "_Attempting to copy {0} from {1} to {2}";
+                RemoveAttempt = GetString("log_removeAttempt") ?? "_Attempting to remove {0} from {1}";
+                CopyFromInvalid = GetString("log_copyFromInvalid") ?? "_Can't copy Components because 'Copy From' is invalid";
+                ViewpointApplied = GetString("log_viewpointApplied") ?? "_Set Viewposition to {0}";
+                ViewpointCancelled = GetString("log_viewpointCancelled") ?? "_Cancelled Viewposition changes";
+                TryFillVisemes = GetString("log_tryFillVisemes") ?? "_Attempting to fill visemes on {0}";
+                NoSkinnedMeshFound = GetString("log_noSkinnedMeshFound") ?? "_Failed: No skinned mesh found";
+                DescriptorIsNull = GetString("log_descriptorIsNull") ?? "_Avatar descriptor is null";
+                Success = GetString("log_success") ?? "_Success";
+                MeshHasNoVisemes = GetString("log_meshHasNoVisemes") ?? "_Failed. Mesh has no Visemes. Set to Default";
+                TryRemoveUnsupportedComponent = GetString("log_tryRemoveUnsupportedComponent") ?? "_Attempting to remove unsupported component {0} from {1}";
+                Failed = GetString("log_failed") ?? "_Failed";
+                FailedIsNull = GetString("log_failedIsNull") ?? "_Failed: {1} is null";
+                NameIsEmpty = GetString("log_nameIsEmpty") ?? "_Name is Empty";
+                LoadedPose = GetString("log_loadedPose") ?? "_Loaded Pose: {0}";
+                LoadedBlendshapePreset = GetString("log_loadedBlendshapePreset") ?? "_Loaded Blendshapes: {0}";
+                FailedDoesntHave = GetString("log_failedDoesntHave") ?? "_Failed: {0} doesn't have a {1}";                
+                FailedAlreadyHas = GetString("log_failedAlreadyHas") ?? "_Failed: {1} already has {0}";
+                LoadedCameraOverlay = GetString("log_loadedCameraOverlay") ?? "_Loaded {0} as Camera Overlay";
+                FailedHasNo = GetString("log_failedHasNo") ?? "_{0} has no {1}, Ignoring.";
+            }
+        };
+        public static class Warning
+        {
+            public static string Warn { get; internal set; }
+            public static string NotFound { get; internal set; }
+            public static string SelectSceneObject { get; internal set; }
+            public static string OldVersion { get; internal set; }
+            public static string VRCCamNotFound { get; internal set; }
+
+            static Warning()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                Warn = GetString("warn_warning") ?? "_Warning";
+                NotFound = GetString("warn_notFound") ?? "_(Not Found)";
+                OldVersion = GetString("warn_oldVersion") ?? "_(Old Version)";
+                SelectSceneObject = GetString("warn_selectSceneObject") ?? "_Please select an object from the scene";
+                VRCCamNotFound = GetString("warn_vrcCamNotFound") ?? "_VRCCam not found";
+            }
+        };
+        public static class Credits
+        {
+            public static string Title { get; internal set; }
+            public static string Version { get; internal set; }
+            public static string RedundantStrings { get; internal set; }
+            public static string JsonDotNetCredit { get; internal set; }
+            public static string AddMoreStuff { get; internal set; }
+            public static string PokeOnDiscord { get; internal set; }
+
+            static Credits()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                Title = GetString("credits_title") ?? "_Pumkin's Avatar Tools";
+                Version = GetString("credits_version") ?? "_Version" + " " + version;
+                RedundantStrings = GetString("credits_redundantStrings") ?? "_Now with 100% more redundant strings";
+                JsonDotNetCredit = GetString("credits_jsonDotNetCredit") ?? "_JsonDotNet by Newtonsoft";
+                AddMoreStuff = GetString("credits_addMoreStuff") ?? "_I'll add more stuff to this eventually";
+                PokeOnDiscord = GetString("credits_pokeOnDiscord") ?? "_Poke me on Discord at Pumkin#2020";
+            }
+        };
+        public static class Misc
+        {
+            public static string uwu { get; internal set; }
+            public static string SearchForBones { get; internal set; }
+            public static string SuperExperimental { get; internal set; }
+
+            private static string searchForBones;
+
+            static Misc()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                uwu = GetString("misc_uwu") ?? "_uwu";
+                SearchForBones = GetString("misc_searchForBones") ?? "_Search for DynamicBones";
+                SuperExperimental = GetString("misc_superExperimental") ?? "_Super Experimental Stuff:";
+            }
+        }
+
+        public static class PoseEditor
+        {
+            public static string Title { get; internal set; }
+
+            public static string Scene { get; internal set; }
+            public static string SceneLoadAdditive { get; internal set; }
+            public static string SceneOverrideLights { get; internal set; }
+
+            public static string AvatarPosition { get; internal set; }
+            public static string AvatarPositionOverridePose { get; internal set; }
+            public static string AvatarPositionOverrideBlendshapes { get; internal set; }
+
+            public static string SceneSaveChanges { get; internal set; }
+            public static string UnloadScene { get; internal set; }
+            public static string ResetPosition { get; internal set; }
+
+            public static string Pose { get; internal set; }
+            public static string NewPose { get; internal set; }
+            public static string OnlySavePoseChanges { get; internal set; }
+            public static string LoadPose { get; internal set; }
+
+            public static string Blendshapes { get; internal set; }
+            public static string NewPreset { get; internal set; }
+            public static string LoadPreset { get; internal set; }
+
+            public static string SaveButton { get; internal set; }
+            public static string ReloadButton { get; internal set; }
+
+            public static string BodyPositionYTooSmall { get; internal set; }
+
+            static PoseEditor()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                Title = GetString("ui_poseEditor") ?? "_Pose Editor (Very Beta)";
+                Scene = GetString("ui_poseEditor_scene") ?? "_Scene";
+                SceneLoadAdditive = GetString("ui_poseEditor_scene_loadAdditive") ?? "_Load Additive";
+                SceneOverrideLights = GetString("ui_poseEditor_scene_overrideLights") ?? "_Override Lights";
+                AvatarPosition = GetString("ui_poseEditor_avatarPosition") ?? "_Avatar Position";
+                AvatarPositionOverridePose = GetString("ui_poseEditor_avatarPosition_overridePose") ?? "_Override Pose";
+                AvatarPositionOverrideBlendshapes = GetString("ui_poseEditor_avatarPositionOverrideBlendshapes") ?? "_Override Blendshapes";
+                SceneSaveChanges = GetString("ui_poseEditor_scene_saveChanges") ?? "_Save Scene Changes";
+                UnloadScene = GetString("ui_poseEditor_scene_unload") ?? "_Unload Scene";
+                ResetPosition = GetString("ui_poseEditor_resetPosition") ?? "_Reset Position";
+                Pose = GetString("ui_poseEditor_pose") ?? "_Pose";
+                NewPose = GetString("ui_poseEditor_newPose") ?? "_New Pose";
+                OnlySavePoseChanges = GetString("ui_poseEditor_onlySavePoseChanges") ?? "_Only Save Pose Changes";
+                LoadPose = GetString("ui_poseEditor_loadPose") ?? "_Load Pose";
+                Blendshapes = GetString("ui_poseEditor_blendshapes") ?? "_Blendshapes";
+                NewPreset = GetString("ui_poseEditor_newPreset") ?? "_New Preset";
+                LoadPreset = GetString("ui_poseEditor_loadPreset") ?? "_Load Preset";
+                SaveButton = GetString("ui_poseEditor_save") ?? "_Save";
+                ReloadButton = GetString("ui_poseEditor_reload") ?? "_Reload";
+                BodyPositionYTooSmall = GetString("warn_poseEditor_bodyPositionYTooSmall") ?? "_humanPose.bodyPosition.y is {0}, you probably don't want that. Setting humanPose.bodyPosition.y to 1";
+            }
+        }
+
+        static Strings()
+        {
+            //Language Dictionaries
+            dictionary_english = new Dictionary<string, string>
+            {
+#region Main
+                //Main
+                {"ui_main_title", "Pumkin's Avatar Tools" },
+                {"ui_main_windowName", "Pumkin Tools" },
+                {"ui_main_version", "Version" },
+                {"ui_main_avatar", "Avatar" },
+                {"ui_tools", "Tools" },
+                {"ui_copier", "Copy Components" },
+                {"ui_avatarInfo", "Avatar Info" },
+                {"ui_thumbnails", "Thumbnails" },
+                {"ui_misc", "Misc" },
+                {"ui_removeAll", "Remove All" },
+                {"ui_useSceneSelection", "Use Scene Selection" },
+
+#region AvatarInfo
+                { "ui_avatarInfo_name", "Name: {0}"},
+                { "ui_avatarInfo_line", "---------------------"},
+                { "ui_avatarInfo_gameobjects", "GameObjects: {0} ({1})"},
+                { "ui_avatarInfo_bones", "Bones: {0} - {1}"},
+                { "ui_avatarInfo_skinnedMeshRenderers", "Skinned Mesh Renderers: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_meshRenderers", "Mesh Renderers: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_polygons", "Polygons: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_usedMaterialSlots", "Used Material Slots: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_uniqueMaterials", "Unique Materials: {0} ({1})"},
+                { "ui_avatarInfo_shaders", "Shaders: {0}"},
+                { "ui_avatarInfo_dynamicBoneTransforms", "Dynamic Bone Transforms: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_dynamicBoneColliders", "Dynamic Bone Colliders: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_dynamicBoneColliderTransforms", "Collider Affected Transforms: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_particleSystems", "Particle Systems: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_maxParticles", "Max Particles: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_overallPerformance", "Overall Performance: {0}"},
+                { "ui_avatarInfo_selectAvatarFirst", "Select an Avatar first"},                
+#endregion
+
+#region Buttons
+                {"buttons_selectFromScene", "Select from Scene" },
+                {"buttons_copySelected" , "Copy Selected" },
+                {"buttons_refresh", "Refresh" },
+                {"buttons_apply", "Apply" },
+                {"buttons_cancel", "Cancel" },
+                {"buttons_copyText", "Copy Text" },
+                {"buttons_openHelpPage", "Open Help Page" },
+                {"buttons_openGithubPage", "Open Github Page" },
+                {"buttons_openDonationPage", "Buy me a Ko-Fi~" },
+                {"buttons_openPoseEditor", "Open Pose Editor" },
+                {"buttons_joinDiscordServer", "Join Discord Server!" },
+                {"buttons_selectAll", "Select All" },
+                {"buttons_selectNone", "Select None" },
+                {"buttons_browse", "Browse" },
+#endregion
+
+#endregion
+#region Tools
+            //UI Tools                
+                {"ui_tools_fillVisemes", "Fill Visemes" },
+                {"ui_tools_editViewpoint", "Edit Viewpoint" },
+                {"ui_tools_revertBlendShapes", "Revert Blendshapes" },
+                {"ui_tools_zeroBlendShapes", "Zero Blendshapes" },
+                {"ui_tools_resetPose", "Reset Pose" },
+                {"ui_tools_resetToTPose", "Reset to T-Pose" },
+                {"ui_tools_editScale", "Scale Avatar" },
+
+#endregion
+#region Copier
+                //UI Copier
+                {"ui_copier_copyFrom", "Copy from" },                
+				{"ui_copier_exclusions", "Exclusions"},
+				{"ui_copier_includeChildren", "Include Children"},
+				{"ui_copier_size", "Size"},
+                //UI Copier Misc
+                {"ui_copier_copyGameObjects", "Copy GameObjects" },
+                {"ui_copier_emptyGameObjects", "Empty GameObjects" },
+                {"ui_copier_copySettings", "Settings" },
+                {"ui_copier_createMissing", "Create Missing" },
+                {"ui_copier_replaceOld", "Replace Old" },
+
+                //UI Copier Transforms
+                {"ui_copier_transforms", "Transforms" },
+                {"ui_copier_transforms_position", "Position" },
+                {"ui_copier_transforms_rotation", "Rotation" },
+                {"ui_copier_transforms_scale", "Scale" },
+                {"ui_copier_transforms_avatarScale", "Avatar Scale" },
+            
+                //UI Copier Dynamic Bones
+                {"ui_copier_dynamicBones", "Dynamic Bones" },
+                {"ui_copier_dynamicBones_colliders", "Dynamic Bone Colliders" },
+                {"ui_copier_dynamicBones_removeOld", "Remove Old Bones" },
+                {"ui_copier_dynamicBones_removeOldColliders", "Remove Old Colliders" },
+                {"ui_copier_dynamicBones_createMissing", "Create Missing Bones" },
+                {"ui_copier_dynamicBones_copyColliderObjects" , "Copy Collider Objects" },
+
+
+                //UI Copier Colliders
+                {"ui_copier_colliders", "Colliders" },
+                {"ui_copier_colliders_box", "Box Colliders" },
+                {"ui_copier_colliders_capsule", "Capsule Colliders" },
+                {"ui_copier_colliders_sphere", "Sphere Colliders" },
+                {"ui_copier_colliders_mesh", "Mesh Colliders" },
+                {"ui_copier_colliders_removeOld", "Remove Old Colliders" },                
+
+                //UI Copier Avatar Descriptor
+                {"ui_copier_descriptor", "Avatar Descriptor" },
+                {"ui_copier_descriptor_pipelineId", "Pipeline Id" },
+                {"ui_copier_descriptor_animationOverrides", "Animation Overrides" },
+
+                //UI Copier Skinned Mesh Renderer
+                {"ui_copier_skinMeshRender", "Skinned Mesh Renderers" },
+                {"ui_copier_skinMeshRender_materials", "Materials" },
+                {"ui_copier_skinMeshRender_blendShapeValues", "BlendShape Values" },
+
+                //UI Copier Particle System
+                {"ui_copier_particleSystem", "Particle Systems" },
+
+                //UI Copier Rigid Bodies
+                {"ui_copier_rigidBodies", "Rigid Bodies" },
+
+                //UI Copier Trail Renderers
+                {"ui_copier_trailRenderers", "Trail Renderers" },
+
+                //UI Copier MeshRenderers
+                {"ui_copier_meshRenderers",  "Mesh Renderers"},
+
+                //UI Copier Lights
+                {"ui_copier_lights",  "Lights"},
+                
+                //UI Copier Animators
+                {"ui_copier_animators",  "Animators"},
+                {"ui_copier_animators_copyMain", "Copy Main Animator" },
+                {"ui_copier_animatorsInChildren", "Child Animators" },
+
+                //UI Copier Audio Sources
+                {"ui_copier_audioSources", "Audio Sources" },
+
+                //UI Copier Joints
+                {"ui_copier_joints", "Joints"},
+
+#endregion
+
+#region Thumbnails
+                //Thumbnails                
+                {"ui_thumbnails_overlayCameraImage", "Overlay Image" },
+                {"ui_thumbnails_overlayTexture",  "Overlay Texture"},
+                {"ui_thumbnails_startUploadingFirst", "Begin uploading an Avatar first" },
+                {"ui_thumbnails_backgroundColor", "Background Color" },
+                {"ui_thumbnails_centerCameraOnViewpoint", "Center Camera on Viewpoint" },
+
+                {"ui_thumbnails_backgroundType", "Background Type" },
+                {"ui_thumbnails_backgroundType_none", "None" },
+                {"ui_thumbnails_backgroundType_material", "Material" },
+                {"ui_thumbnails_backgroundType_color", "Color" },
+                {"ui_thumbnails_backgroundType_image", "Image" },
+                {"ui_thumbnails_hideOtherAvatars" , "Hide Other Avatars when Uploading"},
+#endregion
+#region PoseEditor
+                //Pose Editor
+                {"ui_poseEditor", "Pose Editor (Very Beta)"},
+                {"ui_poseEditor_scene", "Scene"},
+                {"ui_poseEditor_scene_loadAdditive", "Load Additive"},
+                {"ui_poseEditor_scene_overrideLights", "Override Lights"},
+                {"ui_poseEditor_avatarPosition", "Avatar Position"},
+                {"ui_poseEditor_avatarPosition_overridePose", "Override Pose"},
+                {"ui_poseEditor_scene_saveChanges", "Save Scene Changes"},
+                {"ui_poseEditor_scene_unload", "Unload Scene"},
+                {"ui_poseEditor_resetPosition", "Reset Position"},
+                {"ui_poseEditor_pose", "Pose"},
+                {"ui_poseEditor_newPose", "New Pose"},
+                {"ui_poseEditor_onlySavePoseChanges", "Only Save Pose Changes"},
+                {"ui_poseEditor_loadPose", "Load Pose"},
+                {"ui_poseEditor_blendshapes", "Blendshapes"},
+                {"ui_poseEditor_newPreset", "New Preset"},
+                {"ui_poseEditor_loadPreset", "Load Preset"},
+                {"ui_poseEditor_save", "Save"},
+                {"ui_poseEditor_reload", "Reload"},
+#endregion
+
+#region Log
+                //Log
+                {"log_failed", "Failed" },
+                {"log_cancelled", "Cancelled" },
+                {"log_success", "Success" },
+                {"log_nothingSelected" , "Select something first" },
+                {"log_done", "Done. Check Unity Console for full Output Log" },
+                {"log_copyAttempt", "Attempting to copy {0} from {1} to {2}" },
+                {"log_removeAttempt", "Attempting to remove {0} from {1}" },
+                {"log_copyFromInvalid", "Can't copy Components because 'Copy From' is invalid" },
+                {"log_cantCopyToSelf", "Can't copy Components from an object to itself. What are you doing?" },
+                {"log_viewpointApplied", "Set Viewposition to {0}" },
+                {"log_viewpointCancelled", "Cancelled Viewposition changes" },
+                {"log_tryFillVisemes", "Attempting to fill visemes on {0}" },
+                {"log_noSkinnedMeshFound", "Failed: No skinned mesh found" },
+                {"log_descriptorIsNull", "Avatar descriptor is null"},
+                {"log_meshHasNoVisemes", "Failed. Mesh has no Visemes. Set to Default" },                
+                {"log_failedIsNull" , "Failed. {1} is null. Ignoring" },
+                {"log_nameIsEmpty", "Name is empty" },
+                {"log_loadedPose", "Loaded Pose: {0}"},
+                {"log_loadedBlendshapePreset", "Loaded Blendshapes: {0}"},
+                {"log_failedDoesntHave", "Failed: {0} doesn't have a {1}" },
+                {"log_failedAlreadyHas", "Failed: {1} already has {0}" },
+                {"log_loadedCameraOverlay", "Loaded {0} as Camera Overlay" },
+                {"log_failedHasNo", "{0} has no {1}, Ignoring."},
+#endregion
+
+#region Warnings
+                //Warnings
+                { "log_warning", "Warning" },
+                { "warn_selectSceneObject" , "Please select an object from the scene" },
+                { "warn_notFound", "(Not Found)" },
+                { "warn_oldVersion", "(Old Version)" },
+                { "warn_poseEditor_bodyPositionYTooSmall", "humanPose.bodyPosition.y is {0}, you probably don't want that. Setting humanPose.bodyPosition.y to 1" },
+                { "warn_vrcCamNotFound" , "VRCCam not found" },
+#endregion
+
+#region Credits
+                //Credits
+                { "credits_title", "Pumkin's Avatar Tools"},
+                { "credits_version", "Version" + " " + version },
+                { "credits_redundantStrings", "Now with 100% more redundant strings"},
+                { "credits_jsonDotNetCredit", "JsonDotNet by Newtonsoft"},
+                { "credits_addMoreStuff", "I'll add more stuff to this eventually" },
+                { "credits_pokeOnDiscord", "Poke me on Discord at Pumkin#2020" },
+#endregion
+
+                //Misc                
+                { "misc_uwu", "uwu" },
+                { "misc_searchForBones", "Search for DynamicBones" },
+                { "misc_superExperimental", "Super Experimental stuff" },
+            };
+
+            //Mistakes
+            dictionary_uwu = new Dictionary<string, string>
+            {
+#region Main
+                //Main
+                {"ui_main_title", "Pumkin's Avataw Awoos! ÒwÓ" },
+                {"ui_main_windowName", "Pumkin Awoos" },
+                {"ui_main_version", "Vewsion~" },
+                {"ui_main_avatar", "Avataw :o" },
+                {"ui_thumbnails", "Thumbnyaiws >:3" },
+                {"ui_tools", "Toows òwó" },
+                {"ui_copier", "Copy Componyents uwu" },
+                {"ui_avatarInfo", "Avataw Info 0w0" },
+                {"ui_misc", "Misc ;o" },
+                {"ui_removeAll", "Wemuv Aww (⁰д⁰ )" },
+
+#region AvatarInfo
+                { "ui_avatarInfo_name", "Nyame: {0}"},
+                { "ui_avatarInfo_line", "---------------------"},
+                { "ui_avatarInfo_gameobjects", "GamyeObwects: {0} ({1})"},
+                { "ui_avatarInfo_bones", "Bonyes: {0} - {1}"},
+                { "ui_avatarInfo_skinnedMeshRenderers", "Skinnyed Mesh Wendewews: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_meshRenderers", "Mesh Wendewews: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_polygons", "Powygons: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_usedMaterialSlots", "Used Matewiaw Swots: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_uniqueMaterials", "Unyique Matewiaws: {0} ({1})"},
+                { "ui_avatarInfo_shaders", "Shadews: {0}"},
+                { "ui_avatarInfo_dynamicBoneTransforms", "Dynyamic Bonye Twansfowms: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_dynamicBoneColliders", "Dynyamic Bonye Cowwidews: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_dynamicBoneColliderTransforms", "Cowwidew Affected Twansfowms: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_particleSystems", "Pawticwe Systems: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_maxParticles", "Max Pawticwes: {0} ({1}) - {2}"},
+                { "ui_avatarInfo_overallPerformance", "Ovewaww Pewfowmance: {0}"},
+                { "ui_avatarInfo_selectAvatarFirst", "Sewect an Avataw furst ewe" },
+#endregion
+
+#region Buttons
+                {"buttons_selectFromScene", "Sewect fwom Scenye x3" },
+                {"buttons_copySelected" , "Copy Sewected (´• ω •`)" },
+                {"buttons_refresh", "Wefwesh (ﾟωﾟ;)" },
+                {"buttons_apply", "Appwy （>﹏<）" },
+                {"buttons_cancel", "Cancew ; o;" },
+                {"buttons_copyText", "Cowpy OwO" },
+                {"buttons_openHelpPage", "Opyen Hewp Paws uwu" },
+                {"buttons_openGithubPage", "Opyen Gitwub Paws :o" },
+                {"buttons_openDonationPage", "Buy Pumkin a Ko-Fi~ OwO" },
+                {"buttons_openPoseEditor", "Open Paws Editow" },
+#endregion
+
+#endregion
+#region Tools
+                //UI Toows                
+                {"ui_tools_fillVisemes", "Fiww Visemes ;~;" },
+                {"ui_tools_editViewpoint", "Edit Viewpoint o-o" },
+                {"ui_tools_revertBlendShapes", "Weset Bwendshapyes uwu" },
+                {"ui_tools_zeroBlendShapes", "Zewo Bwendshapyes 0~0" },
+                {"ui_tools_resetPose", "Weset Pose ;3" },
+                {"ui_tools_resetToTPose", "Weset to T-Pose" },
+
+#endregion
+#region Copier
+                //UI Copier
+                {"ui_copier_copyFrom", "Copy fwom~" },                
+
+                //UI Copier Transforms
+                {"ui_copier_transforms", "Twansfowms!" },
+                {"ui_copier_transforms_position", "Position~" },
+                {"ui_copier_transforms_wotation", "Wotation @~@" },
+                {"ui_copier_transforms_scawe", "Scawe www" },
+                {"ui_copier_transforms_avatarScale", "Avatar Scale o-o" },
+
+                //UI Copier Dynamic Bones
+                {"ui_copier_dynamicBones", "Dynyamic Bonyes~" },
+                {"ui_copier_dynamicBones_settings", "Settings º ^º" },
+                {"ui_copier_dynamicBones_colliders", "Dynyamic Bonye Cowwidews~" },
+                {"ui_copier_dynamicBones_removeOld", "Wemuv Owd Bonyes uwu" },
+                {"ui_copier_dynamicBones_removeOldColliders", "Wemuv Owd Cowwidews ;w;" },
+                {"ui_copier_dynamicBones_createMissing", "Cweate Missing Bonyes!" },
+
+                //UI Copier Colliders
+                {"ui_copier_colliders", "Cowwidews ;o;" },
+                {"ui_copier_colliders_box", "Box Cowwidews!" },
+                {"ui_copier_colliders_capsule", "Capsuwe Cowwidews o-o" },
+                {"ui_copier_colliders_sphere", "Sphewe Cowwidews O~O" },
+                {"ui_copier_colliders_mesh", "Mesh Cowwidews zzz" },
+                {"ui_copier_colliders_removeOld", "Wemuv Owd Cowwidews uwu" },
+
+                //UI Copier Avatar Descriptor
+                {"ui_copier_descriptor", "Avataw Descwiptow~" },
+                {"ui_copier_descriptor_settings", "Settings agen" },
+                {"ui_copier_descriptor_pipelineId", "Pipewinye Id!" },
+                {"ui_copier_descriptor_animationOverrides", "Anyimation Ovewwides :o" },
+
+                //UI Copier Skinned Mesh Renderer
+                {"ui_copier_skinMeshRender", "Skinnyed Mesh Wendewews ;w;" },
+                {"ui_copier_skinMeshRender_settings", "Settings ageeen" },
+                {"ui_copier_skinMeshRender_materials", "Matewiaws uwu" },
+                {"ui_copier_skinMeshRender_blendShapeValues", "BwendShape Vawues ùwú" },
+
+                //UI Copier Particle System
+                {"ui_copier_particleSystem", "Pawtickle Systums zzz" },
+
+                //UI Copier Rigid Bodies
+                {"ui_copier_rigidBodies", "Wigid Bodyes" },                
+
+                //UI Copier Trail Renderers
+                {"ui_copier_trailRenderers", "Twail Wendewuws" },
+
+                //UI Copier MeshRenderers
+                {"ui_copier_meshRenderers",  "Mesh Wenderur"},
+
+                //UI Copier Lights
+                {"ui_copier_lights",  "Wighties"},
+                
+                //UI Copier Animators
+                {"ui_copier_animators",  "Anyanmaytows"},
+                {"ui_copier_animators_copyMain", "Copy main Anyanmaytow" },
+                {"ui_copier_animatorsInChildren", "Smol Anyanmaytows" },
+
+                //UI Copier Audio Sources
+                { "ui_copier_audioSources", "Awwdio Sauces" },
+
+                //UI Copier Joints
+                {"ui_copier_joints", "Joints"},
+
+#endregion
+
+#region Thumbnails
+                //Thumbnails                
+                { "ui_thumbnails_overlayCameraImage", "Ovewwide Camewa Image" },
+                { "ui_thumbnails_overlayTexture",  "Ovewwide Textuwe"},
+                { "ui_thumbnails_startUploadingFirst", "Stawt upwoading Avataw fiwst!!" },
+                { "ui_thumbnails_backgroundColor", "Background Color" },
+                { "ui_thumbnails_centerCameraOnViewpoint", "Center Camera on Viewpoint" },
+#endregion
+#region PoseEditor
+                //Pose Editor
+                {"ui_poseEditor", "Pose Editow (Vewy Beta)"},
+                {"ui_poseEditor_scene", "Scenye"},
+                {"ui_poseEditor_scene_loadAdditive", "Woad Addititive"},
+                {"ui_poseEditor_scene_overrideLights", "Ovewwide Wights"},
+                {"ui_poseEditor_avatarPosition", "Avataw Position"},
+                {"ui_poseEditor_avatarPosition_overridePose", "Ovewwide Pose"},
+                {"ui_poseEditor_scene_saveChanges", "Save Scenye Changes"},
+                {"ui_poseEditor_scene_unload", "Unwoad Scenye"},
+                {"ui_poseEditor_resetPosition", "Weset Position"},
+                {"ui_poseEditor_pose", "Paws"},
+                {"ui_poseEditor_newPose", "Nyew Paws"},
+                {"ui_poseEditor_onlySavePoseChanges", "Onwy Save Paws Changes"},
+                {"ui_poseEditor_loadPose", "Woad Paws"},
+                {"ui_poseEditor_blendshapes", "Bwendshapes"},
+                {"ui_poseEditor_newPreset", "Nyew Pweset"},
+                {"ui_poseEditor_loadPreset", "Woad Pweset"},
+                {"ui_poseEditor_save", "Save"},
+                {"ui_poseEditor_reload", "Wewoad"},
+#endregion
+
+#region Log
+                //Log
+                {"log_failed", "Faiwed ùwú" },
+                {"log_cancelled", "Cancewwed .-." },
+                {"log_success", "Success OWO" },
+                {"log_nothingSelected" , "Sewect sumstuf furst uwu" },
+                {"log_done", "Donye. Check Unyity Consowe fow fuww Output Wog uwus" },
+                {"log_copyAttempt", "Attempting to copy {0} fwom {1} to {2} o-o" },
+                {"log_remuveAttempt", "Attempting to wemuv {0} fwom {1} ;-;" },
+                {"log_copyFromInvalid", "Can't copy Componyents because 'Copy Fwom' is invawid ; o ;" },
+                {"log_cantCopyToSelf", "Can't copy Componyents fwom an object to itsewf. What awe you doing? ;     w     ;" },
+                {"log_viewpointApplied", "Set Viewposition to {0}!" },
+                {"log_viewpointCancelled", "Cancewwed Viewposition changes uwu" },
+                {"log_tryFixVisemes", "Attempting to fiww visemes on {0}!" },
+                {"log_noSkinnedMeshFound", "Faiwed: Nyo skinnyed mesh found ;o;" },
+                {"log_descriptorIsNull", "Avataw descwiptow is nyuww humpf"},
+                {"log_meshHasNoVisemes", "Faiwed. Mesh has nyo Visemes. Set to Defauwt ;w;" },                
+                {"log_failedIsNull" , "Faiwed {1} is nyull /w\\. Ignyowing uwu" },
+                {"log_nameIsEmpty", "Nyame ish emptyyy ;w;" },
+                {"log_loadedPose", "Woaded Paws: {0}"},
+                {"log_loadedBlendshapePreset", "Woaded Bwendshapyes: {0}"},
+                {"log_failedDoesntHave", "Faiwed: {0} dun have a {1} ;o;" },
+                {"log_failedAlreadyHas", "Faiwed: {0} alredy has {1} ;w;" },
+                {"log_loadedCameraOverlay", "Loaded {0} as Camera Overlay" },
+                {"log_failedHasNo", "{0} has no {1}, Ignoring."},
+#endregion
+
+#region Warnings
+                //Warnings
+                { "log_warning", "Wawnying! unu" },
+                { "warn_selectSceneObject" , "Pwease sewect an object fwom the scenye!!" },
+                { "warn_notFound", "(Nyot Fownd ;~;)" },
+                { "warn_oldVersion", "(Old Version)" },
+                { "warn_poseEditor_bodyPositionYTooSmall", "humanPose.bodyPosition.y is {0}, you pwobabwy don't want that. Setting humanPose.bodyPosition.y to 1 uwu" },
+#endregion
+
+#region Credits
+                //Credits
+                { "credits_title", "Pumkin's Avataw Awoos~ :3"},
+                { "credits_version", "Vewsion" + " " + version },
+                { "credits_redundantStrings", "Nyow with 0W0% mowe noticin things~"},
+                { "credits_jsonDotNetCredit", "JsonDotNet by Newtonsoft" },
+                { "credits_addMoreStuff", "I'ww add mowe stuff to this eventuawwy >w<" },
+                { "credits_pokeOnDiscord", "Poke me! But on Discowd at Pumkin#2020~ uwus" },
+#endregion
+
+                //Misc                
+                { "misc_uwu", "OwO" },
+                { "misc_searchForBones", "Seawch fow DynyamicBonyes" },
+                { "misc_superExperimental", "Supew Scawy stuffs ヾ(´囗｀｡)ﾉ" },
+            };
+
+            stringDictionary = dictionary_english;
+            language = DictionaryLanguage.English;
+            ReloadStrings();
+        }
+
+        static void ReloadStrings()
+        {
+            Main.Reload();
+            Buttons.Reload();
+            Tools.Reload();
+            Copier.Reload();
+            Log.Reload();
+            Warning.Reload();
+            Credits.Reload();
+            Misc.Reload();
+            Thumbnails.Reload();
+        }
+
+        static string GetString(string stringName)
+        {
+            if(string.IsNullOrEmpty(stringName))
+                return stringName;
+
+            string s = string.Empty;
+            stringDictionary.TryGetValue(stringName, out s);
+
+            return s;
+        }
+    };
+
+    public class AvatarInfo
+    {
+        AvatarPerformanceStats perfStats = new AvatarPerformanceStats();
+
+        public string Name { get; private set; }
+        public string CachedInfo { get; private set; }
+
+        public int SkinnedMeshRenderers { get; private set; }
+        public int SkinnedMeshRenderers_Total { get; private set; }
+        public int MeshRenderers { get; private set; }
+        public int MeshRenderers_Total { get; private set; }
+        public int DynamicBoneTransforms { get; private set; }
+        public int DynamicBoneTransforms_Total { get; private set; }
+        public int DynamicBoneColliders { get; private set; }
+        public int DynamicBoneColliders_Total { get; private set; }
+        public int DynamicBoneColliderTransforms { get; private set; }
+        public int DynamicBoneColliderTransforms_Total { get; private set; }
+        public int Polygons { get; private set; }
+        public int Polygons_Total { get; private set; }
+        public int MaterialSlots { get; private set; }
+        public int MaterialSlots_Total { get; private set; }
+        public int UniqueMaterials { get; private set; }
+        public int UniqueMaterials_Total { get; private set; }
+        public int ShaderCount { get; private set; }
+        public int ParticleSystems { get; private set; }
+        public int ParticleSystems_Total { get; private set; }
+        public int GameObjects { get; private set; }
+        public int GameObjects_Total { get; private set; }
+        public int MaxParticles { get; private set; }
+        public int MaxParticles_Total { get; private set; }
+
+        AvatarInfo()
+        {
+            CachedInfo = null;
+
+            SkinnedMeshRenderers = 0;
+            SkinnedMeshRenderers_Total = 0;
+
+            MeshRenderers = 0;
+            MeshRenderers_Total = 0;
+
+            DynamicBoneTransforms = 0;
+            DynamicBoneTransforms_Total = 0;
+            DynamicBoneColliders = 0;
+            DynamicBoneColliders_Total = 0;
+            DynamicBoneColliderTransforms = 0;
+            DynamicBoneColliderTransforms_Total = 0;
+
+            Polygons = 0;
+            Polygons_Total = 0;
+            MaterialSlots = 0;
+            MaterialSlots_Total = 0;
+            UniqueMaterials = 0;
+            UniqueMaterials_Total = 0;
+            ShaderCount = 0;
+
+            ParticleSystems = 0;
+            ParticleSystems_Total = 0;
+            MaxParticles = 0;
+            MaxParticles_Total = 0;
+
+            GameObjects = 0;
+            GameObjects_Total = 0;
+
+        }
+
+        public AvatarInfo(GameObject o) : base()
+        {
+            if(o == null)
+                return;
+
+            AvatarPerformance.CalculatePerformanceStats(o.name, o, perfStats);
+
+            Name = o.name;
+
+            var shaderHash = new HashSet<Shader>();
+            var matList = new List<Material>();
+            var matList_total = new List<Material>();
+
+            var ts = o.GetComponentsInChildren<Transform>(true);
+            foreach(var t in ts)
+            {
+                GameObjects_Total += 1;
+                if(t.gameObject.activeInHierarchy)
+                    GameObjects += 1;
+            }
+
+            var sRenders = o.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            foreach(var r in sRenders)
+            {
+                SkinnedMeshRenderers_Total += 1;
+                Polygons_Total += r.sharedMesh.triangles.Length;
+                //Triangles_Total += r.sharedMesh.triangles.Length / 3;
+
+                if(r.gameObject.activeInHierarchy && r.enabled)
+                {
+                    SkinnedMeshRenderers += 1;
+                    Polygons += r.sharedMesh.triangles.Length;
+                    //Triangles += r.sharedMesh.triangles.Length/3;
+                }
+
+                foreach(var mat in r.sharedMaterials)
+                {
+                    if(mat != null)
+                    {
+                        shaderHash.Add(mat.shader);
+                        matList_total.Add(mat);
+
+                        if(r.gameObject.activeInHierarchy && r.enabled)
+                        {
+                            matList.Add(mat);
+                        }
+                    }
+                }
+            }
+
+            var renders = o.GetComponentsInChildren<MeshRenderer>(true);
+            foreach(var r in renders)
+            {
+                var filter = r.GetComponent<MeshFilter>();
+
+                if(filter != null && filter.sharedMesh != null)
+                {
+                    MeshRenderers_Total += 1;
+                    Polygons_Total += filter.sharedMesh.triangles.Length;
+
+                    if(r.gameObject.activeInHierarchy && r.enabled)
+                    {
+                        MeshRenderers += 1;
+                        Polygons += filter.sharedMesh.triangles.Length;
+                    }
+                }
+
+                foreach(var mat in r.sharedMaterials)
+                {
+                    if(mat != null)
+                    {
+                        shaderHash.Add(mat.shader);
+                        matList_total.Add(mat);
+
+                        if(r.gameObject.activeInHierarchy && r.enabled)
+                        {
+                            matList.Add(mat);
+                        }
+                    }
+                }
+            }
+
+            MaterialSlots = matList.Count;
+            MaterialSlots_Total = matList_total.Count;
+
+            UniqueMaterials = new HashSet<Material>(matList).Count;
+            UniqueMaterials_Total = new HashSet<Material>(matList_total).Count;
+
+#if BONES || OLD_BONES
+
+            var dbColliders = o.GetComponentsInChildren<DynamicBoneCollider>(true);
+            foreach(var c in dbColliders)
+            {
+                DynamicBoneColliders_Total += 1;
+
+                if(c.gameObject.activeInHierarchy)
+                    DynamicBoneColliders += 1;
+            }
+
+            var dbones = o.GetComponentsInChildren<DynamicBone>(true);
+            foreach(var d in dbones)
+            {
+                if(d.m_Root != null)
+                {
+                    var exclusions = d.m_Exclusions;
+                    var rootChildren = d.m_Root.GetComponentsInChildren<Transform>(true);
+
+                    int affected = 0;
+                    int affected_total = 0;
+
+                    foreach(var t in rootChildren)
+                    {
+                        if(exclusions.IndexOf(t) == -1)
+                        {
+                            affected_total += 1;
+
+                            if(t.gameObject.activeInHierarchy && d.enabled)
+                            {
+                                affected += 1;
+                            }
+                        }
+                        else
+                        {
+                            var childChildren = t.GetComponentsInChildren<Transform>(true);
+
+                            for(int z = 1; z < childChildren.Length; z++)
+                            {
+                                affected_total -= 1;
+
+                                if(childChildren[z].gameObject.activeInHierarchy && d.enabled)
+                                {
+                                    affected -= 1;
+                                }
+                            }
+                        }
+                    }
+
+                    foreach(var c in d.m_Colliders)
+                    {
+                        if(c != null)
+                        {
+                            DynamicBoneColliderTransforms += affected;
+                            DynamicBoneColliderTransforms_Total += affected_total;
+                            break;
+                        }
+                    }
+
+                    DynamicBoneTransforms += affected;
+                    DynamicBoneTransforms_Total += affected_total;
+                }
+            }
+
+#endif
+
+            var ptc = o.GetComponentsInChildren<ParticleSystem>(true);
+            foreach(var p in ptc)
+            {
+                ParticleSystems_Total += 1;
+                MaxParticles_Total += p.main.maxParticles;
+
+                if(p.gameObject.activeInHierarchy && p.emission.enabled)
+                {
+                    ParticleSystems += 1;
+                    MaxParticles += p.main.maxParticles;
+                }
+            }
+
+            ShaderCount = shaderHash.Count;
+        }
+
+        public static AvatarInfo GetInfo(GameObject o, out string toString)
+        {
+            AvatarInfo a = new AvatarInfo(o);
+            toString = a.ToString();
+            return a;
+        }
+
+        public override string ToString()
+        {
+            if(!string.IsNullOrEmpty(CachedInfo))
+                return CachedInfo;
+            else
+            {
+                if(this == null)
+                {
+                    return null;
+                }
+                try
+                {
+                    CachedInfo =
+                    string.Format(Strings.AvatarInfo.Name, Name) + "\n" +
+                    string.Format(Strings.AvatarInfo.Line) + "\n" +
+                    string.Format(Strings.AvatarInfo.GameObjects, GameObjects, GameObjects_Total) + "\n" +
+                    string.Format(Strings.AvatarInfo.Bones, perfStats.boneCount, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.BoneCount)) + "\n\n" +
+                    string.Format(Strings.AvatarInfo.SkinnedMeshRenderers, SkinnedMeshRenderers, SkinnedMeshRenderers_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.SkinnedMeshCount)) + "\n" +
+                    string.Format(Strings.AvatarInfo.MeshRenderers, MeshRenderers, MeshRenderers_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.MeshCount)) + "\n" +
+                    string.Format(Strings.AvatarInfo.Polygons, Polygons, Polygons_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PolyCount)) + "\n\n" +
+                    string.Format(Strings.AvatarInfo.UsedMaterialSlots, MaterialSlots, MaterialSlots_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.MaterialCount)) + "\n" +
+                    string.Format(Strings.AvatarInfo.UniqueMaterials, UniqueMaterials, UniqueMaterials_Total) + "\n" +
+                    string.Format(Strings.AvatarInfo.Shaders, ShaderCount) + "\n\n" +
+                    string.Format(Strings.AvatarInfo.DynamicBoneTransforms, DynamicBoneTransforms, DynamicBoneTransforms_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneSimulatedBoneCount)) + "\n" +
+                    string.Format(Strings.AvatarInfo.DynamicBoneColliders, DynamicBoneColliders, DynamicBoneColliders_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneColliderCount)) + "\n" +
+                    string.Format(Strings.AvatarInfo.DynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneCollisionCheckCount)) + "\n\n" +
+                    string.Format(Strings.AvatarInfo.ParticleSystems, ParticleSystems, ParticleSystems_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.ParticleSystemCount)) + "\n" +
+                    string.Format(Strings.AvatarInfo.MaxParticles, MaxParticles, MaxParticles_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.ParticleTotalCount)) + "\n" +
+                    Strings.AvatarInfo.Line + "\n" +
+                    string.Format(Strings.AvatarInfo.OverallPerformance, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.Overall));
+                }
+                catch(Exception)
+                {
+                    CachedInfo = null;
+                }
+                return CachedInfo;
+            }
+        }
+
+        public static bool operator true(AvatarInfo x) { return x != null; }
+        public static bool operator false(AvatarInfo x) { return !(x == null); }
+    }
+
+    [Serializable]
+    public class CameraPreset
+    {
+        string presetName;
+        SerialVector3 positionOffset;
+        SerialQuaternion rotationOffset;
+        SerialVector3 anglesOffset;
+
+        string transformPath;
+
+        Color backgroundColor;
+        string overlayPath;
+        Material skyboxMaterial;
+
+        public CameraPreset(string name, GameObject focusObject, Camera cam)
+        {
+            Transform tFocus = focusObject.transform;
+            Transform tCam = cam.transform;
+
+            Transform tDummy = new GameObject("_FocusDummy").transform;
+
+            tDummy.SetPositionAndRotation(tFocus.position, tFocus.rotation);
+
+
+
+        }
+
+        public CameraPreset(string name, Vector3 posOffset, Quaternion rotOffset, Vector3 angleOffset, string transPath, Color bgColor, string overlayPath = null)
+        {
+            this.positionOffset = posOffset;
+            this.rotationOffset = rotOffset;
+            this.anglesOffset = angleOffset;
+            this.backgroundColor = bgColor;
+            this.overlayPath = overlayPath;
+            this.presetName = name;
+        }
+
+        void ApplyPreset(Camera camera)
+        {
+            GameObject avatar = null;
+            VRC_AvatarDescriptor desc = null;
+            Camera cam = PumkinsAvatarTools.VRCCam;
+
+            if(EditorApplication.isPlaying)
+            {
+                var pm = GameObject.FindObjectOfType<RuntimeBlueprintCreation>();
+                if(pm == null)
+                {
+                    Debug.Log("_RuntimeBlueprintCreation script not found. Start uploading an avatar to use this");
+                    return;
+                }
+                else if(pm.pipelineManager.contentType == PipelineManager.ContentType.world)
+                {
+                    Debug.Log("_You must be uploading an avatar, not a world to use this.");
+                    return;
+                }
+                desc = pm.pipelineManager.GetComponent<VRC_AvatarDescriptor>();
+                avatar = desc.transform.root.gameObject;
+            }
+            else if((avatar = PumkinsAvatarTools.selectedAvatar) == null)
+            {
+                Debug.Log("_Begin uploading an avatar or select one manually before using this.");
+                return;
+            }
+
+            Transform focusObj = avatar.transform.Find(transformPath);
+            if(focusObj == null)
+            {
+                PumkinsAvatarTools.Log("_GameObject {0} not found in {1}. Ignoring", LogType.Warning, PumkinsAvatarTools.GetNameFromPath(transformPath), avatar.name);
+                return;
+            }
+
+            cam.transform.parent = focusObj;
+            cam.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+            cam.transform.position = positionOffset;
+            cam.transform.rotation = rotationOffset;
+            cam.transform.eulerAngles = anglesOffset;
+
+            cam.transform.parent = null;
+        }
+
+        bool SavePreset(Camera cam, string path)
+        {
+            return true;
+        }
+    }
+    #endregion
+
+    #region Extensions
+    public static class PumkinsAvatarToolsExtensions
+    {
+        public static Transform Find(this Transform transform, string name, bool createIfMissing = false, Transform sourceTransform = null)
+        {
+            var t = transform.Find(name);
+
+            if(t == null && createIfMissing)
+            {
+                var arr = PumkinsAvatarTools.GetPathAsArray(name);
+                if(arr.Length > 0)
+                {
+                    string path = "";
+                    for(int i = 0; i < arr.Length; i++)
+                    {
+                        path += arr[i] + '/';
+                        var tNew = transform.Find(path);
+
+                        if(tNew == null)
+                        {
+                            string s = PumkinsAvatarTools.GetPathNoName(path);
+                            var parent = transform.Find(s);
+
+                            if(!parent)
+                                return null;
+
+                            tNew = new GameObject(arr[i]).transform;
+                            tNew.parent = parent;
+
+                            var trans = sourceTransform.root.Find(s + arr[i]);
+                            if(trans)
+                            {
+                                tNew.localScale = Vector3.one;
+                                tNew.localPosition = trans.localPosition;
+                                tNew.localRotation = trans.localRotation;
+                                tNew.localEulerAngles = trans.localEulerAngles;
+                                tNew.localScale = trans.localScale;
+
+                                tNew.gameObject.tag = trans.gameObject.tag;
+                                tNew.gameObject.layer = trans.gameObject.layer;
+                                tNew.gameObject.SetActive(trans.gameObject.activeInHierarchy);
+
+                            }
+                            else
+                            {
+                                tNew.localPosition = Vector3.zero;
+                                tNew.localRotation = Quaternion.identity;
+                                tNew.localEulerAngles = Vector3.zero;
+                                tNew.localScale = Vector3.one;
+                            }
+                            t = tNew;
+                        }
+                    }
+                }
+            }
+            return t;
+        }
+
+        public static bool IsSameTexture(this Texture2D first, Texture2D second)
+        {
+            Color[] firstPix = first.GetPixels();
+            Color[] secondPix = second.GetPixels();
+            if(firstPix.Length != secondPix.Length)
+            {
+                return false;
+            }
+            for(int i = 0; i < firstPix.Length; i++)
+            {
+                if(firstPix[i] != secondPix[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+    }
+    #endregion
 }
