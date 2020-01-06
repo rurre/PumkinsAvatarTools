@@ -203,10 +203,10 @@ namespace Pumkin.DataStructures
             Animator = EditorGUIUtility.FindTexture("Animator Icon");
             AudioSource = EditorGUIUtility.FindTexture("AudioSource Icon");
             Joint = EditorGUIUtility.FindTexture("FixedJoint Icon");
-            Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");
-            Settings = EditorGUIUtility.FindTexture("Settings");
+            Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");            
             Delete = EditorGUIUtility.FindTexture("TreeEditor.Trash");
 
+            Settings = Resources.Load("icons/settings-icon") as Texture2D ?? EditorGUIUtility.FindTexture("ClothInspector.SettingsTool");
             BoneIcon = Resources.Load("icons/bone-icon") as Texture2D ?? CsScript;
             BoneColliderIcon = Resources.Load("icons/bonecollider-icon") as Texture2D ?? DefaultAsset;
             DiscordIcon = Resources.Load("icons/discord-logo") as Texture2D ?? Star;
