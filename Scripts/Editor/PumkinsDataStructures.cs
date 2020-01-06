@@ -204,6 +204,7 @@ namespace Pumkin.DataStructures
             AudioSource = EditorGUIUtility.FindTexture("AudioSource Icon");
             Joint = EditorGUIUtility.FindTexture("FixedJoint Icon");
             Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");
+            Settings = EditorGUIUtility.FindTexture("Settings");
             Delete = EditorGUIUtility.FindTexture("TreeEditor.Trash");
 
             BoneIcon = Resources.Load("icons/bone-icon") as Texture2D ?? CsScript;

@@ -34,6 +34,9 @@ namespace Pumkin.Presets
 
         private PumkinsCameraPreset() { }
 
+        /// <summary>
+        /// Applies preset to selected camera
+        /// </summary>        
         public override bool ApplyPreset(GameObject avatar)
         {
             Camera cam = PumkinsAvatarTools.SelectedCamera;
@@ -49,10 +52,16 @@ namespace Pumkin.Presets
                 {
                     dummy = new GameObject("Dummy").transform;
                     var desc = avatar.GetComponent<VRC_AvatarDescriptor>();
-                    dummy.localPosition = desc.transform.position + desc.ViewPosition;
-
-                    cam.transform.localPosition = positionOffset + dummy.transform.localPosition;
-                    cam.transform.localEulerAngles = rotationAnglesOffset + dummy.transform.localEulerAngles;
+                    if(desc)
+                    {
+                        dummy.localPosition = desc.transform.position + desc.ViewPosition;
+                        cam.transform.localPosition = positionOffset + dummy.transform.localPosition;
+                        cam.transform.localEulerAngles = rotationAnglesOffset + dummy.transform.localEulerAngles;
+                    }
+                    else
+                    {
+                        PumkinsAvatarTools.Log(Strings.Log.descriptorIsMissingCantGetViewpoint);
+                    }
                 }
                 else
                 {
@@ -114,6 +123,9 @@ namespace Pumkin.Presets
             return true;
         }       
 
+        /// <summary>
+        /// Creates new preset based on camera and reference, applies all settings from this object then saves it to assets
+        /// </summary>        
         public bool SavePreset(GameObject referenceObject, Camera camera, bool overwriteExisting)
         {
             PumkinsCameraPreset p = ScriptableObjectUtility.CreateAndSaveAsset<PumkinsCameraPreset>(name, PumkinsAvatarTools.MainFolderPath + "/Resources/Presets/Cameras/", overwriteExisting) as PumkinsCameraPreset;
@@ -171,6 +183,9 @@ namespace Pumkin.Presets
             return true;
         }
 
+        /// <summary>
+        /// Returns position and rotation offsets from target transform to camera
+        /// </summary>
         public void CalculateOffsets(Transform target, Camera cam)
         {
             if(!target || !cam)
@@ -204,6 +219,9 @@ namespace Pumkin.Presets
             }
         }
 
+        /// <summary>
+        /// Returns position and rotation offsets from viewpoint to camera
+        /// </summary>        
         public void CalculateOffsets(VRC_AvatarDescriptor desc, Camera cam)
         {
             if(!desc || !cam)
@@ -213,7 +231,7 @@ namespace Pumkin.Presets
             if(offsets)
             {
                 offsetMode = CameraOffsetMode.Viewpoint;
-                positionOffset = offsets.position;
+                positionOffset = offsets.localPosition;
                 rotationAnglesOffset = offsets.localEulerAngles;
             }
         }
@@ -334,6 +352,10 @@ namespace Pumkin.Presets
             return offsets;
         }
 
+        /// <summary>
+        /// Gets camera offset from viewpoint and returns a SerialTransform
+        /// </summary>        
+        /// <returns>SerialTransform only holds values, it doesn't reference a real transform</returns>
         public static SerialTransform GetCameraOffsetFromViewpoint(GameObject avatar, Camera cam)
         {            
             VRC_AvatarDescriptor desc = avatar.GetComponent<VRC_AvatarDescriptor>();
@@ -344,6 +366,9 @@ namespace Pumkin.Presets
             return offsets;
         }
 
+        /// <summary>
+        /// Returns the name of the preset
+        /// </summary>        
         public override string ToString()
         {
             return name;

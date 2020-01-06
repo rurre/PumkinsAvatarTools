@@ -778,7 +778,7 @@ namespace Pumkin.AvatarTools
             RefreshBackgroundOverrideType();
 
             if(_lastOpenFilePath == default(string))
-                _lastOpenFilePath = MainFolderPath + PumkinsPresetManager.camerasPath + "/Images";
+                _lastOpenFilePath = MainFolderPath + PumkinsPresetManager.camerasPath + "/Example Images";
         }
 
         public void HandleSceneChange(Scene scene, OpenSceneMode mode)
@@ -1128,6 +1128,9 @@ namespace Pumkin.AvatarTools
             }
         }
 
+        /// <summary>
+        /// Draws the scaling ruler when editing avatar scale. Does nothing for now, will show example avatar sizes later
+        /// </summary>
         void DrawScalingRuler()
         {
             ////Actually pretty laggy
@@ -1759,10 +1762,8 @@ namespace Pumkin.AvatarTools
 
         public void DrawThumbnailPoseGUI()
         {
-            if(GUILayout.Button(Strings.Buttons.openPoseEditor, Styles.BigButton))
-            {
-                PumkinsMuscleEditor.ShowWindow();
-            }
+            if(GUILayout.Button(Strings.Buttons.openPoseEditor, Styles.BigButton))            
+                PumkinsMuscleEditor.ShowWindow();            
 
             Helpers.DrawGUILine();
 
@@ -2259,10 +2260,17 @@ namespace Pumkin.AvatarTools
                         else if(typeof(T) == typeof(PumkinsPosePreset))
                             CreatePosePresetPopup.ShowWindow(pr[pSelectedPresetIndex.intValue] as PumkinsPosePreset);
                         else if(typeof(T) == typeof(PumkinsBlendshapePreset))
+                        {                            
                             CreateBlendshapePopup.ShowWindow(pr[pSelectedPresetIndex.intValue] as PumkinsBlendshapePreset);
+                            PumkinsAvatarTools.SetupBlendeshapeRendererHolders(SelectedAvatar);
+                        }
+                            
                     }
                     if(GUILayout.Button(Strings.Buttons.load))
                     {
+                        if(typeof(T) == typeof(PumkinsBlendshapePreset))                        
+                            Instance.DoAction(SelectedAvatar, ToolMenuActions.RevertBlendshapes);                        
+
                         int newIndex = PumkinsPresetManager.GetPresetIndex<T>(pSelectedPresetString.stringValue);
                         if(newIndex == -1)
                             RefreshPresetStringByIndex<T>(pSelectedPresetIndex.intValue);
@@ -2311,7 +2319,10 @@ namespace Pumkin.AvatarTools
                     else if(typeof(T) == typeof(PumkinsPosePreset))
                         DoAction(SelectedAvatar, ToolMenuActions.ResetPose);
                     else if(typeof(T) == typeof(PumkinsBlendshapePreset))
+                    {
                         DoAction(SelectedAvatar, ToolMenuActions.RevertBlendshapes);
+                        PumkinsAvatarTools.SetupBlendeshapeRendererHolders(SelectedAvatar);
+                    }
                 }
             }
             EditorGUI.EndDisabledGroup();
@@ -2459,9 +2470,11 @@ namespace Pumkin.AvatarTools
                 }
                 EditorGUI.EndDisabledGroup();
             }
-        }        
+        }
 
-        //Draws the "Use Overlay" section in the thumbnails menu
+        /// <summary>
+        /// Draws the "Use Overlay" section in the thumbnails menu
+        /// </summary>
         public void DrawOverlayGUI()
         {
             bool needsRefresh = false;
@@ -2539,6 +2552,10 @@ namespace Pumkin.AvatarTools
             }
         }
 
+        /// <summary>
+        /// Selects the thumbnail preset option and scrolls down
+        /// </summary>
+        /// <param name="option"></param>
         public void SelectThumbnailPresetToolbarOption(PresetToolbarOptions option)
         {
             _presetToolbarSelectedIndex = (int)option;
@@ -2587,7 +2604,15 @@ namespace Pumkin.AvatarTools
                 {
                     cameraOverlayTexture = (Texture2D)overlayImg.texture;
                     overlayImg.color = cameraOverlayImageTint;
-                }                
+                }
+            }
+            else
+            {
+                if(overlayImg && overlayImg.texture)
+                {
+                    cameraOverlayTexture = null;
+                    overlayImg.texture = null;
+                }
             }
 
             if(!string.IsNullOrEmpty(_backgroundPath))
@@ -2598,8 +2623,20 @@ namespace Pumkin.AvatarTools
                     backgroundImg.color = cameraBackgroundImageTint;
                 }
             }
+            else
+            {
+                if(backgroundImg && backgroundImg.texture)
+                {
+                    cameraBackgroundTexture = null;
+                    backgroundImg.texture = null;
+                }
+            }
         }
                 
+        /// <summary>
+        /// Sets overlay texture to image from path
+        /// </summary>
+        /// <param name="texturePath"></param>
         public void SetOverlayToImageFromPath(string texturePath)
         {
             _overlayPath = texturePath;
@@ -2618,6 +2655,9 @@ namespace Pumkin.AvatarTools
                 Log(Strings.Warning.cantLoadImageAtPath, LogType.Warning, texturePath);
             }            
         }
+        /// <summary>
+        /// Sets overlay image to texture
+        /// </summary>        
         public void SetOverlayToImageFromTexture(Texture2D newTexture)
         {
             var img = GetCameraOverlayRawImage();
@@ -2633,6 +2673,10 @@ namespace Pumkin.AvatarTools
             }
         }
 
+        /// <summary>
+        /// Sets background texture to image from path
+        /// </summary>
+        /// <param name="texturePath"></param>
         public void SetBackgroundToImageFromPath(string texturePath)
         {            
             _backgroundPath = texturePath;
@@ -2651,6 +2695,10 @@ namespace Pumkin.AvatarTools
                 Log(Strings.Warning.cantLoadImageAtPath, LogType.Warning, texturePath);
             }           
         }
+        /// <summary>
+        /// Sets background to image from texture
+        /// </summary>
+        /// <param name="newTexture"></param>
         public void SetBackgroundToImageFromTexture(Texture2D newTexture)
         {            
             var img = GetCameraBackgroundRawImage();
@@ -2666,12 +2714,18 @@ namespace Pumkin.AvatarTools
             }
         }
 
+        /// <summary>
+        /// Sets camera background clear flags to skybox and changes skybox to material
+        /// </summary>        
         public void SetCameraBackgroundToSkybox(Material skyboxMaterial)
         {
             SelectedCamera.clearFlags = CameraClearFlags.Skybox;
             RenderSettings.skybox = skyboxMaterial;
         }
 
+        /// <summary>
+        /// Changes camera clear flags to solid color and sets background color
+        /// </summary>        
         public void SetCameraBackgroundToColor(Color color)
         {
             _thumbsCamBgColor = color;

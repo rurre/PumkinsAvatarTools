@@ -47,6 +47,12 @@ namespace Pumkin.Presets
             base.OnDisable();
         }
 
+        private void OnDestroy()
+        {
+            if(editingExistingPreset)            
+                SetupPreset();            
+        }
+
         public void HandleSelectionChanged(GameObject selection)
         {
             SetupPreset();

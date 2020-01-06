@@ -11,9 +11,9 @@ namespace Pumkin.DataStructures
     public class Strings : SingletonScriptableObject<Strings>
     {
 #if PUMKIN_VRCSDK1
-        public const string TOOLS_VERSION_NUMBER = "0.7b - Release Candidate - Old SDK";
+        public const string TOOLS_VERSION_NUMBER = "0.7b - Old SDK";
 #else
-        public const string TOOLS_VERSION_NUMBER = "0.7b - Release Candidate";
+        public const string TOOLS_VERSION_NUMBER = "0.7b";
 #endif
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -463,6 +463,7 @@ namespace Pumkin.DataStructures
             public static string cantSetPoseNonHumanoid = "_Can't set humanoid pose {0} on a non humanoid avatar";
             public static string loadedImageAsBackground = "_Loaded {0} as Background image";
             public static string loadedImageAsOverlay = "_Loaded {0} as Overlay image";
+            public static string descriptorIsMissingCantGetViewpoint = "_Avatar Descriptor is missing. Can't get Viewpoint position";
 
             static Log()
             {
@@ -513,6 +514,7 @@ namespace Pumkin.DataStructures
                 setProbeAnchorTo = Translation.log.setProbeAnchorTo;
                 loadedImageAsBackground = Translation.log.loadedImageAsBackground;
                 loadedImageAsOverlay = Translation.log.loadedImageAsOverlay;
+                descriptorIsMissingCantGetViewpoint = Translation.log.descriptorIsMissingCantGetViewpoint;
             }
         };
         public static class Warning

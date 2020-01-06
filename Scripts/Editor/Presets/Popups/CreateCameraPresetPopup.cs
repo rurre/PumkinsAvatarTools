@@ -164,7 +164,7 @@ namespace Pumkin.Presets
                             if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
                             {
                                 if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform)
-                                    newPreset.SavePreset(referenceTransform.gameObject, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
+                                    newPreset.SavePreset(referenceTransform.gameObject, PumkinsAvatarTools.SelectedCamera, _overwriteFile);                                
                                 else
                                     newPreset.SavePreset(PumkinsAvatarTools.SelectedAvatar, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
                             }

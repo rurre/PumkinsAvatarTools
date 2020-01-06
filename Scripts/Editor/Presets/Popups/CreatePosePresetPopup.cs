@@ -1,6 +1,7 @@
 ﻿using Pumkin.AvatarTools;
 using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
+using Pumkin.PoseEditor;
 using UnityEditor;
 using UnityEngine;
     
@@ -77,14 +78,22 @@ namespace Pumkin.Presets
 
                 Helpers.DrawGUILine();
 
+                if(GUILayout.Button(Strings.Buttons.openPoseEditor, Styles.BigButton))                
+                    PumkinsMuscleEditor.ShowWindow();                
+
+                Helpers.DrawGUILine();
+
                 EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedAvatar || !preset || string.IsNullOrEmpty(preset.name));
                 {
-                    _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
-                    if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
+                    if(!editingExistingPreset)
                     {
-                        preset.SetupPreset(preset.name, PumkinsAvatarTools.SelectedAvatar, preset.presetMode);
-                        if(preset)
-                            preset.SavePreset(_overwriteFile);
+                        _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
+                        if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
+                        {
+                            preset.SetupPreset(preset.name, PumkinsAvatarTools.SelectedAvatar, preset.presetMode);
+                            if(preset)
+                                preset.SavePreset(_overwriteFile);
+                        }
                     }
                 }
                 EditorGUI.EndDisabledGroup();
@@ -98,6 +107,17 @@ namespace Pumkin.Presets
         protected override void RefreshSelectedPresetIndex()
         {
             PumkinsAvatarTools.RefreshPresetIndexByString<PumkinsPosePreset>(preset.name);
+        }
+
+        private void OnDestroy()
+        {
+            if(editingExistingPreset)
+            {
+                PumkinsPosePreset preset = (PumkinsPosePreset)CreatePresetPopupBase.preset;
+                if(!preset)
+                    AssignOrCreatePreset<PumkinsPosePreset>(null);
+                preset.SetupPreset(preset.name, PumkinsAvatarTools.SelectedAvatar, preset.presetMode);
+            }
         }
     }
 }

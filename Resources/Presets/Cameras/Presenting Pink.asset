@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a722b864b617955438a3effb19b2c444, type: 3}
-  m_Name: Left Shoulder
+  m_Name: Presenting Pink
   m_EditorClassIdentifier: 
-  name: Pink Left Shoulder
+  name: Examples/Presenting Pink
   offsetMode: 2
-  positionOffset: {x: -0.0874473, y: 0.019161241, z: -0.024186842}
-  rotationAnglesOffset: {x: 359.04395, y: 72.68475, z: 107.31524}
-  transformPath: Armature/Hips/Spine/Chest/Left shoulder
-  useOverlay: 0
-  overlayImagePath: 
+  positionOffset: {x: 0.19062711, y: 0.03002601, z: 0.3758196}
+  rotationAnglesOffset: {x: 3.8389032, y: 193.28188, z: 352.23236}
+  transformPath: Armature/Hips/Spine/Chest/Neck/Head
+  useOverlay: 1
+  overlayImagePath: D:/Libraries/Desktop/Pumkin Tool Releases/fg_vignette.png
   overlayImageTint: {r: 1, g: 1, b: 1, a: 1}
   useBackground: 1
   backgroundType: 0

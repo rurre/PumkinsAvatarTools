@@ -290,6 +290,7 @@ namespace Pumkin.Translations
         public string loadedImageAsBackground = "Loaded {0} as Background image";
         public string loadedImageAsOverlay = "Loaded {0} as Overlay image";
         public string setProbeAnchorTo = "Set {0}'s probe anchor to {1}";
+        public string descriptorIsMissingCantGetViewpoint = "Avatar Descriptor is missing. Can't get Viewpoint position";
     };
 
     [Serializable]

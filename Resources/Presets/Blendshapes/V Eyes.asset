@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65df42acc29efd546902636e201a2390, type: 3}
-  m_Name: v eyes no hat
+  m_Name: V Eyes
   m_EditorClassIdentifier: 
-  name: v eyes no hat
+  name: Examples/V Eyes
   renderers:
   - rendererPath: Body
     blendshapes:
@@ -118,7 +118,8 @@ MonoBehaviour:
       otherNamesExpandedInUI: 0
     - name: '> <'
       weight: 100
-      otherNames: []
+      otherNames:
+      - Close><
       otherNamesExpandedInUI: 0
     - name: Surprised
       weight: 0
@@ -241,10 +242,6 @@ MonoBehaviour:
       otherNames: []
       otherNamesExpandedInUI: 0
     - name: Blue Give up
-      weight: 0
-      otherNames: []
-      otherNamesExpandedInUI: 0
-    - name: HatOn
       weight: 0
       otherNames: []
       otherNamesExpandedInUI: 0

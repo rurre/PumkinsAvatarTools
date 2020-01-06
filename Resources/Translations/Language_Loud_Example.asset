@@ -133,7 +133,6 @@ MonoBehaviour:
     overlayCameraImage: OVERLAY IMAGE
     overlayTexture: OVERLAY TEXTURE
     startUploadingFirst: START UPLOADING AN AVATAR, OR GET INTO PLAY MODE
-    centerCameraOnViewpoint: CENTER CAMERA ON VIEWPOINT
     backgroundType: BACKGROUND TYPE
     backgroundType_None: NONE
     backgroundType_Material: SKYBOX
@@ -151,6 +150,9 @@ MonoBehaviour:
     centerCameraFixClippingPlanes: FIX CLIPPING PLANES
     positionOffset: POSITION OFFSET
     rotationOffset: ROTATION OFFSET
+    tryFixPoseSinking: TRY TO FIX POSE SINKING
+    centerCameraOn: CENTER CAMERA ON {0}
+    viewpoint: VIEWPOINT
   misc:
     uwu: uwu
     searchForBones: SEARCH FOR DYNAMICBONES
@@ -204,6 +206,8 @@ MonoBehaviour:
     loadedImageAsBackground: LOADED {0} AS BACKGROUND IMAGE
     loadedImageAsOverlay: LOADED {0} AS OVERLAY IMAGE
     setProbeAnchorTo: SET {0}'S PROBE ANCHOR TO {1}
+    descriptorIsMissingCantGetViewpoint: AVATAR DESCRIPTOR IS MISSING. CAN'T GET VIEWPOINT
+      POSITION
   warnings:
     warn: WARNING
     notFound: NOT FOUND
@@ -244,6 +248,8 @@ MonoBehaviour:
     muscles: MUSCLES
     transformRotations: TRANSFORM ROTATIONS
     selectHumanoidAvatar: SELECT A HUMANOID AVATAR
+    animationTime: TIME
+    poseFromAnimation: POSE FROM ANIMATION
   preset:
     presetName: PRESET NAME
     mode: PRESET MODE
@@ -257,7 +263,7 @@ MonoBehaviour:
     posePreset: POSE PRESET
     blendshapePreset: BLENDSHAPE PRESET
     editBlendshapePreset: EDIT BLENDSHAPE PRESET
-    createBlendshapePreset: Create BLENDSHAPE PRESET
+    createBlendshapePreset: CREATE BLENDSHAPE PRESET
     transform: TRANSFORM
     offsetMode: OFFSET MODE
     camera: CAMERA
