@@ -5,6 +5,8 @@ An editor script that adds tools to help you setup avatars faster and easier. It
 
 - To launch the tool go to `Tools > Pumkin > Avatar Tools` in your Unity project.
 
+- If you're having any issues with the tool, try resetting it's settings by going to `Tools > Pumkin > Reset Tool Preferences`
+
 Also check out the new [Wiki](https://github.com/rurre/PumkinsAvatarTools/wiki) for a more detailed explanation of what everything does.
 
 I also have a [Discord Server](https://discord.gg/7vyekJv)! Join it to stay up to date with this tool's updates. At least until I make an auto updater.
