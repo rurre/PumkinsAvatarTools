@@ -3357,7 +3357,7 @@ namespace Pumkin.AvatarTools
                     {
                         if(!(bCopier_descriptor_copy && bCopier_descriptor_copyViewpoint))
                             SetAvatarScale(desc, objFrom.transform.localScale.z);
-                        objTo.transform.localScale = new Vector3(objFrom.transform.localScale.x, objFrom.transform.localScale.y, objTo.transform.localScale.z);
+                        objTo.transform.localScale = new Vector3(objFrom.transform.localScale.x, objFrom.transform.localScale.y, objFrom.transform.localScale.z);
                     }
                     else
                         objTo.transform.localScale = objFrom.transform.localScale;
