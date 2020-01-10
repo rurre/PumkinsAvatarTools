@@ -1,7 +1,7 @@
 {
 	"name":"Pumkin's Avatar Tools",
 	"version":0.7,
-	"description":"A set of tools to help you edit and setup avatars faster.",
+	"description":"A set of tools to help you edit and setup avatars faster and easier.",
 	"classname":"Pumkin.AvatarTools.PumkinsAvatarTools",
 	"settings_file_name":"",
 	"requirement":{"type":"EDITOR_VERSION","data":">=1.0"},
