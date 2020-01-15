@@ -4223,9 +4223,9 @@ namespace Pumkin.AvatarTools
                     {
                         if(bCopier_skinMeshRender_copySettings)
                         {
-                            var t = Helpers.FindTransformInAnotherHierarchy(rFrom.rootBone, rTo.transform, false);
+                            var t = Helpers.FindTransformInAnotherHierarchy(rFrom.rootBone, rTo.transform.root, false);
                             rTo.rootBone = t ?? rTo.rootBone;
-                            t = Helpers.FindTransformInAnotherHierarchy(rFrom.probeAnchor, rTo.transform, false);
+                            t = Helpers.FindTransformInAnotherHierarchy(rFrom.probeAnchor, rTo.transform.root, false);
 
                             rTo.allowOcclusionWhenDynamic = rFrom.allowOcclusionWhenDynamic;
                             rTo.quality = rFrom.quality;
