@@ -1,7 +1,7 @@
 {
 	"name":"Pumkin's Avatar Tools",
 	"version":0.7,
-	"description":"A set of tools to help you edit and setup avatars faster and easier.",
+	"description":"A set of tools to help you setup avatars easier.\nIncludes a component copier and tools to make thumbnails.\nTo launch the tools go to Tools > Pumkin > Avatar Tools.",
 	"classname":"Pumkin.AvatarTools.PumkinsAvatarTools",
 	"settings_file_name":"",
 	"requirement":{"type":"VRC_SDK_VERSION","data":">=0.0"},
