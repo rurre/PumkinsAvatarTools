@@ -1047,6 +1047,6 @@ namespace Pumkin.HelperFunctions
                     return obj;
 
             return null;
-        }
-    }        
+        }        
+    }    
 }

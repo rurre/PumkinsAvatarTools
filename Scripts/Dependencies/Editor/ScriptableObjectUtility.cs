@@ -55,7 +55,7 @@ namespace Pumkin.Dependencies
                 //Debug.Log("Should create " + finalPath);
 
                 AssetDatabase.SaveAssets();
-                //AssetDatabase.Refresh();
+                AssetDatabase.Refresh();
                 EditorUtility.FocusProjectWindow();
                 Selection.activeObject = asset;
             }

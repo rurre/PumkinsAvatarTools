@@ -6,26 +6,30 @@ using Pumkin.AvatarTools;
 using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
 using Pumkin.Presets;
+using UnityEditor.Animations;
 using System;
 
 namespace Pumkin.PoseEditor
 {
     public class PumkinsMuscleEditor : EditorWindow
     {
+        const string POSE_ANIMATOR_NAME = "PumkinsPoseEditorAnimator";
+        
         //Main
         static bool windowIsFocused = false;
         static HumanPose avatarPose;
         static HumanPoseHandler avatarPoseHandler;
-        Vector2 scroll = Vector2.zero;
+        Vector2 scroll = Vector2.zero;       
 
         //Toolbar and sliders
         float sliderRange = 2f;
         int toolbarSelection = 0;
-        
-        //Pose from animation
+
+        //Pose from animation                
         AnimationClip animClip;
         float animTimeCurrent = 0;
-
+        AnimatorController ctrl;
+        bool allowMotion = false;
 
         static Animator _avatarAnimator;        
 
@@ -73,6 +77,13 @@ namespace Pumkin.PoseEditor
             editorWindow.titleContent = new GUIContent("Pose Editor");
 
             HandleAvatarSelectionChanged(PumkinsAvatarTools.SelectedAvatar);
+        }
+
+        private void Awake()
+        {
+            ctrl = Resources.Load<AnimatorController>("Pose Editor/" + POSE_ANIMATOR_NAME);
+            if(!ctrl)            
+                ctrl = AnimatorController.CreateAnimatorControllerAtPath(PumkinsAvatarTools.MainFolderPath + "Resources/Pose Editor" + POSE_ANIMATOR_NAME);            
         }
 
         private void OnFocus()
@@ -145,7 +156,7 @@ namespace Pumkin.PoseEditor
 
         static void HandleAvatarSelectionChanged(GameObject newAvatar)
         {
-            ReloadPoseVariables(newAvatar);
+            ReloadPoseVariables(newAvatar);            
         }
 
         static void HandlePoseChange(PumkinsAvatarTools.PoseChangeType changeType)
@@ -242,6 +253,7 @@ namespace Pumkin.PoseEditor
                         avatarPoseHandler.SetHumanPose(ref avatarPose);
                     }
                 }
+
                 Helpers.DrawGUILine();
 
                 PumkinsAvatarTools.Instance.DrawPresetGUI<PumkinsPosePreset>();
@@ -273,15 +285,36 @@ namespace Pumkin.PoseEditor
                     //Save transform position and rotation to prevent root motion
                     SerialTransform currentTrans = PumkinsAvatarTools.SelectedAvatar.transform;
 
+#if UNITY_2017  //For some reason SampleAnimation refuses to work if there's no runtime animation controller set in unity 2017
+                    var tempAnim = AvatarAnimator.runtimeAnimatorController;
+                    AvatarAnimator.runtimeAnimatorController = ctrl;                    
+#endif
                     animClip.SampleAnimation(PumkinsAvatarTools.SelectedAvatar, animTimeCurrent);
 
-                    if(currentTrans) //Restore position and rotation
-                        PumkinsAvatarTools.SelectedAvatar.transform.SetPositionAndRotation(currentTrans.position, currentTrans.rotation);
+#if UNITY_2017  //I really don't like this but it seems to work
+                    var serialTransforms = new List<SerialTransform>(); //Save all transform values after sampling animation to prevent reverting
+                    var transforms = PumkinsAvatarTools.SelectedAvatar.GetComponentsInChildren<Transform>();
 
-                    ReloadPoseVariables(PumkinsAvatarTools.SelectedAvatar);                    
+                    foreach(var t in transforms)                    
+                        serialTransforms.Add(t);
+
+                    AvatarAnimator.runtimeAnimatorController = tempAnim; //Apply old animator controller; this reverts pose to first frame of animation
+
+                    for(int i = 0; i < transforms.Length; i++) //Restore pose based on transform rotations                   
+                    {
+                        transforms[i].localEulerAngles = serialTransforms[i].localEulerAngles;
+                        if(allowMotion)
+                            transforms[i].localPosition = serialTransforms[i].localPosition;
+                    }
+#endif
+                    if(!allowMotion && currentTrans) //Restore position and rotation of avatar itself if no motion allowed
+                        PumkinsAvatarTools.SelectedAvatar.transform.SetPositionAndRotation(currentTrans.position, currentTrans.rotation);                    
+
+                   ReloadPoseVariables(PumkinsAvatarTools.SelectedAvatar);
                 }
-            }
 
+                allowMotion = GUILayout.Toggle(allowMotion, Strings.PoseEditor.allowMotion);
+            }
             Helpers.DrawGUILine();
         }
 

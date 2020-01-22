@@ -1,3 +1,4 @@
+#define DEBUG_STUFF
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -64,6 +65,7 @@ namespace Pumkin.AvatarTools
         Vector3 _avatarScaleOld;
         [SerializeField] float _avatarScaleTemp;
         [SerializeField] SerializedProperty _serializedAvatarScaleTempProp;
+        [SerializeField] bool editingScaleMovesViewpoint = true;
         Transform _scaleViewpointDummy;
 
         VRC_AvatarDescriptor _tempAvatarDescriptor;
@@ -226,6 +228,8 @@ namespace Pumkin.AvatarTools
         [SerializeField] public int _selectedBlendshapePresetIndex = 0;
 
         [SerializeField] public bool posePresetTryFixSinking = true;
+        [SerializeField] public bool posePresetApplyBodyPosition = true;
+        [SerializeField] public bool posePresetApplyBodyRotation = true;
 
         [SerializeField] bool centerCameraFixClippingPlanes = true;
         [SerializeField] bool centerCameraScaleDistanceWithAvatarScale = true;
@@ -515,7 +519,10 @@ namespace Pumkin.AvatarTools
             {
                 _cameraOverlay = Helpers.FindGameObjectEvenIfDisabled(CAMERA_OVERLAY_NAME);
                 if(!_cameraOverlay && createIfMissing)
+                {
                     _cameraOverlay = new GameObject(CAMERA_OVERLAY_NAME);
+                    _cameraOverlay.hideFlags = HideFlags.HideInHierarchy;
+                }
             }
             return _cameraOverlay;
         }
@@ -525,7 +532,10 @@ namespace Pumkin.AvatarTools
             {
                 _cameraBackground = Helpers.FindGameObjectEvenIfDisabled(CAMERA_BACKGROUND_NAME);
                 if(!_cameraBackground && createIfMissing)
+                {
                     _cameraBackground = new GameObject(CAMERA_BACKGROUND_NAME);
+                    _cameraBackground.hideFlags = HideFlags.HideInHierarchy;
+                }
             }
             return _cameraBackground;
         }                
@@ -958,6 +968,14 @@ namespace Pumkin.AvatarTools
 
                 verboseLoggingEnabled = EditorGUILayout.Toggle("Enable verbose logging", verboseLoggingEnabled);
 
+                EditorGUILayout.Space();
+#if DEBUG_STUFF
+                if(GUILayout.Button("Generate Thry Manifest"))
+                {
+                    ThryModuleManifest.Generate();
+                }
+#endif
+
                 GUILayout.FlexibleSpace();
 
                 if(GUILayout.Button(Strings.Misc.uwu, "IconButton", GUILayout.ExpandWidth(false)))
@@ -1015,8 +1033,8 @@ namespace Pumkin.AvatarTools
         /// Draws the small windows inside the scene view when scaling the avatar or moving the viewpoint
         /// </summary>        
         void OnSceneGUI(SceneView sceneView)
-        {
-            if(_editingScale)
+        {            
+            if(_editingScale) //Scale editing
             {
                 bool propertyChanged = false;
                 if(!SelectedAvatar)
@@ -1027,7 +1045,7 @@ namespace Pumkin.AvatarTools
 
                 DrawScalingRuler();
 
-                Vector2 windowSize = new Vector2(200, 65);
+                Vector2 windowSize = new Vector2(200, 85);
 
                 Handles.BeginGUI();
                 {
@@ -1046,17 +1064,15 @@ namespace Pumkin.AvatarTools
                             EditorGUILayout.LabelField(_avatarScaleTemp.ToString());
                         }
 
+                        editingScaleMovesViewpoint = GUILayout.Toggle(editingScaleMovesViewpoint, Strings.Tools.editScaleMoveViewpoint);
+
                         GUILayout.BeginHorizontal();
                         {
-                            if(GUILayout.Button(Strings.Buttons.cancel, GUILayout.MinWidth(80)))
-                            {
-                                EndScalingAvatar(SelectedAvatar, true);
-                            }
+                            if(GUILayout.Button(Strings.Buttons.cancel, GUILayout.MinWidth(80)))                            
+                                EndScalingAvatar(SelectedAvatar, true);                            
 
-                            if(GUILayout.Button(Strings.Buttons.apply, GUILayout.MinWidth(80)))
-                            {
-                                EndScalingAvatar(SelectedAvatar, false);
-                            }
+                            if(GUILayout.Button(Strings.Buttons.apply, GUILayout.MinWidth(80)))                            
+                                EndScalingAvatar(SelectedAvatar, false);                            
                         }
                         GUILayout.EndHorizontal();
                     }
@@ -1075,13 +1091,16 @@ namespace Pumkin.AvatarTools
                         SetAvatarScale(_tempAvatarDescriptor, _avatarScaleTemp);
                     }
 
-                    Handles.color = Colors.BallHandle;
-                    Handles.SphereHandleCap(0, _viewPosTemp, Quaternion.identity, 0.02f, EventType.Repaint);
+                    if(editingScaleMovesViewpoint)
+                    {
+                        Handles.color = Colors.BallHandle;
+                        Handles.SphereHandleCap(0, _viewPosTemp, Quaternion.identity, 0.02f, EventType.Repaint);
+                    }
                 }
                 else
                     EndScalingAvatar(null, true);
             }
-            if(_editingView)
+            if(_editingView) //Viewpoint editing
             {
                 if(!SelectedAvatar)
                 {
@@ -1766,6 +1785,11 @@ namespace Pumkin.AvatarTools
                 PumkinsMuscleEditor.ShowWindow();            
 
             Helpers.DrawGUILine();
+                        
+            posePresetApplyBodyPosition = GUILayout.Toggle(posePresetApplyBodyPosition, Strings.Thumbnails.applyBodyPosition);
+            posePresetApplyBodyRotation = GUILayout.Toggle(posePresetApplyBodyRotation, Strings.Thumbnails.applyBodyRotation);
+
+            EditorGUILayout.Space();
 
             posePresetTryFixSinking = GUILayout.Toggle(posePresetTryFixSinking, Strings.Thumbnails.tryFixPoseSinking);
 
@@ -2690,7 +2714,7 @@ namespace Pumkin.AvatarTools
                 string texName = string.IsNullOrEmpty(texturePath) ? "empty" : Path.GetFileName(texturePath);
                 Log(Strings.Log.loadedImageAsBackground, LogType.Log, texName);
             }
-            else
+            else if(!string.IsNullOrEmpty(texturePath))
             {
                 Log(Strings.Warning.cantLoadImageAtPath, LogType.Warning, texturePath);
             }           
@@ -2964,7 +2988,10 @@ namespace Pumkin.AvatarTools
                     ResetPose(SelectedAvatar);
                     break;
                 case ToolMenuActions.RevertBlendshapes:
-                    ResetBlendshapes(SelectedAvatar, true);
+                    if(EditorApplication.isPlaying)
+                        ResetBlendshapes(SelectedAvatar, false);
+                    else
+                        ResetBlendshapes(SelectedAvatar, true);
                     break;
                 case ToolMenuActions.FillVisemes:
                     FillVisemes(SelectedAvatar);
@@ -3087,36 +3114,48 @@ namespace Pumkin.AvatarTools
         /// <param name="cancelled">If canceled returnt to old scale and viewpoint</param>
         private void EndScalingAvatar(GameObject avatar, bool cancelled)
         {
-            if(avatar == null)
+            try
             {
-                _editingScale = false;
-            }
-            else
-            {
-                if(_tempAvatarDescriptor == null)
+                if(avatar == null)
                 {
-                    Log(Strings.Log.descriptorIsNull, LogType.Error);
-                    return;
-                }
-
-                _editingScale = false;
-                Tools.current = _tempToolOld;
-                if(!cancelled)
-                {
-                    SetViewpoint(_tempAvatarDescriptor, _viewPosTemp);
-                    Log(Strings.Log.setAvatarScaleAndViewpointTo, LogType.Log, avatar.transform.localScale.z.ToString(), _tempAvatarDescriptor.ViewPosition.ToString());
+                    _editingScale = false;
                 }
                 else
                 {
-                    _tempAvatarDescriptor.ViewPosition = _viewPosOld;
-                    SelectedAvatar.transform.localScale = _avatarScaleOld;
-                    Log(Strings.Log.canceledScaleChanges);
-                }
-            }
-            _tempAvatarDescriptor = null;
+                    if(_tempAvatarDescriptor == null)
+                    {
+                        Log(Strings.Log.descriptorIsNull, LogType.Error);
+                        return;
+                    }
 
-            if(_scaleViewpointDummy)
-                DestroyImmediate(_scaleViewpointDummy.gameObject);
+                    _editingScale = false;
+                    Tools.current = _tempToolOld;
+                    if(!cancelled)
+                    {
+                        if(editingScaleMovesViewpoint)
+                        {
+                            SetViewpoint(_tempAvatarDescriptor, _viewPosTemp);
+                            Log(Strings.Log.setAvatarScaleAndViewpointTo, LogType.Log, avatar.transform.localScale.z.ToString(), _tempAvatarDescriptor.ViewPosition.ToString());
+                        }
+                        else
+                        {
+                            Log(Strings.Log.setAvatarScaleTo, LogType.Log, avatar.transform.localScale.z.ToString());
+                        }
+                    }
+                    else
+                    {
+                        _tempAvatarDescriptor.ViewPosition = _viewPosOld;
+                        SelectedAvatar.transform.localScale = _avatarScaleOld;
+                        Log(Strings.Log.canceledScaleChanges);
+                    }
+                }
+                _tempAvatarDescriptor = null;
+            }
+            finally
+            {
+                if(_scaleViewpointDummy)
+                    DestroyImmediate(_scaleViewpointDummy.gameObject);
+            }
         }
 
         /// <summary>

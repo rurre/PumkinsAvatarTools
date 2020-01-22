@@ -143,6 +143,7 @@ namespace Pumkin.Translations
         public string setRendererAnchors = "Set Renderer Anchors";
         public string viewpointZDepth = "Z Depth";
         public string revertScale = "Revert Scale";
+        public string editScaleMoveViewpoint = "Move Viewpoint";
     };
 
     [Serializable]
@@ -244,7 +245,8 @@ namespace Pumkin.Translations
         public string tryFixPoseSinking = "Try to Fix Pose Sinking";
         public string centerCameraOn = "Center Camera on {0}";
         public string viewpoint = "Viewpoint";
-
+        public string applyBodyPosition = "Apply Body Position";
+        public string applyBodyRotation = "Apply Body Rotation";
     };
 
     [Serializable]
@@ -276,7 +278,7 @@ namespace Pumkin.Translations
         public string failedHasNo = "{0} has no {1}, Ignoring.";
         public string settingQuickViewpoint = "Setting quick viewpoint to {0}";
         public string cantSetViewpointNonHumanoid = "Can't set Viewpoint for a non humanoid avatar";
-        public string setAvatarScaleTo = "Set Avatar scale to {0} and Viewpoint to {1}";
+        public string setAvatarScaleTo = "Set Avatar scale to {0}";
         public string setAvatarScaleAndViewpointTo = "Set Avatar scale to {0} and Viewpoint to {1}";
         public string canceledScaleChanges = "Cancelled Scale changes";
         public string successCopiedOverFromTo = "Success: Copied over {0} from {1}'s {2} to {3}'s {4}";
@@ -304,6 +306,7 @@ namespace Pumkin.Translations
         public string invalidPreset = "Can't apply preset {0}: Invalid Preset";
         public string cantRevertRendererWithoutPrefab = "Can't revert Skinned Mesh Renderer {0}, object has no Prefab.";
         public string cantLoadImageAtPath = "Can't load image at {0}";
+        public string doesntWorkInUnity2017 = "Doesn't work in Unity 2017 :(";
     };
 
     [Serializable]
@@ -353,5 +356,6 @@ namespace Pumkin.Translations
         public string selectHumanoidAvatar = "Select a Humanoid Avatar";
         public string animationTime = "Time";
         public string poseFromAnimation = "Pose from Animation";
+        public string allowMotion = "Allow Motion";
     }
 }

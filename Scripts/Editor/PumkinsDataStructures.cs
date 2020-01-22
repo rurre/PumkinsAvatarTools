@@ -5,6 +5,8 @@ using UnityEditor;
 using UnityEngine;
 using System.Linq;
 using Pumkin.Extensions;
+using Pumkin.AvatarTools;
+using System.IO;
 
 #if PUMKIN_VRCSDK2
 using VRCSDK2.Validation.Performance;
@@ -937,6 +939,54 @@ namespace Pumkin.DataStructures
         public static string[] RightFingers
         {
             get { return HumanTrait.MuscleName.SubArray(rightFingersRange.x, rightFingersRange.y - rightFingersRange.x); }
+        }
+    }
+
+    [Serializable]
+    class ThryModuleRequirement
+    {
+        public string type = "VRC_SDK_VERSION";
+        public string data = ">=0.0";
+    }
+
+    [Serializable]
+    class ThryModuleManifest
+    {
+        public string name;
+        public string description;
+        public string classname;
+        public double version;
+        public ThryModuleRequirement requirement;
+        public string[] files;
+
+        ThryModuleManifest()
+        {
+            name = Strings.Main.title;
+            description = "A set of tools to help you setup avatars easier.\nIncludes a component copier and tools to make thumbnails.\nTo launch the tools go to Tools > Pumkin > Avatar Tools.";
+            classname = typeof(PumkinsAvatarTools).FullName.ToString();
+            requirement = new ThryModuleRequirement();
+            version = Strings.toolsVersion;
+
+            var fileArray = Directory.GetFiles(PumkinsAvatarTools.MainFolderPath, "*", SearchOption.AllDirectories);
+            var finalFileList = new List<string>();
+            for(int i = 0; i < fileArray.Length; i++)
+            {
+                var file = fileArray[i].Substring(PumkinsAvatarTools.MainFolderPath.Length + 1);
+                if(file.EndsWith(".meta") || file.EndsWith("thry_module_manifest.json") || file.StartsWith(".git"))
+                    continue;
+
+                file = file.Replace('\\', '/');
+                finalFileList.Add(file);
+            }
+            files = finalFileList.ToArray();
+        }
+
+        static public void Generate()
+        {
+            ThryModuleManifest m = new ThryModuleManifest();
+            string json = EditorJsonUtility.ToJson(m, true);
+            string path = PumkinsAvatarTools.MainFolderPath + "/thry_module_manifest.json";
+            File.WriteAllText(path, json);
         }
     }
 }

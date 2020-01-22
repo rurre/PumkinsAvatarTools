@@ -1,5 +1,6 @@
 ﻿using Pumkin.AvatarTools;
 using Pumkin.Translations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -11,11 +12,13 @@ namespace Pumkin.DataStructures
     public class Strings : SingletonScriptableObject<Strings>
     {
 #if PUMKIN_VRCSDK1
-        public const string TOOLS_VERSION_NUMBER = "0.7b - Old SDK";
+        public const string TOOLS_VERSION_STRING = "0.7.1b - Old SDK";
 #else
-        public const string TOOLS_VERSION_NUMBER = "0.7b";
-#endif
-        public const string POSE_EDITOR_VERSION_NUMBER = "0.1b - Work in Progress";
+        public const string TOOLS_VERSION_STRING = "0.7.1b";
+#endif        
+        public const double toolsVersion = 0.71;        
+
+        public const string POSE_EDITOR_VERSION_NUMBER = "0.1.1b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
         public const string LINK_DONATION = "https://ko-fi.com/notpumkin";
         public const string LINK_DISCORD = "https://discord.gg/7vyekJv";
@@ -167,6 +170,7 @@ namespace Pumkin.DataStructures
             public static string setRendererAnchors = "_Set Renderer Anchors";
             public static string viewpointZDepth = "_Z Depth";
             public static string revertScale = "_Revert Scale";
+            public static string editScaleMoveViewpoint = "_Move Viewpoint";
 
             static Tools()
             {
@@ -190,6 +194,7 @@ namespace Pumkin.DataStructures
                 viewpointZDepth = Translation.tools.viewpointZDepth;
                 setRendererAnchors = Translation.tools.setRendererAnchors;
                 revertScale = Translation.tools.revertScale;
+                editScaleMoveViewpoint = Translation.tools.editScaleMoveViewpoint;
             }
         };
         public static class AvatarInfo
@@ -279,6 +284,8 @@ namespace Pumkin.DataStructures
             public static string tryFixPoseSinking = "_Try to Fix Pose Sinking";
             public static string centerCameraOn = "_Center Camera on {0}";
             public static string viewpoint = "_Viewpoint";
+            public static string applyBodyPosition = "_Apply Body Position";
+            public static string applyBodyRotation = "_Apply Body Rotation";
 
             static Thumbnails()
             {
@@ -313,6 +320,8 @@ namespace Pumkin.DataStructures
                 tryFixPoseSinking = Translation.thumbnails.tryFixPoseSinking;
                 centerCameraOn = Translation.thumbnails.centerCameraOn;
                 viewpoint = Translation.thumbnails.viewpoint;
+                applyBodyPosition = Translation.thumbnails.applyBodyPosition;
+                applyBodyRotation = Translation.thumbnails.applyBodyRotation;
             }
         }
         public static class Copier
@@ -449,7 +458,7 @@ namespace Pumkin.DataStructures
             public static string failedHasNo = "_{0} has no {1}, Ignoring.";
             public static string settingQuickViewpoint = "_Setting quick viewpoint to {0}";
             public static string cantSetViewpointNonHumanoid = "_Can't set Viewpoint for a non humanoid avatar";
-            public static string setAvatarScaleTo = "_Set Avatar scale to {0} and Viewpoint to {1}";
+            public static string setAvatarScaleTo = "_Set Avatar scale to {0}";
             public static string setAvatarScaleAndViewpointTo = "_Set Avatar scale to {0} and Viewpoint to {1}";
             public static string canceledScaleChanges = "_Cancelled Scale changes";
             public static string successCopiedOverFromTo = "_Success: Copied over {0} from {1}'s {2} to {3}'s {4}";
@@ -527,6 +536,7 @@ namespace Pumkin.DataStructures
             public static string invalidPreset = "_Can't apply preset {0}: Invalid Preset";
             public static string cantRevertRendererWithoutPrefab = "_Can't revert Skinned Mesh Renderer {0}, object has no Prefab.";
             public static string cantLoadImageAtPath = "_Can't load image at {0}";
+            public static string doesntWorkInUnity2017 = "_Doesn't work in Unity 2017 :(";
 
             static Warning()
             {
@@ -545,6 +555,7 @@ namespace Pumkin.DataStructures
                 cameraNotFound = Translation.warnings.cameraNotFound;
                 invalidPreset = Translation.warnings.invalidPreset;
                 cantRevertRendererWithoutPrefab = Translation.warnings.cantRevertRendererWithoutPrefab;
+                doesntWorkInUnity2017 = Translation.warnings.doesntWorkInUnity2017;
             }
         };
         public static class Credits
@@ -564,7 +575,7 @@ namespace Pumkin.DataStructures
                 if(!Translation)
                     return;
 
-                version = (Translation.credits.version + " " + TOOLS_VERSION_NUMBER) ?? ("_Version" + " " + TOOLS_VERSION_NUMBER);
+                version = (Translation.credits.version + " " + TOOLS_VERSION_STRING) ?? ("_Version" + " " + TOOLS_VERSION_STRING);
                 redundantStrings = Translation.credits.redundantStrings;
                 addMoreStuff = Translation.credits.addMoreStuff;
                 pokeOnDiscord = Translation.credits.pokeOnDiscord;
@@ -623,6 +634,7 @@ namespace Pumkin.DataStructures
             public static string selectHumanoidAvatar = "_Select a Humanoid Avatar";
             public static string animationTime = "_Time";
             public static string poseFromAnimation = "_Pose from Animation";
+            public static string allowMotion = "_Allow Motion";
 
             static PoseEditor()
             {
@@ -661,6 +673,7 @@ namespace Pumkin.DataStructures
                 selectHumanoidAvatar = Translation.poseEditor.selectHumanoidAvatar;
                 animationTime = Translation.poseEditor.animationTime;
                 poseFromAnimation = Translation.poseEditor.poseFromAnimation;
+                allowMotion = Translation.poseEditor.allowMotion;
             }
         }
         public static class Presets

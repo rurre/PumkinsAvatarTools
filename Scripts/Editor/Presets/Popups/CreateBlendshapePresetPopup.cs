@@ -68,42 +68,55 @@ namespace Pumkin.Presets
         private void OnGUI()
         {
             PumkinsBlendshapePreset preset = (PumkinsBlendshapePreset)CreatePresetPopupBase.preset;
-            if(!preset)            
-                AssignOrCreatePreset<PumkinsBlendshapePreset>(preset);
             if(!preset)
-                return;
-            
-            scroll = EditorGUILayout.BeginScrollView(scroll);
             {
-                EditorGUILayout.Space();
-
-                preset.name = EditorGUILayout.TextField(Strings.Presets.presetName, preset.name);
-
-                Helpers.DrawGUILine();
-
-                PumkinsAvatarTools.DrawAvatarSelectionWithButton(false, false);
-
-                Helpers.DrawGUILine();
-
-                DrawBlendshapePresetControls();
-
-                Helpers.DrawGUILine();
-                
-                EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(preset.name) || !PumkinsAvatarTools.SelectedAvatar);
-                {
-                    if(!editingExistingPreset)
-                    {
-                        _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
-                        if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
-                            preset.SavePreset(_overwriteFile);
-                    }
-                }
-                EditorGUI.EndDisabledGroup();
-                
+                AssignOrCreatePreset<PumkinsBlendshapePreset>(preset);
+                return;
             }
-            EditorGUILayout.EndScrollView();
+            try
+            {
+                scroll = EditorGUILayout.BeginScrollView(scroll);
+                {
+                    EditorGUILayout.Space();
 
-            CreatePresetPopupBase.preset = preset;
+                    preset.name = EditorGUILayout.TextField(Strings.Presets.presetName, preset.name);
+
+                    Helpers.DrawGUILine();
+
+                    PumkinsAvatarTools.DrawAvatarSelectionWithButton(false, false);
+
+                    Helpers.DrawGUILine();
+
+                    DrawBlendshapePresetControls();
+
+                    Helpers.DrawGUILine();
+
+                    EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(preset.name) || !PumkinsAvatarTools.SelectedAvatar);
+                    {
+                        if(!editingExistingPreset)
+                        {
+                            _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
+                            if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
+                            {
+                                EditorApplication.delayCall += () =>
+                                {
+                                    preset.SavePreset(_overwriteFile);
+                                    Close();
+                                };
+                            }
+                        }
+                    }
+                    EditorGUI.EndDisabledGroup();
+
+                }
+                EditorGUILayout.EndScrollView();
+                CreatePresetPopupBase.preset = preset;
+            }
+            catch
+            {
+                if(this)
+                    Close();
+            }            
         }        
 
         private void DrawBlendshapePresetControls()
