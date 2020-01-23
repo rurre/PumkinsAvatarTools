@@ -1,4 +1,3 @@
-#define DEBUG_STUFF
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
