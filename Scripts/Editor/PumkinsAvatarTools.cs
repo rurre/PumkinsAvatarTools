@@ -44,7 +44,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool _tools_quickSetup_fillVisemes = true;
         [SerializeField] bool _tools_quickSetup_setViewpoint = true;
         //[SerializeField] bool _tools_quickSetup_autoRig = true;
-        [SerializeField] bool _tools_quickSetup_forceTPose = true;
+        [SerializeField] bool _tools_quickSetup_forceTPose = false;
 
         [SerializeField] float _tools_quickSetup_viewpointZDepth = 0.06f;
 
