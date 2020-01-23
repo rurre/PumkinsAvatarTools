@@ -2847,7 +2847,7 @@ namespace Pumkin.AvatarTools
 
             if(anim && anim.isHuman)
             {
-                Vector3 pos = anim.GetBoneTransform(HumanBodyBones.Head).position;
+                Vector3 pos = anim.GetBoneTransform(HumanBodyBones.Head).localPosition;
                 float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y - 0.005f;
                 pos.y = eyeHeight;
                 pos.z = zDepth;
