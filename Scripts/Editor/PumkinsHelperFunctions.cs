@@ -77,7 +77,8 @@ namespace Pumkin.HelperFunctions
                 SerializedProperty arraySizeProp = property.FindPropertyRelative("Array.size");
                 EditorGUILayout.PropertyField(arraySizeProp, new GUIContent(Strings.Copier.size ?? "Size"));
 
-                scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.MinHeight(Mathf.Clamp(arraySizeProp.intValue * 20, 0, maxHeight)), GUILayout.MaxHeight(maxHeight));
+                int heightMult = arraySizeProp.intValue > 2 ? 21 : 26;
+                scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.MinHeight(Mathf.Clamp(arraySizeProp.intValue * heightMult, 0, maxHeight)), GUILayout.MaxHeight(maxHeight));
                                 
                 EditorGUI.indentLevel += indentLevel;
 

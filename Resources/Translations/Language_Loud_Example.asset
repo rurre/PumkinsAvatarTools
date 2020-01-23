@@ -67,6 +67,7 @@ MonoBehaviour:
     setRendererAnchors: SET RENDERER ANCHORS
     viewpointZDepth: Z DEPTH
     revertScale: REVERT SCALE
+    editScaleMoveViewpoint: Move Viewpoint
   copier:
     copyFrom: COPY FROM
     copySettings: SETTINGS
@@ -79,7 +80,7 @@ MonoBehaviour:
     transforms_scale: SCALE
     transforms_avatarScale: AVATAR SCALE
     dynamicBones: DYNAMIC BONES
-    dynamicBones_colliders: COLLIDERS
+    dynamicBones_colliders: DYNAMIC BONE COLLIDERS
     dynamicBones_removeOldBones: REMOVE OLD BONES
     dynamicBones_removeOldColliders: REMOVE OLD COLLIDERS
     dynamicBones_createMissing: COPY MISSING BONES
@@ -153,6 +154,8 @@ MonoBehaviour:
     tryFixPoseSinking: TRY TO FIX POSE SINKING
     centerCameraOn: CENTER CAMERA ON {0}
     viewpoint: VIEWPOINT
+    applyBodyPosition: Apply Body Position
+    applyBodyRotation: Apply Body Rotation
   misc:
     uwu: uwu
     searchForBones: SEARCH FOR DYNAMICBONES
@@ -218,6 +221,7 @@ MonoBehaviour:
     cantRevertRendererWithoutPrefab: CAN'T REVERT SKINNED MESH RENDERER {0}, OBJECT
       HAS NO PREFAB.
     cantLoadImageAtPath: CAN'T LOAD IMAGE AT {0}
+    doesntWorkInUnity2017: Doesn't work in Unity 2017 :(
   credits:
     version: VERSION
     redundantStrings: NOW WITH 100% MORE REDUNDANT STRINGS
@@ -250,6 +254,7 @@ MonoBehaviour:
     selectHumanoidAvatar: SELECT A HUMANOID AVATAR
     animationTime: TIME
     poseFromAnimation: POSE FROM ANIMATION
+    allowMotion: Allow Motion
   preset:
     presetName: PRESET NAME
     mode: PRESET MODE

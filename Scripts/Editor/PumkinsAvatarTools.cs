@@ -1569,7 +1569,7 @@ namespace Pumkin.AvatarTools
                             if(GUILayout.Button(Strings.Buttons.selectNone, GUILayout.MinWidth(100)))
                             {
 #if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                                    bCopier_dynamicBones_copy = false;
+                                bCopier_dynamicBones_copy = false;
 #endif
                                 bCopier_colliders_copy = false;
                                 bCopier_joints_copy = false;
@@ -1587,7 +1587,7 @@ namespace Pumkin.AvatarTools
                             if(GUILayout.Button(Strings.Buttons.selectAll, GUILayout.MinWidth(100)))
                             {
 #if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                                    bCopier_dynamicBones_copy = true;
+                                bCopier_dynamicBones_copy = true;
 #endif
                                 bCopier_colliders_copy = true;
                                 bCopier_joints_copy = true;
@@ -1605,8 +1605,10 @@ namespace Pumkin.AvatarTools
                         }
                         EditorGUILayout.EndHorizontal();
 
+                        Helpers.DrawGUILine();
+
                         EditorGUI.BeginDisabledGroup(!CopierHasSelections());
-                        {
+                        {                            
                             if(GUILayout.Button(Strings.Buttons.copySelected, Styles.BigButton))
                             {
                                 string log = "";

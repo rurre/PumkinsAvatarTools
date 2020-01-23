@@ -339,7 +339,7 @@ namespace Pumkin.DataStructures
             public static string transforms_scale = "_Scale";
             public static string transforms_avatarScale = "_Avatar Scale";
             public static string dynamicBones = "_Dynamic Bones";
-            public static string dynamicBones_colliders = "_Colliders";
+            public static string dynamicBones_colliders = "_Dynamic Bone Colliders";
             public static string dynamicBones_removeOldBones = "_Remove Old Bones";
             public static string dynamicBones_removeOldColliders = "_Remove Old Colliders";
             public static string dynamicBones_createMissing = "_Copy Missing Bones";
@@ -396,7 +396,7 @@ namespace Pumkin.DataStructures
                 transforms_scale = Translation.copier.transforms_scale;
                 transforms_avatarScale = Translation.copier.transforms_avatarScale;
                 dynamicBones = Translation.copier.dynamicBones;
-                dynamicBones_colliders = Translation.copier.colliders;
+                dynamicBones_colliders = Translation.copier.dynamicBones_colliders;
                 dynamicBones_removeOldBones = Translation.copier.dynamicBones_removeOldBones;
                 dynamicBones_removeOldColliders = Translation.copier.dynamicBones_removeOldColliders;
                 dynamicBones_createMissing = Translation.copier.createMissing;
