@@ -865,10 +865,8 @@ namespace Pumkin.AvatarTools
                 SelectedCamera = GetVRCCamOrMainCam();
 
                 var pm = FindObjectOfType<RuntimeBlueprintCreation>();
-                if(pm && pm.pipelineManager && pm.pipelineManager.contentType == PipelineManager.ContentType.avatar)
-                {
-                    SelectedAvatar = pm.pipelineManager.transform.root.gameObject;
-                }
+                if(pm && pm.pipelineManager && pm.pipelineManager.contentType == PipelineManager.ContentType.avatar)                
+                    SelectedAvatar = pm.pipelineManager.transform.root.gameObject;                
 
                 HideAllOtherAvatars(shouldHideOtherAvatars, SelectedAvatar);
 
@@ -1242,12 +1240,13 @@ namespace Pumkin.AvatarTools
                     {
                         Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones + " (" + Strings.Warning.notFound + ")", Icons.BoneIcon);
                         bCopier_dynamicBones_copy = false;
+                        _copier_expand_dynamicBones = false;
                     }
                     EditorGUI.EndDisabledGroup();
 #elif PUMKIN_OLD_DBONES
                         Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones + " (" + Strings.Warning.oldVersion + ")", Icons.BoneIcon);
 #elif PUMKIN_DBONES
-                        Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones, Icons.BoneIcon);
+                    Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones, Icons.BoneIcon);
 #endif
 
                     if(_copier_expand_dynamicBones)
@@ -2610,7 +2609,7 @@ namespace Pumkin.AvatarTools
                 for(int i = 0; i < av.Length; i++)
                 {
                     if(av[i] != desc)
-                        av[i].transform.root.gameObject.SetActive(hidden);
+                        av[i].transform.root.gameObject.SetActive(!hidden); //why did I call it hidden
                 }
             }
         }
@@ -4279,7 +4278,7 @@ namespace Pumkin.AvatarTools
                             rTo.allowOcclusionWhenDynamic = rFrom.allowOcclusionWhenDynamic;
                             rTo.enabled = rFrom.enabled;
                         }
-                        if(bCopier_skinMeshRender_copyBlendShapeValues)
+                        if(bCopier_skinMeshRender_copyBlendShapeValues && rFrom.sharedMesh)
                         {
                             for(int z = 0; z < rFrom.sharedMesh.blendShapeCount; z++)
                             {
