@@ -642,6 +642,11 @@ namespace Pumkin.HelperFunctions
             return tex;
         }
 
+        public static Transform GetAvatarArmature(GameObject selection)
+        {
+            return selection ? selection.transform.Find("Armature") : null; //Might add more checks if armature isn't named armature later
+        }
+
         public static Texture2D OpenImageGetTexture(ref string startPath)
         {
             Texture2D tex = null;

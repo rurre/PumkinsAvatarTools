@@ -241,28 +241,35 @@ namespace Pumkin.Presets
         /// <summary>
         /// Sets camera position and rotation focusing focusTransform with position and rotation offsets
         /// </summary>
-        /// <param name="focusTransform">Transform to fucs</param>
+        /// <param name="focusTransform">Transform to focus</param>
         /// <param name="cam">Camera to move</param>
-        /// <param name="position">Position offset</param>
+        /// <param name="pos">Position offset</param>
         /// <param name="rotationAngles">Rotation offset</param>
         /// <param name="scaleDistanceWithAvatarScale">Not working yet</param>
-        public static void ApplyPositionAndRotationWithTransformFocus(Transform focusTransform, Camera cam, Vector3 position, Vector3 rotationAngles, bool scaleDistanceWithAvatarScale = false)
+        public static void ApplyPositionAndRotationWithTransformFocus(Transform focusTransform, Camera cam, Vector3 pos, Vector3 rotationAngles, bool scaleDistanceWithAvatarScale = false)
         {
             if(!cam || !focusTransform)
                 return;
-            
+
+            Transform dummy = new GameObject("dummy").transform;
             try
             {
-                Transform oldCamParent = cam.transform.parent;
-                cam.transform.parent = focusTransform;
-                cam.transform.localPosition = position;
+                dummy.SetPositionAndRotation(focusTransform.position, focusTransform.rotation);                
+
+                cam.transform.parent = dummy;
+                cam.transform.localPosition = pos;
                 cam.transform.localEulerAngles = rotationAngles;
-                cam.transform.parent = oldCamParent;
+                cam.transform.parent = null;
             }
             catch(Exception e)
             {
                 Debug.LogError(e.Message);
-            }            
+            }
+            finally
+            {
+                if(dummy)
+                    Helpers.DestroyAppropriate(dummy.gameObject);
+            }
         }
 
         /// <summary>

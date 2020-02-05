@@ -304,9 +304,11 @@ namespace Pumkin.Translations
         public string selectSceneObject = "Please select an object from the scene";
         public string cameraNotFound = "Camera not found";
         public string invalidPreset = "Can't apply preset {0}: Invalid Preset";
-        public string cantRevertRendererWithoutPrefab = "Can't revert Skinned Mesh Renderer {0}, object has no Prefab.";
+        public string cantRevertRendererWithoutPrefab = "Can't revert Skinned Mesh Renderer {0}, object has no Prefab";
         public string cantLoadImageAtPath = "Can't load image at {0}";
         public string doesntWorkInUnity2017 = "Doesn't work in Unity 2017 :(";
+        public string armatureScaleNotOne = "_Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
+        public string armatureScalesDontMatch = "_Armature scales for selected avatars don't match!\nThis can cause issues";
     };
 
     [Serializable]
