@@ -235,8 +235,9 @@ namespace Pumkin.PoseEditor
                     for(int i = 0; i < muscleRanges.Count; i++)
                     {
                         Vector2Int range = muscleRanges[i];
-                        for(int j = range.x; j < range.y; j++)
+                        for(int j = range.x; j < range.y; j++)                        
                             avatarPose.muscles[j] = EditorGUILayout.Slider(new GUIContent(HumanTrait.MuscleName[j]), avatarPose.muscles[j], -sliderRange, sliderRange);
+                        
                         if(i != muscleRanges.Count - 1)
                             EditorGUILayout.Space();
                     }
@@ -245,14 +246,25 @@ namespace Pumkin.PoseEditor
                 {
                     if(PumkinsAvatarTools.SelectedAvatar)
                     {
-                        if(Mathf.Approximately(avatarPose.bodyPosition.y, 0))
+                        if(PumkinsAvatarTools.Instance.posePresetTryFixSinking && avatarPose.bodyPosition.y > 0 && avatarPose.bodyPosition.y <= 0.01f)
+                        {
+                            PumkinsAvatarTools.Log(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, avatarPose.bodyPosition.y.ToString());
                             avatarPose.bodyPosition.y = 1;
+                        }
 
-                        Undo.RegisterCompleteObjectUndo(PumkinsAvatarTools.SelectedAvatar, "Pose Editor: Set pose from sliders");
-
-                        avatarPoseHandler.SetHumanPose(ref avatarPose);
-                    }
+                        Undo.RegisterCompleteObjectUndo(PumkinsAvatarTools.SelectedAvatar, "Pose Editor: Set pose from sliders");                        
+                        avatarPoseHandler.SetHumanPose(ref avatarPose);                        
+                    }                    
                 }
+
+                Helpers.DrawGUILine();
+
+                PumkinsAvatarTools.Instance.posePresetApplyBodyPosition = GUILayout.Toggle(PumkinsAvatarTools.Instance.posePresetApplyBodyPosition, Strings.Thumbnails.applyBodyPosition);
+                PumkinsAvatarTools.Instance.posePresetApplyBodyRotation = GUILayout.Toggle(PumkinsAvatarTools.Instance.posePresetApplyBodyRotation, Strings.Thumbnails.applyBodyRotation);
+
+                EditorGUILayout.Space();
+
+                PumkinsAvatarTools.Instance.posePresetTryFixSinking = GUILayout.Toggle(PumkinsAvatarTools.Instance.posePresetTryFixSinking, Strings.Thumbnails.tryFixPoseSinking);                
 
                 Helpers.DrawGUILine();
 
@@ -307,7 +319,7 @@ namespace Pumkin.PoseEditor
                             transforms[i].localPosition = serialTransforms[i].localPosition;
                     }
 #endif
-                    if(!allowMotion && currentTrans) //Restore position and rotation of avatar itself if no motion allowed
+                    if(currentTrans) //Restore position and rotation of avatar
                         PumkinsAvatarTools.SelectedAvatar.transform.SetPositionAndRotation(currentTrans.position, currentTrans.rotation);                    
 
                    ReloadPoseVariables(PumkinsAvatarTools.SelectedAvatar);

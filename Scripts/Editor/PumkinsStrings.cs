@@ -171,6 +171,7 @@ namespace Pumkin.DataStructures
             public static string viewpointZDepth = "_Z Depth";
             public static string revertScale = "_Revert Scale";
             public static string editScaleMoveViewpoint = "_Move Viewpoint";
+            public static string refreshRig = "_Refresh Rig";
 
             static Tools()
             {
@@ -195,6 +196,7 @@ namespace Pumkin.DataStructures
                 setRendererAnchors = Translation.tools.setRendererAnchors;
                 revertScale = Translation.tools.revertScale;
                 editScaleMoveViewpoint = Translation.tools.editScaleMoveViewpoint;
+                refreshRig = Translation.tools.refreshRig;
             }
         };
         public static class AvatarInfo
@@ -534,9 +536,11 @@ namespace Pumkin.DataStructures
             public static string selectSceneObject = "_Please select an object from the scene";
             public static string cameraNotFound = "_Camera not found";
             public static string invalidPreset = "_Can't apply preset {0}: Invalid Preset";
-            public static string cantRevertRendererWithoutPrefab = "_Can't revert Skinned Mesh Renderer {0}, object has no Prefab.";
+            public static string cantRevertRendererWithoutPrefab = "_Can't revert Skinned Mesh Renderer {0}, object has no Prefab";
             public static string cantLoadImageAtPath = "_Can't load image at {0}";
             public static string doesntWorkInUnity2017 = "_Doesn't work in Unity 2017 :(";
+            public static string armatureScaleNotOne = "_Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
+            public static string armatureScalesDontMatch = "_Armature scales for selected avatars don't match!\nThis can cause issues";
 
             static Warning()
             {
@@ -556,6 +560,8 @@ namespace Pumkin.DataStructures
                 invalidPreset = Translation.warnings.invalidPreset;
                 cantRevertRendererWithoutPrefab = Translation.warnings.cantRevertRendererWithoutPrefab;
                 doesntWorkInUnity2017 = Translation.warnings.doesntWorkInUnity2017;
+                armatureScaleNotOne = Translation.warnings.armatureScaleNotOne;
+                armatureScalesDontMatch = Translation.warnings.armatureScalesDontMatch;
             }
         };
         public static class Credits

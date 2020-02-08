@@ -416,7 +416,7 @@ namespace Pumkin.DataStructures
             UniqueMaterials = new HashSet<Material>(matList).Count;
             UniqueMaterials_Total = new HashSet<Material>(matList_total).Count;
 
-#if BONES || OLD_BONES
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
 
             var dbColliders = o.GetComponentsInChildren<DynamicBoneCollider>(true);
             foreach(var c in dbColliders)
@@ -729,6 +729,11 @@ namespace Pumkin.DataStructures
         public static SerialVector3 operator *(SerialVector3 v, float f)
         {
             return new SerialVector3(new Vector3(v.x, v.y, v.z) * f);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("({0}, {1}, {2})", x, y, z);
         }
     }
 
