@@ -668,7 +668,7 @@ namespace Pumkin.AvatarTools
 
         #endregion
 
-#region Events and Delegates
+        #region Events and Delegates
 
         public delegate void AvatarChangedHandler(GameObject selection);
         public delegate void PoseChangedHandler(PoseChangeType changeType);
