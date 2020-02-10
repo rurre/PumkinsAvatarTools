@@ -133,7 +133,7 @@ namespace Pumkin.PoseEditor
 
             EditorGUI.BeginChangeCheck();
             {
-                PumkinsAvatarTools.DrawAvatarSelectionWithButton();
+                PumkinsAvatarTools.DrawAvatarSelectionWithButtonGUI();
             }
 
             //if(GUILayout.Button("Dump muscle names"))

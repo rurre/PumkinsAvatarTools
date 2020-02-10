@@ -123,7 +123,7 @@ namespace Pumkin.Presets
 
                         EditorGUILayout.Space();
 
-                        PumkinsAvatarTools.DrawAvatarSelectionWithButton(false, false);
+                        PumkinsAvatarTools.DrawAvatarSelectionWithButtonGUI(false, false);
 
                         Helpers.DrawGUILine();
 

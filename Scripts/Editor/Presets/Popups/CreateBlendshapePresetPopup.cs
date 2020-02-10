@@ -83,7 +83,7 @@ namespace Pumkin.Presets
 
                     Helpers.DrawGUILine();
 
-                    PumkinsAvatarTools.DrawAvatarSelectionWithButton(false, false);
+                    PumkinsAvatarTools.DrawAvatarSelectionWithButtonGUI(false, false);
 
                     Helpers.DrawGUILine();
 

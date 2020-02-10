@@ -12,11 +12,11 @@ namespace Pumkin.DataStructures
     public class Strings : SingletonScriptableObject<Strings>
     {
 #if PUMKIN_VRCSDK1
-        public const string TOOLS_VERSION_STRING = "0.7.1b - Old SDK";
+        public const string TOOLS_VERSION_STRING = "0.7.2b - Old SDK";
 #else
-        public const string TOOLS_VERSION_STRING = "0.7.1b";
+        public const string TOOLS_VERSION_STRING = "0.7.2b - Work in Progress";
 #endif        
-        public const double toolsVersion = 0.71;        
+        public const double toolsVersion = 0.72;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.1b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -207,6 +207,7 @@ namespace Pumkin.DataStructures
             public static string shaders = "_Shaders: {0}";
             public static string selectAvatarFirst = "_Select an Avatar first";
             public static string uniqueMaterials = "_Unique Materials: {0} ({1})";
+            public static string ikFollowers = "_IK Followers: {0} ({1})";
             public static string overallPerformance = "_Overall Performance: {0}";
 #if PUMKIN_VRCSDK2
             public static string bones = "_Bones: {0} - {1}";
@@ -218,7 +219,7 @@ namespace Pumkin.DataStructures
             public static string dynamicBoneColliders = "_Dynamic Bone Colliders: {0} ({1}) - {2}";
             public static string dynamicBoneColliderTransforms = "_Collider Affected Transforms: {0} ({1}) - {2}";
             public static string particleSystems = "_Particle Systems: {0} ({1}) - {2}";
-            public static string maxParticles = "_Max Particles: {0} ({1}) - {2}";
+            public static string maxParticles = "_Max Particles: {0} ({1}) - {2}";            
 #else
             public static string bones = "_Bones: {0}";
             public static string skinnedMeshRenderers = "_Skinned Mesh Renderers: {0} ({1})";
@@ -259,6 +260,7 @@ namespace Pumkin.DataStructures
                 maxParticles = Translation.avatarInfo.maxParticles;
                 selectAvatarFirst = Translation.avatarInfo.selectAvatarFirst;
                 overallPerformance = Translation.avatarInfo.overallPerformance;
+                ikFollowers = Translation.avatarInfo.ikFollowers;
             }
         }
         public static class Thumbnails
@@ -288,6 +290,7 @@ namespace Pumkin.DataStructures
             public static string viewpoint = "_Viewpoint";
             public static string applyBodyPosition = "_Apply Body Position";
             public static string applyBodyRotation = "_Apply Body Rotation";
+            public static string lockSelectedCameraToSceneView = "_Lock Selected Camera to Scene View";
 
             static Thumbnails()
             {
@@ -324,6 +327,7 @@ namespace Pumkin.DataStructures
                 viewpoint = Translation.thumbnails.viewpoint;
                 applyBodyPosition = Translation.thumbnails.applyBodyPosition;
                 applyBodyRotation = Translation.thumbnails.applyBodyRotation;
+                lockSelectedCameraToSceneView = Translation.thumbnails.lockSelectedCameraToSceneView;
             }
         }
         public static class Copier
@@ -370,10 +374,13 @@ namespace Pumkin.DataStructures
             public static string animators_inChildren = "_Child Animators";
             public static string audioSources = "_Audio Sources";
             public static string joints = "_Joints";
+            public static string other = "_Other";
+            public static string other_ikFollowers = "_IK Followers";            
 
             public static string exclusions = "_Exclusions";
             public static string includeChildren = "_Include Children";
             public static string size = "_Size";
+            
 
             static Copier()
             {
@@ -427,6 +434,9 @@ namespace Pumkin.DataStructures
                 animators_inChildren = Translation.copier.animators_inChildren;
                 audioSources = Translation.copier.audioSources;
                 joints = Translation.copier.joints;
+                other = Translation.copier.other;
+                other_ikFollowers = Translation.copier.other_ikFollowers;
+
                 exclusions = Translation.copier.ignoreList;
                 includeChildren = Translation.copier.includeChildren;
                 size = Translation.copier.size;
@@ -438,42 +448,41 @@ namespace Pumkin.DataStructures
             public static string cancelled = "_Cancelled";
             public static string nothingSelected = "_Select something first";
             public static string cantCopyToSelf = "_Can't copy Components from an object to itself. What are you doing?";
-            public static string copyAttempt = "_Attempting to copy {0} from {1} to {2}";
-            public static string removeAttempt = "_Attempting to remove {0} from {1}";
+            public static string copyAttempt = "_Attempting to copy '{0}' from '{1}' to '{2}'";
+            public static string removeAttempt = "_Attempting to remove '{0}' from '{1}'";
             public static string copyFromInvalid = "_Can't copy Components because 'Copy From' is invalid";
-            public static string viewpointApplied = "_Set Viewposition to {0}";
+            public static string viewpointApplied = "_Set Viewposition to '{0}'";
             public static string viewpointCancelled = "_Cancelled Viewposition changes";
-            public static string tryFillVisemes = "_Attempting to fill visemes on {0}";
+            public static string tryFillVisemes = "_Attempting to fill visemes on '{0}'";
             public static string noSkinnedMeshFound = "_Failed: No skinned mesh found";
-            public static string descriptorIsNull = "_Avatar descriptor is null";
+            public static string descriptorIsNull = "_Avatar Descriptor is null";
             public static string success = "_Success";
-            public static string meshHasNoVisemes = "_Failed. Mesh has no Visemes. Set to Default";
-            public static string tryRemoveUnsupportedComponent = "_Attempting to remove unsupported component {0} from {1}";
+            public static string meshHasNoVisemes = "_Failed. Mesh has no Visemes. Set to Default";            
             public static string failed = "_Failed";
-            public static string failedIsNull = "_Failed: {1} is null";
+            public static string failedIsNull = "_Failed: '{1}' is null";
             public static string nameIsEmpty = "_Name is Empty";
-            public static string loadedPose = "_Loaded Pose: {0}";
-            public static string loadedBlendshapePreset = "_Loaded Blendshapes: {0}";
-            public static string failedDoesntHave = "_Failed: {0} doesn't have a {1}";
-            public static string failedAlreadyHas = "_Failed: {0} already has a {1}";
-            public static string loadedCameraOverlay = "_Loaded {0} as Camera Overlay";
-            public static string failedHasNo = "_{0} has no {1}, Ignoring.";
-            public static string settingQuickViewpoint = "_Setting quick viewpoint to {0}";
+            public static string loadedPose = "_Loaded Pose: '{0}'";
+            public static string loadedBlendshapePreset = "_Loaded Blendshapes: '{0}'";
+            public static string failedDoesntHave = "_Failed: '{0}' doesn't have a '{1}'";
+            public static string failedAlreadyHas = "_Failed: '{0}' already has a '{1}'";
+            public static string loadedCameraOverlay = "_Loaded '{0}' as Camera Overlay";
+            public static string failedHasNoIgnoring = "_'{0}' has no '{1}', Ignoring.";
+            public static string settingQuickViewpoint = "_Setting quick Viewpoint to '{0}'";
             public static string cantSetViewpointNonHumanoid = "_Can't set Viewpoint for a non humanoid avatar";
-            public static string setAvatarScaleTo = "_Set Avatar scale to {0}";
-            public static string setAvatarScaleAndViewpointTo = "_Set Avatar scale to {0} and Viewpoint to {1}";
+            public static string setAvatarScaleTo = "_Set Avatar scale to '{0}'";
+            public static string setAvatarScaleAndViewpointTo = "_Set Avatar scale to '{0}' and Viewpoint to '{1}'";
             public static string canceledScaleChanges = "_Cancelled Scale changes";
-            public static string successCopiedOverFromTo = "_Success: Copied over {0} from {1}'s {2} to {3}'s {4}";
-            public static string hasNoComponentsOrChildrenDestroying = "_{0} has no components or children. Destroying";
-            public static string cantBeDestroyedPartOfPrefab = "_{0}'s {1} can't be destroyed because it's part of a prefab instance. Ignoring";
+            public static string successCopiedOverFromTo = "_Success: Copied over '{0}' from '{1}''s '{2}' to '{3}''s '{4}'";
+            public static string hasNoComponentsOrChildrenDestroying = "_'{0}' has no components or children. Destroying";
+            public static string cantBeDestroyedPartOfPrefab = "_'{0}''s '{1}' can't be destroyed because it's part of a prefab instance. Ignoring";
             public static string meshPrefabMissingCantRevertBlednshapes = "_Mesh prefab is missing, can't revert to default blendshapes";
             public static string meshPrefabMissingCantRevertPose = "_Mesh prefab is missing, can't revert to default pose";
             public static string runtimeBlueprintNotFoundStartUploading = "_RuntimeBlueprintCreation script not found. Start uploading an avatar to use this";
             public static string failedToCenterCameraNoDescriptor = "_Failed to center camera on Viewpoint. Avatar descriptor not found";
-            public static string setProbeAnchorTo = "_Set {0}'s probe anchor to {1}";
-            public static string cantSetPoseNonHumanoid = "_Can't set humanoid pose {0} on a non humanoid avatar";
-            public static string loadedImageAsBackground = "_Loaded {0} as Background image";
-            public static string loadedImageAsOverlay = "_Loaded {0} as Overlay image";
+            public static string setProbeAnchorTo = "_Set '{0}''s probe anchor to '{1}'";
+            public static string cantSetPoseNonHumanoid = "_Can't set humanoid pose '{0}' on a non humanoid avatar";
+            public static string loadedImageAsBackground = "_Loaded '{0}' as Background image";
+            public static string loadedImageAsOverlay = "_Loaded '{0}' as Overlay image";
             public static string descriptorIsMissingCantGetViewpoint = "_Avatar Descriptor is missing. Can't get Viewpoint position";
 
             static Log()
@@ -508,7 +517,7 @@ namespace Pumkin.DataStructures
                 failedDoesntHave = Translation.log.failedDoesntHave;
                 failedAlreadyHas = Translation.log.failedAlreadyHas;
                 loadedCameraOverlay = Translation.log.loadedCameraOverlay;
-                failedHasNo = Translation.log.failedHasNo;
+                failedHasNoIgnoring = Translation.log.failedHasNoIgnoring;
                 settingQuickViewpoint = Translation.log.settingQuickViewpoint;
                 cantSetViewpointNonHumanoid = Translation.log.cantSetViewpointNonHumanoid;
                 setAvatarScaleTo = Translation.log.setAvatarScaleTo;

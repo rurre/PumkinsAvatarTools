@@ -17,14 +17,14 @@ namespace Pumkin.HelperFunctions
         #region GUI
         
         /// <summary>
-        /// Arbitrarely try to guess the width of a text string. For now
+        /// Completely arbitrarely try to guess the width of a text string. For now
         /// </summary>        
         public static float CalculateTextWidth(string text, GUIStyle style = null)
         {
             if(style == null)
                 style = new GUIStyle("label");
 
-            return text.Length * style.font.fontSize * 0.8f;
+            return text.Length * style.font.fontSize * 0.9f;
         }
 
         public static void DrawGUILine(float height = 1f, bool spacedOut = true)
@@ -284,14 +284,14 @@ namespace Pumkin.HelperFunctions
         /// <summary>
         /// Destroys an object. If in edit mode DestroyImmediate is used, if in play mode Destroy is used
         /// </summary>        
-        public static void DestroyAppropriate(GameObject gameObject)
+        public static void DestroyAppropriate(UnityEngine.Object obj)
         {
-            if(!gameObject)
+            if(!obj)
                 return;
             if(EditorApplication.isPlaying)
-                UnityEngine.Object.Destroy(gameObject);
+                UnityEngine.Object.Destroy(obj);
             else
-                UnityEngine.Object.DestroyImmediate(gameObject);
+                UnityEngine.Object.DestroyImmediate(obj);
         }
 
         public static void DrawBlendshapeSlidersWithLabels(ref List<PumkinsRendererBlendshapesHolder> rendererHolders, GameObject avatar, int indentLevel = 0, float labelWidthOverride = 0)

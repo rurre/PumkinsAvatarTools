@@ -192,10 +192,12 @@ namespace Pumkin.Translations
         public string animators_inChildren = "Child Animators";
         public string audioSources = "Audio Sources";
         public string joints = "Joints";
+        public string other = "Other";
+        public string other_ikFollowers = "IK Followers";
 
         public string ignoreList = "Ignore List";
         public string includeChildren = "Include Children";
-        public string size = "Size";
+        public string size = "Size";        
     };
 
     [Serializable]
@@ -218,6 +220,7 @@ namespace Pumkin.Translations
         public string maxParticles = "Max Particles: {0} ({1}) - {2}";
         public string overallPerformance = "Overall Performance: {0}";
         public string selectAvatarFirst = "Select an Avatar first";
+        public string ikFollowers = "IK Followers: {0} ({1})";
     };
 
     [Serializable]
@@ -248,6 +251,7 @@ namespace Pumkin.Translations
         public string viewpoint = "Viewpoint";
         public string applyBodyPosition = "Apply Body Position";
         public string applyBodyRotation = "Apply Body Rotation";
+        public string lockSelectedCameraToSceneView = "Lock Selected Camera to Scene View";
     };
 
     [Serializable]
@@ -257,42 +261,41 @@ namespace Pumkin.Translations
         public string cancelled = "Cancelled";
         public string nothingSelected = "Select something first";
         public string cantCopyToSelf = "Can't copy Components from an object to itself. What are you doing?";
-        public string copyAttempt = "Attempting to copy {0} from {1} to {2}";
-        public string removeAttempt = "Attempting to remove {0} from {1}";
+        public string copyAttempt = "Attempting to copy '{0}' from '{1}' to '{2}'";
+        public string removeAttempt = "Attempting to remove '{0}' from '{1}'";
         public string copyFromInvalid = "Can't copy Components because 'Copy From' is invalid";
-        public string viewpointApplied = "Set Viewposition to {0}";
+        public string viewpointApplied = "Set Viewposition to '{0}'";
         public string viewpointCancelled = "Cancelled Viewposition changes";
-        public string tryFillVisemes = "Attempting to fill visemes on {0}";
+        public string tryFillVisemes = "Attempting to fill visemes on '{0}'";
         public string noSkinnedMeshFound = "Failed: No skinned mesh found";
-        public string descriptorIsNull = "Avatar descriptor is null";
+        public string descriptorIsNull = "Avatar Descriptor is null";
         public string success = "Success";
         public string meshHasNoVisemes = "Failed. Mesh has no Visemes. Set to Default";
-        public string tryRemoveUnsupportedComponent = "Attempting to remove unsupported component {0} from {1}";
         public string failed = "Failed";
-        public string failedIsNull = "Failed: {1} is null";
+        public string failedIsNull = "Failed: '{1}' is null";
         public string nameIsEmpty = "Name is Empty";
-        public string loadedPose = "Loaded Pose: {0}";
-        public string loadedBlendshapePreset = "Loaded Blendshapes: {0}";
-        public string failedDoesntHave = "Failed: {0} doesn't have a {1}";
-        public string failedAlreadyHas = "Failed: {0} already has a {1}";
-        public string loadedCameraOverlay = "Loaded {0} as Camera Overlay";
-        public string failedHasNo = "{0} has no {1}, Ignoring.";
-        public string settingQuickViewpoint = "Setting quick viewpoint to {0}";
+        public string loadedPose = "Loaded Pose: '{0}'";
+        public string loadedBlendshapePreset = "Loaded Blendshapes: '{0}'";
+        public string failedDoesntHave = "Failed: '{0}' doesn't have a '{1}'";
+        public string failedAlreadyHas = "Failed: '{0}' already has a '{1}'";
+        public string loadedCameraOverlay = "Loaded '{0}' as Camera Overlay";
+        public string failedHasNoIgnoring = "'{0}' has no '{1}', Ignoring.";
+        public string settingQuickViewpoint = "Setting quick Viewpoint to '{0}'";
         public string cantSetViewpointNonHumanoid = "Can't set Viewpoint for a non humanoid avatar";
-        public string setAvatarScaleTo = "Set Avatar scale to {0}";
-        public string setAvatarScaleAndViewpointTo = "Set Avatar scale to {0} and Viewpoint to {1}";
+        public string setAvatarScaleTo = "Set Avatar scale to '{0}'";
+        public string setAvatarScaleAndViewpointTo = "Set Avatar scale to '{0}' and Viewpoint to '{1}'";
         public string canceledScaleChanges = "Cancelled Scale changes";
-        public string successCopiedOverFromTo = "Success: Copied over {0} from {1}'s {2} to {3}'s {4}";
-        public string hasNoComponentsOrChildrenDestroying = "{0} has no components or children. Destroying";
-        public string cantBeDestroyedPartOfPrefab = "{0}'s {1} can't be destroyed because it's part of a prefab instance. Ignoring";
-        public string meshPrefabMissingCantRevertBlednshapes = "Mesh prefab is missing, can't revert to default blendshapes.";
+        public string successCopiedOverFromTo = "Success: Copied over '{0}' from '{1}''s '{2}' to '{3}''s '{4}'";
+        public string hasNoComponentsOrChildrenDestroying = "'{0}' has no components or children. Destroying";
+        public string cantBeDestroyedPartOfPrefab = "'{0}''s '{1}' can't be destroyed because it's part of a prefab instance. Ignoring";
+        public string meshPrefabMissingCantRevertBlednshapes = "Mesh prefab is missing, can't revert to default blendshapes";
         public string meshPrefabMissingCantRevertPose = "Mesh prefab is missing, can't revert to default pose";
         public string runtimeBlueprintNotFoundStartUploading = "RuntimeBlueprintCreation script not found. Start uploading an avatar to use this";
         public string failedToCenterCameraNoDescriptor = "Failed to center camera on Viewpoint. Avatar descriptor not found";
-        public string cantSetPoseNonHumanoid = "Can't set humanoid pose {0} on a non humanoid avatar";
-        public string loadedImageAsBackground = "Loaded {0} as Background image";
-        public string loadedImageAsOverlay = "Loaded {0} as Overlay image";
-        public string setProbeAnchorTo = "Set {0}'s probe anchor to {1}";
+        public string setProbeAnchorTo = "Set '{0}''s probe anchor to '{1}'";
+        public string cantSetPoseNonHumanoid = "Can't set humanoid pose '{0}' on a non humanoid avatar";
+        public string loadedImageAsBackground = "Loaded '{0}' as Background image";
+        public string loadedImageAsOverlay = "Loaded '{0}' as Overlay image";
         public string descriptorIsMissingCantGetViewpoint = "Avatar Descriptor is missing. Can't get Viewpoint position";
     };
 

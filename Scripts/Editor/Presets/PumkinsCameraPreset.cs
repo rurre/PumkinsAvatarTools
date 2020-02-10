@@ -246,7 +246,7 @@ namespace Pumkin.Presets
         /// <param name="pos">Position offset</param>
         /// <param name="rotationAngles">Rotation offset</param>
         /// <param name="scaleDistanceWithAvatarScale">Not working yet</param>
-        public static void ApplyPositionAndRotationWithTransformFocus(Transform focusTransform, Camera cam, Vector3 pos, Vector3 rotationAngles, bool scaleDistanceWithAvatarScale = false)
+        public static void ApplyPositionAndRotationWithTransformFocus(Transform focusTransform, Camera cam, Vector3 pos, Vector3 rotationAngles, bool moveSceneCameraAsWell)
         {
             if(!cam || !focusTransform)
                 return;
@@ -260,6 +260,22 @@ namespace Pumkin.Presets
                 cam.transform.localPosition = pos;
                 cam.transform.localEulerAngles = rotationAngles;
                 cam.transform.parent = null;
+
+                Camera cam1 = SceneView.lastActiveSceneView.camera;
+                Camera cam2 = SceneView.currentDrawingSceneView?.camera;
+
+                Debug.Log(cam1.transform.position);
+                Debug.Log(cam2?.transform?.position);
+
+                if(moveSceneCameraAsWell)
+                {
+                    Transform t = SceneView.lastActiveSceneView.camera.transform;
+                    t.SetPositionAndRotation(cam.transform.position, cam.transform.rotation);
+                    Debug.Log(t.position);
+                    t = SceneView.currentDrawingSceneView?.camera?.transform;
+                    t?.SetPositionAndRotation(cam.transform.position, cam.transform.rotation);
+                    Debug.Log(t.position);
+                }
             }
             catch(Exception e)
             {
@@ -277,14 +293,14 @@ namespace Pumkin.Presets
         /// </summary>
         public static void ApplyTransformWithViewpointFocus(GameObject avatar, Camera cam, SerialTransform trans)
         {
-            ApplyPositionAndRotationWithViewpointFocus(avatar, cam, trans.position, trans.localEulerAngles);
+            ApplyPositionAndRotationWithViewpointFocus(avatar, cam, trans.position, trans.localEulerAngles, true);
         }        
 
         /// <summary>
         /// Sets camera position and rotation focusing viewpoint with position and rotation offsets
         /// </summary>        
         /// <param name="scaleDistanceWithAvatarScale">Not working yet</param>
-        public static void ApplyPositionAndRotationWithViewpointFocus(GameObject avatar, Camera cam, Vector3 position, Vector3 rotationAngles, bool scaleDistanceWithAvatarScale = false)
+        public static void ApplyPositionAndRotationWithViewpointFocus(GameObject avatar, Camera cam, Vector3 position, Vector3 rotationAngles, bool moveSceneCameraAsWell)
         {
             if(!cam || !avatar)
                 return;
@@ -297,7 +313,10 @@ namespace Pumkin.Presets
                 dummy.localPosition = desc.ViewPosition + desc.gameObject.transform.position;                
 
                 cam.transform.localPosition = position + dummy.transform.position;
-                cam.transform.localEulerAngles = rotationAngles + dummy.transform.eulerAngles;                
+                cam.transform.localEulerAngles = rotationAngles + dummy.transform.eulerAngles;
+
+                if(moveSceneCameraAsWell)
+                    SceneView.lastActiveSceneView.camera.transform.SetPositionAndRotation(cam.transform.position, cam.transform.rotation);
             }
             catch(Exception e)
             {

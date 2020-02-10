@@ -7,6 +7,7 @@ using System.Linq;
 using Pumkin.Extensions;
 using Pumkin.AvatarTools;
 using System.IO;
+using VRCSDK2;
 
 #if PUMKIN_VRCSDK2
 using VRCSDK2.Validation.Performance;
@@ -247,7 +248,7 @@ namespace Pumkin.DataStructures
 
     }
 
-    public class AvatarInfo
+    public class AvatarInfo //Need to improve this class sometime when I overhaul the performance stats
     {
 #if PUMKIN_VRCSDK2
         AvatarPerformanceStats perfStats = new AvatarPerformanceStats();
@@ -280,6 +281,8 @@ namespace Pumkin.DataStructures
         public int MaxParticles { get; private set; }
         public int MaxParticles_Total { get; private set; }
         public int Bones { get; private set; }
+        public int IKFollowers { get; private set; }
+        public int IKFollowers_Total { get; private set; }
 
         public AvatarInfo()
         {
@@ -314,6 +317,7 @@ namespace Pumkin.DataStructures
             GameObjects = 0;
             GameObjects_Total = 0;
 
+            IKFollowers = 0;
         }
 
         public AvatarInfo(GameObject o) : base()
@@ -496,6 +500,15 @@ namespace Pumkin.DataStructures
             }
 
             ShaderCount = shaderHash.Count;
+            
+            var ikf = o.GetComponentsInChildren<VRC_IKFollower>(true);
+            foreach(var ik in ikf)
+            {
+                IKFollowers_Total += 1;
+
+                if(ik.gameObject.activeInHierarchy)
+                    IKFollowers += 1;
+            }
         }
 
         public static AvatarInfo GetInfo(GameObject o, out string toString)
@@ -533,7 +546,8 @@ namespace Pumkin.DataStructures
                     string.Format(Strings.AvatarInfo.dynamicBoneColliders, DynamicBoneColliders, DynamicBoneColliders_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneColliderCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.dynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneCollisionCheckCount)) + "\n\n" +
                     string.Format(Strings.AvatarInfo.particleSystems, ParticleSystems, ParticleSystems_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.ParticleSystemCount)) + "\n" +
-                    string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.ParticleTotalCount)) + "\n" +
+                    string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.ParticleTotalCount)) + "\n\n" +
+                    string.Format(Strings.AvatarInfo.ikFollowers, IKFollowers, IKFollowers_Total) + "\n" +
                     Strings.AvatarInfo.line + "\n" +
                     string.Format(Strings.AvatarInfo.overallPerformance, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.Overall));
 #else
@@ -552,7 +566,8 @@ namespace Pumkin.DataStructures
                     string.Format(Strings.AvatarInfo.dynamicBoneColliders, DynamicBoneColliders, DynamicBoneColliders_Total, "?") + "\n" +
                     string.Format(Strings.AvatarInfo.dynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, "?") + "\n\n" +
                     string.Format(Strings.AvatarInfo.particleSystems, ParticleSystems, ParticleSystems_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, "?") + "\n" +
+                    string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, "?") + "\n\n" +
+                    string.Format(Strings.AvatarInfo.ikFollowers, IKFollowers, IKFollowers_Total) + "\n" +
                     Strings.AvatarInfo.line + "\n" +
                     string.Format(Strings.AvatarInfo.overallPerformance, "?");
 #endif
