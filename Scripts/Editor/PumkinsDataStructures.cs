@@ -58,6 +58,7 @@ namespace Pumkin.DataStructures
         public static GUIStyle IconButton { get; internal set; }
         public static GUIStyle TextField { get; internal set; }
         public static GUIStyle IconLabel { get; internal set; }
+        public static GUIStyle ButtonWithToggle { get; internal set; }
 
         static Styles()
         {
@@ -154,6 +155,11 @@ namespace Pumkin.DataStructures
 
             BigIconButton = new GUIStyle(BigButton);
             BigIconButton.fixedWidth = 40f;
+
+            ButtonWithToggle = new GUIStyle("Button")
+            {
+                fixedHeight = 19
+            };
         }
     }
 
@@ -180,6 +186,8 @@ namespace Pumkin.DataStructures
         public static Texture2D Joint { get; internal set; }
         public static Texture2D Settings { get; internal set; }
         public static Texture2D Delete { get; internal set; }
+        public static Texture2D ToggleOn { get; internal set; }
+        public static Texture2D ToggleOff { get; internal set; }
 
         public static Texture2D DiscordIcon { get; internal set; }
         public static Texture2D GithubIcon { get; internal set; }
@@ -208,6 +216,8 @@ namespace Pumkin.DataStructures
             Joint = EditorGUIUtility.FindTexture("FixedJoint Icon");
             Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");            
             Delete = EditorGUIUtility.FindTexture("TreeEditor.Trash");
+            ToggleOff = EditorGUIUtility.FindTexture("toggle");
+            ToggleOn = EditorGUIUtility.FindTexture("toggle on");
 
             Settings = Resources.Load("icons/settings-icon") as Texture2D ?? EditorGUIUtility.FindTexture("ClothInspector.SettingsTool");
             BoneIcon = Resources.Load("icons/bone-icon") as Texture2D ?? CsScript;
@@ -235,6 +245,8 @@ namespace Pumkin.DataStructures
             Joint = (Texture2D)EditorGUIUtility.IconContent("FixedJoint Icon").image;
             Settings = (Texture2D)EditorGUIUtility.IconContent("Settings").image;
             Delete = (Texture2D)EditorGUIUtility.IconContent("TreeEditor.Trash").image;
+            ToggleOff = (Texture2D)EditorGUIUtility.IconContent("Toggle").image;
+            ToggleOn = (Texture2D)EditorGUIUtility.IconContent("Toggle On").image;
 
             Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");
 

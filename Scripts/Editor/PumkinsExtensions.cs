@@ -149,6 +149,21 @@ namespace Pumkin.Extensions
 
                 list.AddRange(Enumerable.Repeat(element, size - count));
             }
-        }        
-    }
+        }
+
+        public static object CallPrivate(this object o, string methodName, params object[] args)
+        {
+            try
+            {
+                var mi = o.GetType().GetMethod(methodName, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if(mi != null)
+                {
+                    return mi.Invoke(o, args);
+                }
+            }
+            catch { }            
+            return null;
+        }
+
+    }    
 }

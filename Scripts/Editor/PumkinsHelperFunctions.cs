@@ -1053,6 +1053,19 @@ namespace Pumkin.HelperFunctions
                     return obj;
 
             return null;
-        }        
+        }
+
+        public static Vector3 GetViewpointAtEyeLevel(Animator anim)
+        {
+            Vector3 view = PumkinsAvatarTools.DEFAULT_VIEWPOINT;
+            if(anim && anim.isHuman)
+            {
+                view = anim.GetBoneTransform(HumanBodyBones.Head).position;
+                float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y - 0.005f;
+                view.y = eyeHeight;
+                view.z = PumkinsAvatarTools.DEFAULT_VIEWPOINT.z - 0.1f;
+            }
+            return view;
+        }
     }    
 }

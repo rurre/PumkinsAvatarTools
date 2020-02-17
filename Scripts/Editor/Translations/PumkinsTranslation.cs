@@ -145,6 +145,9 @@ namespace Pumkin.Translations
         public string revertScale = "Revert Scale";
         public string editScaleMoveViewpoint = "Move Viewpoint";
         public string refreshRig = "Refresh Rig";
+        public string disableDynamicBones = "Disable DynamicBones";
+        public string enableDynamicBones = "Enable DynamicBones";
+        public string toggleDynamicBones = "Toggle DynamicBones";
     };
 
     [Serializable]

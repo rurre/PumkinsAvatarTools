@@ -31,7 +31,7 @@ namespace Pumkin.AvatarTools
     [ExecuteInEditMode, CanEditMultipleObjects, Serializable]
     public class PumkinsAvatarTools : EditorWindow
     {
-#region Variables        
+        #region Variables        
 
         #region Tools    
 
@@ -57,7 +57,7 @@ namespace Pumkin.AvatarTools
         Vector3 _viewPosOld;
         Vector3 _viewPosTemp;
         Tool _tempToolOld = Tool.None;
-        static readonly Vector3 DEFAULT_VIEWPOINT = new Vector3(0, 1.6f, 0.2f);        
+        public static readonly Vector3 DEFAULT_VIEWPOINT = new Vector3(0, 1.6f, 0.2f);
 
         //Editing Scale
         bool _editingScale = false;
@@ -68,6 +68,10 @@ namespace Pumkin.AvatarTools
         Transform _scaleViewpointDummy;
 
         VRC_AvatarDescriptor _tempAvatarDescriptor;
+
+        //Dynamic Bones
+        bool _nextToggleDBoneState = false;
+        List<DynamicBone> _dBonesThatWereAlreadyDisabled = new List<DynamicBone>();
 
         enum ToolMenuActions
         {
@@ -92,7 +96,7 @@ namespace Pumkin.AvatarTools
             EditScale,
             RevertScale,
             RefreshRig,
-            RemoveIKFollowers,
+            RemoveIKFollowers,            
         };
 
         #endregion
@@ -225,7 +229,7 @@ namespace Pumkin.AvatarTools
         RawImage _cameraOverlayImage = null;
         RawImage _cameraBackgroundImage = null;
         [SerializeField] bool _centerCameraOffsets_expand = false;
-        [SerializeField] int _presetToolbarSelectedIndex = 0;        
+        [SerializeField] int _presetToolbarSelectedIndex = 0;
         [SerializeField] CameraClearFlags _thumbsCameraBgClearFlagsOld = CameraClearFlags.Skybox;
 
         public enum PresetToolbarOptions { Camera, Pose, Blendshape };
@@ -243,7 +247,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] public bool posePresetApplyBodyPosition = true;
         [SerializeField] public bool posePresetApplyBodyRotation = true;
 
-        [SerializeField] bool centerCameraFixClippingPlanes = true;        
+        [SerializeField] bool centerCameraFixClippingPlanes = true;
         [SerializeField] PumkinsCameraPreset.CameraOffsetMode centerCameraMode = PumkinsCameraPreset.CameraOffsetMode.Viewpoint;
         [SerializeField] string centerCameraTransformPath = "Armature/Hips/Spine/Chest/Neck/Head";
         Transform centerCameraTransform = null;
@@ -268,7 +272,7 @@ namespace Pumkin.AvatarTools
 
         static Camera _selectedCamera;
 
-        static Material _rtMat;        
+        static Material _rtMat;
         static RenderTexture _defaultRT;
         static RenderTexture _vrcRT;
 
@@ -295,7 +299,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] public string _overlayPath = "";
 
         public CameraBackgroundOverrideType cameraBackgroundType = CameraBackgroundOverrideType.Color;
-        
+
         [SerializeField] public Color _thumbsCamBgColor = Colors.DarkCameraBackground;
 
         public enum CameraBackgroundOverrideType { Color, Skybox, Image };
@@ -324,6 +328,7 @@ namespace Pumkin.AvatarTools
         //UI
         [SerializeField] public bool _tools_expand = true;
         [SerializeField] bool _tools_avatar_expand = true;
+        [SerializeField] bool _tools_dynamicBones_expand = true;
         [SerializeField] bool _tools_removeAll_expand = false;
 
         [SerializeField] public bool _avatarInfo_expand = false;
@@ -341,7 +346,7 @@ namespace Pumkin.AvatarTools
         GameObject oldSelectedAvatar = null;
 
         static string _mainScriptPath = null;
-        static string _mainFolderPath = null;        
+        static string _mainFolderPath = null;
 
         static bool _eventsAdded = false;
         static bool _loadedPrefs = false;
@@ -353,16 +358,16 @@ namespace Pumkin.AvatarTools
 
         #endregion
 
-#endregion
+        #endregion
 
-#region Properties
+        #region Properties
 
 
         public static PumkinsAvatarTools Instance
         {
-            get 
+            get
             {
-                return _PumkinsAvatarToolsWindow.ToolsWindow; 
+                return _PumkinsAvatarToolsWindow.ToolsWindow;
             }
         }
 
@@ -446,7 +451,7 @@ namespace Pumkin.AvatarTools
             {
                 _mainScriptPath = value;
             }
-        }        
+        }
 
         public static string MainFolderPath
         {
@@ -503,7 +508,7 @@ namespace Pumkin.AvatarTools
             set
             {
                 if(SelectedCamera)
-                {                    
+                {
                     SelectedCamera.targetTexture = value;
                 }
             }
@@ -534,7 +539,7 @@ namespace Pumkin.AvatarTools
                 return _selectedCamera;
             }
             set
-            {     
+            {
                 if(_selectedCamera != value)
                 {
                     RestoreCameraRT(_selectedCamera);
@@ -548,12 +553,12 @@ namespace Pumkin.AvatarTools
         {
             if(!camera)
                 return;
-            
+
             //Restore BlueprintCam render texture if it's VRCCam we're changing from
             if(camera.name == "VRCCam")
                 camera.targetTexture = VRCCamRT;
             else
-                camera.targetTexture = null;            
+                camera.targetTexture = null;
         }
 
         public GameObject GetCameraOverlay(bool createIfMissing = false)
@@ -587,7 +592,7 @@ namespace Pumkin.AvatarTools
                 }
             }
             return _cameraBackground;
-        }                
+        }
 
         public RawImage GetCameraOverlayRawImage(bool createIfMissing = false)
         {
@@ -691,7 +696,19 @@ namespace Pumkin.AvatarTools
                     return true;
                 return false;
             }
-        }        
+        }
+
+        public bool DynamicBonesExist
+        {
+            get
+            {
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+                return true;
+#else
+                return false;
+#endif
+            }
+        }
 
         #endregion
 
@@ -707,9 +724,9 @@ namespace Pumkin.AvatarTools
 
         public enum PoseChangeType { Reset, Normal, PoseEditor };
 
-#endregion
+        #endregion
 
-#region Event Definitions
+        #region Event Definitions
 
         public static void OnCameraSelectionChanged(Camera camera)
         {
@@ -765,7 +782,10 @@ namespace Pumkin.AvatarTools
             Instance.centerCameraTransform = null;
 
             Instance._copierCheckedArmatureScales = false;
-        }       
+
+            Instance._nextToggleDBoneState = false;
+            Instance._dBonesThatWereAlreadyDisabled = new List<DynamicBone>();
+        }
 
         private static void SetupBlendeshapeRendererHolders(GameObject selection)
         {
@@ -802,14 +822,21 @@ namespace Pumkin.AvatarTools
 
         public static void OnPoseWasChanged(PoseChangeType changeType)
         {
+            //bool toggle = false;
+            //var bonesToKeepDisabled = new List<DynamicBone>();
+            //ToggleDynamicBonesEnabledState(SelectedAvatar, ref toggle, ref bonesToKeepDisabled);
+
             if(PoseChanged != null)
                 PoseChanged.Invoke(changeType);
+
+            //EditorApplication.delayCall += () => ToggleDynamicBonesEnabledState(SelectedAvatar, ref toggle, ref bonesToKeepDisabled);
+            RefreshDynamicBoneTransforms(SelectedAvatar);
             LogVerbose("Pose was changed and OnPoseWasChanged() was called with changeType as " + changeType.ToString());
         }
 
-#endregion
+        #endregion
 
-#region Callback Handlers
+        #region Callback Handlers
 
         public void HandleOnEnable()
         {
@@ -834,7 +861,7 @@ namespace Pumkin.AvatarTools
 
             _emptyTexture = new Texture2D(2, 2);
             cameraOverlayTexture = new Texture2D(2, 2);
-            cameraBackgroundTexture = new Texture2D(2, 2);            
+            cameraBackgroundTexture = new Texture2D(2, 2);
 
             LoadPrefs();
 
@@ -907,7 +934,7 @@ namespace Pumkin.AvatarTools
             }
             else if(mode == PlayModeStateChange.EnteredEditMode)
             {
-                LoadPrefs();                
+                LoadPrefs();
             }
             else if(mode == PlayModeStateChange.EnteredPlayMode)
             {
@@ -915,13 +942,13 @@ namespace Pumkin.AvatarTools
 
                 LoadPrefs();
                 _emptyTexture = new Texture2D(2, 2);
-                cameraOverlayTexture = new Texture2D(2, 2);                
+                cameraOverlayTexture = new Texture2D(2, 2);
 
                 SelectedCamera = GetVRCCamOrMainCam();
 
                 var pm = FindObjectOfType<RuntimeBlueprintCreation>();
-                if(pm && pm.pipelineManager && pm.pipelineManager.contentType == PipelineManager.ContentType.avatar)                
-                    SelectedAvatar = pm.pipelineManager.transform.root.gameObject;                
+                if(pm && pm.pipelineManager && pm.pipelineManager.contentType == PipelineManager.ContentType.avatar)
+                    SelectedAvatar = pm.pipelineManager.transform.root.gameObject;
 
                 HideAllOtherAvatars(shouldHideOtherAvatars, SelectedAvatar);
 
@@ -962,11 +989,11 @@ namespace Pumkin.AvatarTools
         }
 #endif
 
-#endregion
+        #endregion
 
 
 
-#region Unity GUI
+        #region Unity GUI
 
         public static void ShowWindow()
         {
@@ -983,10 +1010,10 @@ namespace Pumkin.AvatarTools
         public void OnGUI()
         {
             SerializedScript.Update();
-                        
+
             EditorGUILayout.BeginHorizontal();
             {
-                EditorGUILayout.LabelField(Strings.Main.title, Styles.Label_mainTitle);            
+                EditorGUILayout.LabelField(Strings.Main.title, Styles.Label_mainTitle);
 
                 if(GUILayout.Button(Icons.Star, Styles.IconLabel))
                     _openedInfo = !_openedInfo;
@@ -1085,7 +1112,7 @@ namespace Pumkin.AvatarTools
         /// Draws the small windows inside the scene view when scaling the avatar or moving the viewpoint
         /// </summary>        
         void OnSceneGUI(SceneView sceneView)
-        {            
+        {
             if(_editingScale) //Scale editing
             {
                 bool propertyChanged = false;
@@ -1120,11 +1147,11 @@ namespace Pumkin.AvatarTools
 
                         GUILayout.BeginHorizontal();
                         {
-                            if(GUILayout.Button(Strings.Buttons.cancel, GUILayout.MinWidth(80)))                            
-                                EndScalingAvatar(SelectedAvatar, true);                            
+                            if(GUILayout.Button(Strings.Buttons.cancel, GUILayout.MinWidth(80)))
+                                EndScalingAvatar(SelectedAvatar, true);
 
-                            if(GUILayout.Button(Strings.Buttons.apply, GUILayout.MinWidth(80)))                            
-                                EndScalingAvatar(SelectedAvatar, false);                            
+                            if(GUILayout.Button(Strings.Buttons.apply, GUILayout.MinWidth(80)))
+                                EndScalingAvatar(SelectedAvatar, false);
                         }
                         GUILayout.EndHorizontal();
                     }
@@ -1191,10 +1218,10 @@ namespace Pumkin.AvatarTools
                     _viewPosTemp = Handles.PositionHandle(_viewPosTemp, Quaternion.identity);
                     Handles.color = Colors.BallHandle;
                     Handles.SphereHandleCap(0, _viewPosTemp, Quaternion.identity, 0.02f, EventType.Repaint);
-                }                
+                }
             }
 
-            if(lockSelectedCameraToSceneView && SelectedCamera)            
+            if(lockSelectedCameraToSceneView && SelectedCamera)
                 SelectedCamera.transform.SetPositionAndRotation(SceneView.lastActiveSceneView.camera.transform.position, SceneView.lastActiveSceneView.camera.transform.rotation);
             if(DrawingHandlesGUI)
                 _PumkinsAvatarToolsWindow.RequestRepaint(this);
@@ -1205,7 +1232,7 @@ namespace Pumkin.AvatarTools
         /// </summary>
         void DrawScalingRuler()
         {
-            ////Actually pretty laggy
+            ////Actually pretty laggy, probably need to draw a mesh instead
             //Vector3 rulerStartPos;
             //rulerStartPos = SelectedAvatar.transform.position + new Vector3(-0.3f, 0, 0);
             //float rulerEndHeight = rulerStartPos.y + 5;
@@ -1309,19 +1336,24 @@ namespace Pumkin.AvatarTools
                     Helpers.DrawGUILine(1, false);
 
                     //DynamicBones menu
-#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
-                    EditorGUI.BeginDisabledGroup(true);
+                    if(!DynamicBonesExist)
                     {
-                        Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones + " (" + Strings.Warning.notFound + ")", Icons.BoneIcon);
-                        bCopier_dynamicBones_copy = false;
-                        _copier_expand_dynamicBones = false;
+                        EditorGUI.BeginDisabledGroup(true);
+                        {
+                            Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones + " (" + Strings.Warning.notFound + ")", Icons.BoneIcon);
+                            bCopier_dynamicBones_copy = false;
+                            _copier_expand_dynamicBones = false;
+                        }
+                        EditorGUI.EndDisabledGroup();
                     }
-                    EditorGUI.EndDisabledGroup();
-#elif PUMKIN_OLD_DBONES
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones + " (" + Strings.Warning.oldVersion + ")", Icons.BoneIcon);
+                    else
+                    {
+#if PUMKIN_OLD_DBONES
+                        Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones + " (" + Strings.Warning.oldVersion + ")", Icons.BoneIcon);
 #elif PUMKIN_DBONES
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones, Icons.BoneIcon);
+                        Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones, Icons.BoneIcon);
 #endif
+                    }
 
                     if(_copier_expand_dynamicBones)
                     {
@@ -1347,19 +1379,24 @@ namespace Pumkin.AvatarTools
                     Helpers.DrawGUILine(1, false);
 
                     //Dynamic Bone Colliders menu
-#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
-                    EditorGUI.BeginDisabledGroup(true);
+                    if(!DynamicBonesExist)
                     {
-                        Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBoneColliders, ref bCopier_dynamicBones_copyColliders, Strings.Copier.dynamicBones_colliders + " (" + Strings.Warning.notFound + ")", Icons.BoneColliderIcon);
-                        bCopier_dynamicBones_copyColliders = false;
-                        _copier_expand_dynamicBoneColliders = false;
+                        EditorGUI.BeginDisabledGroup(true);
+                        {
+                            Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBoneColliders, ref bCopier_dynamicBones_copyColliders, Strings.Copier.dynamicBones_colliders + " (" + Strings.Warning.notFound + ")", Icons.BoneColliderIcon);
+                            bCopier_dynamicBones_copyColliders = false;
+                            _copier_expand_dynamicBoneColliders = false;
+                        }
+                        EditorGUI.EndDisabledGroup();
                     }
-                    EditorGUI.EndDisabledGroup();
-#elif PUMKIN_OLD_DBONES
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBoneColliders, ref bCopier_dynamicBones_copyColliders, Strings.Copier.dynamicBones_colliders + " (" + Strings.Warning.oldVersion + ")", Icons.BoneColliderIcon);
+                    else
+                    {
+#if PUMKIN_OLD_DBONES
+                        Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBoneColliders, ref bCopier_dynamicBones_copyColliders, Strings.Copier.dynamicBones_colliders + " (" + Strings.Warning.oldVersion + ")", Icons.BoneColliderIcon);
 #elif PUMKIN_DBONES
-                    Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBoneColliders, ref bCopier_dynamicBones_copyColliders, Strings.Copier.dynamicBones_colliders, Icons.BoneColliderIcon);
+                        Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBoneColliders, ref bCopier_dynamicBones_copyColliders, Strings.Copier.dynamicBones_colliders, Icons.BoneColliderIcon);
 #endif
+                    }
 
                     if(_copier_expand_dynamicBoneColliders)
                     {
@@ -1690,10 +1727,12 @@ namespace Pumkin.AvatarTools
                     {
                         if(GUILayout.Button(Strings.Buttons.selectNone, GUILayout.MinWidth(100)))
                         {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                            bCopier_dynamicBones_copy = false;
-                            bCopier_dynamicBones_copyColliders = false;
-#endif
+                            if(DynamicBonesExist)
+                            {
+                                bCopier_dynamicBones_copy = false;
+                                bCopier_dynamicBones_copyColliders = false;
+                            }
+
                             bCopier_colliders_copy = false;
                             bCopier_joints_copy = false;
                             bCopier_descriptor_copy = false;
@@ -1710,10 +1749,11 @@ namespace Pumkin.AvatarTools
                         }
                         if(GUILayout.Button(Strings.Buttons.selectAll, GUILayout.MinWidth(100)))
                         {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                            bCopier_dynamicBones_copy = true;
-                            bCopier_dynamicBones_copyColliders = true;
-#endif
+                            if(DynamicBonesExist)
+                            {
+                                bCopier_dynamicBones_copy = true;
+                                bCopier_dynamicBones_copyColliders = true;
+                            }
                             bCopier_colliders_copy = true;
                             bCopier_joints_copy = true;
                             bCopier_descriptor_copy = true;
@@ -1804,14 +1844,13 @@ namespace Pumkin.AvatarTools
                 EditorGUILayout.EndHorizontal();
 
                 Helpers.DrawGUILine();
-
-#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
-                if(GUILayout.Button(Strings.Misc.searchForBones, Styles.BigButton))
+                if(!DynamicBonesExist)
                 {
-                    _DependencyChecker.CheckForDependencies();
+                    if(GUILayout.Button(Strings.Misc.searchForBones, Styles.BigButton))
+                        _DependencyChecker.CheckForDependencies();
+                    Helpers.DrawGUILine();
                 }
-                Helpers.DrawGUILine();
-#endif
+
                 GUILayout.BeginHorizontal();
                 {
 
@@ -1906,11 +1945,11 @@ namespace Pumkin.AvatarTools
 
         public void DrawThumbnailPoseGUI()
         {
-            if(GUILayout.Button(Strings.Buttons.openPoseEditor, Styles.BigButton))            
-                PumkinsMuscleEditor.ShowWindow();            
+            if(GUILayout.Button(Strings.Buttons.openPoseEditor, Styles.BigButton))
+                PumkinsMuscleEditor.ShowWindow();
 
             Helpers.DrawGUILine();
-                        
+
             posePresetApplyBodyPosition = GUILayout.Toggle(posePresetApplyBodyPosition, Strings.Thumbnails.applyBodyPosition);
             posePresetApplyBodyRotation = GUILayout.Toggle(posePresetApplyBodyRotation, Strings.Thumbnails.applyBodyRotation);
 
@@ -1935,7 +1974,7 @@ namespace Pumkin.AvatarTools
 
             Helpers.DrawGUILine();
 
-            DrawCameraControlButtons();            
+            DrawCameraControlButtons();
         }
 
         public void DrawCameraControlButtons()
@@ -1947,7 +1986,7 @@ namespace Pumkin.AvatarTools
                 {
                     SelectedCamera.transform.position = SceneView.lastActiveSceneView.camera.transform.position;
                     SelectedCamera.transform.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
-                }                
+                }
 
                 lockSelectedCameraToSceneView = GUILayout.Toggle(lockSelectedCameraToSceneView, Strings.Thumbnails.lockSelectedCameraToSceneView);
 
@@ -1961,17 +2000,17 @@ namespace Pumkin.AvatarTools
                     {
                         case PumkinsCameraPreset.CameraOffsetMode.AvatarRoot:
                             centerOnWhat = Strings.Main.avatar;
-                            break;                        
+                            break;
                         case PumkinsCameraPreset.CameraOffsetMode.Transform:
-                            if(SelectedAvatar && !centerCameraTransform)                            
+                            if(SelectedAvatar && !centerCameraTransform)
                                 centerCameraTransform = SelectedAvatar.transform.Find(centerCameraTransformPath);
                             if(centerCameraTransform)
                                 centerOnWhat = centerCameraTransform.name;
-                            break;                        
+                            break;
                         case PumkinsCameraPreset.CameraOffsetMode.Viewpoint:
                         default:
                             centerOnWhat = Strings.Thumbnails.viewpoint;
-                            break;                            
+                            break;
                     }
 
                     string centerCameraString = string.Format(Strings.Thumbnails.centerCameraOn, centerOnWhat);
@@ -1981,12 +2020,12 @@ namespace Pumkin.AvatarTools
                         {
                             switch(centerCameraMode)
                             {
-                                case PumkinsCameraPreset.CameraOffsetMode.AvatarRoot:                                    
-                                    CenterCameraOnTransform(SelectedAvatar.transform, centerCameraPositionOffsetAvatar, centerCameraRotationOffsetAvatar, centerCameraFixClippingPlanes);                                    
+                                case PumkinsCameraPreset.CameraOffsetMode.AvatarRoot:
+                                    CenterCameraOnTransform(SelectedAvatar.transform, centerCameraPositionOffsetAvatar, centerCameraRotationOffsetAvatar, centerCameraFixClippingPlanes);
                                     break;
                                 case PumkinsCameraPreset.CameraOffsetMode.Transform:
                                     CenterCameraOnTransform(centerCameraTransform, centerCameraPositionOffsetTransform, centerCameraRotationOffsetTransform, centerCameraFixClippingPlanes);
-                                    break;                                
+                                    break;
                                 case PumkinsCameraPreset.CameraOffsetMode.Viewpoint:
                                 default:
                                     CenterCameraOnViewpoint(SelectedAvatar, centerCameraPositionOffsetViewpoint, centerCameraRotationOffsetViewpoint, centerCameraFixClippingPlanes);
@@ -2043,7 +2082,7 @@ namespace Pumkin.AvatarTools
                             centerCameraRotationOffsetAvatar = EditorGUILayout.Vector3Field(Strings.Thumbnails.rotationOffset, centerCameraRotationOffsetAvatar);
                             break;
                     }
-                    
+
 
                     EditorGUILayout.Space();
 
@@ -2097,8 +2136,8 @@ namespace Pumkin.AvatarTools
                                         centerCameraPositionOffsetTransform = Helpers.RoundVectorValues(st.localPosition, 3);
                                         centerCameraRotationOffsetTransform = Helpers.RoundVectorValues(st.localEulerAngles, 3);
                                     }
-                                    break;                                
-                            }                                                        
+                                    break;
+                            }
                         }
                     }
                     EditorGUILayout.EndHorizontal();
@@ -2265,29 +2304,54 @@ namespace Pumkin.AvatarTools
                             }
                             GUILayout.EndVertical();
                         }
-                        GUILayout.EndHorizontal();
+                        GUILayout.EndHorizontal();                        
 
                         if(GUILayout.Button(Strings.Tools.refreshRig))
-                            DoAction(SelectedAvatar, ToolMenuActions.RefreshRig);
+                            DoAction(SelectedAvatar, ToolMenuActions.RefreshRig);                        
+                    }
+
+                    Helpers.DrawGUILine();                    
+
+                    //Setup dbone gui stuff
+                    string dboneStateString = Strings.Copier.dynamicBones;
+                    if(!DynamicBonesExist)
+                        dboneStateString += " (" + Strings.Warning.notFound + ")";
+
+                    if(_tools_dynamicBones_expand = GUILayout.Toggle(_tools_dynamicBones_expand, dboneStateString, Styles.Foldout))
+                    {
+                        EditorGUI.BeginDisabledGroup(!DynamicBonesExist);
+                        {
+                            EditorGUILayout.BeginHorizontal();
+                            {                                
+                                if(GUILayout.Button(Strings.Tools.disableDynamicBones))
+                                    SetDynamicBonesEnabledState(SelectedAvatar, false);
+                                if(GUILayout.Button(Strings.Tools.enableDynamicBones))
+                                    SetDynamicBonesEnabledState(SelectedAvatar, true);
+                            }
+                            EditorGUILayout.EndHorizontal();                            
+                                                        
+                            if(DrawToggleButtonGUI(Strings.Tools.toggleDynamicBones, _nextToggleDBoneState))                            
+                                ToggleDynamicBonesEnabledState(SelectedAvatar, ref _nextToggleDBoneState, ref _dBonesThatWereAlreadyDisabled);                            
+                        }
+                        EditorGUI.EndDisabledGroup();
                     }
 
                     Helpers.DrawGUILine();
 
                     if(_tools_removeAll_expand = GUILayout.Toggle(_tools_removeAll_expand, Strings.Main.removeAll, Styles.Foldout))
                     {
-
                         EditorGUILayout.BeginHorizontal();
                         {
                             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
                             {
-#if !PUMKIN_DBONES
-                                EditorGUI.BeginDisabledGroup(true);                                
-#endif
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones, Icons.BoneIcon)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBones);
-#if !PUMKIN_DBONES                                
+
+                                EditorGUI.BeginDisabledGroup(!DynamicBonesExist);
+                                {
+                                    if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones, Icons.BoneIcon)))
+                                        DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBones);
+                                }
                                 EditorGUI.EndDisabledGroup();
-#endif
+
                                 if(GUILayout.Button(new GUIContent(Strings.Copier.particleSystems, Icons.ParticleSystem)))
                                     DoAction(SelectedAvatar, ToolMenuActions.RemoveParticleSystems);
                                 if(GUILayout.Button(new GUIContent(Strings.Copier.lights, Icons.Light)))
@@ -2303,14 +2367,14 @@ namespace Pumkin.AvatarTools
 
                             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
                             {
-#if !PUMKIN_DBONES
-                                EditorGUI.BeginDisabledGroup(true);                                
-#endif
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones_colliders, Icons.BoneColliderIcon)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBoneColliders);
-#if !PUMKIN_DBONES                                
+
+                                EditorGUI.BeginDisabledGroup(!DynamicBonesExist);
+                                {
+                                    if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones_colliders, Icons.BoneColliderIcon)))
+                                        DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBoneColliders);
+                                }
                                 EditorGUI.EndDisabledGroup();
-#endif
+
                                 if(GUILayout.Button(new GUIContent(Strings.Copier.trailRenderers, Icons.TrailRenderer)))
                                     DoAction(SelectedAvatar, ToolMenuActions.RemoveTrailRenderers);
                                 if(GUILayout.Button(new GUIContent(Strings.Copier.audioSources, Icons.AudioSource)))
@@ -2333,6 +2397,21 @@ namespace Pumkin.AvatarTools
                     EditorGUILayout.Space();
                 }
             }
+        }
+
+        public bool DrawToggleButtonGUI(string text, ref bool toggleBool)
+        {
+            Vector2 size = EditorGUIUtility.GetIconSize();            
+            bool b = GUILayout.Button(new GUIContent(text, toggleBool ? Icons.ToggleOff : Icons.ToggleOn), Styles.ButtonWithToggle);
+            if(b)
+                toggleBool = !toggleBool;            
+            return b;
+        }
+
+        public bool DrawToggleButtonGUI(string text, bool toggleBool)
+        {               
+            bool b = GUILayout.Button(new GUIContent(text, toggleBool ? Icons.ToggleOff : Icons.ToggleOn), Styles.ButtonWithToggle);                        
+            return b;
         }
 
         public void DrawPresetGUI<T>() where T : PumkinPreset
@@ -2419,16 +2498,16 @@ namespace Pumkin.AvatarTools
                         else if(typeof(T) == typeof(PumkinsPosePreset))
                             CreatePosePresetPopup.ShowWindow(pr[pSelectedPresetIndex.intValue] as PumkinsPosePreset);
                         else if(typeof(T) == typeof(PumkinsBlendshapePreset))
-                        {                            
+                        {
                             CreateBlendshapePopup.ShowWindow(pr[pSelectedPresetIndex.intValue] as PumkinsBlendshapePreset);
                             PumkinsAvatarTools.SetupBlendeshapeRendererHolders(SelectedAvatar);
                         }
-                            
+
                     }
                     if(GUILayout.Button(Strings.Buttons.load))
                     {
-                        if(typeof(T) == typeof(PumkinsBlendshapePreset))                        
-                            Instance.DoAction(SelectedAvatar, ToolMenuActions.RevertBlendshapes);                        
+                        if(typeof(T) == typeof(PumkinsBlendshapePreset))
+                            Instance.DoAction(SelectedAvatar, ToolMenuActions.RevertBlendshapes);
 
                         int newIndex = PumkinsPresetManager.GetPresetIndex<T>(pSelectedPresetString.stringValue);
                         if(newIndex == -1)
@@ -2470,7 +2549,7 @@ namespace Pumkin.AvatarTools
                     else if(typeof(T) == typeof(PumkinsBlendshapePreset))
                         CreateBlendshapePopup.ShowWindow();
                 }
-                
+
                 if(GUILayout.Button(Strings.Buttons.reset))
                 {
                     if(typeof(T) == typeof(PumkinsCameraPreset))
@@ -2504,13 +2583,13 @@ namespace Pumkin.AvatarTools
             GameObject background = GetCameraBackground();
             //
             if(Helpers.DrawDropdownWithToggle(ref _thumbnails_useCameraBackground_expand, ref bThumbnails_use_camera_background, Strings.Thumbnails.useCameraBackground))
-            {                
+            {
                 RefreshBackgroundOverrideType();
-                needsRefresh = true;                
+                needsRefresh = true;
 
-                if(bThumbnails_use_camera_background)                
-                    _thumbsCameraBgClearFlagsOld = SelectedCamera.clearFlags;                
-                else                
+                if(bThumbnails_use_camera_background)
+                    _thumbsCameraBgClearFlagsOld = SelectedCamera.clearFlags;
+                else
                     RestoreCameraClearFlags();
             }
 
@@ -2528,7 +2607,7 @@ namespace Pumkin.AvatarTools
                 else
                 {
                     if(background.activeInHierarchy)
-                        background.SetActive(false);                    
+                        background.SetActive(false);
                 }
             }
             else
@@ -2538,7 +2617,7 @@ namespace Pumkin.AvatarTools
             }
 
             if(_thumbnails_useCameraBackground_expand || needsRefresh)
-            {                
+            {
                 EditorGUILayout.Space();
                 EditorGUI.BeginDisabledGroup(!bThumbnails_use_camera_background);
                 {
@@ -2639,7 +2718,7 @@ namespace Pumkin.AvatarTools
             bool needsRefresh = false;
             RawImage raw = GetCameraOverlayRawImage(false);
             GameObject overlay = GetCameraOverlay(false);
-            
+
             if(Helpers.DrawDropdownWithToggle(ref _thumbnails_useCameraOverlay_expand, ref bThumbnails_use_camera_overlay, Strings.Thumbnails.useCameraOverlay))
             {
                 if(cameraOverlayTexture == null && !string.IsNullOrEmpty(_overlayPath))
@@ -2672,7 +2751,7 @@ namespace Pumkin.AvatarTools
             {
                 EditorGUI.BeginDisabledGroup(!bThumbnails_use_camera_overlay);
                 {
-                    EditorGUILayout.Space();                    
+                    EditorGUILayout.Space();
                     GUILayout.BeginHorizontal();
                     {
                         EditorGUILayout.SelectableLabel(_overlayPath, Styles.TextField);
@@ -2683,7 +2762,7 @@ namespace Pumkin.AvatarTools
                             {
                                 _lastOpenFilePath = newPath;
                                 SetOverlayToImageFromPath(_lastOpenFilePath);
-                            }                            
+                            }
                         }
                         if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
                         {
@@ -2721,9 +2800,9 @@ namespace Pumkin.AvatarTools
             _mainScroll = new Vector2(0, 1000);
         }
 
-#endregion
+        #endregion
 
-#region Main Functions
+        #region Main Functions
 
         /// <summary>
         /// This will hide or show all avatars except avatarToKeep
@@ -2791,7 +2870,7 @@ namespace Pumkin.AvatarTools
                 }
             }
         }
-                
+
         /// <summary>
         /// Sets overlay texture to image from path
         /// </summary>
@@ -2812,7 +2891,7 @@ namespace Pumkin.AvatarTools
             else
             {
                 Log(Strings.Warning.cantLoadImageAtPath, LogType.Warning, texturePath);
-            }            
+            }
         }
         /// <summary>
         /// Sets overlay image to texture
@@ -2837,7 +2916,7 @@ namespace Pumkin.AvatarTools
         /// </summary>
         /// <param name="texturePath"></param>
         public void SetBackgroundToImageFromPath(string texturePath)
-        {            
+        {
             _backgroundPath = texturePath;
             if(!GetCameraOverlay() || !GetCameraOverlayRawImage())
                 return;
@@ -2852,14 +2931,14 @@ namespace Pumkin.AvatarTools
             else if(!string.IsNullOrEmpty(texturePath))
             {
                 Log(Strings.Warning.cantLoadImageAtPath, LogType.Warning, texturePath);
-            }           
+            }
         }
         /// <summary>
         /// Sets background to image from texture
         /// </summary>
         /// <param name="newTexture"></param>
         public void SetBackgroundToImageFromTexture(Texture2D newTexture)
-        {            
+        {
             var img = GetCameraBackgroundRawImage();
             var bg = GetCameraBackground();
             if(bg && img)
@@ -2986,7 +3065,7 @@ namespace Pumkin.AvatarTools
             else
                 Log(Strings.Log.cantSetViewpointNonHumanoid, LogType.Log, desc.ViewPosition.ToString());
 
-            desc.ViewPosition = GetViewpointAtEyeLevel(SelectedAvatar.GetComponent<Animator>());
+            desc.ViewPosition = Helpers.GetViewpointAtEyeLevel(SelectedAvatar.GetComponent<Animator>());
             desc.ViewPosition.z = zDepth;
         }
 
@@ -3038,7 +3117,7 @@ namespace Pumkin.AvatarTools
                 Debug.Log(e.Message);
             }
             _PumkinsAvatarToolsWindow.RequestRepaint(_PumkinsAvatarToolsWindow.ToolsWindow);
-        }        
+        }
 
         /// <summary>
         /// Sets the avatar scale and moves the viewpoint to compensate
@@ -3072,7 +3151,7 @@ namespace Pumkin.AvatarTools
         void DoAction(GameObject avatar, ToolMenuActions action)
         {
             if(!SelectedAvatar) //Shouldn't be possible with disable group
-            {                
+            {
                 Log(Strings.Log.nothingSelected, LogType.Warning);
                 return;
             }
@@ -3088,14 +3167,12 @@ namespace Pumkin.AvatarTools
                     DestroyAllComponentsOfType(SelectedAvatar, typeof(Collider), false, false);
                     break;
                 case ToolMenuActions.RemoveDynamicBoneColliders:
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+                    if(DynamicBonesExist)
                         DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, false);
-#endif
                     break;
                 case ToolMenuActions.RemoveDynamicBones:
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+                    if(DynamicBonesExist)
                         DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, false);
-#endif
                     break;
                 case ToolMenuActions.ResetPose:
                     ResetPose(SelectedAvatar);
@@ -3116,7 +3193,7 @@ namespace Pumkin.AvatarTools
                     ResetBlendshapes(SelectedAvatar, false);
                     break;
                 case ToolMenuActions.SetTPose:
-                    PumkinsPoseEditor.SetTPoseHardcoded(SelectedAvatar);                    
+                    PumkinsPoseEditor.SetTPoseHardcoded(SelectedAvatar);
                     break;
                 case ToolMenuActions.RemoveEmptyGameObjects:
                     DestroyEmptyGameObjects(SelectedAvatar);
@@ -3158,7 +3235,7 @@ namespace Pumkin.AvatarTools
                     RefreshRig(SelectedAvatar);
                     break;
                 case ToolMenuActions.RemoveIKFollowers:
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(VRC_IKFollower), false, false);
+                    DestroyAllComponentsOfType(SelectedAvatar, typeof(VRC_IKFollower), false, false);                                    
                     break;
                 default:
                     break;
@@ -3169,6 +3246,71 @@ namespace Pumkin.AvatarTools
             EditorUtility.SetDirty(SelectedAvatar);
             if(!EditorApplication.isPlaying)
                 EditorSceneManager.MarkSceneDirty(SelectedAvatar.scene);
+        }
+        
+        /// <summary>
+        /// Sets the enabled state on all dynamic bones on the avatar and returns affected bones
+        /// </summary>        
+        /// <param name="enabled">Enabled state for dynamic bones</param>
+        /// <param name="dBonesToIgnore">Dynamic Bones to ignore</param>
+        /// <returns>Dynamic Bones that were disabled before we did anything</returns>
+        static void SetDynamicBonesEnabledState(GameObject avatar, bool enabled, List<DynamicBone> dBonesToIgnore = null)
+        {
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+            if(!avatar)
+                return;
+
+            foreach(var bone in avatar.GetComponentsInChildren<DynamicBone>())
+                if(dBonesToIgnore == null || !dBonesToIgnore.Contains(bone))
+                    bone.enabled = enabled;                        
+#else
+            return;
+#endif
+        }
+
+        /// <summary>
+        /// Toggles the enbaled state of all Dynamic Bones on the avatar and returns affected bones
+        /// </summary>        
+        /// <param name="enabledState">Bool to use as toggle state</param>
+        /// <param name="dBonesToIgnore">Dynamic Bones to ignore</param>
+        /// <returns>Dynamic Bones that have been enabled or disabled. Used to ignore bones that were disabled before we toggled off</returns>
+        static void ToggleDynamicBonesEnabledState(GameObject avatar, ref bool enabledState, ref List<DynamicBone> dBonesToIgnore)
+        {
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+            if(!enabledState)
+            {
+                dBonesToIgnore = new List<DynamicBone>();
+                var bones = avatar.GetComponentsInChildren<DynamicBone>();
+                foreach(var b in bones)
+                    if(!b.enabled)
+                        dBonesToIgnore.Add(b);
+            }
+            SetDynamicBonesEnabledState(avatar, enabledState, dBonesToIgnore);
+            enabledState = !enabledState;
+#else
+            return;
+#endif
+        }
+
+        /// <summary>
+        /// Doesn't seem to work. Need to investigate
+        /// </summary>
+        /// <param name="avatar"></param>
+        static void RefreshDynamicBoneTransforms(GameObject avatar)
+        {
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+            if(!avatar)
+                return;            
+
+            var bones = avatar.GetComponentsInChildren<DynamicBone>();
+            foreach(var b in bones)
+            {
+                bool enabled = b.enabled;
+                b.enabled = false;                                
+                b.CallPrivate("InitTransforms");
+                b.enabled = enabled;
+            }
+#endif
         }
 
         /// <summary>
@@ -3238,7 +3380,7 @@ namespace Pumkin.AvatarTools
             _editingScale = true;
             _tempToolOld = Tools.current;
             Tools.current = Tool.None;
-            Selection.activeGameObject = SelectedAvatar;            
+            Selection.activeGameObject = SelectedAvatar;
         }
 
         /// <summary>
@@ -3304,29 +3446,16 @@ namespace Pumkin.AvatarTools
 
             _viewPosOld = _tempAvatarDescriptor.ViewPosition;
 
-            if(_tempAvatarDescriptor.ViewPosition == DEFAULT_VIEWPOINT)            
-                _viewPosTemp = GetViewpointAtEyeLevel(SelectedAvatar.GetComponent<Animator>());            
-            else            
+            if(_tempAvatarDescriptor.ViewPosition == DEFAULT_VIEWPOINT)
+                _viewPosTemp = Helpers.GetViewpointAtEyeLevel(SelectedAvatar.GetComponent<Animator>());
+            else
                 _viewPosTemp = _tempAvatarDescriptor.ViewPosition + avatar.transform.root.position;
-            
+
             _editingView = true;
             _tempToolOld = Tools.current;
             Tools.current = Tool.None;
             Selection.activeGameObject = SelectedAvatar;
-        }
-
-        Vector3 GetViewpointAtEyeLevel(Animator anim)
-        {
-            Vector3 view = DEFAULT_VIEWPOINT;
-            if(anim && anim.isHuman)
-            {
-                view = anim.GetBoneTransform(HumanBodyBones.Head).position;
-                float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y - 0.005f;
-                view.y = eyeHeight;
-                view.z = DEFAULT_VIEWPOINT.z - 0.1f;
-            }
-            return view;
-        }
+        }        
 
         /// <summary>
         /// Ends editing Viewposition
@@ -3575,8 +3704,7 @@ namespace Pumkin.AvatarTools
             {
                 CopyAllIKFollowers(objFrom, objTo, bCopier_other_createGameObjects, true);
             }
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-            if(bCopier_dynamicBones_copyColliders)
+            if(DynamicBonesExist && bCopier_dynamicBones_copyColliders)
             {
                 if(bCopier_dynamicBones_removeOldColliders)
                     DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, true);
@@ -3589,13 +3717,12 @@ namespace Pumkin.AvatarTools
                 if(bCopier_dynamicBones_copySettings || bCopier_dynamicBones_createMissing)
                     CopyAllDynamicBonesNew(objFrom, objTo, bCopier_dynamicBones_createMissing, true);
             }
-#endif
             if(bCopier_transforms_copy)
             {
                 CopyAllTransforms(objFrom, objTo, true);
             }
         }
-        
+
 
         /// <summary>
         /// Copies all VRC_IKFollowers on an object and it's children.
@@ -3801,7 +3928,7 @@ namespace Pumkin.AvatarTools
                 return;
 
             var mFromArr = from.GetComponentsInChildren<MeshRenderer>();
-            string type = typeof(MeshRenderer).Name;            
+            string type = typeof(MeshRenderer).Name;
 
             for(int i = 0; i < mFromArr.Length; i++)
             {
@@ -3925,45 +4052,46 @@ namespace Pumkin.AvatarTools
         void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
         {
 #if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
+
             Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
             return;
 #else
-                if(from == null || to == null)
-                    return;
+            if(from == null || to == null)
+                return;
 
-                var dbcFromArr = from.GetComponentsInChildren<DynamicBoneCollider>();
-                if(dbcFromArr == null || dbcFromArr.Length == 0)
-                    return;
+            var dbcFromArr = from.GetComponentsInChildren<DynamicBoneCollider>();
+            if(dbcFromArr == null || dbcFromArr.Length == 0)
+                return;
 
-                for(int i = 0; i < dbcFromArr.Length; i++)
+            for(int i = 0; i < dbcFromArr.Length; i++)
+            {
+                var dbcFrom = dbcFromArr[i];
+                var tTo = Helpers.FindTransformInAnotherHierarchy(dbcFrom.transform, to.transform, createGameObjects);
+                if((!tTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(dbcFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
+                    continue;
+
+                var dbcToArr = tTo.GetComponentsInChildren<DynamicBoneCollider>();
+                if(tTo != null)
                 {
-                    var dbcFrom = dbcFromArr[i];
-                    var tTo = Helpers.FindTransformInAnotherHierarchy(dbcFrom.transform, to.transform, createGameObjects);
-                    if((!tTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(dbcFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
-                        continue;
-
-                    var dbcToArr = tTo.GetComponentsInChildren<DynamicBoneCollider>();
-                    if(tTo != null)
+                    bool found = false;
+                    for(int z = 0; z < dbcToArr.Length; z++)
                     {
-                        bool found = false;
-                        for(int z = 0; z < dbcToArr.Length; z++)
+                        var d = dbcToArr[z];
+                        if(d.m_Bound == dbcFrom.m_Bound && d.m_Center == dbcFrom.m_Center &&
+                            d.m_Direction == dbcFrom.m_Direction && d.m_Height == dbcFrom.m_Height && d.m_Radius == dbcFrom.m_Radius)
                         {
-                            var d = dbcToArr[z];
-                            if(d.m_Bound == dbcFrom.m_Bound && d.m_Center == dbcFrom.m_Center &&
-                                d.m_Direction == dbcFrom.m_Direction && d.m_Height == dbcFrom.m_Height && d.m_Radius == dbcFrom.m_Radius)
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
-
-                        if(!found)
-                        {
-                            ComponentUtility.CopyComponent(dbcFrom);
-                            ComponentUtility.PasteComponentAsNew(tTo.gameObject);
+                            found = true;
+                            break;
                         }
                     }
+
+                    if(!found)
+                    {
+                        ComponentUtility.CopyComponent(dbcFrom);
+                        ComponentUtility.PasteComponentAsNew(tTo.gameObject);
+                    }
                 }
+            }
 #endif
         }
 
@@ -3973,246 +4101,127 @@ namespace Pumkin.AvatarTools
             Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
             return;
 #else
-                if(!from || !to)
-                    return;
+            if(!from || !to)
+                return;
 
-                var dFromArr = from.GetComponentsInChildren<DynamicBone>();
+            var dFromArr = from.GetComponentsInChildren<DynamicBone>();
 
-                List<DynamicBone> newBones = new List<DynamicBone>();
-                foreach(var dFrom in dFromArr)
+            List<DynamicBone> newBones = new List<DynamicBone>();
+            foreach(var dFrom in dFromArr)
+            {
+                if(useIgnoreList && Helpers.ShouldIgnoreObject(dFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
+                    continue;
+
+                var tTo = Helpers.FindTransformInAnotherHierarchy(dFrom.transform, to.transform, false);
+                if(!tTo)
+                    continue;
+
+                var dToArr = tTo.GetComponents<DynamicBone>();
+
+                if(!dFrom.m_Root)
                 {
-                    if(useIgnoreList && Helpers.ShouldIgnoreObject(dFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
+                    LogVerbose("DynamicBone {0} of {1} doesn't have a root assigned. Ignoring", LogType.Warning, dFrom.transform.name, dFrom.transform.root.name);
+                    continue;
+                }
+
+                bool foundSameDynBone = false;
+
+                foreach(var d in dToArr)
+                {
+                    if(!d.m_Root || newBones.Contains(d))
                         continue;
 
-                    var tTo = Helpers.FindTransformInAnotherHierarchy(dFrom.transform, to.transform, false);
-                    if(!tTo)
-                        continue;
-
-                    var dToArr = tTo.GetComponents<DynamicBone>();
-
-                    if(!dFrom.m_Root)
+                    //Check if the roots are the same to decide if it's supposed to be the same dyn bone script
+                    if(d.m_Root.name == dFrom.m_Root.name)
                     {
-                        LogVerbose("DynamicBone {0} of {1} doesn't have a root assigned. Ignoring", LogType.Warning, dFrom.transform.name, dFrom.transform.root.name);
-                        continue;
-                    }
+                        //Check if exclusions are the same
+                        List<string> exToPaths = d.m_Exclusions
+                             .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
+                             .Where(o => o != null)
+                             .ToList();
 
-                    bool foundSameDynBone = false;
+                        List<string> exFromPaths = dFrom.m_Exclusions
+                            .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
+                            .Where(o => o != null)
+                            .ToList();
 
-                    foreach(var d in dToArr)
-                    {                    
-                        if(!d.m_Root || newBones.Contains(d))
-                            continue;                    
+                        bool exclusionsDifferent = false;
+                        var exArr = exToPaths.Intersect(exFromPaths).ToArray();
 
-                        //Check if the roots are the same to decide if it's supposed to be the same dyn bone script
-                        if(d.m_Root.name == dFrom.m_Root.name)
+                        if(exArr != null && (exToPaths.Count != 0 && exFromPaths.Count != 0) && exArr.Length == 0)
+                            exclusionsDifferent = true;
+
+                        //Check if colliders are the same
+                        List<string> colToPaths = d.m_Colliders
+                            .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
+                            .Where(c => c != null)
+                            .ToList();
+
+                        List<string> colFromPaths = d.m_Colliders
+                            .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
+                            .Where(c => c != null)
+                            .ToList();
+
+                        bool collidersDifferent = false;
+                        var colArr = colToPaths.Intersect(colFromPaths).ToArray();
+
+                        if(colArr != null && (colToPaths.Count != 0 && colFromPaths.Count != 0) && colArr.Length == 0)
+                            collidersDifferent = true;
+
+                        //Found the same bone because root, exclusions and colliders are the same
+                        if(!exclusionsDifferent && !collidersDifferent)
                         {
-                            //Check if exclusions are the same
-                            List<string> exToPaths = d.m_Exclusions
-                                 .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
-                                 .Where(o => o != null)
-                                 .ToList();
-
-                            List<string> exFromPaths = dFrom.m_Exclusions
-                                .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
-                                .Where(o => o != null)
-                                .ToList();
-
-                            bool exclusionsDifferent = false;
-                            var exArr = exToPaths.Intersect(exFromPaths).ToArray();
-
-                            if(exArr != null && (exToPaths.Count != 0 && exFromPaths.Count != 0) && exArr.Length == 0)                        
-                                exclusionsDifferent = true;      
-
-                            //Check if colliders are the same
-                            List<string> colToPaths = d.m_Colliders
-                                .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
-                                .Where(c => c != null)
-                                .ToList();
-
-                            List<string> colFromPaths = d.m_Colliders
-                                .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
-                                .Where(c => c != null)
-                                .ToList();
-
-                            bool collidersDifferent = false;
-                            var colArr = colToPaths.Intersect(colFromPaths).ToArray();
-
-                            if(colArr != null && (colToPaths.Count != 0 && colFromPaths.Count != 0) && colArr.Length == 0)
-                                collidersDifferent = true;
-
-                            //Found the same bone because root, exclusions and colliders are the same
-                            if(!exclusionsDifferent && !collidersDifferent)
-                            {                        
-                                foundSameDynBone = true;
-                                if(bCopier_dynamicBones_copySettings)
-                                {
-                                    LogVerbose("{0} already has this DynamicBone, but we have to copy settings. Copying.", LogType.Log, d.name);
-
-                                    d.m_Damping = dFrom.m_Damping;
-                                    d.m_DampingDistrib = dFrom.m_DampingDistrib;
-                                    d.m_DistanceToObject = dFrom.m_DistanceToObject;
-                                    d.m_DistantDisable = dFrom.m_DistantDisable;
-                                    d.m_Elasticity = dFrom.m_Elasticity;
-                                    d.m_ElasticityDistrib = dFrom.m_ElasticityDistrib;
-                                    d.m_EndLength = dFrom.m_EndLength;
-                                    d.m_EndOffset = dFrom.m_EndOffset;
-                                    d.m_Force = dFrom.m_Force;
-                                    d.m_FreezeAxis = dFrom.m_FreezeAxis;
-                                    d.m_Gravity = dFrom.m_Gravity;
-                                    d.m_Inert = dFrom.m_Inert;
-                                    d.m_InertDistrib = dFrom.m_InertDistrib;
-                                    d.m_Radius = dFrom.m_Radius;
-                                    d.m_RadiusDistrib = dFrom.m_RadiusDistrib;
-                                    d.m_Stiffness = dFrom.m_Stiffness;
-                                    d.m_StiffnessDistrib = dFrom.m_StiffnessDistrib;                                
-
-                                    d.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dFrom.m_ReferenceObject, d.transform, false);                                
-                                }
-                                else
-                                {
-                                    LogVerbose("{0} already has this DynamicBone but we aren't copying settings. Ignoring", LogType.Log, d.name);
-                                }
-                                break;
-                            }
-                        }
-                    }
-
-                    if(!foundSameDynBone)
-                    {
-                        if(createMissing)
-                        {
-                            LogVerbose("{0} doesn't have has this DynamicBone but we have to create one. Creating.", LogType.Log, dFrom.name);
-
-                            var newDynBone = tTo.gameObject.AddComponent<DynamicBone>();
-                            ComponentUtility.CopyComponent(dFrom);
-                            ComponentUtility.PasteComponentValues(newDynBone);
-
-                            newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dFrom.m_Root.transform, newDynBone.transform.root, false);
-
-                            if(!newDynBone.m_Root)
+                            foundSameDynBone = true;
+                            if(bCopier_dynamicBones_copySettings)
                             {
-                                Log("_Couldn't set root {0} for new DynamicBone in {1}'s {2}. GameObject is missing. Removing.", LogType.Warning, dFrom.m_Root.name ?? "null", newDynBone.transform.root.name, newDynBone.transform.name == newDynBone.transform.root.name ? "root" : newDynBone.transform.root.name);
-                                DestroyImmediate(newDynBone);
+                                LogVerbose("{0} already has this DynamicBone, but we have to copy settings. Copying.", LogType.Log, d.name);
+
+                                d.m_Damping = dFrom.m_Damping;
+                                d.m_DampingDistrib = dFrom.m_DampingDistrib;
+                                d.m_DistanceToObject = dFrom.m_DistanceToObject;
+                                d.m_DistantDisable = dFrom.m_DistantDisable;
+                                d.m_Elasticity = dFrom.m_Elasticity;
+                                d.m_ElasticityDistrib = dFrom.m_ElasticityDistrib;
+                                d.m_EndLength = dFrom.m_EndLength;
+                                d.m_EndOffset = dFrom.m_EndOffset;
+                                d.m_Force = dFrom.m_Force;
+                                d.m_FreezeAxis = dFrom.m_FreezeAxis;
+                                d.m_Gravity = dFrom.m_Gravity;
+                                d.m_Inert = dFrom.m_Inert;
+                                d.m_InertDistrib = dFrom.m_InertDistrib;
+                                d.m_Radius = dFrom.m_Radius;
+                                d.m_RadiusDistrib = dFrom.m_RadiusDistrib;
+                                d.m_Stiffness = dFrom.m_Stiffness;
+                                d.m_StiffnessDistrib = dFrom.m_StiffnessDistrib;
+
+                                d.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dFrom.m_ReferenceObject, d.transform, false);
                             }
-
-                            if(dFrom.m_ReferenceObject)
-                                newDynBone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dFrom.m_ReferenceObject, newDynBone.transform.root, false);
-
-#if PUMKIN_DBONES
-                            var newColliders = new List<DynamicBoneColliderBase>();
-#elif PUMKIN_OLD_DBONES
-                            var newColliders = new List<DynamicBoneCollider>();
-#endif
-
-
-                            for(int i = 0; i < newDynBone.m_Colliders.Count; i++)
+                            else
                             {
-                                var badRefCollider = newDynBone.m_Colliders[i];
-
-                                if(!badRefCollider)
-                                    continue;
-
-#if PUMKIN_DBONES
-                                DynamicBoneColliderBase fixedRefCollider = null;
-#elif PUMKIN_OLD_DBONES
-                                DynamicBoneCollider fixedRefCollider = null;
-#endif
-                                var t = Helpers.FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
-
-                                if(t == null)
-                                    continue;
-
-                                var toColls = t.GetComponents<DynamicBoneCollider>();
-                                foreach(var c in toColls)
-                                {
-                                    if(c.m_Bound == badRefCollider.m_Bound && c.m_Center == badRefCollider.m_Center && c.m_Direction == badRefCollider.m_Direction &&
-                                       !newDynBone.m_Colliders.Contains(c))
-                                        fixedRefCollider = c;
-                                }
-
-                                if(fixedRefCollider)
-                                {
-                                    LogVerbose("Fixed reference for {0} in {1}", LogType.Log, fixedRefCollider.name, newDynBone.name);
-                                    newColliders.Add(fixedRefCollider);
-                                }
+                                LogVerbose("{0} already has this DynamicBone but we aren't copying settings. Ignoring", LogType.Log, d.name);
                             }
-
-                            newDynBone.m_Colliders = newColliders;
-
-                            var newExclusions = new HashSet<Transform>();
-
-                            foreach(var ex in newDynBone.m_Exclusions)
-                            {
-                                if(!ex)
-                                    continue;
-
-                                var t = Helpers.FindTransformInAnotherHierarchy(ex.transform, to.transform, false);
-                                if(t)
-                                    newExclusions.Add(t);
-                            }
-
-                            newDynBone.m_Exclusions = newExclusions.ToList();
-                            newBones.Add(newDynBone);
-
-                            Log("_Copied DynamicBone from {0}'s {1} to {2}'s {1}", LogType.Log, dFrom.transform.root.name, dFrom.transform.name == dFrom.transform.root.name ? "root" : dFrom.transform.name, tTo.root.name);                                                
-                        }
-                        else
-                        {
-                            LogVerbose("{0} doesn't have has this DynamicBone and we aren't creating a new one. Ignoring.", LogType.Log, dFrom.name);
+                            break;
                         }
                     }
                 }
-#endif
-        }
 
-        /// <summary>
-        /// Copies all DynamicBones from one object and all of it's children to another
-        /// </summary>        
-        void CopyAllDynamicBones(GameObject from, GameObject to, bool createIfMissing, bool useignoreList)
-        {
-#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
-            Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
-            return;
-#else
-                if(!from || !to)
-                    return;
-
-                var dFromArr = from.GetComponentsInChildren<DynamicBone>();
-                bool foundSameDynBone = false;
-
-                foreach(var dFrom in dFromArr)
+                if(!foundSameDynBone)
                 {
-                    if(useignoreList && Helpers.ShouldIgnoreObject(dFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-                        continue;
-
-                    var tTo = Helpers.FindTransformInAnotherHierarchy(dFrom.transform, to.transform, false);
-                    var dToArr = tTo.GetComponents<DynamicBone>();
-
-                    if(!dFrom.m_Root)
+                    if(createMissing)
                     {
-                        LogVerbose("DynamicBone {0} of {1} doesn't have a root assigned. Ignoring", LogType.Warning, dFrom.transform.name, dFrom.transform.root.name);
-                        continue;
-                    }
+                        LogVerbose("{0} doesn't have has this DynamicBone but we have to create one. Creating.", LogType.Log, dFrom.name);
 
-                    foreach(var d in dToArr)
-                    {
-                        if(!d.m_Root)
-                            continue;
-                    
-                        if(d.m_Root.name == dFrom.m_Root.name)
-                        {
-                            foundSameDynBone = true;
-                            LogVerbose("{0} already has this DynamicBone. Ignoring", LogType.Log, d.name);
-                        }
-                    }
-
-                    if(!foundSameDynBone)
-                    {
                         var newDynBone = tTo.gameObject.AddComponent<DynamicBone>();
                         ComponentUtility.CopyComponent(dFrom);
                         ComponentUtility.PasteComponentValues(newDynBone);
 
                         newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dFrom.m_Root.transform, newDynBone.transform.root, false);
+
+                        if(!newDynBone.m_Root)
+                        {
+                            Log("_Couldn't set root {0} for new DynamicBone in {1}'s {2}. GameObject is missing. Removing.", LogType.Warning, dFrom.m_Root.name ?? "null", newDynBone.transform.root.name, newDynBone.transform.name == newDynBone.transform.root.name ? "root" : newDynBone.transform.root.name);
+                            DestroyImmediate(newDynBone);
+                        }
 
                         if(dFrom.m_ReferenceObject)
                             newDynBone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dFrom.m_ReferenceObject, newDynBone.transform.root, false);
@@ -4220,7 +4229,7 @@ namespace Pumkin.AvatarTools
 #if PUMKIN_DBONES
                         var newColliders = new List<DynamicBoneColliderBase>();
 #elif PUMKIN_OLD_DBONES
-                        var newColliders = new List<DynamicBoneCollider>();
+                            var newColliders = new List<DynamicBoneCollider>();
 #endif
 
 
@@ -4234,7 +4243,7 @@ namespace Pumkin.AvatarTools
 #if PUMKIN_DBONES
                             DynamicBoneColliderBase fixedRefCollider = null;
 #elif PUMKIN_OLD_DBONES
-                            DynamicBoneCollider fixedRefCollider = null;
+                                DynamicBoneCollider fixedRefCollider = null;
 #endif
                             var t = Helpers.FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
 
@@ -4271,18 +4280,137 @@ namespace Pumkin.AvatarTools
                         }
 
                         newDynBone.m_Exclusions = newExclusions.ToList();
+                        newBones.Add(newDynBone);
 
-                        if(!newDynBone.m_Root)
-                        {
-                            Log("_Couldn't set root {0} for new DynamicBone in {1}'s {2}. Removing.", LogType.Warning, newDynBone.m_Root.name, newDynBone.transform.root.name, newDynBone.transform.name);
-                            DestroyImmediate(newDynBone);
-                        }
-                        else
-                        {                        
-                            Log("_Copied DynamicBone from {0}'s {1} to {2}'s", LogType.Log, dFrom.transform.root.name, dFrom.transform.name == dFrom.transform.root.name ? "root" : dFrom.transform.name, tTo.root.name);
-                        }
+                        Log("_Copied DynamicBone from {0}'s {1} to {2}'s {1}", LogType.Log, dFrom.transform.root.name, dFrom.transform.name == dFrom.transform.root.name ? "root" : dFrom.transform.name, tTo.root.name);
+                    }
+                    else
+                    {
+                        LogVerbose("{0} doesn't have has this DynamicBone and we aren't creating a new one. Ignoring.", LogType.Log, dFrom.name);
                     }
                 }
+            }
+#endif
+        }
+
+        /// <summary>
+        /// Copies all DynamicBones from one object and all of it's children to another
+        /// </summary>        
+        void CopyAllDynamicBones(GameObject from, GameObject to, bool createIfMissing, bool useignoreList)
+        {
+#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
+            Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
+            return;
+#else
+            if(!from || !to)
+                return;
+
+            var dFromArr = from.GetComponentsInChildren<DynamicBone>();
+            bool foundSameDynBone = false;
+
+            foreach(var dFrom in dFromArr)
+            {
+                if(useignoreList && Helpers.ShouldIgnoreObject(dFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
+                    continue;
+
+                var tTo = Helpers.FindTransformInAnotherHierarchy(dFrom.transform, to.transform, false);
+                var dToArr = tTo.GetComponents<DynamicBone>();
+
+                if(!dFrom.m_Root)
+                {
+                    LogVerbose("DynamicBone {0} of {1} doesn't have a root assigned. Ignoring", LogType.Warning, dFrom.transform.name, dFrom.transform.root.name);
+                    continue;
+                }
+
+                foreach(var d in dToArr)
+                {
+                    if(!d.m_Root)
+                        continue;
+
+                    if(d.m_Root.name == dFrom.m_Root.name)
+                    {
+                        foundSameDynBone = true;
+                        LogVerbose("{0} already has this DynamicBone. Ignoring", LogType.Log, d.name);
+                    }
+                }
+
+                if(!foundSameDynBone)
+                {
+                    var newDynBone = tTo.gameObject.AddComponent<DynamicBone>();
+                    ComponentUtility.CopyComponent(dFrom);
+                    ComponentUtility.PasteComponentValues(newDynBone);
+
+                    newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dFrom.m_Root.transform, newDynBone.transform.root, false);
+
+                    if(dFrom.m_ReferenceObject)
+                        newDynBone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dFrom.m_ReferenceObject, newDynBone.transform.root, false);
+
+#if PUMKIN_DBONES
+                    var newColliders = new List<DynamicBoneColliderBase>();
+#elif PUMKIN_OLD_DBONES
+                        var newColliders = new List<DynamicBoneCollider>();
+#endif
+
+
+                    for(int i = 0; i < newDynBone.m_Colliders.Count; i++)
+                    {
+                        var badRefCollider = newDynBone.m_Colliders[i];
+
+                        if(!badRefCollider)
+                            continue;
+
+#if PUMKIN_DBONES
+                        DynamicBoneColliderBase fixedRefCollider = null;
+#elif PUMKIN_OLD_DBONES
+                            DynamicBoneCollider fixedRefCollider = null;
+#endif
+                        var t = Helpers.FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
+
+                        if(t == null)
+                            continue;
+
+                        var toColls = t.GetComponents<DynamicBoneCollider>();
+                        foreach(var c in toColls)
+                        {
+                            if(c.m_Bound == badRefCollider.m_Bound && c.m_Center == badRefCollider.m_Center && c.m_Direction == badRefCollider.m_Direction &&
+                               !newDynBone.m_Colliders.Contains(c))
+                                fixedRefCollider = c;
+                        }
+
+                        if(fixedRefCollider)
+                        {
+                            LogVerbose("Fixed reference for {0} in {1}", LogType.Log, fixedRefCollider.name, newDynBone.name);
+                            newColliders.Add(fixedRefCollider);
+                        }
+                    }
+
+                    newDynBone.m_Colliders = newColliders;
+
+                    var newExclusions = new HashSet<Transform>();
+
+                    foreach(var ex in newDynBone.m_Exclusions)
+                    {
+                        if(!ex)
+                            continue;
+
+                        var t = Helpers.FindTransformInAnotherHierarchy(ex.transform, to.transform, false);
+                        if(t)
+                            newExclusions.Add(t);
+                    }
+
+                    newDynBone.m_Exclusions = newExclusions.ToList();
+
+                    if(!newDynBone.m_Root)
+                    {
+                        Log("_Couldn't set root {0} for new DynamicBone in {1}'s {2}. Removing.", LogType.Warning, newDynBone.m_Root.name, newDynBone.transform.root.name, newDynBone.transform.name);
+                        DestroyImmediate(newDynBone);
+                    }
+                    else
+                    {
+                        Log("_Copied DynamicBone from {0}'s {1} to {2}'s", LogType.Log, dFrom.transform.root.name, dFrom.transform.name == dFrom.transform.root.name ? "root" : dFrom.transform.name, tTo.root.name);
+                    }
+                }
+            }
 #endif
         }
 
@@ -4395,15 +4523,15 @@ namespace Pumkin.AvatarTools
         void CopyAllTransforms(GameObject from, GameObject to, bool useignoreList)
         {
             if(from == null || to == null || !(bCopier_transforms_copyPosition || bCopier_transforms_copyRotation || bCopier_transforms_copyScale))
-                return;            
-                        
-            string type = typeof(Transform).Name;            
+                return;
+
+            string type = typeof(Transform).Name;
 
             var tFromArr = from.GetComponentsInChildren<Transform>();
 
             for(int i = 0; i < tFromArr.Length; i++)
             {
-                Transform tFrom = tFromArr[i];                
+                Transform tFrom = tFromArr[i];
 
                 if(tFrom == tFrom.root || tFrom == tFrom.root.Find(tFrom.name) ||
                     (useignoreList && Helpers.ShouldIgnoreObject(tFrom, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
@@ -4425,9 +4553,9 @@ namespace Pumkin.AvatarTools
                     }
                     Log(log + Strings.Log.success, LogType.Log);
                 }
-                else                
-                    Log(log + Strings.Log.failedHasNoIgnoring, LogType.Warning, from.name, tFrom.gameObject.name);                
-            }            
+                else
+                    Log(log + Strings.Log.failedHasNoIgnoring, LogType.Warning, from.name, tFrom.gameObject.name);
+            }
         }
 
         /// <summary>
@@ -4721,7 +4849,7 @@ namespace Pumkin.AvatarTools
                     {
                         try
                         {
-                            Helpers.DestroyAppropriate(comps[i]);                            
+                            Helpers.DestroyAppropriate(comps[i]);
                             log += Strings.Log.success;
                             Log(log, LogType.Log, type.Name, name);
                         }
@@ -4854,15 +4982,15 @@ namespace Pumkin.AvatarTools
         public static void RefreshPresetIndexByString<T>(string selectedPresetString) where T : PumkinPreset
         {
             int count = PumkinsPresetManager.GetPresetCountOfType<T>();
-            int selectedPresetIndex = PumkinsPresetManager.GetPresetIndex<T>(selectedPresetString);            
+            int selectedPresetIndex = PumkinsPresetManager.GetPresetIndex<T>(selectedPresetString);
             selectedPresetIndex = Mathf.Clamp(selectedPresetIndex, 0, count - 1);
-            
+
             if(typeof(T) == typeof(PumkinsCameraPreset))
             {
-                if(count == 0)                
-                   selectedPresetString = "";                
-                else                
-                    selectedPresetString = PumkinsPresetManager.CameraPresets[selectedPresetIndex].ToString() ?? "";                
+                if(count == 0)
+                    selectedPresetString = "";
+                else
+                    selectedPresetString = PumkinsPresetManager.CameraPresets[selectedPresetIndex].ToString() ?? "";
                 Instance._selectedCameraPresetIndex = selectedPresetIndex;
             }
             else if(typeof(T) == typeof(PumkinsPosePreset))
@@ -4880,7 +5008,7 @@ namespace Pumkin.AvatarTools
                 else
                     selectedPresetString = PumkinsPresetManager.BlendshapePresets[selectedPresetIndex].ToString() ?? "";
                 Instance._selectedBlendshapePresetIndex = selectedPresetIndex;
-            }            
+            }
         }
 
         /// <summary>
@@ -5021,7 +5149,7 @@ namespace Pumkin.AvatarTools
                 return false;
 
 #if UNITY_2017
-                var pref = PrefabUtility.GetPrefabParent(avatar.transform.root.gameObject) as GameObject;
+            var pref = PrefabUtility.GetPrefabParent(avatar.transform.root.gameObject) as GameObject;
 #else
             var pref = PrefabUtility.GetCorrespondingObjectFromSource(avatar.transform.root.gameObject) as GameObject;
 #endif
@@ -5052,7 +5180,7 @@ namespace Pumkin.AvatarTools
             OnPoseWasChanged(PoseChangeType.Reset);
             return true;
         }
-        
+
         /// <summary>
         /// Looks for child object in an object's children. Can create if not found.
         /// </summary>
@@ -5085,7 +5213,7 @@ namespace Pumkin.AvatarTools
         /// <param name="fixClippingPlanes">Should change near clipping plane to 0.1 and far to 1000?</param>
         void CenterCameraOnViewpoint(GameObject avatarOverride, Vector3 positionOffset, Vector3 rotationOffset, bool fixClippingPlanes)
         {
-            if(fixClippingPlanes)            
+            if(fixClippingPlanes)
                 Helpers.FixCameraClippingPlanes(SelectedCamera);
             PumkinsCameraPreset.ApplyPositionAndRotationWithViewpointFocus(avatarOverride, SelectedCamera, positionOffset, rotationOffset, true);
         }
@@ -5096,7 +5224,7 @@ namespace Pumkin.AvatarTools
                 Helpers.FixCameraClippingPlanes(SelectedCamera);
             PumkinsCameraPreset.ApplyPositionAndRotationWithTransformFocus(transform, SelectedCamera, positionOffset, rotationOffset, true);
         }
-        
+
         /// <summary>
         /// Saves serialized variables to PlayerPrefs. 
         /// Used to keep same settings when restarting unity or going into play mode

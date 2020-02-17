@@ -172,6 +172,9 @@ namespace Pumkin.DataStructures
             public static string revertScale = "_Revert Scale";
             public static string editScaleMoveViewpoint = "_Move Viewpoint";
             public static string refreshRig = "_Refresh Rig";
+            public static string enableDynamicBones = "_Enable DynamicBones";
+            public static string disableDynamicBones = "_Disable DynamicBones";
+            public static string toggleDynamicBones = "_Toggle DynamicBones";
 
             static Tools()
             {
@@ -196,7 +199,10 @@ namespace Pumkin.DataStructures
                 setRendererAnchors = Translation.tools.setRendererAnchors;
                 revertScale = Translation.tools.revertScale;
                 editScaleMoveViewpoint = Translation.tools.editScaleMoveViewpoint;
-                refreshRig = Translation.tools.refreshRig;
+                refreshRig = Translation.tools.refreshRig;                
+                enableDynamicBones = Translation.tools.enableDynamicBones;
+                disableDynamicBones = Translation.tools.disableDynamicBones;
+                toggleDynamicBones = Translation.tools.toggleDynamicBones;
             }
         };
         public static class AvatarInfo
