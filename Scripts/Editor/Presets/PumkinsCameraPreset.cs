@@ -261,20 +261,10 @@ namespace Pumkin.Presets
                 cam.transform.localEulerAngles = rotationAngles;
                 cam.transform.parent = null;
 
-                Camera cam1 = SceneView.lastActiveSceneView.camera;
-                Camera cam2 = SceneView.currentDrawingSceneView?.camera;
-
-                Debug.Log(cam1.transform.position);
-                Debug.Log(cam2?.transform?.position);
-
                 if(moveSceneCameraAsWell)
                 {
                     Transform t = SceneView.lastActiveSceneView.camera.transform;
                     t.SetPositionAndRotation(cam.transform.position, cam.transform.rotation);
-                    Debug.Log(t.position);
-                    t = SceneView.currentDrawingSceneView?.camera?.transform;
-                    t?.SetPositionAndRotation(cam.transform.position, cam.transform.rotation);
-                    Debug.Log(t.position);
                 }
             }
             catch(Exception e)
