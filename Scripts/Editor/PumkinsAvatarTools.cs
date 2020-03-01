@@ -1409,7 +1409,7 @@ namespace Pumkin.AvatarTools
 
                             using(var cVerticalScope = new GUILayout.VerticalScope())
                             {
-                                bCopier_dynamicBones_removeOldColliders = GUILayout.Toggle(bCopier_dynamicBones_removeOldColliders, Strings.Copier.dynamicBones, Styles.CopierToggle);
+                                bCopier_dynamicBones_removeOldColliders = GUILayout.Toggle(bCopier_dynamicBones_removeOldColliders, Strings.Copier.dynamicBones_removeOldColliders, Styles.CopierToggle);
                                 bCopier_dynamicBones_createObjectsColliders = GUILayout.Toggle(bCopier_dynamicBones_createObjectsColliders, Strings.Copier.copyGameObjects, Styles.CopierToggle);
                             }
                         }
@@ -2838,10 +2838,17 @@ namespace Pumkin.AvatarTools
 
             if(!string.IsNullOrEmpty(_overlayPath))
             {
-                if(overlayImg && overlayImg.texture)
+                if(overlayImg)
                 {
-                    cameraOverlayTexture = (Texture2D)overlayImg.texture;
-                    overlayImg.color = cameraOverlayImageTint;
+                    if(overlayImg.texture)
+                    {
+                        cameraOverlayTexture = (Texture2D)overlayImg.texture;
+                        overlayImg.color = cameraOverlayImageTint;
+                    }
+                    else
+                    {
+                        SetOverlayToImageFromPath(_overlayPath);
+                    }
                 }
             }
             else
@@ -2851,14 +2858,27 @@ namespace Pumkin.AvatarTools
                     cameraOverlayTexture = null;
                     overlayImg.texture = null;
                 }
+                else
+                {
+                    var fg = GetCameraOverlay(false);
+                    if(fg)
+                        fg.SetActive(false);
+                }
             }
 
             if(!string.IsNullOrEmpty(_backgroundPath))
             {
-                if(backgroundImg && backgroundImg.texture)
+                if(backgroundImg)
                 {
-                    cameraBackgroundTexture = (Texture2D)backgroundImg.texture;
-                    backgroundImg.color = cameraBackgroundImageTint;
+                    if(backgroundImg.texture)
+                    {
+                        cameraBackgroundTexture = (Texture2D)backgroundImg.texture;
+                        backgroundImg.color = cameraBackgroundImageTint;
+                    }
+                    else
+                    {
+                        SetBackgroundToImageFromPath(_backgroundPath);
+                    }
                 }
             }
             else
@@ -2867,6 +2887,12 @@ namespace Pumkin.AvatarTools
                 {
                     cameraBackgroundTexture = null;
                     backgroundImg.texture = null;
+                }
+                else
+                {
+                    var bg = GetCameraBackground(false);
+                    if(bg)
+                        bg.SetActive(false);
                 }
             }
         }
