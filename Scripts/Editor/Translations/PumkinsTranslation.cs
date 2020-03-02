@@ -200,7 +200,8 @@ namespace Pumkin.Translations
 
         public string ignoreList = "Ignore List";
         public string includeChildren = "Include Children";
-        public string size = "Size";        
+        public string size = "Size";
+        public string other_emptyScripts = "Empty Scripts";
     };
 
     [Serializable]
@@ -300,6 +301,7 @@ namespace Pumkin.Translations
         public string loadedImageAsBackground = "Loaded '{0}' as Background image";
         public string loadedImageAsOverlay = "Loaded '{0}' as Overlay image";
         public string descriptorIsMissingCantGetViewpoint = "Avatar Descriptor is missing. Can't get Viewpoint position";
+        public string hasMissingScriptDestroying = "{0}'s component number {1} is a missing script. Destroying";
     };
 
     [Serializable]

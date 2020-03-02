@@ -382,11 +382,11 @@ namespace Pumkin.DataStructures
             public static string joints = "_Joints";
             public static string other = "_Other";
             public static string other_ikFollowers = "_IK Followers";            
+            public static string other_emptyScripts = "_Empty Scripts";
 
             public static string exclusions = "_Exclusions";
             public static string includeChildren = "_Include Children";
             public static string size = "_Size";
-            
 
             static Copier()
             {
@@ -442,6 +442,7 @@ namespace Pumkin.DataStructures
                 joints = Translation.copier.joints;
                 other = Translation.copier.other;
                 other_ikFollowers = Translation.copier.other_ikFollowers;
+                other_emptyScripts = Translation.copier.other_emptyScripts;
 
                 exclusions = Translation.copier.ignoreList;
                 includeChildren = Translation.copier.includeChildren;
@@ -490,6 +491,7 @@ namespace Pumkin.DataStructures
             public static string loadedImageAsBackground = "_Loaded '{0}' as Background image";
             public static string loadedImageAsOverlay = "_Loaded '{0}' as Overlay image";
             public static string descriptorIsMissingCantGetViewpoint = "_Avatar Descriptor is missing. Can't get Viewpoint position";
+            public static string hasMissingScriptDestroying = "_{0}'s component number {1} is a missing script. Destroying";
 
             static Log()
             {
@@ -541,6 +543,7 @@ namespace Pumkin.DataStructures
                 loadedImageAsBackground = Translation.log.loadedImageAsBackground;
                 loadedImageAsOverlay = Translation.log.loadedImageAsOverlay;
                 descriptorIsMissingCantGetViewpoint = Translation.log.descriptorIsMissingCantGetViewpoint;
+                hasMissingScriptDestroying = Translation.log.hasMissingScriptDestroying;
             }
         };
         public static class Warning

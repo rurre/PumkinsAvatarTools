@@ -71,7 +71,11 @@ namespace Pumkin.AvatarTools
 
         //Dynamic Bones
         bool _nextToggleDBoneState = false;
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
         List<DynamicBone> _dBonesThatWereAlreadyDisabled = new List<DynamicBone>();
+#else
+        List<object> _dBonesThatWereAlreadyDisabled = new List<object>();
+#endif
 
         enum ToolMenuActions
         {
@@ -96,7 +100,8 @@ namespace Pumkin.AvatarTools
             EditScale,
             RevertScale,
             RefreshRig,
-            RemoveIKFollowers,            
+            RemoveIKFollowers,
+            RemoveMissingScripts,
         };
 
         #endregion
@@ -784,7 +789,9 @@ namespace Pumkin.AvatarTools
             Instance._copierCheckedArmatureScales = false;
 
             Instance._nextToggleDBoneState = false;
+#if PUMKIN_DBONES || PUMKIN_OLD_BONES
             Instance._dBonesThatWereAlreadyDisabled = new List<DynamicBone>();
+#endif
         }
 
         private static void SetupBlendeshapeRendererHolders(GameObject selection)
@@ -2304,13 +2311,13 @@ namespace Pumkin.AvatarTools
                             }
                             GUILayout.EndVertical();
                         }
-                        GUILayout.EndHorizontal();                        
+                        GUILayout.EndHorizontal();
 
                         if(GUILayout.Button(Strings.Tools.refreshRig))
-                            DoAction(SelectedAvatar, ToolMenuActions.RefreshRig);                        
+                            DoAction(SelectedAvatar, ToolMenuActions.RefreshRig);
                     }
 
-                    Helpers.DrawGUILine();                    
+                    Helpers.DrawGUILine();
 
                     //Setup dbone gui stuff
                     string dboneStateString = Strings.Copier.dynamicBones;
@@ -2322,16 +2329,16 @@ namespace Pumkin.AvatarTools
                         EditorGUI.BeginDisabledGroup(!DynamicBonesExist);
                         {
                             EditorGUILayout.BeginHorizontal();
-                            {                                
+                            {
                                 if(GUILayout.Button(Strings.Tools.disableDynamicBones))
                                     SetDynamicBonesEnabledState(SelectedAvatar, false);
                                 if(GUILayout.Button(Strings.Tools.enableDynamicBones))
                                     SetDynamicBonesEnabledState(SelectedAvatar, true);
                             }
-                            EditorGUILayout.EndHorizontal();                            
-                                                        
-                            if(DrawToggleButtonGUI(Strings.Tools.toggleDynamicBones, _nextToggleDBoneState))                            
-                                ToggleDynamicBonesEnabledState(SelectedAvatar, ref _nextToggleDBoneState, ref _dBonesThatWereAlreadyDisabled);                            
+                            EditorGUILayout.EndHorizontal();
+
+                            if(DrawToggleButtonGUI(Strings.Tools.toggleDynamicBones, _nextToggleDBoneState))
+                                ToggleDynamicBonesEnabledState(SelectedAvatar, ref _nextToggleDBoneState, ref _dBonesThatWereAlreadyDisabled);
                         }
                         EditorGUI.EndDisabledGroup();
                     }
@@ -2362,6 +2369,8 @@ namespace Pumkin.AvatarTools
                                     DoAction(SelectedAvatar, ToolMenuActions.RemoveAnimatorsInChildren);
                                 if(GUILayout.Button(new GUIContent(Strings.Copier.colliders, Icons.ColliderBox)))
                                     DoAction(SelectedAvatar, ToolMenuActions.RemoveColliders);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.other_ikFollowers, Icons.CsScript)))
+                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveIKFollowers);
                             }
                             EditorGUILayout.EndVertical();
 
@@ -2385,13 +2394,12 @@ namespace Pumkin.AvatarTools
                                     DoAction(SelectedAvatar, ToolMenuActions.RemoveMeshRenderers);
                                 if(GUILayout.Button(new GUIContent(Strings.Copier.emptyGameObjects, Icons.Prefab)))
                                     DoAction(SelectedAvatar, ToolMenuActions.RemoveEmptyGameObjects);
+                                if(GUILayout.Button(new GUIContent(Strings.Copier.other_emptyScripts, Icons.SerializableAsset)))
+                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveMissingScripts);
                             }
                             EditorGUILayout.EndVertical();
                         }
-                        EditorGUILayout.EndHorizontal();
-
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.other_ikFollowers, Icons.CsScript)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveIKFollowers);
+                        EditorGUILayout.EndHorizontal();                        
                     }
                     EditorGUI.EndDisabledGroup();
                     EditorGUILayout.Space();
@@ -2401,16 +2409,16 @@ namespace Pumkin.AvatarTools
 
         public bool DrawToggleButtonGUI(string text, ref bool toggleBool)
         {
-            Vector2 size = EditorGUIUtility.GetIconSize();            
+            Vector2 size = EditorGUIUtility.GetIconSize();
             bool b = GUILayout.Button(new GUIContent(text, toggleBool ? Icons.ToggleOff : Icons.ToggleOn), Styles.ButtonWithToggle);
             if(b)
-                toggleBool = !toggleBool;            
+                toggleBool = !toggleBool;
             return b;
         }
 
         public bool DrawToggleButtonGUI(string text, bool toggleBool)
-        {               
-            bool b = GUILayout.Button(new GUIContent(text, toggleBool ? Icons.ToggleOff : Icons.ToggleOn), Styles.ButtonWithToggle);                        
+        {
+            bool b = GUILayout.Button(new GUIContent(text, toggleBool ? Icons.ToggleOff : Icons.ToggleOn), Styles.ButtonWithToggle);
             return b;
         }
 
@@ -2634,74 +2642,74 @@ namespace Pumkin.AvatarTools
                     switch(cameraBackgroundType)
                     {
                         case CameraBackgroundOverrideType.Color:
+                        {
+                            EditorGUI.BeginChangeCheck();
                             {
-                                EditorGUI.BeginChangeCheck();
-                                {
-                                    _thumbsCamBgColor = EditorGUILayout.ColorField(Strings.Thumbnails.backgroundType_Color, SelectedCamera.backgroundColor);
-                                }
-                                if(EditorGUI.EndChangeCheck())
-                                {
-                                    SetCameraBackgroundToColor(Instance._thumbsCamBgColor);
-                                }
+                                _thumbsCamBgColor = EditorGUILayout.ColorField(Strings.Thumbnails.backgroundType_Color, SelectedCamera.backgroundColor);
                             }
-                            break;
+                            if(EditorGUI.EndChangeCheck())
+                            {
+                                SetCameraBackgroundToColor(Instance._thumbsCamBgColor);
+                            }
+                        }
+                        break;
                         case CameraBackgroundOverrideType.Skybox:
-                            {
-                                if(bThumbnails_use_camera_background)
-                                    SelectedCamera.clearFlags = CameraClearFlags.Skybox;
+                        {
+                            if(bThumbnails_use_camera_background)
+                                SelectedCamera.clearFlags = CameraClearFlags.Skybox;
 
-                                Material mat = RenderSettings.skybox;
+                            Material mat = RenderSettings.skybox;
+                            EditorGUI.BeginChangeCheck();
+                            {
+                                mat = EditorGUILayout.ObjectField(Strings.Thumbnails.backgroundType_Material, mat, typeof(Material), true) as Material;
+                            }
+                            if(EditorGUI.EndChangeCheck())
+                            {
+                                SetCameraBackgroundToSkybox(mat);
+                            }
+                        }
+                        break;
+                        case CameraBackgroundOverrideType.Image:
+                        {
+                            if(bThumbnails_use_camera_background)
+                                SelectedCamera.clearFlags = _thumbsCameraBgClearFlagsOld;
+
+                            EditorGUILayout.Space();
+                            GUILayout.BeginHorizontal();
+                            {
+                                EditorGUILayout.SelectableLabel(_backgroundPath, Styles.TextField);
+                                if(GUILayout.Button(Strings.Buttons.browse, GUILayout.MaxWidth(60)) && SelectedCamera)
+                                {
+                                    string newPath = Helpers.OpenImageGetPath(_lastOpenFilePath);
+                                    if(!string.IsNullOrEmpty(newPath))
+                                    {
+                                        _lastOpenFilePath = newPath;
+                                        SetBackgroundToImageFromPath(_lastOpenFilePath);
+                                    }
+                                }
+                                if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
+                                {
+                                    _backgroundPath = null;
+                                    SetBackgroundToImageFromTexture((Texture2D)null);
+                                }
+                            }
+                            EditorGUILayout.EndHorizontal();
+
+                            EditorGUI.BeginDisabledGroup(!cameraBackgroundTexture);
+                            {
                                 EditorGUI.BeginChangeCheck();
                                 {
-                                    mat = EditorGUILayout.ObjectField(Strings.Thumbnails.backgroundType_Material, mat, typeof(Material), true) as Material;
+                                    cameraBackgroundImageTint = EditorGUILayout.ColorField(Strings.Thumbnails.tint, cameraBackgroundImageTint);
                                 }
                                 if(EditorGUI.EndChangeCheck())
                                 {
-                                    SetCameraBackgroundToSkybox(mat);
+                                    if(raw)
+                                        raw.color = cameraBackgroundImageTint;
                                 }
                             }
-                            break;
-                        case CameraBackgroundOverrideType.Image:
-                            {
-                                if(bThumbnails_use_camera_background)
-                                    SelectedCamera.clearFlags = _thumbsCameraBgClearFlagsOld;
-
-                                EditorGUILayout.Space();
-                                GUILayout.BeginHorizontal();
-                                {
-                                    EditorGUILayout.SelectableLabel(_backgroundPath, Styles.TextField);
-                                    if(GUILayout.Button(Strings.Buttons.browse, GUILayout.MaxWidth(60)) && SelectedCamera)
-                                    {
-                                        string newPath = Helpers.OpenImageGetPath(_lastOpenFilePath);
-                                        if(!string.IsNullOrEmpty(newPath))
-                                        {
-                                            _lastOpenFilePath = newPath;
-                                            SetBackgroundToImageFromPath(_lastOpenFilePath);
-                                        }
-                                    }
-                                    if(GUILayout.Button("X", GUILayout.MaxWidth(25)))
-                                    {
-                                        _backgroundPath = null;
-                                        SetBackgroundToImageFromTexture((Texture2D)null);
-                                    }
-                                }
-                                EditorGUILayout.EndHorizontal();
-
-                                EditorGUI.BeginDisabledGroup(!cameraBackgroundTexture);
-                                {
-                                    EditorGUI.BeginChangeCheck();
-                                    {
-                                        cameraBackgroundImageTint = EditorGUILayout.ColorField(Strings.Thumbnails.tint, cameraBackgroundImageTint);
-                                    }
-                                    if(EditorGUI.EndChangeCheck())
-                                    {
-                                        if(raw)
-                                            raw.color = cameraBackgroundImageTint;
-                                    }
-                                }
-                                EditorGUI.EndDisabledGroup();
-                            }
-                            break;
+                            EditorGUI.EndDisabledGroup();
+                        }
+                        break;
                         default:
                             break;
                     }
@@ -3193,12 +3201,14 @@ namespace Pumkin.AvatarTools
                     DestroyAllComponentsOfType(SelectedAvatar, typeof(Collider), false, false);
                     break;
                 case ToolMenuActions.RemoveDynamicBoneColliders:
-                    if(DynamicBonesExist)
-                        DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, false);
+#if PUMKIN_DBONES || PUMKIN_OLD_BONES
+                    DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, false);
+#endif
                     break;
                 case ToolMenuActions.RemoveDynamicBones:
-                    if(DynamicBonesExist)
+#if PUMKIN_DBONES || PUMKIN_OLD_BONES
                         DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, false);
+#endif
                     break;
                 case ToolMenuActions.ResetPose:
                     ResetPose(SelectedAvatar);
@@ -3261,7 +3271,10 @@ namespace Pumkin.AvatarTools
                     RefreshRig(SelectedAvatar);
                     break;
                 case ToolMenuActions.RemoveIKFollowers:
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(VRC_IKFollower), false, false);                                    
+                    DestroyAllComponentsOfType(SelectedAvatar, typeof(VRC_IKFollower), false, false);
+                    break;
+                case ToolMenuActions.RemoveMissingScripts:
+                    DestroyMissingScripts(SelectedAvatar, false, false);
                     break;
                 default:
                     break;
@@ -3273,36 +3286,39 @@ namespace Pumkin.AvatarTools
             if(!EditorApplication.isPlaying)
                 EditorSceneManager.MarkSceneDirty(SelectedAvatar.scene);
         }
-        
+
         /// <summary>
         /// Sets the enabled state on all dynamic bones on the avatar and returns affected bones
         /// </summary>        
         /// <param name="enabled">Enabled state for dynamic bones</param>
         /// <param name="dBonesToIgnore">Dynamic Bones to ignore</param>
-        /// <returns>Dynamic Bones that were disabled before we did anything</returns>
+        /// <returns>Dynamic Bones that were disabled before we did anything</returns>        
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
         static void SetDynamicBonesEnabledState(GameObject avatar, bool enabled, List<DynamicBone> dBonesToIgnore = null)
         {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
             if(!avatar)
                 return;
 
             foreach(var bone in avatar.GetComponentsInChildren<DynamicBone>())
                 if(dBonesToIgnore == null || !dBonesToIgnore.Contains(bone))
                     bone.enabled = enabled;                        
-#else
-            return;
-#endif
         }
-
+#else
+        static void SetDynamicBonesEnabledState(GameObject avatar, bool enabled)
+        {
+            return;
+        }
+#endif
         /// <summary>
         /// Toggles the enbaled state of all Dynamic Bones on the avatar and returns affected bones
         /// </summary>        
         /// <param name="enabledState">Bool to use as toggle state</param>
         /// <param name="dBonesToIgnore">Dynamic Bones to ignore</param>
         /// <returns>Dynamic Bones that have been enabled or disabled. Used to ignore bones that were disabled before we toggled off</returns>
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
         static void ToggleDynamicBonesEnabledState(GameObject avatar, ref bool enabledState, ref List<DynamicBone> dBonesToIgnore)
         {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+
             if(!enabledState)
             {
                 dBonesToIgnore = new List<DynamicBone>();
@@ -3313,10 +3329,14 @@ namespace Pumkin.AvatarTools
             }
             SetDynamicBonesEnabledState(avatar, enabledState, dBonesToIgnore);
             enabledState = !enabledState;
-#else
-            return;
-#endif
+
         }
+#else
+        static void ToggleDynamicBonesEnabledState(GameObject avatar, ref bool enabledState, ref List<object> dBonesToIgnore)
+        {
+            return;
+        }
+#endif
 
         /// <summary>
         /// Doesn't seem to work. Need to investigate
@@ -3481,7 +3501,7 @@ namespace Pumkin.AvatarTools
             _tempToolOld = Tools.current;
             Tools.current = Tool.None;
             Selection.activeGameObject = SelectedAvatar;
-        }        
+        }
 
         /// <summary>
         /// Ends editing Viewposition
@@ -3732,16 +3752,20 @@ namespace Pumkin.AvatarTools
             }
             if(DynamicBonesExist && bCopier_dynamicBones_copyColliders)
             {
+#if PUMKIN_DBONES || PUMKIN_OLD_BONES
                 if(bCopier_dynamicBones_removeOldColliders)
                     DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, true);
                 CopyAllDynamicBoneColliders(objFrom, objTo, bCopier_dynamicBones_createObjectsColliders, true);
+#endif
             }
             if(bCopier_dynamicBones_copy)
             {
+#if PUMKIN_DBONES || PUMKIN_OLD_BONES
                 if(bCopier_dynamicBones_removeOldBones)
                     DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, true);
                 if(bCopier_dynamicBones_copySettings || bCopier_dynamicBones_createMissing)
                     CopyAllDynamicBonesNew(objFrom, objTo, bCopier_dynamicBones_createMissing, true);
+#endif
             }
             if(bCopier_transforms_copy)
             {
@@ -4374,7 +4398,7 @@ namespace Pumkin.AvatarTools
 #if PUMKIN_DBONES
                     var newColliders = new List<DynamicBoneColliderBase>();
 #elif PUMKIN_OLD_DBONES
-                        var newColliders = new List<DynamicBoneCollider>();
+                    var newColliders = new List<DynamicBoneCollider>();
 #endif
 
 
@@ -4388,7 +4412,7 @@ namespace Pumkin.AvatarTools
 #if PUMKIN_DBONES
                         DynamicBoneColliderBase fixedRefCollider = null;
 #elif PUMKIN_OLD_DBONES
-                            DynamicBoneCollider fixedRefCollider = null;
+                        DynamicBoneCollider fixedRefCollider = null;
 #endif
                         var t = Helpers.FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
 
@@ -4772,9 +4796,9 @@ namespace Pumkin.AvatarTools
             }
         }
 
-#endregion
+        #endregion
 
-#region Destroy Functions    
+        #region Destroy Functions    
 
         /// <summary>
         /// Destroys ParticleSystem in object
@@ -4847,6 +4871,38 @@ namespace Pumkin.AvatarTools
 #endif
                     }
                 }
+            }
+        }
+        /// <summary>
+        /// Destroys all Missing Script components on avatar
+        /// </summary>
+        void DestroyMissingScripts(GameObject avatar, bool ignoreRoot, bool useIgnoreList)
+        {            
+            var components = avatar.GetComponentsInChildren<Component>();
+
+            int badComponentIndex = 0;
+            for(var i = 0; i < components.Length; i++)
+            {
+                if(components[i])
+                    continue;
+
+                string name = avatar.name;
+                Transform trans = avatar.transform;
+                while(trans.parent)
+                {
+                    name = trans.parent.name + "/" + name;
+                    trans = trans.parent;
+                }
+
+                Log(Strings.Log.hasMissingScriptDestroying, LogType.Log, name, i.ToString());                
+
+                var serializedObject = new SerializedObject(avatar);
+                var prop = serializedObject.FindProperty("m_Component");
+
+                prop.DeleteArrayElementAtIndex(i - badComponentIndex);
+                badComponentIndex++;
+
+                serializedObject.ApplyModifiedProperties();
             }
         }
 
