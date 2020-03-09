@@ -613,7 +613,7 @@ namespace Pumkin.AvatarTools
                     SetOverlayToImageFromPath(_overlayPath);
             }
             return _cameraOverlayImage;
-        }//
+        }
 
         public RawImage GetCameraBackgroundRawImage(bool createIfMissing = false)
         {
@@ -1893,7 +1893,7 @@ namespace Pumkin.AvatarTools
                 {
                     shouldHideOtherAvatars = GUILayout.Toggle(shouldHideOtherAvatars, Strings.Thumbnails.hideOtherAvatars);
                 }
-                if(EditorGUI.EndChangeCheck())
+                if(EditorApplication.isPlaying && EditorGUI.EndChangeCheck())
                 {
                     HideAllOtherAvatars(shouldHideOtherAvatars, SelectedAvatar);
                 }
@@ -2587,8 +2587,8 @@ namespace Pumkin.AvatarTools
                 return;
 
             bool needsRefresh = false;
-            RawImage raw = GetCameraBackgroundRawImage(false);
-            GameObject background = GetCameraBackground();
+            RawImage raw = _cameraBackgroundImage; //GetCameraBackgroundRawImage(false);
+            GameObject background = _cameraBackground; //GetCameraBackground();
             //
             if(Helpers.DrawDropdownWithToggle(ref _thumbnails_useCameraBackground_expand, ref bThumbnails_use_camera_background, Strings.Thumbnails.useCameraBackground))
             {
@@ -2724,8 +2724,8 @@ namespace Pumkin.AvatarTools
         public void DrawOverlayGUI()
         {
             bool needsRefresh = false;
-            RawImage raw = GetCameraOverlayRawImage(false);
-            GameObject overlay = GetCameraOverlay(false);
+            RawImage raw = _cameraOverlayImage; //GetCameraOverlayRawImage(false);
+            GameObject overlay = _cameraOverlay; //GetCameraOverlay(false);
 
             if(Helpers.DrawDropdownWithToggle(ref _thumbnails_useCameraOverlay_expand, ref bThumbnails_use_camera_overlay, Strings.Thumbnails.useCameraOverlay))
             {
@@ -5132,6 +5132,9 @@ namespace Pumkin.AvatarTools
         /// <param name="clipPlaneIsNear">Whether to set the clipping plane to be near or far</param>
         public void SetupCameraRawImageAndCanvas(GameObject dummyGameObject, ref RawImage rawImage, bool clipPlaneIsNear)
         {
+            if(!dummyGameObject)
+                return;
+
             rawImage = dummyGameObject.GetComponent<RawImage>();
             if(!rawImage)
                 rawImage = dummyGameObject.AddComponent<RawImage>();
@@ -5141,6 +5144,10 @@ namespace Pumkin.AvatarTools
 
             canvas.worldCamera = SelectedCamera;
             canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            
+            if(!SelectedCamera)
+                return;
+
             if(clipPlaneIsNear)
                 canvas.planeDistance = SelectedCamera.nearClipPlane + 0.01f;
             else
