@@ -919,20 +919,45 @@ namespace Pumkin.HelperFunctions
         /// <returns>Returns all text before last / or \. A paths ending like this (Armature/Hips/) will return Armature/ </returns>
         public static string GetPathNoName(string path)
         {
-            if(string.IsNullOrEmpty(path))
+            if(string.IsNullOrWhiteSpace(path))
                 return path;
+            
+            string reverse = new string(path.ToArray().Reverse().ToArray());
+            char[] slashes = new char[] { '/', '\\' };
+            int firstSlash = reverse.IndexOfAny(slashes);
 
-            for(int i = path.Length - 1; i >= 0; i--)
+            if (firstSlash == 0)
             {
-                if((path[i] == '\\' || path[i] == '/'))
-                {
-                    if(i + 1 < path.Length - 1 && (path[i + 1] != '\r' && path[i + 1] != '\n'))
-                    {
-                        return path.Substring(0, i) + '/';
-                    }
-                }
+                if (firstSlash + 1 < reverse.Length)
+                    firstSlash = reverse.IndexOfAny(slashes, firstSlash + 1);
+                else
+                    return "";
             }
-            return path;
+            
+            if (firstSlash == -1)            
+                return "";
+            
+            
+            reverse = reverse.Substring(firstSlash);
+            string s = new string(reverse.ToArray().Reverse().ToArray());
+            return s;
+
+            //int count = path.Count(c => c == '/') + path.Count(c => c == '\\');
+            //if (count <= 1) //Special case if we don't have any parents in the path
+            //    return "";
+
+            //for(int i = path.Length - 1; i >= 0; i--)
+            //{
+            //    if((path[i] == '\\' || path[i] == '/'))
+            //    {
+            //        if(i + 1 < path.Length - 1 )                    
+            //            if(path[i + 1] != '\r')
+            //                if(path[i + 1] != '\n')
+            //                    return path.Substring(0, i) + '/';
+                    
+            //    }
+            //}
+            //return path;
         }
 
         /// <summary>

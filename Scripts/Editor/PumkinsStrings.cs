@@ -386,7 +386,7 @@ namespace Pumkin.DataStructures
 
             public static string exclusions = "_Exclusions";
             public static string includeChildren = "_Include Children";
-            public static string size = "_Size";
+            public static string size = "_Size";            
 
             static Copier()
             {
@@ -446,7 +446,7 @@ namespace Pumkin.DataStructures
 
                 exclusions = Translation.copier.ignoreList;
                 includeChildren = Translation.copier.includeChildren;
-                size = Translation.copier.size;
+                size = Translation.copier.size;               
             }
         };
         public static class Log
@@ -492,6 +492,7 @@ namespace Pumkin.DataStructures
             public static string loadedImageAsOverlay = "_Loaded '{0}' as Overlay image";
             public static string descriptorIsMissingCantGetViewpoint = "_Avatar Descriptor is missing. Can't get Viewpoint position";
             public static string hasMissingScriptDestroying = "_{0}'s component number {1} is a missing script. Destroying";
+            public static string copiedDynamicBone = "_Copied DynamicBone from {0}'s {1} to {2}'s {1}";
 
             static Log()
             {
@@ -544,6 +545,7 @@ namespace Pumkin.DataStructures
                 loadedImageAsOverlay = Translation.log.loadedImageAsOverlay;
                 descriptorIsMissingCantGetViewpoint = Translation.log.descriptorIsMissingCantGetViewpoint;
                 hasMissingScriptDestroying = Translation.log.hasMissingScriptDestroying;
+                copiedDynamicBone = Translation.log.copiedDynamicBone;
             }
         };
         public static class Warning
@@ -559,6 +561,7 @@ namespace Pumkin.DataStructures
             public static string doesntWorkInUnity2017 = "_Doesn't work in Unity 2017 :(";
             public static string armatureScaleNotOne = "_Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
             public static string armatureScalesDontMatch = "_Armature scales for selected avatars don't match!\nThis can cause issues";
+            public static string noDBonesOrMissingScriptDefine = "_No DynamicBones found or missing script define.";
 
             static Warning()
             {
@@ -580,6 +583,7 @@ namespace Pumkin.DataStructures
                 doesntWorkInUnity2017 = Translation.warnings.doesntWorkInUnity2017;
                 armatureScaleNotOne = Translation.warnings.armatureScaleNotOne;
                 armatureScalesDontMatch = Translation.warnings.armatureScalesDontMatch;
+                noDBonesOrMissingScriptDefine = Translation.warnings.noDBonesOrMissingScriptDefine;
             }
         };
         public static class Credits

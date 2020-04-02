@@ -782,7 +782,7 @@ namespace Pumkin.DataStructures
 
         public static explicit operator PumkinsRendererBlendshapesHolder(SkinnedMeshRenderer render)
         {
-            if(!render)
+            if(!render || render.sharedMesh == null)
                 return null;
 
             string renderPath = Helpers.GetGameObjectPath(render.gameObject);

@@ -20,13 +20,17 @@ namespace Pumkin.Extensions
                     string path = "";
                     for(int i = 0; i < arr.Length; i++)
                     {
-                        path += arr[i] + '/';
+                        path += (arr[i] + '/');
+                        var path2 = (arr[i] + (arr.Length > 1 ? "/" : ""));
                         var tNew = transform.Find(path);
+                        var tNew2 = transform.Find(path2);
 
                         if(tNew == null)
                         {
                             string s = Helpers.GetPathNoName(path);
+                            string ss = Helpers.GetPathNoName(path2);
                             var parent = transform.Find(s);
+                            var parent2 = transform.Find(ss);
 
                             if(!parent)
                                 return null;

@@ -789,7 +789,7 @@ namespace Pumkin.AvatarTools
             Instance._copierCheckedArmatureScales = false;
 
             Instance._nextToggleDBoneState = false;
-#if PUMKIN_DBONES || PUMKIN_OLD_BONES
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
             Instance._dBonesThatWereAlreadyDisabled = new List<DynamicBone>();
 #endif
         }
@@ -818,6 +818,9 @@ namespace Pumkin.AvatarTools
                     if(smRender)
                     {
                         var newHolder = (PumkinsRendererBlendshapesHolder)smRender;
+                        if (newHolder == null)
+                            continue;
+
                         if(oldHolderExpandValues.ContainsKey(newHolder.rendererPath))
                             newHolder.expandedInUI = oldHolderExpandValues[newHolder.rendererPath];
 
@@ -3201,12 +3204,12 @@ namespace Pumkin.AvatarTools
                     DestroyAllComponentsOfType(SelectedAvatar, typeof(Collider), false, false);
                     break;
                 case ToolMenuActions.RemoveDynamicBoneColliders:
-#if PUMKIN_DBONES || PUMKIN_OLD_BONES
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
                     DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, false);
 #endif
                     break;
                 case ToolMenuActions.RemoveDynamicBones:
-#if PUMKIN_DBONES || PUMKIN_OLD_BONES
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
                         DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, false);
 #endif
                     break;
@@ -3750,23 +3753,31 @@ namespace Pumkin.AvatarTools
             {
                 CopyAllIKFollowers(objFrom, objTo, bCopier_other_createGameObjects, true);
             }
-            if(DynamicBonesExist && bCopier_dynamicBones_copyColliders)
+            if (DynamicBonesExist)
             {
-#if PUMKIN_DBONES || PUMKIN_OLD_BONES
-                if(bCopier_dynamicBones_removeOldColliders)
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, true);
-                CopyAllDynamicBoneColliders(objFrom, objTo, bCopier_dynamicBones_createObjectsColliders, true);
+                if(bCopier_dynamicBones_copyColliders)
+                {
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+                    if(bCopier_dynamicBones_removeOldColliders)
+                        DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, true);
+                    CopyAllDynamicBoneColliders(objFrom, objTo, bCopier_dynamicBones_createObjectsColliders, true);
 #endif
-            }
-            if(bCopier_dynamicBones_copy)
-            {
-#if PUMKIN_DBONES || PUMKIN_OLD_BONES
-                if(bCopier_dynamicBones_removeOldBones)
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, true);
-                if(bCopier_dynamicBones_copySettings || bCopier_dynamicBones_createMissing)
-                    CopyAllDynamicBonesNew(objFrom, objTo, bCopier_dynamicBones_createMissing, true);
+                }
+                if (bCopier_dynamicBones_copy)
+                {
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+                    if (bCopier_dynamicBones_removeOldBones)
+                        DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, true);
+                    if (bCopier_dynamicBones_copySettings || bCopier_dynamicBones_createMissing)
+                        CopyAllDynamicBonesNew(objFrom, objTo, bCopier_dynamicBones_createMissing, true);
 #endif
+                }
             }
+            else if(bCopier_dynamicBones_copy)
+            {                
+                Log(Strings.Warning.noDBonesOrMissingScriptDefine, LogType.Error);
+            }
+
             if(bCopier_transforms_copy)
             {
                 CopyAllTransforms(objFrom, objTo, true);
@@ -4186,13 +4197,13 @@ namespace Pumkin.AvatarTools
                     {
                         //Check if exclusions are the same
                         List<string> exToPaths = d.m_Exclusions
-                             .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
-                             .Where(o => o != null)
-                             .ToList();
+                            .Where(o => o != null)
+                            .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())                             
+                            .ToList();
 
                         List<string> exFromPaths = dFrom.m_Exclusions
-                            .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
                             .Where(o => o != null)
+                            .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())                            
                             .ToList();
 
                         bool exclusionsDifferent = false;
@@ -4203,13 +4214,13 @@ namespace Pumkin.AvatarTools
 
                         //Check if colliders are the same
                         List<string> colToPaths = d.m_Colliders
-                            .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
                             .Where(c => c != null)
+                            .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())                            
                             .ToList();
 
                         List<string> colFromPaths = d.m_Colliders
-                            .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
                             .Where(c => c != null)
+                            .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())                            
                             .ToList();
 
                         bool collidersDifferent = false;
@@ -4259,7 +4270,7 @@ namespace Pumkin.AvatarTools
                 {
                     if(createMissing)
                     {
-                        LogVerbose("{0} doesn't have has this DynamicBone but we have to create one. Creating.", LogType.Log, dFrom.name);
+                        LogVerbose("{0} doesn't have this DynamicBone but we have to create one. Creating.", LogType.Log, dFrom.name);
 
                         var newDynBone = tTo.gameObject.AddComponent<DynamicBone>();
                         ComponentUtility.CopyComponent(dFrom);
@@ -4279,7 +4290,7 @@ namespace Pumkin.AvatarTools
 #if PUMKIN_DBONES
                         var newColliders = new List<DynamicBoneColliderBase>();
 #elif PUMKIN_OLD_DBONES
-                            var newColliders = new List<DynamicBoneCollider>();
+                        var newColliders = new List<DynamicBoneCollider>();
 #endif
 
 
@@ -4293,7 +4304,7 @@ namespace Pumkin.AvatarTools
 #if PUMKIN_DBONES
                             DynamicBoneColliderBase fixedRefCollider = null;
 #elif PUMKIN_OLD_DBONES
-                                DynamicBoneCollider fixedRefCollider = null;
+                            DynamicBoneCollider fixedRefCollider = null;
 #endif
                             var t = Helpers.FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
 
@@ -4332,7 +4343,7 @@ namespace Pumkin.AvatarTools
                         newDynBone.m_Exclusions = newExclusions.ToList();
                         newBones.Add(newDynBone);
 
-                        Log("_Copied DynamicBone from {0}'s {1} to {2}'s {1}", LogType.Log, dFrom.transform.root.name, dFrom.transform.name == dFrom.transform.root.name ? "root" : dFrom.transform.name, tTo.root.name);
+                        Log(Strings.Log.copiedDynamicBone, LogType.Log, dFrom.transform.root.name, dFrom.transform.name == dFrom.transform.root.name ? "root" : dFrom.transform.name, tTo.root.name);
                     }
                     else
                     {
