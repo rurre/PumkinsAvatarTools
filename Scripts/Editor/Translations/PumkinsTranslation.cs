@@ -201,7 +201,7 @@ namespace Pumkin.Translations
         public string ignoreList = "Ignore List";
         public string includeChildren = "Include Children";
         public string size = "Size";
-        public string other_emptyScripts = "Empty Scripts";
+        public string other_emptyScripts = "Empty Scripts";        
     };
 
     [Serializable]
@@ -302,6 +302,7 @@ namespace Pumkin.Translations
         public string loadedImageAsOverlay = "Loaded '{0}' as Overlay image";
         public string descriptorIsMissingCantGetViewpoint = "Avatar Descriptor is missing. Can't get Viewpoint position";
         public string hasMissingScriptDestroying = "{0}'s component number {1} is a missing script. Destroying";
+        public string copiedDynamicBone = "Copied DynamicBone from {0}'s {1} to {2}'s {1}";
     };
 
     [Serializable]
@@ -316,8 +317,9 @@ namespace Pumkin.Translations
         public string cantRevertRendererWithoutPrefab = "Can't revert Skinned Mesh Renderer {0}, object has no Prefab";
         public string cantLoadImageAtPath = "Can't load image at {0}";
         public string doesntWorkInUnity2017 = "Doesn't work in Unity 2017 :(";
-        public string armatureScaleNotOne = "_Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
-        public string armatureScalesDontMatch = "_Armature scales for selected avatars don't match!\nThis can cause issues";
+        public string armatureScaleNotOne = "Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
+        public string armatureScalesDontMatch = "Armature scales for selected avatars don't match!\nThis can cause issues";
+        public string noDBonesOrMissingScriptDefine = "No DynamicBones found or missing script define.";
     };
 
     [Serializable]
