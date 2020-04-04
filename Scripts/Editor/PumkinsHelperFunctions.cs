@@ -914,12 +914,30 @@ namespace Pumkin.HelperFunctions
         }
 
         /// <summary>
+        /// Checks if string is null or whitespaces only. This is missing from some unity versions apparently.
+        /// </summary>                
+        public static bool StringIsNullOrWhiteSpace(string value)
+        {
+            if (value != null)
+            {
+                for (int i = 0; i < value.Length; i++)
+                {
+                    if (!char.IsWhiteSpace(value[i]))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Get path without object name.
         /// </summary>        
         /// <returns>Returns all text before last / or \. A paths ending like this (Armature/Hips/) will return Armature/ </returns>
         public static string GetPathNoName(string path)
         {
-            if(string.IsNullOrWhiteSpace(path))
+            if(StringIsNullOrWhiteSpace(path))
                 return path;
             
             string reverse = new string(path.ToArray().Reverse().ToArray());
