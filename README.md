@@ -17,6 +17,6 @@ If my tools saved you time and you would like to support it, consider donating b
 
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M1VOLP)
 
-**Important:** Since this is an editor script it needs to be in a folder called `Editor` anywhere in your project.
+**Important:** Don't move files or folders around inside the `PumkinsAvatarTools` folder as that can break it.
 
 **Disclaimer:** This tool is in beta and could *break everything*. Please backup your avatars. And use at your own risk.
