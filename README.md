@@ -11,8 +11,9 @@ Also check out the new [Wiki](https://github.com/rurre/PumkinsAvatarTools/wiki) 
 
 I also have a [Discord Server](https://discord.gg/7vyekJv)! Join it to stay up to date with this tool's updates. At least until I make an auto updater.
 
+If you would like to fllow development you can check out my [Trello board](https://trello.com/b/hRlsDWAH)
 
-If you like this project and would like to give something back, consider donating by buying me a ko-fi! Thanks~ 
+If my tools saved you time and you would like to support it, consider donating by buying me a ko-fi! Thanks~ 
 
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M1VOLP)
 
