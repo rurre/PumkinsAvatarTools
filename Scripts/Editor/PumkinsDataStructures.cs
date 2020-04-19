@@ -8,6 +8,7 @@ using Pumkin.Extensions;
 using Pumkin.AvatarTools;
 using System.IO;
 using VRCSDK2;
+using Pumkin.Translations;
 
 #if PUMKIN_VRCSDK2
 using VRCSDK2.Validation.Performance;
@@ -16,6 +17,42 @@ using VRCSDK2.Validation.Performance.Stats;
 
 namespace Pumkin.DataStructures
 {
+    public class ExtensionPair
+    {
+        public string name;
+        public string[] extensions;
+
+        public ExtensionPair()
+        {
+            name = "All files";
+            extensions = new string[] { "*" };
+        }
+
+        public ExtensionPair(string name, string[] extensions)
+        {
+            this.name = name;
+            this.extensions = extensions;            
+        }
+    }
+
+    public static class ExtensionStrings
+    {        
+        static Dictionary<Type, ExtensionPair> Extensions { get; set; } = new Dictionary<Type, ExtensionPair>()
+        {
+            { typeof(PumkinsTranslation), new ExtensionPair("Translation", new string[] { "asset" }) },
+            { typeof(Texture2D), new ExtensionPair("Image", new string[] { "jpg", "png", "jpeg", "tga", "bmp"}) },
+            //{ typeof(Texture), new string[] { "jpg", "png", "jpeg", "tga", "bmp"} },            
+            //{ typeof(AudioClip), new string[] { "wav"} },            
+        };
+
+        public static string[] GetFilterString(Type type)
+        {            
+            bool found = Extensions.TryGetValue(type, out var pairs);            
+            string[] s = { $"{pairs.name}", $"{String.Join(",", pairs.extensions)}"};
+            return s;
+        }
+    }
+
     public static class Colors
     {
         public static Color SceneGUIWindow { get; internal set; }
@@ -1023,5 +1060,5 @@ namespace Pumkin.DataStructures
             string path = PumkinsAvatarTools.MainFolderPath + "/thry_module_manifest.json";
             File.WriteAllText(path, json);
         }
-    }
+    }    
 }

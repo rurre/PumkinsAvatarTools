@@ -12,7 +12,7 @@ public abstract class CreatePresetPopupBase : EditorWindow
     static protected CreatePresetPopupBase _window;
     static protected PumkinPreset preset;
 
-    static protected GameObject avatar;
+    static protected GameObject Avatar { get => PumkinsAvatarTools.SelectedAvatar; }
     static protected bool _overwriteFile = true;
     static protected bool _saveEdittedChanges = true;
 

@@ -1,5 +1,6 @@
 ﻿using Pumkin.AvatarTools;
 using Pumkin.DataStructures;
+using Pumkin.HelperFunctions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -78,12 +79,12 @@ namespace Pumkin.Presets
             var tools = PumkinsAvatarTools.Instance;
             foreach(var p in GameObject.FindObjectsOfType<T>())
             {
-                if(p && string.IsNullOrEmpty(AssetDatabase.GetAssetPath(p)))
+                if(p && !Helpers.IsAssetInAssets(p))
                 {
-                    Debug.Log("Destroying orphanned " + typeof(T).Name);
-                    GameObject.DestroyImmediate(p);
+                    PumkinsAvatarTools.LogVerbose("Destroying orphanned " + typeof(T).Name);
+                    Helpers.DestroyAppropriate(p);
                 }
-            }            
+            }
 
             if(typeof(T) == typeof(PumkinsCameraPreset))            
                 CameraPresets.RemoveAll(o => o == default(PumkinsCameraPreset) || string.IsNullOrEmpty(AssetDatabase.GetAssetPath(o)) || string.IsNullOrEmpty(o.name));            
@@ -93,8 +94,8 @@ namespace Pumkin.Presets
                 BlendshapePresets.RemoveAll(o => o == default(PumkinsBlendshapePreset) || string.IsNullOrEmpty(AssetDatabase.GetAssetOrScenePath(o)) || string.IsNullOrEmpty(o.name));
 
             PumkinsAvatarTools.RefreshPresetIndex<T>();
-        } 
-        
+        }
+
         public static void LoadPresets<T>() where T : PumkinPreset
         {
             if(typeof(T) == typeof(PumkinsCameraPreset))

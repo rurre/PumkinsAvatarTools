@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,7 +17,7 @@ namespace Pumkin.HelperFunctions
     public static class Helpers
     {
         #region GUI
-        
+
         /// <summary>
         /// Completely arbitrarely try to guess the width of a text string. For now
         /// </summary>        
@@ -42,7 +44,7 @@ namespace Pumkin.HelperFunctions
         /// <returns>Returns true if toggleBool was changed</returns>
         public static bool DrawDropdownWithToggle(ref bool expandBool, ref bool toggleBool, string label, Texture2D icon = null)
         {
-            bool toggleChanged = false;            
+            bool toggleChanged = false;
             GUIContent content = new GUIContent(icon);
 
             float iconWidth;
@@ -60,7 +62,7 @@ namespace Pumkin.HelperFunctions
                     toggleChanged = true;
                 expandBool = GUILayout.Toggle(expandBool, GUIContent.none, GUIStyle.none, GUILayout.MinHeight(20f));
             }
-            EditorGUILayout.EndHorizontal();            
+            EditorGUILayout.EndHorizontal();
 
             return toggleChanged;
         }
@@ -79,7 +81,7 @@ namespace Pumkin.HelperFunctions
 
                 int heightMult = arraySizeProp.intValue > 2 ? 21 : 26;
                 scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.MinHeight(Mathf.Clamp(arraySizeProp.intValue * heightMult, 0, maxHeight)), GUILayout.MaxHeight(maxHeight));
-                                
+
                 EditorGUI.indentLevel += indentLevel;
 
                 if(indentLevel == 0)
@@ -107,10 +109,10 @@ namespace Pumkin.HelperFunctions
             else
                 EditorGUILayout.LabelField(displayName);
 
-            newSize = EditorGUILayout.IntField(new GUIContent(Strings.Copier.size), newSize);            
+            newSize = EditorGUILayout.IntField(new GUIContent(Strings.Copier.size), newSize);
 
             if(expanded || !hasToggle)
-            {                
+            {
                 if(addIndent == 0)
                     EditorGUILayout.Space();
 
@@ -215,7 +217,7 @@ namespace Pumkin.HelperFunctions
 
                     if(labelWidthOverride > 0)
                         EditorGUIUtility.labelWidth = oldLabelWidth;
-                    
+
                     EditorGUI.indentLevel -= indentLevel;
                 }
                 EditorGUILayout.EndScrollView();
@@ -284,18 +286,18 @@ namespace Pumkin.HelperFunctions
         /// <summary>
         /// Destroys an object. If in edit mode DestroyImmediate is used, if in play mode Destroy is used
         /// </summary>        
-        public static void DestroyAppropriate(UnityEngine.Object obj)
+        public static void DestroyAppropriate(UnityEngine.Object obj, bool allowDestroyingAssets = false)
         {
             if(!obj)
                 return;
             if(EditorApplication.isPlaying)
                 UnityEngine.Object.Destroy(obj);
             else
-                UnityEngine.Object.DestroyImmediate(obj);
+                UnityEngine.Object.DestroyImmediate(obj, allowDestroyingAssets);
         }
 
         public static void DrawBlendshapeSlidersWithLabels(ref List<PumkinsRendererBlendshapesHolder> rendererHolders, GameObject avatar, int indentLevel = 0, float labelWidthOverride = 0)
-        {               
+        {
             if(rendererHolders == null || avatar == null)
                 return;
 
@@ -304,16 +306,16 @@ namespace Pumkin.HelperFunctions
             bool[] rendererShapeChanged = new bool[rendererHolders.Count];  //record changes in holder to apply to renderer later                        
 
             for(int i = 0; i < rendererHolders.Count; i++)
-            {                
+            {
                 Transform renderTransform = avatar.transform.Find(rendererHolders[i].rendererPath);
 
                 if(!renderTransform)
                     continue;
-                                
+
                 SkinnedMeshRenderer renderer = renderTransform.GetComponent<SkinnedMeshRenderer>();
 
                 if(!renderer)
-                    continue;                
+                    continue;
 
                 EditorGUILayout.Space();
                 //Draw renderer dropdown toggle
@@ -339,7 +341,7 @@ namespace Pumkin.HelperFunctions
                         {
                             EditorGUI.BeginChangeCheck();
                             {
-                                rendererHolders[i].blendshapes[j].weight = EditorGUILayout.Slider(new GUIContent(rendererHolders[i].blendshapes[j].name), rendererHolders[i].blendshapes[j].weight, 0, 100);                                
+                                rendererHolders[i].blendshapes[j].weight = EditorGUILayout.Slider(new GUIContent(rendererHolders[i].blendshapes[j].name), rendererHolders[i].blendshapes[j].weight, 0, 100);
                             }
                             if(EditorGUI.EndChangeCheck())
                             {
@@ -359,19 +361,19 @@ namespace Pumkin.HelperFunctions
                             bool expanded = rendererHolders[i].expandedInUI;
                             PumkinsAvatarTools.ResetRendererBlendshapes(renderer, true);
                             rendererHolders[i] = (PumkinsRendererBlendshapesHolder)renderer;
-                            rendererHolders[i].expandedInUI = expanded;                            
+                            rendererHolders[i].expandedInUI = expanded;
                         }
                         if(GUILayout.Button(Strings.Buttons.resetRenderer))
                         {
                             bool expanded = rendererHolders[i].expandedInUI;
                             PumkinsAvatarTools.ResetRendererBlendshapes(renderer, false);
                             rendererHolders[i] = (PumkinsRendererBlendshapesHolder)renderer;
-                            rendererHolders[i].expandedInUI = expanded;                            
+                            rendererHolders[i].expandedInUI = expanded;
                         }
                     }
                     EditorGUILayout.EndHorizontal();
 
-                    EditorGUILayout.Space(); 
+                    EditorGUILayout.Space();
                 }
             }
 
@@ -409,7 +411,7 @@ namespace Pumkin.HelperFunctions
                     if(index != -1)
                         ren.SetBlendShapeWeight(index, blendshape.weight);
                 }
-            }            
+            }
 
             if(rendererHolders.Count > 0)
                 Helpers.DrawGUILine();
@@ -449,7 +451,7 @@ namespace Pumkin.HelperFunctions
                 EditorGUILayout.Space();
                 //Draw renderer dropdown toggle
                 EditorGUILayout.BeginHorizontal(GUILayout.ExpandWidth(true));
-                {                    
+                {
                     float oldLabelWidth = EditorGUIUtility.labelWidth;
                     EditorGUIUtility.labelWidth = 0;
                     rendererHolders[i].expandedInUI = EditorGUILayout.Toggle(rendererHolders[i].expandedInUI, Styles.Foldout, GUILayout.MaxWidth(10));
@@ -470,11 +472,11 @@ namespace Pumkin.HelperFunctions
                     {
                         EditorGUILayout.BeginVertical();
                         for(int j = 0; j < rendererHolders[i].blendshapes.Count; j++)
-                        {                            
+                        {
                             EditorGUI.BeginChangeCheck();
                             {
                                 EditorGUILayout.BeginHorizontal();
-                                {                                    
+                                {
                                     rendererHolders[i].blendshapes[j].otherNamesExpandedInUI = EditorGUILayout.Toggle(rendererHolders[i].blendshapes[j].otherNamesExpandedInUI, Styles.Foldout, GUILayout.MaxWidth(10));
                                     rendererHolders[i].blendshapes[j].name = EditorGUILayout.TextField(rendererHolders[i].blendshapes[j].name);
                                     rendererHolders[i].blendshapes[j].weight = EditorGUILayout.Slider(rendererHolders[i].blendshapes[j].weight, 0, 100);
@@ -485,14 +487,14 @@ namespace Pumkin.HelperFunctions
                                 EditorGUILayout.EndHorizontal();
 
                                 if(rendererHolders[i].blendshapes[j].otherNamesExpandedInUI)
-                                {                                    
-                                    DrawStringListAsTextFields(ref rendererHolders[i].blendshapes[j].otherNames, Strings.Presets.otherNames, ref rendererHolders[i].blendshapes[j].otherNamesExpandedInUI, 1, false);                                    
+                                {
+                                    DrawStringListAsTextFields(ref rendererHolders[i].blendshapes[j].otherNames, Strings.Presets.otherNames, ref rendererHolders[i].blendshapes[j].otherNamesExpandedInUI, 1, false);
                                 }
                             }
                             if(EditorGUI.EndChangeCheck())
                             {
                                 rendererShapeChanged[i] = true;
-                            }                            
+                            }
                         }
                         EditorGUILayout.EndVertical();
                     }
@@ -512,7 +514,7 @@ namespace Pumkin.HelperFunctions
                         if(GUILayout.Button("Add Blendshape"))
                             toAddShape++;
                     }
-                    EditorGUILayout.EndHorizontal();                    
+                    EditorGUILayout.EndHorizontal();
 
                     EditorGUILayout.Space();
 
@@ -619,7 +621,7 @@ namespace Pumkin.HelperFunctions
             }
         }
 
-#endregion
+        #endregion
 
         public static Texture2D GetImageTextureFromPath(string imagePath)
         {
@@ -638,8 +640,38 @@ namespace Pumkin.HelperFunctions
                 {
                     tex = null;
                 }
-            }            
+            }
             return tex;
+        }
+
+        public static T OpenPathGetFile<T>(string startPath, out string filePath)
+        {
+            var filterStrings = ExtensionStrings.GetFilterString(typeof(T));
+            filePath = EditorUtility.OpenFilePanelWithFilters("Pick a File", startPath, filterStrings);
+
+            if(!File.Exists(filePath))
+                return default;
+
+            T result;
+            byte[] data = File.ReadAllBytes(filePath);
+            try
+            {
+                result = Deserialize<T>(data);
+            }
+            catch
+            {
+                result = default;
+            }
+            return result;
+        }
+
+        public static T Deserialize<T>(byte[] param)
+        {
+            using(MemoryStream ms = new MemoryStream(param))
+            {
+                IFormatter br = new BinaryFormatter();                
+                return (T)br.Deserialize(ms);
+            }
         }
 
         public static Transform GetAvatarArmature(GameObject selection)
@@ -1109,6 +1141,12 @@ namespace Pumkin.HelperFunctions
                 view.z = PumkinsAvatarTools.DEFAULT_VIEWPOINT.z - 0.1f;
             }
             return view;
+        }
+
+        public static bool IsAssetInAssets(UnityEngine.Object obj)
+        {
+            bool flag = !string.IsNullOrEmpty(AssetDatabase.GetAssetPath(obj));
+            return flag;
         }
     }    
 }

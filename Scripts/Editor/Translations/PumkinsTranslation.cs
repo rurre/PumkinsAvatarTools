@@ -27,12 +27,19 @@ namespace Pumkin.Translations
                     var objArr = FindObjectsOfType<PumkinsTranslation>();
                     var obj = objArr.FirstOrDefault(o => o.ToString() == "English - Default") as PumkinsTranslation;
                     if(obj)
-                        _default = obj;
-                    else
-                        _default = CreateInstance<PumkinsTranslation>();                    
+                        _default = obj;                    
                 }
                 return _default;
             }
+        }
+
+        public static PumkinsTranslation GetOrCreateDefaultTranslation()
+        {
+            if(_default != null)
+                return _default;
+
+            _default = CreateInstance<PumkinsTranslation>();
+            return _default;
         }
 
         public MainStrings main = new MainStrings();
@@ -54,6 +61,34 @@ namespace Pumkin.Translations
             if(!string.IsNullOrEmpty(author))
                 s += " - " + author;
             return s;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is PumkinsTranslation translation &&                   
+                   languageName == translation.languageName &&
+                   author == translation.author;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -1133966725;
+            hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(languageName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(author);
+            hashCode = hashCode * -1521134295 + EqualityComparer<MainStrings>.Default.GetHashCode(main);
+            hashCode = hashCode * -1521134295 + EqualityComparer<ButtonStrings>.Default.GetHashCode(buttons);
+            hashCode = hashCode * -1521134295 + EqualityComparer<ToolStrings>.Default.GetHashCode(tools);
+            hashCode = hashCode * -1521134295 + EqualityComparer<CopierStrings>.Default.GetHashCode(copier);
+            hashCode = hashCode * -1521134295 + EqualityComparer<AvatarInfoStrings>.Default.GetHashCode(avatarInfo);
+            hashCode = hashCode * -1521134295 + EqualityComparer<ThumbnailStrings>.Default.GetHashCode(thumbnails);
+            hashCode = hashCode * -1521134295 + EqualityComparer<MiscStrings>.Default.GetHashCode(misc);
+            hashCode = hashCode * -1521134295 + EqualityComparer<LogStrings>.Default.GetHashCode(log);
+            hashCode = hashCode * -1521134295 + EqualityComparer<WarningStrings>.Default.GetHashCode(warnings);
+            hashCode = hashCode * -1521134295 + EqualityComparer<CreditsStrings>.Default.GetHashCode(credits);
+            hashCode = hashCode * -1521134295 + EqualityComparer<PoseEditorStrings>.Default.GetHashCode(poseEditor);
+            hashCode = hashCode * -1521134295 + EqualityComparer<PresetStrings>.Default.GetHashCode(preset);
+            return hashCode;
         }
     };
 
@@ -77,7 +112,7 @@ namespace Pumkin.Translations
         public string offsetMode = "Offset Mode";
         public string camera = "Camera";
         public string editCameraPreset = "Edit Camera Preset";
-        public string createCameraPreset = "Create Camera Preset";        
+        public string createCameraPreset = "Create Camera Preset";
     }
 
     [Serializable]
@@ -119,13 +154,14 @@ namespace Pumkin.Translations
         public string load = "Load";
         public string createNewPreset = "Create New Preset";
         public string quickSetupAvatar = "Quick Setup Avatar";
-        public string selectInToolsWindow  = "Select in Tools Window";
+        public string selectInToolsWindow = "Select in Tools Window";
         public string resetRenderer = "Reset Renderer";
         public string revertRenderer = "Revert Renderer";
         public string alignCameraToView = "Align Camera to View";
         public string savePreset = "Save Preset";
         public string selectInAssets = "Select in Assets";
         public string openFolder = "Open Folder";
+        public string ok = "Ok";
     };
 
     [Serializable]
@@ -169,7 +205,7 @@ namespace Pumkin.Translations
         public string dynamicBones_colliders = "Dynamic Bone Colliders";
         public string dynamicBones_removeOldBones = "Remove Old Bones";
         public string dynamicBones_removeOldColliders = "Remove Old Colliders";
-        public string dynamicBones_createMissing = "Copy Missing Bones";        
+        public string dynamicBones_createMissing = "Copy Missing Bones";
         public string colliders = "Colliders";
         public string colliders_box = "Box Colliders";
         public string colliders_capsule = "Capsule Colliders";
@@ -201,7 +237,7 @@ namespace Pumkin.Translations
         public string ignoreList = "Ignore List";
         public string includeChildren = "Include Children";
         public string size = "Size";
-        public string other_emptyScripts = "Empty Scripts";        
+        public string other_emptyScripts = "Empty Scripts";
     };
 
     [Serializable]
@@ -232,7 +268,7 @@ namespace Pumkin.Translations
     {
         public string overlayCameraImage = "Overlay Image";
         public string overlayTexture = "Overlay Texture";
-        public string startUploadingFirst = "Start uploading an Avatar, or get into Play mode";        
+        public string startUploadingFirst = "Start uploading an Avatar, or get into Play mode";
         public string backgroundType = "Background Type";
         public string backgroundType_None = "None";
         public string backgroundType_Material = "Skybox";
@@ -243,11 +279,11 @@ namespace Pumkin.Translations
         public string useCameraOverlay = "Use Camera Overlay";
         public string useCameraBackground = "Use Camera Background";
         public string selectedCamera = "Selected Camera";
-        public string offset = "Offset";        
+        public string offset = "Offset";
         public string blendshapes = "Blendshapes";
         public string poses = "Poses";
         public string cameras = "Cameras";
-        public string centerCameraFixClippingPlanes = "Fix Clipping Planes";        
+        public string centerCameraFixClippingPlanes = "Fix Clipping Planes";
         public string positionOffset = "Position Offset";
         public string rotationOffset = "Rotation Offset";
         public string tryFixPoseSinking = "Try to Fix Pose Sinking";
@@ -303,6 +339,7 @@ namespace Pumkin.Translations
         public string descriptorIsMissingCantGetViewpoint = "Avatar Descriptor is missing. Can't get Viewpoint position";
         public string hasMissingScriptDestroying = "{0}'s component number {1} is a missing script. Destroying";
         public string copiedDynamicBone = "Copied DynamicBone from {0}'s {1} to {2}'s {1}";
+        public string invalidTranslation = "Can't load translation asset. Invalid translation";
     };
 
     [Serializable]
@@ -320,13 +357,14 @@ namespace Pumkin.Translations
         public string armatureScaleNotOne = "Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
         public string armatureScalesDontMatch = "Armature scales for selected avatars don't match!\nThis can cause issues";
         public string noDBonesOrMissingScriptDefine = "No DynamicBones found or missing script define.";
+        public string languageAlreadyExistsOverwrite = "Language Asset already exists. Overwrite?";
     };
 
     [Serializable]
     public class CreditsStrings
-    {        
+    {
         public string version = "Version";
-        public string redundantStrings = "Now with 100% more redundant strings";        
+        public string redundantStrings = "Now with 100% more redundant strings";
         public string addMoreStuff = "I'll add more stuff to this eventually";
         public string pokeOnDiscord = "Poke me on Discord at Pumkin#2020";
     };
@@ -339,6 +377,7 @@ namespace Pumkin.Translations
         public string superExperimental = "Super Experimental Stuff";
         public string language = "Language";
         public string refresh = "Refresh";
+        public string importLanguageAsset = "Import Language Asset";
     };
 
     [Serializable]

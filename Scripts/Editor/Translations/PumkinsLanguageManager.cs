@@ -7,10 +7,13 @@ using System.Linq;
 using UnityEditor;
 using System;
 using Pumkin.AvatarTools;
+using System.IO;
+using UnityEditor.Presets;
+using Pumkin.HelperFunctions;
 
 public static class PumkinsLanguageManager
 {    
-    static readonly string translationsPath = "Translations/";
+    public static readonly string translationsPath = "Translations/";
     static List<PumkinsTranslation> _languages = new List<PumkinsTranslation>();    
 
     public static List<PumkinsTranslation> Languages
@@ -23,16 +26,41 @@ public static class PumkinsLanguageManager
         {
             _languages = value;
         }
-    }
-
+    }    
+    
     public static void LoadTranslations()
     {
-        Languages.Clear();
+        foreach(var lang in Languages)
+        {
+            if(Helpers.IsAssetInAssets(lang))
+                Helpers.DestroyAppropriate(lang);
+        }
+        
         Resources.LoadAll<PumkinsTranslation>(translationsPath);
-        Languages.AddRange(Resources.FindObjectsOfTypeAll<PumkinsTranslation>());
+        var all = Resources.FindObjectsOfTypeAll<PumkinsTranslation>();
+        var orphans = all.Where(l => !Helpers.IsAssetInAssets(l)).ToList();
+        foreach(var o in orphans)
+        {
+            PumkinsAvatarTools.LogVerbose("Destroying orphanned " + o.ToString());
+            Helpers.DestroyAppropriate(o, true);
+        }
 
-        if(!Languages.Contains(PumkinsTranslation.Default))
+        Languages.AddRange(all.Where(o => o != null));
+        var def = PumkinsTranslation.GetOrCreateDefaultTranslation();
+
+        if(Languages.Count == 0 || !def.Equals(Languages[0]))
             Languages.Insert(0, PumkinsTranslation.Default);
+
+        //var duplicates = Languages.Where(l => PumkinsTranslation.Default.Equals(l)).Skip(1);
+        
+        //foreach(var d in duplicates)        
+        //    Helpers.DestroyAppropriate(d);        
+                
+        string langs = "Loaded languages: { ";
+        foreach (var l in Languages)        
+            langs += (" " + l.languageName  + ",");
+        langs += " }";
+        PumkinsAvatarTools.LogVerbose(langs);
     }    
 
     public static int GetIndexOfLanguage(string nameAndAuthor)
@@ -78,5 +106,26 @@ public static class PumkinsLanguageManager
         }
         SetLanguage(PumkinsTranslation.Default);
     }
+
+    public static bool LanguageExists(PumkinsTranslation translation)
+    {
+        if (translation == null)
+            return false;
+        return LanguageExists(translation.languageName, translation.author);
+    }
+
+    public static bool LanguageExists(string languageName, string author)
+    {
+        if (Helpers.StringIsNullOrWhiteSpace(languageName) || Helpers.StringIsNullOrWhiteSpace(author))
+            return false;
+        var lang = Languages.FirstOrDefault(l => (l.author == author) && (l.languageName == languageName));
+        return lang != default(PumkinsTranslation) ? true : false;
+    }
+
+    public static void ImportLanguageAsset(string path)
+    {        
+        var lang = Helpers.OpenPathGetFile<PumkinsTranslation>(path, out _);
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+    }    
 }
 

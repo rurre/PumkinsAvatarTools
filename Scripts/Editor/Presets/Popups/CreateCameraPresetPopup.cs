@@ -3,6 +3,7 @@ using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
 using UnityEditor;
 using UnityEngine;
+using VRC.SDKBase;
 
 namespace Pumkin.Presets
 {
@@ -163,25 +164,33 @@ namespace Pumkin.Presets
                             EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedCamera || string.IsNullOrEmpty(newPreset.name) || !PumkinsAvatarTools.SelectedAvatar);
                             {
                                 _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
-                                if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
-                                {                                    
-                                    if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform)
+                                EditorGUI.BeginDisabledGroup(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform && referenceTransform == null);
+                                {
+                                    if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
                                     {
-                                        EditorApplication.delayCall += () =>
+                                        if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Viewpoint && (Avatar.GetComponent<VRC_AvatarDescriptor>() == null))
                                         {
-                                            newPreset.SavePreset(referenceTransform.gameObject, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
-                                            Close();
-                                        };
-                                    }
-                                    else
-                                    {
-                                        EditorApplication.delayCall += () =>
+                                            PumkinsAvatarTools.Log(Strings.Log.descriptorIsMissingCantGetViewpoint, LogType.Warning);
+                                        }
+                                        else if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform)
                                         {
-                                            newPreset.SavePreset(PumkinsAvatarTools.SelectedAvatar, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
-                                            Close();
-                                        };
+                                            EditorApplication.delayCall += () =>
+                                            {
+                                                newPreset.SavePreset(referenceTransform.gameObject, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
+                                                Close();
+                                            };
+                                        }
+                                        else
+                                        {
+                                            EditorApplication.delayCall += () =>
+                                            {
+                                                newPreset.SavePreset(PumkinsAvatarTools.SelectedAvatar, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
+                                                Close();
+                                            };
+                                        }
                                     }
                                 }
+                                EditorGUI.EndDisabledGroup();
                             }
                             EditorGUI.EndDisabledGroup();
                         }

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d5ce1fd657d8984c8ced97b71ea3c84, type: 3}
-  m_Name: Hands Behind
+  m_Name: hands behind
   m_EditorClassIdentifier: 
   name: Examples/Hands Behind
   muscles:

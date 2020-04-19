@@ -11,12 +11,11 @@ Also check out the new [Wiki](https://github.com/rurre/PumkinsAvatarTools/wiki) 
 
 I also have a [Discord Server](https://discord.gg/7vyekJv)! Join it to stay up to date with this tool's updates. At least until I make an auto updater.
 
-If you would like to fllow development you can check out my [Trello board](https://trello.com/b/hRlsDWAH)
 
-If my tools saved you time and you would like to support it, consider donating by buying me a ko-fi! Thanks~ 
+If you like this project and would like to give something back, consider donating by buying me a ko-fi! Thanks~ 
 
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M1VOLP)
 
-**Important:** Don't move files or folders around inside the `PumkinsAvatarTools` folder as that can break it.
+**Important:** Since this is an editor script it needs to be in a folder called `Editor` anywhere in your project.
 
 **Disclaimer:** This tool is in beta and could *break everything*. Please backup your avatars. And use at your own risk.

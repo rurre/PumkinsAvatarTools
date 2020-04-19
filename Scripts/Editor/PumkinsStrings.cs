@@ -116,6 +116,7 @@ namespace Pumkin.DataStructures
             public static string savePreset = "_Save Preset";
             public static string selectInAssets = "_Select in Assets";
             public static string openFolder = "_Open Folder";
+            public static string ok = "_Ok";
 
             static Buttons()
             {
@@ -154,6 +155,7 @@ namespace Pumkin.DataStructures
                 savePreset = Translation.buttons.savePreset;
                 selectInAssets = Translation.buttons.selectInAssets;
                 openFolder = Translation.buttons.openFolder;
+                ok = Translation.buttons.ok;
             }
         };
         public static class Tools
@@ -493,6 +495,7 @@ namespace Pumkin.DataStructures
             public static string descriptorIsMissingCantGetViewpoint = "_Avatar Descriptor is missing. Can't get Viewpoint position";
             public static string hasMissingScriptDestroying = "_{0}'s component number {1} is a missing script. Destroying";
             public static string copiedDynamicBone = "_Copied DynamicBone from {0}'s {1} to {2}'s {1}";
+            public static string invalidTranslation = "_Can't load translation asset. Invalid translation";
 
             static Log()
             {
@@ -546,6 +549,7 @@ namespace Pumkin.DataStructures
                 descriptorIsMissingCantGetViewpoint = Translation.log.descriptorIsMissingCantGetViewpoint;
                 hasMissingScriptDestroying = Translation.log.hasMissingScriptDestroying;
                 copiedDynamicBone = Translation.log.copiedDynamicBone;
+                invalidTranslation = Translation.log.invalidTranslation;
             }
         };
         public static class Warning
@@ -562,6 +566,7 @@ namespace Pumkin.DataStructures
             public static string armatureScaleNotOne = "_Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
             public static string armatureScalesDontMatch = "_Armature scales for selected avatars don't match!\nThis can cause issues";
             public static string noDBonesOrMissingScriptDefine = "_No DynamicBones found or missing script define.";
+            public static string languageAlreadyExistsOverwrite = "_Language Asset already exists. Overwrite?";
 
             static Warning()
             {
@@ -584,6 +589,7 @@ namespace Pumkin.DataStructures
                 armatureScaleNotOne = Translation.warnings.armatureScaleNotOne;
                 armatureScalesDontMatch = Translation.warnings.armatureScalesDontMatch;
                 noDBonesOrMissingScriptDefine = Translation.warnings.noDBonesOrMissingScriptDefine;
+                languageAlreadyExistsOverwrite = Translation.warnings.languageAlreadyExistsOverwrite;
             }
         };
         public static class Credits
@@ -616,6 +622,7 @@ namespace Pumkin.DataStructures
             public static string superExperimental = "_Super Experimental Stuff";
             public static string language = "_Language";
             public static string refresh = "_Refresh";
+            public static string importLanguageAsset = "_Import Language Asset";
 
             static Misc()
             {
@@ -632,6 +639,7 @@ namespace Pumkin.DataStructures
                 superExperimental = Translation.misc.superExperimental;
                 language = Translation.misc.language;
                 refresh = Translation.misc.refresh;
+                importLanguageAsset = Translation.misc.importLanguageAsset;
             }
         }
         public static class PoseEditor

@@ -17,6 +17,7 @@ using Pumkin.Extensions;
 using UnityEngine.SceneManagement;
 using Pumkin.Presets;
 using Pumkin.Dependencies;
+using Pumkin.Translations;
 #if UNITY_2018
 using UnityEditor.Experimental.SceneManagement;
 #endif
@@ -464,8 +465,12 @@ namespace Pumkin.AvatarTools
             {
                 if(_mainFolderPath == null)
                 {
-                    string[] folder = Directory.GetDirectories(Application.dataPath, "PumkinsAvatarTools", SearchOption.AllDirectories);
-                    _mainFolderPath = folder[0];
+                    string[] folder = Directory.GetDirectories(Application.dataPath, "PumkinsAvatarTools*", SearchOption.AllDirectories);
+                    if(folder.Length > 0)                    
+                        _mainFolderPath = folder[0];
+                    else                                            
+                        _mainFolderPath = Directory.GetParent(MainScriptPath).Parent.FullName;                    
+                    
                 }
                 return _mainFolderPath;
             }
@@ -473,6 +478,14 @@ namespace Pumkin.AvatarTools
             private set
             {
                 _mainScriptPath = value;
+            }
+        }
+
+        public static string ResourceFolderPath
+        {
+            get 
+            {
+                return MainFolderPath + "/Resources";
             }
         }
 
@@ -1852,6 +1865,25 @@ namespace Pumkin.AvatarTools
                     }
                 }
                 EditorGUILayout.EndHorizontal();
+
+                if(GUILayout.Button(Strings.Misc.importLanguageAsset))
+                {
+                    var trans = Helpers.OpenPathGetFile<PumkinsTranslation>(_lastOpenFilePath, out string path);
+                    if(trans == null)
+                        Log(Strings.Log.invalidTranslation, LogType.Warning);
+
+                    string name = Helpers.GetNameFromPath(path);
+                    string newPath = $"{PumkinsAvatarTools.ResourceFolderPath}/{PumkinsLanguageManager.translationsPath}/{name}";
+
+                    if(File.Exists(newPath))
+                    {
+                        if(EditorUtility.DisplayDialog(Strings.Warning.warn, Strings.Warning.languageAlreadyExistsOverwrite, Strings.Buttons.ok, Strings.Buttons.cancel))
+                        {
+                            File.Copy(path, newPath);
+                            AssetDatabase.ImportAsset(newPath, ImportAssetOptions.ForceUpdate);
+                        }
+                    }                    
+                }
 
                 Helpers.DrawGUILine();
                 if(!DynamicBonesExist)
@@ -3496,7 +3528,7 @@ namespace Pumkin.AvatarTools
             _viewPosOld = _tempAvatarDescriptor.ViewPosition;
 
             if(_tempAvatarDescriptor.ViewPosition == DEFAULT_VIEWPOINT)
-                _viewPosTemp = Helpers.GetViewpointAtEyeLevel(SelectedAvatar.GetComponent<Animator>());
+                _viewPosTemp = Helpers.GetViewpointAtEyeLevel(SelectedAvatar.GetComponent<Animator>()) + avatar.transform.root.position;
             else
                 _viewPosTemp = _tempAvatarDescriptor.ViewPosition + avatar.transform.root.position;
 
