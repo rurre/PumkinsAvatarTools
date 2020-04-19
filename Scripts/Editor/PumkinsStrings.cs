@@ -71,7 +71,7 @@ namespace Pumkin.DataStructures
 
             public static void Reload()
             {
-                if(!Translation)
+                if(Translation is null)
                     return;
 
                 avatar = Translation.main.avatar;
@@ -125,7 +125,7 @@ namespace Pumkin.DataStructures
 
             public static void Reload()
             {
-                if(!Translation)
+                if(Translation is null)
                     return;
 
                 selectFromScene = Translation.buttons.selectFromScene;
@@ -185,7 +185,7 @@ namespace Pumkin.DataStructures
 
             public static void Reload()
             {
-                if(!Translation)
+                if(Translation is null)
                     return;
 
                 fillVisemes = Translation.tools.fillVisemes;
@@ -248,7 +248,7 @@ namespace Pumkin.DataStructures
 
             public static void Reload()
             {
-                if(!Translation)
+                if(Translation is null)
                     return;
 
                 name = Translation.avatarInfo.name;
@@ -307,7 +307,7 @@ namespace Pumkin.DataStructures
 
             public static void Reload()
             {
-                if(!Translation)
+                if(Translation is null)
                     return;
 
                 overlayCameraImage = Translation.thumbnails.overlayCameraImage;
@@ -397,7 +397,7 @@ namespace Pumkin.DataStructures
 
             public static void Reload()
             {
-                if(!Translation)
+                if(Translation is null)
                     return;
 
                 copyFrom = Translation.copier.copyFrom;
@@ -504,7 +504,7 @@ namespace Pumkin.DataStructures
 
             public static void Reload()
             {
-                if(!Translation)
+                if(Translation is null)
                     return;
 
                 done = Translation.log.done;
@@ -575,7 +575,7 @@ namespace Pumkin.DataStructures
 
             public static void Reload()
             {
-                if(!Translation)
+                if(Translation is null)
                     return;
 
                 warn = Translation.warnings.warn;
@@ -606,7 +606,7 @@ namespace Pumkin.DataStructures
 
             public static void Reload()
             {
-                if(!Translation)
+                if(Translation is null)
                     return;
 
                 version = (Translation.credits.version + " " + TOOLS_VERSION_STRING) ?? ("_Version" + " " + TOOLS_VERSION_STRING);
@@ -631,7 +631,7 @@ namespace Pumkin.DataStructures
 
             public static void Reload()
             {
-                if(!Translation)
+                if(Translation is null)
                     return;
 
                 uwu = Translation.misc.uwu;
@@ -679,7 +679,7 @@ namespace Pumkin.DataStructures
 
             public static void Reload()
             {
-                if(!Translation)
+                if(Translation is null)
                     return;
 
                 version = (Translation.credits.version + " " + POSE_EDITOR_VERSION_NUMBER) ?? ("_Version" + " " + POSE_EDITOR_VERSION_NUMBER);
@@ -740,7 +740,7 @@ namespace Pumkin.DataStructures
 
             public static void Reload()
             {
-                if(!Translation)
+                if(Translation is null)
                     return;
 
                 presetName = Translation.preset.presetName;

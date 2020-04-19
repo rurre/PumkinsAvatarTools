@@ -1866,24 +1866,29 @@ namespace Pumkin.AvatarTools
                 }
                 EditorGUILayout.EndHorizontal();
 
-                if(GUILayout.Button(Strings.Misc.importLanguageAsset))
-                {
-                    var trans = Helpers.OpenPathGetFile<PumkinsTranslation>(_lastOpenFilePath, out string path);
-                    if(trans == null)
-                        Log(Strings.Log.invalidTranslation, LogType.Warning);
+                //if(GUILayout.Button(Strings.Misc.importLanguageAsset))
+                //{
+                //    var trans = Helpers.OpenPathGetFile<PumkinsTranslation>(_lastOpenFilePath, out string path);
+                //    if(trans == null)
+                //        Log(Strings.Log.invalidTranslation, LogType.Warning);
 
-                    string name = Helpers.GetNameFromPath(path);
-                    string newPath = $"{PumkinsAvatarTools.ResourceFolderPath}/{PumkinsLanguageManager.translationsPath}/{name}";
+                //    string name = Helpers.GetNameFromPath(path);
+                //    string newPath = $"{PumkinsAvatarTools.ResourceFolderPath}/{PumkinsLanguageManager.translationsPath}/{name}";
+                //    bool shouldCopy = false;
 
-                    if(File.Exists(newPath))
-                    {
-                        if(EditorUtility.DisplayDialog(Strings.Warning.warn, Strings.Warning.languageAlreadyExistsOverwrite, Strings.Buttons.ok, Strings.Buttons.cancel))
-                        {
-                            File.Copy(path, newPath);
-                            AssetDatabase.ImportAsset(newPath, ImportAssetOptions.ForceUpdate);
-                        }
-                    }                    
-                }
+                //    if(File.Exists(newPath))
+                //    {
+                //        if(EditorUtility.DisplayDialog(Strings.Warning.warn, Strings.Warning.languageAlreadyExistsOverwrite, Strings.Buttons.ok, Strings.Buttons.cancel))
+                //        {
+                //            shouldCopy = true;
+                //        }
+                //    }
+                //    if(shouldCopy)
+                //    {
+                //        File.Copy(path, newPath);
+                //        AssetDatabase.ImportAsset(newPath, ImportAssetOptions.ForceUpdate);
+                //    }
+                //}
 
                 Helpers.DrawGUILine();
                 if(!DynamicBonesExist)

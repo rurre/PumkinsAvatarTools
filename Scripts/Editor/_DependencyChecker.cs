@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Pumkin.DependencyChecker
 {
-    [InitializeOnLoad]
+    [InitializeOnLoad, ExecuteInEditMode]
     public class _DependencyChecker
     {
         const string HAS_DBONES = "PUMKIN_DBONES";
@@ -37,7 +37,10 @@ namespace Pumkin.DependencyChecker
             get { return _mainToolsOK; } private set { _mainToolsOK = value; }
         }
 
-        static _DependencyChecker() { }
+        static _DependencyChecker() 
+        {
+            CheckForDependencies();
+        }      
 
         public static void ResetDependencies()
         {

@@ -1145,7 +1145,8 @@ namespace Pumkin.HelperFunctions
 
         public static bool IsAssetInAssets(UnityEngine.Object obj)
         {
-            bool flag = !string.IsNullOrEmpty(AssetDatabase.GetAssetPath(obj));
+            string path = AssetDatabase.GetAssetPath(obj);
+            bool flag = !string.IsNullOrEmpty(path);
             return flag;
         }
     }    

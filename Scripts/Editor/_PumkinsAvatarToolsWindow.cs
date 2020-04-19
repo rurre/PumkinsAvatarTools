@@ -14,13 +14,6 @@ namespace Pumkin.AvatarTools
 
         static EditorWindow _toolsWindow;
 
-        string[] boneErrors =
-            {
-            "The type or namespace name `DynamicBoneCollider' could not be found.",
-            "The type or namespace name `DynamicBone' could not be found.",
-            "Cannot implicitly convert type `System.Collections.Generic.List<DynamicBoneCollider>' to `System.Collections.Generic.List<DynamicBoneColliderBase>'",
-            };
-
         static bool pressedReloadButton = false;
 
         public static PumkinsAvatarTools ToolsWindow
@@ -73,17 +66,12 @@ namespace Pumkin.AvatarTools
 
         private void OnEnable()
         {
-            //Application.logMessageReceived -= HandleError;
-            //Application.logMessageReceived += HandleError;
-
             if(ToolsWindow)
                 ToolsWindow.HandleOnEnable();
         }
 
         private void OnDisable()
         {
-            //Application.logMessageReceived -= HandleError;
-
             if(ToolsWindow)
                 ToolsWindow.HandleOnDisable();
         }
@@ -91,21 +79,6 @@ namespace Pumkin.AvatarTools
         private void OnDestroy()
         {
             PumkinsAvatarTools.DestroyDummies();
-        }
-
-        void HandleError(string log, string stack, LogType type)
-        {
-            if(type == LogType.Error)
-            {
-                for(int i = 0; i < boneErrors.Length; i++)
-                {
-                    if(log.Contains(boneErrors[i]))
-                    {
-                        ResetPrefs();
-                        break;
-                    }
-                }
-            }
         }
 
         void HandleRepaint(EditorWindow window)

@@ -29,36 +29,34 @@ public static class PumkinsLanguageManager
     }    
     
     public static void LoadTranslations()
-    {
+    {        
         foreach(var lang in Languages)
         {
-            if(Helpers.IsAssetInAssets(lang))
+            if(!Helpers.IsAssetInAssets(lang))
                 Helpers.DestroyAppropriate(lang);
-        }
-        
-        Resources.LoadAll<PumkinsTranslation>(translationsPath);
-        var all = Resources.FindObjectsOfTypeAll<PumkinsTranslation>();
-        var orphans = all.Where(l => !Helpers.IsAssetInAssets(l)).ToList();
-        foreach(var o in orphans)
-        {
-            PumkinsAvatarTools.LogVerbose("Destroying orphanned " + o.ToString());
-            Helpers.DestroyAppropriate(o, true);
-        }
+        }        
 
-        Languages.AddRange(all.Where(o => o != null));
         var def = PumkinsTranslation.GetOrCreateDefaultTranslation();
-
         if(Languages.Count == 0 || !def.Equals(Languages[0]))
             Languages.Insert(0, PumkinsTranslation.Default);
 
-        //var duplicates = Languages.Where(l => PumkinsTranslation.Default.Equals(l)).Skip(1);
-        
-        //foreach(var d in duplicates)        
-        //    Helpers.DestroyAppropriate(d);        
-                
-        string langs = "Loaded languages: { ";
-        foreach (var l in Languages)        
-            langs += (" " + l.languageName  + ",");
+        var loaded = Resources.LoadAll<PumkinsTranslation>(translationsPath);
+
+        foreach(var l in loaded)
+        {
+            int i = Languages.IndexOf(l);
+            if(i != -1)
+                Languages[i] = l;
+            else
+                Languages.Add(l);
+        }
+
+        string langs = "Loaded languages: {";
+        for(int i = 0; i < Languages.Count; i++)
+        {
+            langs += (" " + Languages[i].languageName);
+            langs += (i != Languages.Count - 1) ? "," : "";
+        }
         langs += " }";
         PumkinsAvatarTools.LogVerbose(langs);
     }    

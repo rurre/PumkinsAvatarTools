@@ -1,0 +1,296 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db3b3e978e34bca498da66131395825d, type: 3}
+  m_Name: loud
+  m_EditorClassIdentifier: 
+  languageName: LOUD ENGLISH
+  author: EXAMPLE
+  main:
+    title: PUMKIN'S AVATAR TOOLS
+    windowName: PUMKIN TOOLS
+    version: VERSION
+    tools: TOOLS
+    removeAll: REMOVE ALL
+    copier: COPY COMPONENTS
+    avatarInfo: AVATAR INFO
+    thumbnails: THUMBNAILS
+    misc: MISC
+    avatar: AVATAR
+    useSceneSelection: USE SCENE SELECTION
+  buttons:
+    selectFromScene: SELECT FROM SCENE
+    copySelected: COPY SELECTED
+    refresh: REFRESH
+    cancel: CANCEL
+    apply: APPLY
+    copy: COPY TEXT
+    openHelpPage: OPEN HELP PAGE
+    openGithubPage: OPEN GITHUB PAGE
+    openDonationPage: BUY ME A KO-FI~
+    openPoseEditor: OPEN POSE EDITOR
+    joinDiscordServer: JOIN DISCORD SERVER!
+    selectNone: SELECT NONE
+    selectAll: SELECT ALL
+    browse: BROWSE
+    setFromCamera: SET FROM CAMERA
+    reset: RESET
+    edit: EDIT
+    load: LOAD
+    createNewPreset: CREATE NEW PRESET
+    quickSetupAvatar: QUICK SETUP AVATAR
+    selectInToolsWindow: SELECT IN TOOLS WINDOW
+    resetRenderer: RESET RENDERER
+    revertRenderer: REVERT RENDERER
+    alignCameraToView: ALIGN CAMERA TO VIEW
+    savePreset: SAVE PRESET
+    selectInAssets: SELECT IN ASSETS
+    openFolder: OPEN FOLDER
+    ok: Ok
+  tools:
+    fillVisemes: FILL VISEMES
+    editViewpoint: EDIT VIEWPOINT
+    revertBlendshapes: REVERT BLENDSHAPES
+    zeroBlendshapes: ZERO BLENDSHAPES
+    resetPose: RESET POSE
+    resetToTPose: RESET TO T-POSE
+    editScale: EDIT SCALE
+    autoViewpoint: AUTO VIEWPOINT
+    setTPose: FORCE TPOSE
+    setRendererAnchors: SET RENDERER ANCHORS
+    viewpointZDepth: Z DEPTH
+    revertScale: REVERT SCALE
+    editScaleMoveViewpoint: Move Viewpoint
+    refreshRig: Refresh Rig
+    disableDynamicBones: Disable DynamicBones
+    enableDynamicBones: Enable DynamicBones
+    toggleDynamicBones: Toggle DynamicBones
+  copier:
+    copyFrom: COPY FROM
+    copySettings: SETTINGS
+    createMissing: COPY MiSSING
+    emptyGameObjects: EMPTY GAMEOBJECTS
+    replaceOld: REPLACE OLD
+    transforms: TRANSFORMS
+    transforms_position: POSITION
+    transforms_rotation: ROTATION
+    transforms_scale: SCALE
+    transforms_avatarScale: AVATAR SCALE
+    dynamicBones: DYNAMIC BONES
+    dynamicBones_colliders: DYNAMIC BONE COLLIDERS
+    dynamicBones_removeOldBones: REMOVE OLD BONES
+    dynamicBones_removeOldColliders: REMOVE OLD COLLIDERS
+    dynamicBones_createMissing: COPY MISSING BONES
+    colliders: COLLIDERS
+    colliders_box: BOX COLLIDERS
+    colliders_capsule: CAPSULE COLLIDERS
+    colliders_sphere: SPHERE COLLIDERS
+    colliders_mesh: MESH COLLIDERS
+    colliders_removeOld: REMOVE OLD COLLIDERS
+    descriptor: AVATAR DESCRIPTOR
+    descriptor_pipelineId: PIPELINE ID
+    descriptor_animationOverrides: ANIMATION OVERRIDES
+    descriptor_copyViewpoint: VIEWPOINT
+    skinMeshRender: SKINNED MESH RENDERERS
+    skinMeshRender_materials: MATERIALS
+    skinMeshRender_blendShapeValues: BLENDSHAPE VALUES
+    particleSystems: PARTICLE SYSTEMS
+    rigidBodies: RIGID BODIES
+    trailRenderers: TRAIL RENDERERS
+    meshRenderers: MESH RENDERERS
+    copyGameObjects: COPY GAMEOBJECTS
+    copyColliderObjects: COPY COLLIDER OBJECTS
+    lights: LIGHTS
+    animators: ANIMATORS
+    copyMainAnimator: COPY MAIN ANIMATOR
+    animators_inChildren: CHILD ANIMATORS
+    audioSources: AUDIO SOURCES
+    joints: JOINTS
+    other: Other
+    other_ikFollowers: IK Followers
+    ignoreList: IGNORE LIST
+    includeChildren: INCLUDE CHILDREN
+    size: SIZE
+    other_emptyScripts: Empty Scripts
+  avatarInfo:
+    name: '{0}'
+    line: '---------------------'
+    gameObjects: 'GAMEOBJECTS: {0} ({1})'
+    bones: 'BONES: {0} - {1}'
+    skinnedMeshRenderers: 'SKINNED MESH RENDERERS: {0} ({1}) - {2}'
+    meshRenderers: 'MESH RENDERERS: {0} ({1}) - {2}'
+    polygons: 'POLYGONS: {0} ({1}) - {2}'
+    usedMaterialSlots: 'USED MATERIAL SLOTS: {0} ({1}) - {2}'
+    uniqueMaterials: 'UNIQUE MATERIALS: {0} ({1})'
+    shaders: 'SHADERS: {0}'
+    dynamicBoneTransforms: 'DYNAMIC BONE TRANSFORMS: {0} ({1}) - {2}'
+    dynamicBoneColliders: 'DYNAMIC BONE COLLIDERS: {0} ({1}) - {2}'
+    dynamicBoneColliderTransforms: 'COLLIDER AFFECTED TRANSFORMS: {0} ({1}) - {2}'
+    particleSystems: 'PARTICLE SYSTEMS: {0} ({1}) - {2}'
+    maxParticles: 'MAX PARTICLES: {0} ({1}) - {2}'
+    overallPerformance: 'OVERALL PERFORMANCE: {0}'
+    selectAvatarFirst: SELECT AN AVATAR FIRST
+    ikFollowers: 'IK Followers: {0} ({1})'
+  thumbnails:
+    overlayCameraImage: OVERLAY IMAGE
+    overlayTexture: OVERLAY TEXTURE
+    startUploadingFirst: START UPLOADING AN AVATAR, OR GET INTO PLAY MODE
+    backgroundType: BACKGROUND TYPE
+    backgroundType_None: NONE
+    backgroundType_Material: SKYBOX
+    backgroundType_Color: COLOR
+    backgroundType_Image: IMAGE
+    hideOtherAvatars: HIDE OTHER AVATARS WHEN UPLOADING
+    tint: TINT
+    useCameraOverlay: USE CAMERA OVERLAY
+    useCameraBackground: USE CAMERA BACKGROUND
+    selectedCamera: SELECTED CAMERA
+    offset: OFFSET
+    blendshapes: BLENDSHAPES
+    poses: POSES
+    cameras: CAMERAS
+    centerCameraFixClippingPlanes: FIX CLIPPING PLANES
+    positionOffset: POSITION OFFSET
+    rotationOffset: ROTATION OFFSET
+    tryFixPoseSinking: TRY TO FIX POSE SINKING
+    centerCameraOn: CENTER CAMERA ON {0}
+    viewpoint: VIEWPOINT
+    applyBodyPosition: Apply Body Position
+    applyBodyRotation: Apply Body Rotation
+    lockSelectedCameraToSceneView: Lock Selected Camera to Scene View
+  misc:
+    uwu: uwu
+    searchForBones: SEARCH FOR DYNAMICBONES
+    superExperimental: SUPER EXPERIMENTAL STUFF
+    language: LANGUAGE
+    refresh: REFRESH
+    importLanguageAsset: Import Language Asset
+  log:
+    done: DONE
+    cancelled: CANCELLED
+    nothingSelected: SELECT SOMETHING FIRST
+    cantCopyToSelf: CAN'T COPY COMPONENTS FROM AN OBJECT TO ITSELF. WHAT ARE YOU DOING?
+    copyAttempt: ATTEMPTING TO COPY {0} FROM {1} TO {2}
+    removeAttempt: ATTEMPTING TO REMOVE {0} from {1}
+    copyFromInvalid: CAN'T COPY COMPONENTS because 'Copy From' is invalid
+    viewpointApplied: SET VIEWPOSITION TO {0}
+    viewpointCancelled: CANCELLED VIEWPOSITION CHANGES
+    tryFillVisemes: ATTEMPTING TO FILL VISEMES ON {0}
+    noSkinnedMeshFound: 'FAILED: NO SKINNED MESH FOUND'
+    descriptorIsNull: AVATAR DESCRIPTOR IS NULL
+    success: SUCCESS
+    meshHasNoVisemes: FAILED. MESH HAS NO VISEMES. SET TO DEFAULT
+    failed: FAILED
+    failedIsNull: 'FAILED: {1} IS NULL'
+    nameIsEmpty: NAME IS EMPTY
+    loadedPose: 'LOADED POSE: {0}'
+    loadedBlendshapePreset: 'LOADED BLENDSHAPES: {0}'
+    failedDoesntHave: 'FAILED: {0} DOESN''T HAVE A {1}'
+    failedAlreadyHas: 'FAILED: {0} ALREADY HAS A {1}'
+    loadedCameraOverlay: LOADED {0} AS CAMERA OVERLAY
+    failedHasNoIgnoring: '''{0}'' has no ''{1}'', Ignoring.'
+    settingQuickViewpoint: SETTING QUICK VIEWPOINT TO {0}
+    cantSetViewpointNonHumanoid: CAN'T SET VIEWPOINT FOR A NON HUMANOID AVATAR
+    setAvatarScaleTo: SET AVATAR SCALE TO {0} AND VIEWPOINT TO {1}
+    setAvatarScaleAndViewpointTo: SET AVATAR SCALE TO {0} AND VIEWPOINT TO {1}
+    canceledScaleChanges: CANCELLED SCALE CHANGES
+    successCopiedOverFromTo: 'SUCCESS: COPIED OVER {0} FROM {1}''S {2} TO {3}''S {4}'
+    hasNoComponentsOrChildrenDestroying: '{0} HAS NO COMPONENTS OR CHILDREN. DESTROYING'
+    cantBeDestroyedPartOfPrefab: '{0}''S {1} CAN''T BE DESTROYED BECAUSE IT''S PART
+      OF A PREFAB INSTANCE. IGNORING'
+    meshPrefabMissingCantRevertBlednshapes: MESH PREFAB IS MISSING, CAN'T REVERT TO
+      DEFAULT BLENDSHAPES.
+    meshPrefabMissingCantRevertPose: MESH PREFAB IS MISSING, CAN'T REVERT TO DEFAULT
+      POSE
+    runtimeBlueprintNotFoundStartUploading: RUNTIMEBLUEPRINTCREATION SCRIPT NOT FOUND.
+      START UPLOADING AN AVATAR TO USE THIS
+    failedToCenterCameraNoDescriptor: FAILED TO CENTER CAMERA ON VIEWPOINT. AVATAR
+      DESCRIPTOR NOT FOUND
+    setProbeAnchorTo: SET {0}'S PROBE ANCHOR TO {1}
+    cantSetPoseNonHumanoid: CAN'T SET HUMANOID POSE {0} ON A NON HUMANOID AVATAR
+    loadedImageAsBackground: LOADED {0} AS BACKGROUND IMAGE
+    loadedImageAsOverlay: LOADED {0} AS OVERLAY IMAGE
+    descriptorIsMissingCantGetViewpoint: AVATAR DESCRIPTOR IS MISSING. CAN'T GET VIEWPOINT
+      POSITION
+    hasMissingScriptDestroying: '{0}''s component number {1} is a missing script.
+      Destroying'
+    copiedDynamicBone: Copied DynamicBone from {0}'s {1} to {2}'s {1}
+    invalidTranslation: Can't load translation asset. Invalid translation
+  warnings:
+    warn: WARNING
+    notFound: NOT FOUND
+    oldVersion: OLD VERSION
+    selectSceneObject: PLEASE SELECT AN OBJECT FROM THE SCENE
+    cameraNotFound: CAMERA NOT FOUND
+    invalidPreset: 'CAN''T APPLY PRESET {0}: INVALID PRESET'
+    cantRevertRendererWithoutPrefab: CAN'T REVERT SKINNED MESH RENDERER {0}, OBJECT
+      HAS NO PREFAB.
+    cantLoadImageAtPath: CAN'T LOAD IMAGE AT {0}
+    doesntWorkInUnity2017: Doesn't work in Unity 2017 :(
+    armatureScaleNotOne: _Armature scale for selected avatar isn't 1! This can cause
+      issues. Please re-export your avatar with CATS' export option
+    armatureScalesDontMatch: '_Armature scales for selected avatars don''t match!
+
+      This can cause issues'
+    noDBonesOrMissingScriptDefine: No DynamicBones found or missing script define.
+    languageAlreadyExistsOverwrite: Language Asset already exists. Overwrite?
+  credits:
+    version: VERSION
+    redundantStrings: NOW WITH 100% MORE REDUNDANT STRINGS
+    addMoreStuff: I'LL ADD MORE STUFF TO THIS EVENTUALLY
+    pokeOnDiscord: POKE ME ON DISCORD AT PUMKIN#2020
+  poseEditor:
+    title: PUMKIN'S POSE EDITOR
+    scene: SCENE
+    sceneLoadAdditive: LOAD ADDITIVE
+    sceneOverrideLights: OVERRIDE LIGHTS
+    avatarPosition: AVATAR POSITION
+    avatarPositionOverridePose: OVERRIDE POSE
+    avatarPositionOverrideBlendshapes: OVERRIDE BLENDSHAPES
+    sceneSaveChanges: SAVE SCENE CHANGES
+    unloadScene: UNLOAD SCENE
+    resetPosition: RESET POSITION
+    pose: POSE
+    newPose: NEW POSE
+    onlySavePoseChanges: ONLY SAVE POSE CHANGES
+    loadPose: LOAD POSE
+    blendshapes: BLENDSHAPES
+    newPreset: NEW PRESET
+    loadPreset: LOAD PRESET
+    saveButton: SAVE
+    reloadButton: RELOAD
+    bodyPositionYTooSmall: HUMANPOSE.BODYPOSITION.Y IS {0}, YOU PROBABLY DON'T WANT
+      THAT. SETTING HUMANPOSE.BODYPOSITION.Y TO 1
+    muscles: MUSCLES
+    transformRotations: TRANSFORM ROTATIONS
+    selectHumanoidAvatar: SELECT A HUMANOID AVATAR
+    animationTime: TIME
+    poseFromAnimation: POSE FROM ANIMATION
+    allowMotion: Allow Motion
+  preset:
+    presetName: PRESET NAME
+    mode: PRESET MODE
+    otherNames: OTHER NAMES
+    poseMode: POSE NAME
+    editPosePreset: EDIT POSE PRESET
+    createPosePreset: CREATE POSE PRESET
+    overwriteFile: OVERWRITE FILE
+    transformDoesntBelongToAvatar: '{0} DOESN''T BELONG TO AVATAR {1}'
+    cameraPreset: CAMERA PRESET
+    posePreset: POSE PRESET
+    blendshapePreset: BLENDSHAPE PRESET
+    editBlendshapePreset: EDIT BLENDSHAPE PRESET
+    createBlendshapePreset: CREATE BLENDSHAPE PRESET
+    transform: TRANSFORM
+    offsetMode: OFFSET MODE
+    camera: CAMERA
+    editCameraPreset: EDIT CAMERA PRESET
+    createCameraPreset: CREATE CAMERA PRESET

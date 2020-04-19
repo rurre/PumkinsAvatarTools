@@ -6,7 +6,7 @@ Preset:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: LANGUAGE_LOUD
+  m_Name: Language_Chinese_preset
   m_TargetType:
     m_NativeTypeID: 114
     m_ManagedTypePPtr: {fileID: 11500000, guid: db3b3e978e34bca498da66131395825d,
@@ -27,163 +27,163 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: languageName
-    value: LOUD ENGLISH
+    value: "\u4E2D\u6587"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: author
-    value: EXAMPLE
+    value: "\u7981\u5FCCapostle"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: main.title
-    value: PUMKIN'S AVATAR TOOLS
+    value: "Pumkin\u7684\u6A21\u578B\u5DE5\u5177\u7BB1 \u7981\u5FCCapostle\u6C49\u5316"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: main.windowName
-    value: PUMKIN TOOLS
+    value: "Pumkin\u5DE5\u5177\u7BB1"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: main.version
-    value: VERSION
+    value: "\u7248\u672C"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: main.tools
-    value: TOOLS
+    value: "\u5DE5\u5177\u7BB1"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: main.removeAll
-    value: REMOVE ALL
+    value: "\u5168\u90E8\u5220\u9664"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: main.copier
-    value: COPY COMPONENTS
+    value: "\u590D\u5236\u7EC4\u4EF6"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: main.avatarInfo
-    value: AVATAR INFO
+    value: "\u6A21\u578B\u4FE1\u606F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: main.thumbnails
-    value: THUMBNAILS
+    value: "\u5C01\u9762\u7F29\u7565\u56FE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: main.misc
-    value: MISC
+    value: "\u6742\u7269\u5806"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: main.avatar
-    value: AVATAR
+    value: "\u6A21\u578B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: main.useSceneSelection
-    value: USE SCENE SELECTION
+    value: "\u81EA\u52A8\u6DFB\u52A0\u9009\u62E9\u7684\u6A21\u578B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.selectFromScene
-    value: SELECT FROM SCENE
+    value: "\u6DFB\u52A0\u9009\u62E9\u7684\u6A21\u578B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.copySelected
-    value: COPY SELECTED
+    value: "\u590D\u5236\u6240\u9009\u7684\u7EC4\u4EF6"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.refresh
-    value: REFRESH
+    value: "\u5237\u65B0"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.cancel
-    value: CANCEL
+    value: "\u53D6\u6D88"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.apply
-    value: APPLY
+    value: "\u5E94\u7528"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.copy
-    value: COPY TEXT
+    value: "\u590D\u5236\u6587\u672C"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.openHelpPage
-    value: OPEN HELP PAGE
+    value: "\u6253\u5F00\u5E2E\u52A9\u9875\u9762"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.openGithubPage
-    value: OPEN GITHUB PAGE
+    value: "\u6253\u5F00Github\u9875\u9762"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.openDonationPage
-    value: BUY ME A KO-FI~
+    value: "\u5728Ko-Fi\u4E0A\u652F\u6301\u4F5C\u8005~"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.openPoseEditor
-    value: OPEN POSE EDITOR
+    value: "\u6253\u5F00\u59FF\u52BF\u7F16\u8F91\u5668"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.joinDiscordServer
-    value: JOIN DISCORD SERVER!
+    value: "\u52A0\u5165Discord\u670D\u52A1\u5668!"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.selectNone
-    value: SELECT NONE
+    value: "\u5168\u4E0D\u9009"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.selectAll
-    value: SELECT ALL
+    value: "\u5168\u9009"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.browse
-    value: BROWSE
+    value: "\u6253\u5F00"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.setFromCamera
-    value: SET FROM CAMERA
+    value: "\u4ECE\u76F8\u673A\u83B7\u53D6"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.reset
-    value: RESET
+    value: "\u91CD\u7F6E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.edit
-    value: EDIT
+    value: "\u7F16\u8F91\u4FDD\u5B58"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.load
-    value: LOAD
+    value: "\u52A0\u8F7D"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.createNewPreset
-    value: CREATE NEW PRESET
+    value: "\u521B\u5EFA\u65B0\u9884\u8BBE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.quickSetupAvatar
-    value: QUICK SETUP AVATAR
+    value: "\u5FEB\u901F\u8BBE\u7F6E\u6A21\u578B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.selectInToolsWindow
-    value: SELECT IN TOOLS WINDOW
+    value: "\u5728\u5DE5\u5177\u7BB1\u4E2D\u9009\u62E9"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.resetRenderer
-    value: RESET RENDERER
+    value: "\u91CD\u7F6E\u8868\u60C5\u5F62\u6001\u952E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.revertRenderer
-    value: REVERT RENDERER
+    value: "\u8FD8\u539F\u8868\u60C5\u5F62\u6001\u952E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.alignCameraToView
-    value: ALIGN CAMERA TO VIEW
+    value: "\u5C06\u76F8\u673A\u4E0E\u89C6\u89D2\u5BF9\u9F50"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.savePreset
-    value: SAVE PRESET
+    value: "\u4FDD\u5B58\u9884\u8BBE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.selectInAssets
-    value: SELECT IN ASSETS
+    value: "\u5728\u76EE\u5F55\u4E2D\u9009\u62E9"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.openFolder
-    value: OPEN FOLDER
+    value: "\u6253\u5F00\u6587\u4EF6\u5939"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.ok
@@ -191,55 +191,55 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.fillVisemes
-    value: FILL VISEMES
+    value: "\u81EA\u52A8\u586B\u5145\u53E3\u578B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.editViewpoint
-    value: EDIT VIEWPOINT
+    value: "\u624B\u52A8\u8C03\u6574\u89C6\u89D2\u7403"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.revertBlendshapes
-    value: REVERT BLENDSHAPES
+    value: "\u91CD\u7F6E\u8868\u60C5\u5F62\u6001\u952E\u6570\u503C"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.zeroBlendshapes
-    value: ZERO BLENDSHAPES
+    value: "\u5F52\u96F6\u8868\u60C5\u5F62\u6001\u952E\u6570\u503C"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.resetPose
-    value: RESET POSE
+    value: "\u91CD\u7F6E\u59FF\u52BF"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.resetToTPose
-    value: RESET TO T-POSE
+    value: "\u91CD\u7F6E\u59FF\u52BF\u4E3AT\u5B57\u578B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.editScale
-    value: EDIT SCALE
+    value: "\u8BBE\u7F6E\u6BD4\u4F8B\u5927\u5C0F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.autoViewpoint
-    value: AUTO VIEWPOINT
+    value: "\u81EA\u52A8\u8C03\u6574\u89C6\u89D2\u7403"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.setTPose
-    value: FORCE TPOSE
+    value: "\u81EA\u52A8\u59FF\u52BF\u4E3AT\u5B57\u578B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.setRendererAnchors
-    value: SET RENDERER ANCHORS
+    value: "\u8BBE\u7F6E\u6E32\u67D3\u5668\u7684\u4F4D\u7F6E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.viewpointZDepth
-    value: Z DEPTH
+    value: "Z\u8F74\u5BBD"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.revertScale
-    value: REVERT SCALE
+    value: "\u91CD\u7F6E\u6BD4\u4F8B\u5927\u5C0F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.editScaleMoveViewpoint
-    value: Move Viewpoint
+    value: "\u81EA\u52A8\u540C\u6B65\u89C6\u89D2\u7403\u4F4D\u7F6E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.refreshRig
@@ -259,163 +259,164 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.copyFrom
-    value: COPY FROM
+    value: "\u590D\u5236\u6765\u6E90"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.copySettings
-    value: SETTINGS
+    value: "\u8BBE\u7F6E(Settings)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.createMissing
-    value: COPY MiSSING
+    value: "\u590D\u5236\u7F3A\u5C11"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.emptyGameObjects
-    value: EMPTY GAMEOBJECTS
+    value: "\u7A7A\u7269\u4F53(Empty GameObjects)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.replaceOld
-    value: REPLACE OLD
+    value: "\u66FF\u6362\u65E7\u7684"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.transforms
-    value: TRANSFORMS
+    value: "\u5916\u89C2(Transforms)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.transforms_position
-    value: POSITION
+    value: "\u4F4D\u7F6E(Position)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.transforms_rotation
-    value: ROTATION
+    value: "\u65CB\u8F6C(Rotation)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.transforms_scale
-    value: SCALE
+    value: "\u6BD4\u4F8B\u5927\u5C0F(Scale)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.transforms_avatarScale
-    value: AVATAR SCALE
+    value: "\u6A21\u578B\u6BD4\u4F8B\u5927\u5C0F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.dynamicBones
-    value: DYNAMIC BONES
+    value: "\u52A8\u6001\u9AA8\u9ABC(Dynamic Bones)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.dynamicBones_colliders
-    value: DYNAMIC BONE COLLIDERS
+    value: "\u52A8\u6001\u9AA8\u9ABC\u78B0\u649E(Dynamic Bone Colliders)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.dynamicBones_removeOldBones
-    value: REMOVE OLD BONES
+    value: "\u5220\u9664\u65E7\u7684\u52A8\u6001\u9AA8\u9ABC(Dynamic Bones)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.dynamicBones_removeOldColliders
-    value: REMOVE OLD COLLIDERS
+    value: "\u5220\u9664\u65E7\u7684\u52A8\u6001\u9AA8\u9ABC\u78B0\u649E(Dynamic Bone
+      Colliders)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.dynamicBones_createMissing
-    value: COPY MISSING BONES
+    value: "\u590D\u5236\u7F3A\u5C11\u7684\u9AA8\u9ABC"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.colliders
-    value: COLLIDERS
+    value: "\u78B0\u649E(Colliders)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.colliders_box
-    value: BOX COLLIDERS
+    value: "\u76D2\u5F62\u78B0\u649E(Box Colliders)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.colliders_capsule
-    value: CAPSULE COLLIDERS
+    value: "\u80F6\u56CA\u4F53\u78B0\u649E(Capsule Colliders)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.colliders_sphere
-    value: SPHERE COLLIDERS
+    value: "\u7403\u5F62\u78B0\u649E(Sphere Colliders)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.colliders_mesh
-    value: MESH COLLIDERS
+    value: "\u7F51\u683C\u78B0\u649E(Mesh Colliders)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.colliders_removeOld
-    value: REMOVE OLD COLLIDERS
+    value: "\u5220\u9664\u539F\u672C\u7684\u78B0\u649E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.descriptor
-    value: AVATAR DESCRIPTOR
+    value: "VRC\u6A21\u578B\u63CF\u8FF0\u63D2\u4EF6(VRC_Avatar Descriptor)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.descriptor_pipelineId
-    value: PIPELINE ID
+    value: "\u4E0A\u4F20\u7684\u84DD\u56FEID(Pipeline Id)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.descriptor_animationOverrides
-    value: ANIMATION OVERRIDES
+    value: "\u52A8\u753B\u6539\u5199\u63A7\u5236\u5668(Animation Overrides)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.descriptor_copyViewpoint
-    value: VIEWPOINT
+    value: "\u89C6\u89D2\u7403\u4F4D\u7F6E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.skinMeshRender
-    value: SKINNED MESH RENDERERS
+    value: "\u8499\u76AE\u7F51\u683C\u6E32\u67D3\u5668(Skinned Mesh Renderers)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.skinMeshRender_materials
-    value: MATERIALS
+    value: "\u6750\u6599\u7403(Materials)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.skinMeshRender_blendShapeValues
-    value: BLENDSHAPE VALUES
+    value: "\u8868\u60C5\u5F62\u6001\u952E\u53C2\u6570(BlendShape Values)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.particleSystems
-    value: PARTICLE SYSTEMS
+    value: "\u7C92\u5B50\u7CFB\u7EDF(Particle Systems)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.rigidBodies
-    value: RIGID BODIES
+    value: "\u521A\u4F53(Rigid Bodies)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.trailRenderers
-    value: TRAIL RENDERERS
+    value: "\u8F68\u8FF9\u6E32\u67D3\u5668(Trail Renderers)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.meshRenderers
-    value: MESH RENDERERS
+    value: "\u7F51\u683C\u6E32\u67D3\u5668(Mesh Renderers)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.copyGameObjects
-    value: COPY GAMEOBJECTS
+    value: "\u590D\u5236\u7269\u4F53"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.copyColliderObjects
-    value: COPY COLLIDER OBJECTS
+    value: "\u590D\u5236\u78B0\u649E\u7269\u4F53"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.lights
-    value: LIGHTS
+    value: "\u5149(Lights)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.animators
-    value: ANIMATORS
+    value: "\u52A8\u753B\u63A7\u5236\u5668(Animators)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.copyMainAnimator
-    value: COPY MAIN ANIMATOR
+    value: "\u590D\u5236\u4E3B\u7EA7\u52A8\u753B\u63A7\u5236\u5668(Main Animator)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.animators_inChildren
-    value: CHILD ANIMATORS
+    value: "\u5B50\u7EA7\u52A8\u753B\u7EC4\u4EF6(Child Animators)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.audioSources
-    value: AUDIO SOURCES
+    value: "\u97F3\u9891\u6E90(Audio Sources)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.joints
-    value: JOINTS
+    value: "\u8282\u70B9(Joints)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.other
@@ -427,15 +428,15 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.ignoreList
-    value: IGNORE LIST
+    value: "\u5FFD\u7565\u5217\u8868"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.includeChildren
-    value: INCLUDE CHILDREN
+    value: "\u5305\u62EC\u5B50\u9879"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.size
-    value: SIZE
+    value: "\u5927\u5C0F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.other_emptyScripts
@@ -451,63 +452,68 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.gameObjects
-    value: 'GAMEOBJECTS: {0} ({1})'
+    value: "\u7269\u4F53\u6570\u91CF(GameObjects): {0} ({1})"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.bones
-    value: 'BONES: {0} - {1}'
+    value: "\u9AA8\u9ABC(Bones): {0} - {1}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.skinnedMeshRenderers
-    value: 'SKINNED MESH RENDERERS: {0} ({1}) - {2}'
+    value: "\u8499\u76AE\u7F51\u683C\u6E32\u67D3\u5668(Skinned Mesh Renderers): {0}
+      ({1}) - {2}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.meshRenderers
-    value: 'MESH RENDERERS: {0} ({1}) - {2}'
+    value: "\u7F51\u683C\u6E32\u67D3\u5668(Mesh Renderers): {0} ({1}) - {2}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.polygons
-    value: 'POLYGONS: {0} ({1}) - {2}'
+    value: "\u4E09\u89D2\u5F62\u9762\u6570: {0} ({1}) - {2}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.usedMaterialSlots
-    value: 'USED MATERIAL SLOTS: {0} ({1}) - {2}'
+    value: "\u5DF2\u4F7F\u7528\u7684\u6750\u8D28\u7403\u69FD\u4F4D(Material Slots):
+      {0} ({1}) - {2}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.uniqueMaterials
-    value: 'UNIQUE MATERIALS: {0} ({1})'
+    value: "\u5DF2\u4F7F\u7528\u7684\u6750\u8D28\u7403(Material): {0} ({1})"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.shaders
-    value: 'SHADERS: {0}'
+    value: "\u7740\u8272\u5668(Shaders): {0}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.dynamicBoneTransforms
-    value: 'DYNAMIC BONE TRANSFORMS: {0} ({1}) - {2}'
+    value: "\u52A8\u6001\u9AA8\u9ABC\u5F71\u54CD\u9AA8\u9ABC\u6570\u91CF(Dynamic Bone
+      Transforms): {0} ({1}) - {2}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.dynamicBoneColliders
-    value: 'DYNAMIC BONE COLLIDERS: {0} ({1}) - {2}'
+    value: "\u52A8\u6001\u9AA8\u9ABC\u78B0\u649E(Dynamic Bone Colliders): {0} ({1})
+      - {2}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.dynamicBoneColliderTransforms
-    value: 'COLLIDER AFFECTED TRANSFORMS: {0} ({1}) - {2}'
+    value: "\u78B0\u649E\u5F71\u54CD\u9AA8\u9ABC\u6570\u91CF(Collider Affected Transforms):
+      {0} ({1}) - {2}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.particleSystems
-    value: 'PARTICLE SYSTEMS: {0} ({1}) - {2}'
+    value: "\u7C92\u5B50\u7CFB\u7EDF(Particle Systems): {0} ({1}) - {2}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.maxParticles
-    value: 'MAX PARTICLES: {0} ({1}) - {2}'
+    value: "\u6700\u5927\u7C92\u5B50\u6570(Max Particles): {0} ({1}) - {2}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.overallPerformance
-    value: 'OVERALL PERFORMANCE: {0}'
+    value: "\u6574\u4F53\u6027\u80FD(Overall Performance): {0}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.selectAvatarFirst
-    value: SELECT AN AVATAR FIRST
+    value: "\u8BF7\u5148\u9009\u62E9\u6A21\u578B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.ikFollowers
@@ -515,103 +521,103 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.overlayCameraImage
-    value: OVERLAY IMAGE
+    value: "\u8986\u76D6\u56FE\u7247"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.overlayTexture
-    value: OVERLAY TEXTURE
+    value: "\u8986\u76D6\u7EB9\u7406"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.startUploadingFirst
-    value: START UPLOADING AN AVATAR, OR GET INTO PLAY MODE
+    value: "\u5F00\u59CB\u4E0A\u4F20\u6A21\u578B\uFF0C\u6216\u8FDB\u5165\u64AD\u653E\u6A21\u5F0F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.backgroundType
-    value: BACKGROUND TYPE
+    value: "\u80CC\u666F\u7C7B\u578B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.backgroundType_None
-    value: NONE
+    value: "\uFF08\u65E0\uFF09"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.backgroundType_Material
-    value: SKYBOX
+    value: "\u5929\u7A7A\u76D2"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.backgroundType_Color
-    value: COLOR
+    value: "\u989C\u8272"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.backgroundType_Image
-    value: IMAGE
+    value: "\u56FE\u7247"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.hideOtherAvatars
-    value: HIDE OTHER AVATARS WHEN UPLOADING
+    value: "\u4E0A\u4F20\u65F6\u9690\u85CF\u5176\u4ED6\u6A21\u578B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.tint
-    value: TINT
+    value: "\u8272\u8C03"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.useCameraOverlay
-    value: USE CAMERA OVERLAY
+    value: "\u4F7F\u7528\u76F8\u673A\u8986\u76D6    "
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.useCameraBackground
-    value: USE CAMERA BACKGROUND
+    value: "\u4F7F\u7528\u76F8\u673A\u80CC\u666F    "
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.selectedCamera
-    value: SELECTED CAMERA
+    value: "\u9009\u62E9\u7684\u76F8\u673A"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.offset
-    value: OFFSET
+    value: "\u504F\u79FB"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.blendshapes
-    value: BLENDSHAPES
+    value: "\u8868\u60C5\u5F62\u6001\u952E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.poses
-    value: POSES
+    value: "\u59FF\u52BF"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.cameras
-    value: CAMERAS
+    value: "\u76F8\u673A"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.centerCameraFixClippingPlanes
-    value: FIX CLIPPING PLANES
+    value: "\u4FEE\u590D\u88C1\u526A\u5E73\u9762"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.positionOffset
-    value: POSITION OFFSET
+    value: "\u4F4D\u7F6E\u504F\u79FB"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.rotationOffset
-    value: ROTATION OFFSET
+    value: "\u65CB\u8F6C\u504F\u79FB"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.tryFixPoseSinking
-    value: TRY TO FIX POSE SINKING
+    value: "\u5C1D\u8BD5\u4FEE\u590D\u59FF\u52BF\u4E0B\u6C89"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.centerCameraOn
-    value: CENTER CAMERA ON {0}
+    value: "\u6253\u5F00\u6444\u50CF\u673A\u4E2D\u5FC3\u4F4D\u7F6E {0}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.viewpoint
-    value: VIEWPOINT
+    value: "\u89C6\u89D2\u7403"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.applyBodyPosition
-    value: Apply Body Position
+    value: "\u5E94\u7528\u8EAB\u4F53\u4F4D\u7F6E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.applyBodyRotation
-    value: Apply Body Rotation
+    value: "\u5E94\u7528\u8EAB\u4F53\u65CB\u8F6C"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: thumbnails.lockSelectedCameraToSceneView
@@ -623,19 +629,19 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: misc.searchForBones
-    value: SEARCH FOR DYNAMICBONES
+    value: "\u641C\u7D22\u52A8\u6001\u9AA8\u9ABC(DynamicBones)\u63D2\u4EF6"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: misc.superExperimental
-    value: SUPER EXPERIMENTAL STUFF
+    value: "\u5B9E\u9A8C\u6027\u529F\u80FD"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: misc.language
-    value: LANGUAGE
+    value: "\u8BED\u8A00"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: misc.refresh
-    value: REFRESH
+    value: "\u5237\u65B0"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: misc.importLanguageAsset
@@ -643,91 +649,91 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.done
-    value: DONE
+    value: "\u5B8C\u6210"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.cancelled
-    value: CANCELLED
+    value: "\u53D6\u6D88"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.nothingSelected
-    value: SELECT SOMETHING FIRST
+    value: "\u5148\u9009\u62E9\u4E00\u4E2A"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.cantCopyToSelf
-    value: CAN'T COPY COMPONENTS FROM AN OBJECT TO ITSELF. WHAT ARE YOU DOING?
+    value: "\u65E0\u6CD5\u5C06\u7EC4\u4EF6\u4ECE\u5BF9\u8C61\u590D\u5236\u5230\u5176\u81EA\u8EAB\u3002\u4F60\u5728\u505A\u4EC0\u4E48\uFF1F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.copyAttempt
-    value: ATTEMPTING TO COPY {0} FROM {1} TO {2}
+    value: "\u8BD5\u56FE\u5C06 {0} \u4ECE {1} \u590D\u5236\u5230 {2}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.removeAttempt
-    value: ATTEMPTING TO REMOVE {0} from {1}
+    value: "\u6B63\u5728\u5C1D\u8BD5\u4ECE {0} \u4E2D\u5220\u9664 {1}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.copyFromInvalid
-    value: CAN'T COPY COMPONENTS because 'Copy From' is invalid
+    value: "\u65E0\u6CD5\u590D\u5236\u7EC4\u4EF6\uFF0C\u56E0\u4E3A\u201C\u590D\u5236\u6765\u6E90\u201D\u65E0\u6548"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.viewpointApplied
-    value: SET VIEWPOSITION TO {0}
+    value: "\u5C06\u89C6\u89D2\u7403\u8BBE\u7F6E\u4E3A {0}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.viewpointCancelled
-    value: CANCELLED VIEWPOSITION CHANGES
+    value: "\u53D6\u6D88\u7684\u89C6\u89D2\u7403\u4F4D\u7F6E\u66F4\u6539"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.tryFillVisemes
-    value: ATTEMPTING TO FILL VISEMES ON {0}
+    value: "\u5C1D\u8BD5\u5728 {0} \u6DFB\u52A0\u53E3\u578B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.noSkinnedMeshFound
-    value: 'FAILED: NO SKINNED MESH FOUND'
+    value: "\u5931\u8D25\uFF1A\u672A\u627E\u5230\u8499\u76AE\u7F51\u683C(skinned mesh)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.descriptorIsNull
-    value: AVATAR DESCRIPTOR IS NULL
+    value: "VRC\u6A21\u578B\u63CF\u8FF0\u63D2\u4EF6(VRC_Avatar Descriptor)\u4E0D\u5B58\u5728"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.success
-    value: SUCCESS
+    value: "\u6210\u529F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.meshHasNoVisemes
-    value: FAILED. MESH HAS NO VISEMES. SET TO DEFAULT
+    value: "\u5931\u8D25\u3002\u7F51\u683C\u6CA1\u6709\u53E3\u578B\u3002\u8BBE\u7F6E\u4E3A\u9ED8\u8BA4\u503C"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.failed
-    value: FAILED
+    value: "\u5931\u8D25"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.failedIsNull
-    value: 'FAILED: {1} IS NULL'
+    value: "\u5931\u8D25: {1} \u4E0D\u5B58\u5728"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.nameIsEmpty
-    value: NAME IS EMPTY
+    value: "\u540D\u79F0\u4E3A\u7A7A"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.loadedPose
-    value: 'LOADED POSE: {0}'
+    value: "\u52A0\u8F7D\u59FF\u52BF: {0}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.loadedBlendshapePreset
-    value: 'LOADED BLENDSHAPES: {0}'
+    value: "\u52A0\u8F7D\u8868\u60C5\u5F62\u6001\u952E: {0}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.failedDoesntHave
-    value: 'FAILED: {0} DOESN''T HAVE A {1}'
+    value: "\u5931\u8D25: {0} \u6CA1\u6709 {1}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.failedAlreadyHas
-    value: 'FAILED: {0} ALREADY HAS A {1}'
+    value: "\u5931\u8D25: {0} \u5DF2\u6709 {1}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.loadedCameraOverlay
-    value: LOADED {0} AS CAMERA OVERLAY
+    value: "\u5DF2\u5C06\u56FE\u7247 {0} \u52A0\u8F7D\u4E3A\u76F8\u673A"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.failedHasNoIgnoring
@@ -735,73 +741,76 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.settingQuickViewpoint
-    value: SETTING QUICK VIEWPOINT TO {0}
+    value: "\u5C06\u89C6\u89D2\u7403\u5FEB\u901F\u8BBE\u7F6E\u4E3A {0}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.cantSetViewpointNonHumanoid
-    value: CAN'T SET VIEWPOINT FOR A NON HUMANOID AVATAR
+    value: "\u65E0\u6CD5\u4E3A\u975E\u4EBA\u5F62(Humanoid)\u6A21\u578B\u8BBE\u7F6E\u89C6\u89D2\u7403"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.setAvatarScaleTo
-    value: SET AVATAR SCALE TO {0} AND VIEWPOINT TO {1}
+    value: "\u5C06\u6A21\u578B\u6BD4\u4F8B\u8BBE\u7F6E\u4E3A {0}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.setAvatarScaleAndViewpointTo
-    value: SET AVATAR SCALE TO {0} AND VIEWPOINT TO {1}
+    value: "\u5C06\u6A21\u578B\u6BD4\u4F8B\u8BBE\u7F6E\u4E3A {0} \u4EE5\u53CA\u89C6\u89D2\u7403\u8BBE\u7F6E\u4E3A
+      {1}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.canceledScaleChanges
-    value: CANCELLED SCALE CHANGES
+    value: "\u53D6\u6D88\u7684\u6BD4\u4F8B\u5927\u5C0F\u66F4\u6539"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.successCopiedOverFromTo
-    value: 'SUCCESS: COPIED OVER {0} FROM {1}''S {2} TO {3}''S {4}'
+    value: "\u6210\u529F: \u5C06 {0} \u4ECE {1} \u7684 {2} \u590D\u5236\u5230 {3}
+      \u7684 {4}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.hasNoComponentsOrChildrenDestroying
-    value: '{0} HAS NO COMPONENTS OR CHILDREN. DESTROYING'
+    value: "{0} \u6CA1\u6709\u7EC4\u4EF6\u6216\u5B50\u7EA7\u3002\u53D6\u6D88"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.cantBeDestroyedPartOfPrefab
-    value: '{0}''S {1} CAN''T BE DESTROYED BECAUSE IT''S PART OF A PREFAB INSTANCE.
-      IGNORING'
+    value: "{0} \u7684 {1} \u65E0\u6CD5\u5220\u9664\uFF0C\u56E0\u4E3A\u5B83\u662F\u9884\u5236\u4F53\u7684\u4E00\u90E8\u5206\u3002\u5FFD\u7565"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.meshPrefabMissingCantRevertBlednshapes
-    value: MESH PREFAB IS MISSING, CAN'T REVERT TO DEFAULT BLENDSHAPES.
+    value: "\u7F3A\u5C11\u7F51\u683C\u9884\u5236\uFF0C\u65E0\u6CD5\u8FD8\u539F\u4E3A\u9ED8\u8BA4\u8868\u60C5\u5F62\u6001\u952E\u3002"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.meshPrefabMissingCantRevertPose
-    value: MESH PREFAB IS MISSING, CAN'T REVERT TO DEFAULT POSE
+    value: "\u7F3A\u5C11\u7F51\u683C\u9884\u5236\uFF0C\u65E0\u6CD5\u8FD8\u539F\u4E3A\u9ED8\u8BA4\u59FF\u52BF"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.runtimeBlueprintNotFoundStartUploading
-    value: RUNTIMEBLUEPRINTCREATION SCRIPT NOT FOUND. START UPLOADING AN AVATAR TO
-      USE THIS
+    value: "\u65E0\u6CD5\u627E\u5230\u8FD0\u884C\u521B\u5EFA\u84DD\u56FE\u811A\u672C.
+      \u4E0A\u4F20\u6A21\u578B\u9700\u8981\u4F7F\u7528\u8FD9\u4E2A\u811A\u672C"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.failedToCenterCameraNoDescriptor
-    value: FAILED TO CENTER CAMERA ON VIEWPOINT. AVATAR DESCRIPTOR NOT FOUND
+    value: "\u65E0\u6CD5\u5728\u89C6\u89D2\u7403\u4E0A\u4F7F\u76F8\u673A\u5C45\u4E2D\u3002\u627E\u4E0D\u5230VRC\u6A21\u578B\u63CF\u8FF0\u63D2\u4EF6(VRC_Avatar
+      Descriptor)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.setProbeAnchorTo
-    value: SET {0}'S PROBE ANCHOR TO {1}
+    value: "\u5C06 {0} \u7684\u6E32\u67D3\u4F4D\u7F6E\u8BBE\u7F6E\u4E3A {1}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.cantSetPoseNonHumanoid
-    value: CAN'T SET HUMANOID POSE {0} ON A NON HUMANOID AVATAR
+    value: "\u65E0\u6CD5\u5728\u975E\u4EBA\u5F62(Humanoid)\u5316\u8EAB\u4E0A\u8BBE\u7F6E\u59FF\u52BF
+      {0}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.loadedImageAsBackground
-    value: LOADED {0} AS BACKGROUND IMAGE
+    value: "\u5DF2\u5C06 {0} \u52A0\u8F7D\u4E3A\u80CC\u666F\u56FE\u7247"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.loadedImageAsOverlay
-    value: LOADED {0} AS OVERLAY IMAGE
+    value: "\u5DF2\u5C06 {0} \u52A0\u8F7D\u4E3A\u8986\u76D6\u56FE\u7247"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.descriptorIsMissingCantGetViewpoint
-    value: AVATAR DESCRIPTOR IS MISSING. CAN'T GET VIEWPOINT POSITION
+    value: "\u7F3A\u5C11VRC\u6A21\u578B\u63CF\u8FF0\u63D2\u4EF6(VRC_Avatar Descriptor)\u3002\u65E0\u6CD5\u83B7\u53D6\u89C6\u89D2\u7403\u4F4D\u7F6E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.hasMissingScriptDestroying
@@ -817,39 +826,39 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: warnings.warn
-    value: WARNING
+    value: "\u8B66\u544A"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: warnings.notFound
-    value: NOT FOUND
+    value: "\u65E0\u6CD5\u627E\u5230"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: warnings.oldVersion
-    value: OLD VERSION
+    value: "\u65E7\u7248\u672C"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: warnings.selectSceneObject
-    value: PLEASE SELECT AN OBJECT FROM THE SCENE
+    value: "\u8BF7\u4ECE\u573A\u666F\u4E2D\u9009\u62E9\u4E00\u4E2A\u5BF9\u8C61"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: warnings.cameraNotFound
-    value: CAMERA NOT FOUND
+    value: "\u65E0\u6CD5\u627E\u5230\u76F8\u673A(Camera)"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: warnings.invalidPreset
-    value: 'CAN''T APPLY PRESET {0}: INVALID PRESET'
+    value: "\u65E0\u6CD5\u5E94\u7528\u9884\u8BBE {0} \uFF1A\u65E0\u6548\u7684\u9884\u8BBE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: warnings.cantRevertRendererWithoutPrefab
-    value: CAN'T REVERT SKINNED MESH RENDERER {0}, OBJECT HAS NO PREFAB.
+    value: "\u65E0\u6CD5\u91CD\u7F6ESkinned Mesh Renderer {0} , \u5BF9\u8C61\u6CA1\u6709\u9884\u5236\u4F53\uFF08Prefab\uFF09\u3002"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: warnings.cantLoadImageAtPath
-    value: CAN'T LOAD IMAGE AT {0}
+    value: "\u65E0\u6CD5\u5728 {0} \u52A0\u8F7D\u56FE\u50CF"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: warnings.doesntWorkInUnity2017
-    value: Doesn't work in Unity 2017 :(
+    value: "\u6CA1\u6709\u4F7F\u7528Unity 2017 :("
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: warnings.armatureScaleNotOne
@@ -872,194 +881,194 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: credits.version
-    value: VERSION
+    value: "\u7248\u672C"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: credits.redundantStrings
-    value: NOW WITH 100% MORE REDUNDANT STRINGS
+    value: "\u7FFB\u8BD1\u8005\uFF1A\u56E0\u4E3A\u82F1\u8BED\u4E0D\u597D\u53EF\u80FD\u4F1A\u6709\u70B9\u51FA\u5165\uFF0C\u6B22\u8FCE\u6307\u51FA\uFF0C\u53EF\u4EE5\u52A0\u6211QQ474696397\u544A\u8BC9\u6211\uFF0C\u70B9\u51FB\u53F3\u4E0A\u89D2\u7684\u661F\u661F\u5F00\u59CB\u4F7F\u7528"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: credits.addMoreStuff
-    value: I'LL ADD MORE STUFF TO THIS EVENTUALLY
+    value: "\u4F5C\u8005\uFF1A\u73B0\u5728\u4E00\u5B9A\u6709\u591A\u4F59\u7684\u5B57\u7B26\u4E32\uFF0C\u6211\u4F1A\u6DFB\u52A0\u66F4\u591A\u7684\u529F\u80FD"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: credits.pokeOnDiscord
-    value: POKE ME ON DISCORD AT PUMKIN#2020
+    value: "        \u53EF\u4EE5\u5728Discord\u641C\u7D22Pumkin#2020\u6DFB\u52A0\u6211\u4E3A\u597D\u53CB"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.title
-    value: PUMKIN'S POSE EDITOR
+    value: "Pumkin\u7684\u59FF\u52BF\u7F16\u8F91\u5668"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.scene
-    value: SCENE
+    value: "\u573A\u666F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.sceneLoadAdditive
-    value: LOAD ADDITIVE
+    value: "\u52A0\u8F7D\u6DFB\u52A0\u7269"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.sceneOverrideLights
-    value: OVERRIDE LIGHTS
+    value: "\u8986\u76D6\u5149"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.avatarPosition
-    value: AVATAR POSITION
+    value: "\u6A21\u578B\u4F4D\u7F6E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.avatarPositionOverridePose
-    value: OVERRIDE POSE
+    value: "\u8986\u76D6\u59FF\u52BF"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.avatarPositionOverrideBlendshapes
-    value: OVERRIDE BLENDSHAPES
+    value: "\u8986\u76D6\u8868\u60C5\u5F62\u6001\u952E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.sceneSaveChanges
-    value: SAVE SCENE CHANGES
+    value: "\u4FDD\u5B58\u573A\u666F\u66F4\u6539"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.unloadScene
-    value: UNLOAD SCENE
+    value: "\u79FB\u9664\u573A\u666F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.resetPosition
-    value: RESET POSITION
+    value: "\u590D\u4F4D\u4F4D\u7F6E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.pose
-    value: POSE
+    value: "\u59FF\u52BF"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.newPose
-    value: NEW POSE
+    value: "\u65B0\u7684\u59FF\u52BF"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.onlySavePoseChanges
-    value: ONLY SAVE POSE CHANGES
+    value: "\u4EC5\u4FDD\u5B58\u59FF\u52BF\u66F4\u6539"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.loadPose
-    value: LOAD POSE
+    value: "\u52A0\u8F7D\u59FF\u52BF"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.blendshapes
-    value: BLENDSHAPES
+    value: "\u8868\u60C5\u5F62\u6001\u952E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.newPreset
-    value: NEW PRESET
+    value: "\u65B0\u9884\u8BBE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.loadPreset
-    value: LOAD PRESET
+    value: "\u8F7D\u5165\u9884\u8BBE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.saveButton
-    value: SAVE
+    value: "\u4FDD\u5B58"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.reloadButton
-    value: RELOAD
+    value: "\u91CD\u65B0\u52A0\u8F7D"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.bodyPositionYTooSmall
-    value: HUMANPOSE.BODYPOSITION.Y IS {0}, YOU PROBABLY DON'T WANT THAT. SETTING
-      HUMANPOSE.BODYPOSITION.Y TO 1
+    value: "\u4EBA\u5F62\u59FF\u52BF(humanPose).\u8EAB\u4F53\u4F4D\u7F6E(bodyPosition).y
+      \u662F {0}, \u8FD9\u53EF\u80FD\u4E0D\u662F\u4F60\u60F3\u8981\u7684. \u8BF7\u5C06\u4EBA\u5F62\u59FF\u52BF(humanPose).\u8EAB\u4F53\u4F4D\u7F6E(bodyPosition).y\u8BBE\u7F6E\u4E3A1"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.muscles
-    value: MUSCLES
+    value: "\u5F71\u54CD\u529B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.transformRotations
-    value: TRANSFORM ROTATIONS
+    value: "\u53D8\u6362\u65CB\u8F6C"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.selectHumanoidAvatar
-    value: SELECT A HUMANOID AVATAR
+    value: "\u9009\u62E9\u4EBA\u5F62(Humanoid)\u6A21\u578B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.animationTime
-    value: TIME
+    value: "\u65F6\u95F4"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.poseFromAnimation
-    value: POSE FROM ANIMATION
+    value: "\u6765\u81EA\u52A8\u753B\u7684\u59FF\u52BF"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: poseEditor.allowMotion
-    value: Allow Motion
+    value: "\u5141\u8BB8\u8FD0\u52A8"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.presetName
-    value: PRESET NAME
+    value: "\u9884\u8BBE\u540D\u79F0"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.mode
-    value: PRESET MODE
+    value: "\u9884\u8BBE\u6A21\u5F0F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.otherNames
-    value: OTHER NAMES
+    value: "\u5176\u4ED6\u540D\u79F0"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.poseMode
-    value: POSE NAME
+    value: "\u59FF\u52BF\u6A21\u5F0F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.editPosePreset
-    value: EDIT POSE PRESET
+    value: "\u7F16\u8F91\u59FF\u52BF\u9884\u8BBE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.createPosePreset
-    value: CREATE POSE PRESET
+    value: "\u521B\u5EFA\u59FF\u52BF\u9884\u8BBE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.overwriteFile
-    value: OVERWRITE FILE
+    value: "\u8986\u76D6\u6587\u4EF6"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.transformDoesntBelongToAvatar
-    value: '{0} DOESN''T BELONG TO AVATAR {1}'
+    value: "{0} \u4E0D\u5C5E\u4E8E\u6A21\u578B {1}"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.cameraPreset
-    value: CAMERA PRESET
+    value: "\u76F8\u673A\u9884\u8BBE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.posePreset
-    value: POSE PRESET
+    value: "\u59FF\u52BF\u9884\u8BBE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.blendshapePreset
-    value: BLENDSHAPE PRESET
+    value: "\u9884\u8BBE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.editBlendshapePreset
-    value: EDIT BLENDSHAPE PRESET
+    value: "\u7F16\u8F91\u8868\u60C5\u5F62\u6001\u952E\u9884\u8BBE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.createBlendshapePreset
-    value: CREATE BLENDSHAPE PRESET
+    value: "\u521B\u5EFA\u8868\u60C5\u5F62\u6001\u952E\u9884\u8BBE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.transform
-    value: TRANSFORM
+    value: "\u53D8\u6362"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.offsetMode
-    value: OFFSET MODE
+    value: "\u504F\u79FB\u6A21\u5F0F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.camera
-    value: CAMERA
+    value: "\u76F8\u673A"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.editCameraPreset
-    value: EDIT CAMERA PRESET
+    value: "\u7F16\u8F91\u76F8\u673A\u9884\u8BBE"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: preset.createCameraPreset
-    value: CREATE CAMERA PRESET
+    value: "\u521B\u5EFA\u76F8\u673A\u9884\u8BBE"
     objectReference: {fileID: 0}

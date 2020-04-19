@@ -9,20 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a722b864b617955438a3effb19b2c444, type: 3}
+  m_Script: {fileID: 0}
   m_Name: Bad Thumbnail
   m_EditorClassIdentifier: 
-  name: Examples/Bad Thumbnail
-  offsetMode: 2
-  positionOffset: {x: 0, y: 0, z: 0.5}
-  rotationAnglesOffset: {x: 0, y: 180, z: 0}
-  transformPath: Armature/Hips
-  useOverlay: 0
-  overlayImagePath: 
-  overlayImageTint: {r: 1, g: 1, b: 1, a: 1}
-  useBackground: 1
-  backgroundType: 1
-  backgroundColor: {r: 1, g: 1, b: 1, a: 1}
-  backgroundImagePath: 
-  backgroundImageTint: {r: 1, g: 1, b: 1, a: 1}
-  backgroundMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_Name: Bad Thumbnail
+  m_EditorClassIdentifier: 
