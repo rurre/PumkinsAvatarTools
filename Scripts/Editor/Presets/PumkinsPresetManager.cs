@@ -197,7 +197,7 @@ namespace Pumkin.Presets
                 if(openWindow)
                 {
                     _PumkinsAvatarToolsWindow.ShowWindow();
-                    PumkinsAvatarTools.Instance._misc_expand = false;
+                    PumkinsAvatarTools.Instance._info_expand = false;
                     PumkinsAvatarTools.Instance._tools_expand = false;
                     PumkinsAvatarTools.Instance._thumbnails_expand = true;
                 }                

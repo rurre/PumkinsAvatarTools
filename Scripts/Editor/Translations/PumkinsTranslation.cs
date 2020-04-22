@@ -48,7 +48,7 @@ namespace Pumkin.Translations
         public CopierStrings copier = new CopierStrings();
         public AvatarInfoStrings avatarInfo = new AvatarInfoStrings();
         public ThumbnailStrings thumbnails = new ThumbnailStrings();
-        public MiscStrings misc = new MiscStrings();
+        public SettingsStrings misc = new SettingsStrings();
         public LogStrings log = new LogStrings();
         public WarningStrings warnings = new WarningStrings();
         public CreditsStrings credits = new CreditsStrings();
@@ -82,7 +82,7 @@ namespace Pumkin.Translations
             hashCode = hashCode * -1521134295 + EqualityComparer<CopierStrings>.Default.GetHashCode(copier);
             hashCode = hashCode * -1521134295 + EqualityComparer<AvatarInfoStrings>.Default.GetHashCode(avatarInfo);
             hashCode = hashCode * -1521134295 + EqualityComparer<ThumbnailStrings>.Default.GetHashCode(thumbnails);
-            hashCode = hashCode * -1521134295 + EqualityComparer<MiscStrings>.Default.GetHashCode(misc);
+            hashCode = hashCode * -1521134295 + EqualityComparer<SettingsStrings>.Default.GetHashCode(misc);
             hashCode = hashCode * -1521134295 + EqualityComparer<LogStrings>.Default.GetHashCode(log);
             hashCode = hashCode * -1521134295 + EqualityComparer<WarningStrings>.Default.GetHashCode(warnings);
             hashCode = hashCode * -1521134295 + EqualityComparer<CreditsStrings>.Default.GetHashCode(credits);
@@ -126,7 +126,7 @@ namespace Pumkin.Translations
         public string copier = "Copy Components";
         public string avatarInfo = "Avatar Info";
         public string thumbnails = "Thumbnails";
-        public string misc = "Misc";
+        public string info = "Info";
         public string avatar = "Avatar";
         public string useSceneSelection = "Use Scene Selection";
     };
@@ -337,7 +337,7 @@ namespace Pumkin.Translations
         public string loadedImageAsBackground = "Loaded '{0}' as Background image";
         public string loadedImageAsOverlay = "Loaded '{0}' as Overlay image";
         public string descriptorIsMissingCantGetViewpoint = "Avatar Descriptor is missing. Can't get Viewpoint position";
-        public string hasMissingScriptDestroying = "{0}'s component number {1} is a missing script. Destroying";
+        public string hasMissingScriptDestroying = "{0} has a missing script. Destroying";
         public string copiedDynamicBone = "Copied DynamicBone from {0}'s {1} to {2}'s {1}";
         public string invalidTranslation = "Can't load translation asset. Invalid translation";
     };
@@ -370,7 +370,7 @@ namespace Pumkin.Translations
     };
 
     [Serializable]
-    public class MiscStrings
+    public class SettingsStrings
     {
         public string uwu = "uwu";
         public string searchForBones = "Search for DynamicBones";
@@ -378,6 +378,9 @@ namespace Pumkin.Translations
         public string language = "Language";
         public string refresh = "Refresh";
         public string importLanguageAsset = "Import Language Asset";
+        public string enableVerboseLogging = "Enable verbose logging";
+        public string sceneViewOverlayWindowsAtBottom = "Draw scene view overlays at the bottom";
+        public string misc = "Misc";
     };
 
     [Serializable]

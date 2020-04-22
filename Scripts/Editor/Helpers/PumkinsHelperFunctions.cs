@@ -11,6 +11,8 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 using UnityEngine;
+using VRC.Core;
+using VRC.SDKBase;
 
 namespace Pumkin.HelperFunctions
 {
@@ -284,11 +286,26 @@ namespace Pumkin.HelperFunctions
         }
 
         /// <summary>
+        /// Destroys the avatar descriptor and pipeline manager components if they're present on the avatar
+        /// </summary>        
+        public static void DestroyAvatarDescriptorAndPipeline(GameObject avatar)
+        {
+            if(!avatar)
+                return;
+
+            var desc = avatar.GetComponent<VRC_AvatarDescriptor>();
+            var pipe = avatar.GetComponent<PipelineManager>();
+
+            DestroyAppropriate(desc);
+            DestroyAppropriate(pipe);
+        }
+
+        /// <summary>
         /// Destroys an object. If in edit mode DestroyImmediate is used, if in play mode Destroy is used
         /// </summary>        
         public static void DestroyAppropriate(UnityEngine.Object obj, bool allowDestroyingAssets = false)
         {
-            if(!obj)
+            if(obj is null)
                 return;
             if(EditorApplication.isPlaying)
                 UnityEngine.Object.Destroy(obj);
@@ -651,14 +668,14 @@ namespace Pumkin.HelperFunctions
 
             if(!File.Exists(filePath))
                 return default;
-
+                  
             T result;
             byte[] data = File.ReadAllBytes(filePath);
             try
             {
                 result = Deserialize<T>(data);
             }
-            catch
+            catch(Exception e)
             {
                 result = default;
             }
@@ -676,7 +693,14 @@ namespace Pumkin.HelperFunctions
 
         public static Transform GetAvatarArmature(GameObject selection)
         {
-            return selection ? selection.transform.Find("Armature") : null; //Might add more checks if armature isn't named armature later
+            if(!selection)
+                return null;
+
+            var trans = selection.GetComponentsInChildren<Transform>()
+                .Where(t => t.name.ToLower().StartsWith("armature"))
+                .FirstOrDefault();
+
+            return trans; //Might add more checks if armature isn't named armature later
         }
 
         public static Texture2D OpenImageGetTexture(ref string startPath)
@@ -1148,6 +1172,27 @@ namespace Pumkin.HelperFunctions
             string path = AssetDatabase.GetAssetPath(obj);
             bool flag = !string.IsNullOrEmpty(path);
             return flag;
+        }
+
+        public static bool DestroyMissingScriptsInGameObject(GameObject obj)
+        {
+            var components = obj.GetComponents<Component>();
+            var r = 0;
+            bool found = false;
+
+            for(var i = 0; i < components.Length; i++)
+            {
+                if(components[i] != null)
+                    continue;
+
+                var serializedObject = new SerializedObject(obj);
+                var prop = serializedObject.FindProperty("m_Component");
+                prop.DeleteArrayElementAtIndex(i - r);
+                r++;
+                serializedObject.ApplyModifiedProperties();
+                found = true;
+            }
+            return found;
         }
     }    
 }

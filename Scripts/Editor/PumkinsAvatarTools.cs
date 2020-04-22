@@ -22,6 +22,7 @@ using Pumkin.Translations;
 using UnityEditor.Experimental.SceneManagement;
 #endif
 
+
 /// <summary>
 /// PumkinsAvatarTools by, well, Pumkin
 /// https://github.com/rurre/PumkinsAvatarTools
@@ -69,6 +70,7 @@ namespace Pumkin.AvatarTools
         Transform _scaleViewpointDummy;
 
         VRC_AvatarDescriptor _tempAvatarDescriptor;
+        bool _tempAvatarDescriptorWasAdded = false;
 
         //Dynamic Bones
         bool _nextToggleDBoneState = false;
@@ -323,7 +325,7 @@ namespace Pumkin.AvatarTools
 
         #region Avatar Info
 
-        static AvatarInfo avatarInfo = new AvatarInfo();
+        static PumkinsAvatarInfo avatarInfo = new PumkinsAvatarInfo();
         static string _avatarInfoSpace = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
         static string _avatarInfoString = Strings.AvatarInfo.selectAvatarFirst + _avatarInfoSpace; //Please don't hurt me for this        
 
@@ -340,16 +342,18 @@ namespace Pumkin.AvatarTools
         [SerializeField] public bool _avatarInfo_expand = false;
         [SerializeField] public bool _thumbnails_expand = false;
 
-        [SerializeField] public bool _misc_expand = true;
+        [SerializeField] public bool _info_expand = true;
         [SerializeField] bool _thumbnails_useCameraOverlay_expand = true;
         [SerializeField] bool _thumbnails_useCameraBackground_expand = true;
 
         //Misc
         SerializedObject _serializedScript;
-        [SerializeField] bool _openedInfo = false;
+        [SerializeField] bool _openedSettings = false;
         [SerializeField] Vector2 _mainScroll = Vector2.zero;
         [SerializeField] bool verboseLoggingEnabled = false;
         GameObject oldSelectedAvatar = null;
+
+        [SerializeField] bool handlesUiWindowPositionAtBottom = false;
 
         static string _mainScriptPath = null;
         static string _mainFolderPath = null;
@@ -1031,46 +1035,116 @@ namespace Pumkin.AvatarTools
         }
 
         public void OnGUI()
-        {
+        {            
             SerializedScript.Update();
 
             EditorGUILayout.BeginHorizontal();
             {
                 EditorGUILayout.LabelField(Strings.Main.title, Styles.Label_mainTitle);
 
-                if(GUILayout.Button(Icons.Star, Styles.IconLabel))
-                    _openedInfo = !_openedInfo;
+                if(GUILayout.Button(Icons.Settings, Styles.IconButton))
+                    _openedSettings = !_openedSettings;
             }
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.LabelField(Strings.Credits.version);
 
-            if(_openedInfo) //Credits Screen
+            if(_openedSettings)
             {
-                EditorGUILayout.Space();
-                GUILayout.BeginVertical();
+                DrawSettingsGUI();
+            }            
+            else
+            {
+                DrawMainGUI();
+            }
+        }
 
-                GUILayout.Label(Strings.Credits.redundantStrings);
+        void DrawSettingsGUI()
+        {
+            EditorGUILayout.Space();
+            GUILayout.BeginVertical();
 
-                EditorGUILayout.Space();
+            GUILayout.Label(Strings.Credits.redundantStrings);
 
-                GUILayout.Label(Strings.Credits.addMoreStuff);
+            EditorGUILayout.Space();
 
-                GUILayout.BeginHorizontal();
+            GUILayout.Label(Strings.Credits.addMoreStuff);
 
-                GUILayout.Label(Strings.Credits.pokeOnDiscord);
+            GUILayout.BeginHorizontal();
 
-                GUILayout.EndHorizontal();
-                GUILayout.EndVertical();
+            GUILayout.Label(Strings.Credits.pokeOnDiscord);
 
+            GUILayout.EndHorizontal();
+            GUILayout.EndVertical();            
+
+            if(PumkinsLanguageManager.Languages.Count == 0)
+                PumkinsLanguageManager.LoadTranslations();
+
+            EditorGUILayout.Space();
+            Helpers.DrawGUILine();
+            
+            EditorGUILayout.BeginHorizontal();
+            {
+                EditorGUI.BeginChangeCheck();
+                {
+                    if(_selectedLanguageIndex >= PumkinsLanguageManager.Languages.Count)
+                        _selectedLanguageIndex = PumkinsLanguageManager.GetIndexOfLanguage(_selectedLanguageString);
+
+                    _selectedLanguageIndex = EditorGUILayout.Popup(Strings.Settings.language, _selectedLanguageIndex, PumkinsLanguageManager.Languages.Select(o => o.ToString()).ToArray(), Styles.Popup);
+                }
+                if(EditorGUI.EndChangeCheck() && PumkinsLanguageManager.Languages.Count > 1)
+                {
+                    PumkinsLanguageManager.SetLanguage(PumkinsLanguageManager.Languages[_selectedLanguageIndex]);
+                    _selectedLanguageString = Strings.Translation.ToString();
+                }
+
+                if(GUILayout.Button(Icons.Refresh, Styles.IconButton))
+                {
+                    PumkinsLanguageManager.LoadTranslations();
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+            //if(GUILayout.Button(Strings.Misc.importLanguageAsset))
+            //{
+            //    var trans = Helpers.OpenPathGetFile<PumkinsTranslation>(_lastOpenFilePath, out string path);
+            //    if(trans == null)
+            //        Log(Strings.Log.invalidTranslation, LogType.Warning);
+
+            //    string name = Helpers.GetNameFromPath(path);
+            //    string newPath = $"{PumkinsAvatarTools.ResourceFolderPath}/{PumkinsLanguageManager.translationsPath}/{name}";
+            //    bool shouldCopy = false;
+
+            //    if(File.Exists(newPath))
+            //    {
+            //        if(EditorUtility.DisplayDialog(Strings.Warning.warn, Strings.Warning.languageAlreadyExistsOverwrite, Strings.Buttons.ok, Strings.Buttons.cancel))
+            //        {
+            //            shouldCopy = true;
+            //        }
+            //    }
+            //    if(shouldCopy)
+            //    {
+            //        File.Copy(path, newPath);
+            //        AssetDatabase.ImportAsset(newPath, ImportAssetOptions.ForceUpdate);
+            //    }
+            //}
+
+            if(!DynamicBonesExist)
+            {
                 Helpers.DrawGUILine();
-                GUILayout.Label(Strings.Misc.superExperimental + ":");
+                if(GUILayout.Button(Strings.Settings.searchForBones, Styles.BigButton))
+                    _DependencyChecker.CheckForDependencies();                
+            }
 
-                EditorGUILayout.Space();
+            Helpers.DrawGUILine();
+            GUILayout.Label(Strings.Settings.misc + ":");
 
-                verboseLoggingEnabled = EditorGUILayout.Toggle("Enable verbose logging", verboseLoggingEnabled);
+            EditorGUILayout.Space();
 
-                EditorGUILayout.Space();
+            verboseLoggingEnabled = GUILayout.Toggle(verboseLoggingEnabled, Strings.Settings.enableVerboseLogging);
+            handlesUiWindowPositionAtBottom = GUILayout.Toggle(handlesUiWindowPositionAtBottom, Strings.Settings.sceneViewOverlayWindowsAtBottom);
+
+            EditorGUILayout.Space();
 #if DEBUG_STUFF
                 if(GUILayout.Button("Generate Thry Manifest"))
                 {
@@ -1078,56 +1152,56 @@ namespace Pumkin.AvatarTools
                 }
 #endif
 
-                GUILayout.FlexibleSpace();
+            GUILayout.FlexibleSpace();
 
-                if(GUILayout.Button(Strings.Misc.uwu, "IconButton", GUILayout.ExpandWidth(false)))
-                {
-                    if(Strings.Misc.uwu == "uwu")
-                        Strings.Misc.uwu = "OwO";
-                    else
-                        Strings.Misc.uwu = "uwu";
-                }
-            }
-            else
+            if(GUILayout.Button(Strings.Settings.uwu, "IconButton", GUILayout.ExpandWidth(false)))
             {
-                EditorGUIUtility.SetIconSize(new Vector2(15, 15));
+                if(Strings.Settings.uwu == "uwu")
+                    Strings.Settings.uwu = "OwO";
+                else
+                    Strings.Settings.uwu = "uwu";
+            }
+        }
+
+        void DrawMainGUI()
+        {
+            EditorGUIUtility.SetIconSize(new Vector2(15, 15));
+
+            EditorGUILayout.Space();
+
+            DrawAvatarSelectionWithButtonGUI(true);
+
+            Helpers.DrawGUILine();
+
+            _mainScroll = EditorGUILayout.BeginScrollView(_mainScroll);
+            {
+                DrawToolsMenuGUI();
 
                 EditorGUILayout.Space();
 
-                DrawAvatarSelectionWithButtonGUI(true);
+                DrawCopierMenuGUI();
+
+                EditorGUILayout.Space();
+
+                DrawAvatarInfoMenuGUI();
+
+                EditorGUILayout.Space();
+
+                DrawThumbnailsMenuGUI();
+
+                EditorGUILayout.Space();
+
+                DrawInfoMenuGUI();
 
                 Helpers.DrawGUILine();
-
-                _mainScroll = EditorGUILayout.BeginScrollView(_mainScroll);
-                {
-                    DrawToolsMenuGUI();
-
-                    EditorGUILayout.Space();
-
-                    DrawCopierMenuGUI();
-
-                    EditorGUILayout.Space();
-
-                    DrawAvatarInfoMenuGUI();
-
-                    EditorGUILayout.Space();
-
-                    DrawThumbnailsMenuGUI();
-
-                    EditorGUILayout.Space();
-
-                    DrawMiscMenuGUI();
-
-                    Helpers.DrawGUILine();
-                }
-                EditorGUILayout.EndScrollView();
+            }
+            EditorGUILayout.EndScrollView();
 
 
-                if(GUI.changed)
-                {
-                    SerializedScript.ApplyModifiedProperties();
-                    EditorUtility.SetDirty(this);
-                }
+            if(GUI.changed)
+            {
+                SerializedScript.ApplyModifiedProperties();
+                EditorUtility.SetDirty(this);
             }
         }
 
@@ -1136,118 +1210,183 @@ namespace Pumkin.AvatarTools
         /// </summary>        
         void OnSceneGUI(SceneView sceneView)
         {
+            if(!DrawingHandlesGUI)
+                return;
+
+            HandleKeyboardInput();
+
+            //var horOffset = sceneViewRect.width * 0.05f;
+            //var vertOffset = sceneViewRect.height * 0.05f;
+
             if(_editingScale) //Scale editing
             {
-                bool propertyChanged = false;
-                if(!SelectedAvatar)
-                {
-                    EndScalingAvatar(null, true);
-                    return;
-                }
-
-                DrawScalingRuler();
-
-                Vector2 windowSize = new Vector2(200, 85);
-
-                Handles.BeginGUI();
-                {
-                    var r = SceneView.currentDrawingSceneView.camera.pixelRect;
-                    GUILayout.BeginArea(new Rect(10, r.height - 10 - windowSize.y, windowSize.x, windowSize.y), Styles.Box);
-                    {
-                        GUILayout.Label(Strings.Tools.editScale);
-                        if(SerializedScaleTemp != null)
-                        {
-                            EditorGUILayout.PropertyField(SerializedScaleTemp, GUIContent.none);
-                            if(SerializedScript.ApplyModifiedProperties())
-                                propertyChanged = true;
-                        }
-                        else
-                        {
-                            EditorGUILayout.LabelField(_avatarScaleTemp.ToString());
-                        }
-
-                        editingScaleMovesViewpoint = GUILayout.Toggle(editingScaleMovesViewpoint, Strings.Tools.editScaleMoveViewpoint);
-
-                        GUILayout.BeginHorizontal();
-                        {
-                            if(GUILayout.Button(Strings.Buttons.cancel, GUILayout.MinWidth(80)))
-                                EndScalingAvatar(SelectedAvatar, true);
-
-                            if(GUILayout.Button(Strings.Buttons.apply, GUILayout.MinWidth(80)))
-                                EndScalingAvatar(SelectedAvatar, false);
-                        }
-                        GUILayout.EndHorizontal();
-                    }
-                    GUILayout.EndArea();
-                }
-                Handles.EndGUI();
-
-                if(_tempAvatarDescriptor)
-                {
-                    EditorGUI.BeginChangeCheck();
-                    {
-                        _avatarScaleTemp = Handles.ScaleSlider(_avatarScaleTemp, SelectedAvatar.transform.position, Vector3.up, Quaternion.identity, HandleUtility.GetHandleSize(SelectedAvatar.transform.position) * 2, 0.01f);
-                    }
-                    if(EditorGUI.EndChangeCheck() || propertyChanged)
-                    {
-                        SetAvatarScale(_tempAvatarDescriptor, _avatarScaleTemp);
-                    }
-
-                    if(editingScaleMovesViewpoint)
-                    {
-                        Handles.color = Colors.BallHandle;
-                        Handles.SphereHandleCap(0, _viewPosTemp, Quaternion.identity, 0.02f, EventType.Repaint);
-                    }
-                }
-                else
-                    EndScalingAvatar(null, true);
+                DrawEditingScaleGUI();
             }
-            if(_editingView) //Viewpoint editing
+            else if(_editingView) //Viewpoint editing
             {
-                if(!SelectedAvatar)
-                {
-                    EndEditingViewpoint(null, true);
-                    return;
-                }
-
-                Vector2 windowSize = new Vector2(200, 50);
-
-                Handles.BeginGUI();
-                {
-                    var r = SceneView.currentDrawingSceneView.camera.pixelRect;
-                    GUILayout.BeginArea(new Rect(10, r.height - 10 - windowSize.y, windowSize.x, windowSize.y), Styles.Box);
-                    {
-                        GUILayout.Label(Strings.Tools.editViewpoint);
-                        GUILayout.BeginHorizontal();
-                        {
-                            if(GUILayout.Button(Strings.Buttons.cancel, GUILayout.MinWidth(80)))
-                            {
-                                EndEditingViewpoint(SelectedAvatar, true);
-                            }
-
-                            if(GUILayout.Button(Strings.Buttons.apply, GUILayout.MinWidth(80)))
-                            {
-                                EndEditingViewpoint(SelectedAvatar, false);
-                            }
-                        }
-                        GUILayout.EndHorizontal();
-                    }
-                    GUILayout.EndArea();
-                }
-                Handles.EndGUI();
-
-                if(_tempAvatarDescriptor)
-                {
-                    _viewPosTemp = Handles.PositionHandle(_viewPosTemp, Quaternion.identity);
-                    Handles.color = Colors.BallHandle;
-                    Handles.SphereHandleCap(0, _viewPosTemp, Quaternion.identity, 0.02f, EventType.Repaint);
-                }
+                DrawEditingViewpointGUI();
             }
 
             if(lockSelectedCameraToSceneView && SelectedCamera)
                 SelectedCamera.transform.SetPositionAndRotation(SceneView.lastActiveSceneView.camera.transform.position, SceneView.lastActiveSceneView.camera.transform.rotation);
             if(DrawingHandlesGUI)
                 _PumkinsAvatarToolsWindow.RequestRepaint(this);
+        }
+
+        private void DrawEditingViewpointGUI()
+        {
+            if(!SelectedAvatar)
+            {
+                EndEditingViewpoint(null, true);
+                return;
+            }            
+
+            Vector2 windowSize = new Vector2(200, 50);
+            
+            Rect rect = SceneView.currentDrawingSceneView.camera.pixelRect;
+            if(handlesUiWindowPositionAtBottom)
+                rect = new Rect(10, rect.height - 10 - windowSize.y, windowSize.x, windowSize.y);
+            else
+                rect = new Rect(new Vector2(10, 10), windowSize);
+
+            Handles.BeginGUI();
+            {                
+                GUILayout.BeginArea(rect, Styles.Box);
+                {
+                    GUILayout.Label(Strings.Tools.editViewpoint);
+                    GUILayout.BeginHorizontal();
+                    {
+                        if(GUILayout.Button(Strings.Buttons.cancel, GUILayout.MinWidth(80)))
+                        {
+                            EndEditingViewpoint(SelectedAvatar, true);
+                        }
+
+                        if(GUILayout.Button(Strings.Buttons.apply, GUILayout.MinWidth(80)))
+                        {
+                            EndEditingViewpoint(SelectedAvatar, false);
+                        }
+                    }
+                    GUILayout.EndHorizontal();
+                }
+                GUILayout.EndArea();
+            }
+            Handles.EndGUI();
+
+            if(_tempAvatarDescriptor)
+            {
+                _viewPosTemp = Handles.PositionHandle(_viewPosTemp, Quaternion.identity);
+                Handles.color = Colors.BallHandle;
+                Handles.SphereHandleCap(0, _viewPosTemp, Quaternion.identity, 0.02f, EventType.Repaint);
+            }            
+        }
+
+        private void DrawEditingScaleGUI()
+        {
+            if(!SelectedAvatar)
+            {
+                EndScalingAvatar(null, true);
+                return;
+            }
+
+            bool propertyChanged = false;
+            Vector2 windowSize = new Vector2(200, 85);
+            
+            Rect rect = SceneView.currentDrawingSceneView.camera.pixelRect;
+            if(handlesUiWindowPositionAtBottom)
+                rect = new Rect(10, rect.height - 10 - windowSize.y, windowSize.x, windowSize.y);
+            else
+                rect = new Rect(new Vector2(10, 10), windowSize);
+
+            DrawScalingRuler();
+
+            Handles.BeginGUI();
+            {
+                //GUILayout.BeginArea(new Rect(10, rect.height - 10 - windowSize.y, windowSize.x, windowSize.y), Styles.Box);
+                GUILayout.BeginArea(rect, Styles.Box);
+                {
+                    GUILayout.Label(Strings.Tools.editScale);
+                    if(SerializedScaleTemp != null)
+                    {
+                        EditorGUILayout.PropertyField(SerializedScaleTemp, GUIContent.none);
+                        if(SerializedScript.ApplyModifiedProperties())
+                            propertyChanged = true;
+                    }
+                    else
+                    {
+                        EditorGUILayout.LabelField(_avatarScaleTemp.ToString());
+                    }
+
+                    editingScaleMovesViewpoint = GUILayout.Toggle(editingScaleMovesViewpoint, Strings.Tools.editScaleMoveViewpoint);
+
+                    GUILayout.BeginHorizontal();
+                    {
+                        if(GUILayout.Button(Strings.Buttons.cancel, GUILayout.MinWidth(80)))
+                            EndScalingAvatar(SelectedAvatar, true);
+
+                        if(GUILayout.Button(Strings.Buttons.apply, GUILayout.MinWidth(80)))
+                            EndScalingAvatar(SelectedAvatar, false);
+                    }
+                    GUILayout.EndHorizontal();
+                }
+                GUILayout.EndArea();
+            }
+            Handles.EndGUI();
+
+            if(_tempAvatarDescriptor)
+            {
+                EditorGUI.BeginChangeCheck();
+                {
+                    _avatarScaleTemp = Handles.ScaleSlider(_avatarScaleTemp, SelectedAvatar.transform.position, Vector3.up, Quaternion.identity, HandleUtility.GetHandleSize(SelectedAvatar.transform.position) * 2, 0.01f);
+                }
+                if(EditorGUI.EndChangeCheck() || propertyChanged)
+                {
+                    SetAvatarScale(_tempAvatarDescriptor, _avatarScaleTemp);
+                }
+
+                if(editingScaleMovesViewpoint)
+                {
+                    Handles.color = Colors.BallHandle;
+                    Handles.SphereHandleCap(0, _viewPosTemp, Quaternion.identity, 0.02f, EventType.Repaint);
+                }
+            }
+            else
+            {
+                EndScalingAvatar(null, true);
+            }
+        }
+
+        private void HandleKeyboardInput()
+        {
+            Event current = Event.current;
+            if(current.type != EventType.KeyDown)
+                return;
+
+            if(_editingScale)
+            {
+                if(current.keyCode == KeyCode.Return || current.keyCode == KeyCode.KeypadEnter)
+                {
+                    EndScalingAvatar(SelectedAvatar, false);
+                    current.Use();
+                }
+                else if(current.keyCode == KeyCode.Escape)
+                {
+                    EndScalingAvatar(null, true);
+                    current.Use();
+                }
+            }
+            else if(_editingView)
+            {
+                if(current.keyCode == KeyCode.Return || current.keyCode == KeyCode.KeypadEnter)
+                {
+                    EndEditingViewpoint(SelectedAvatar, false);
+                    current.Use();
+                }
+                else if(current.keyCode == KeyCode.Escape)
+                {
+                    EndEditingViewpoint(null, true);
+                    current.Use();
+                }
+            }
         }
 
         /// <summary>
@@ -1822,7 +1961,7 @@ namespace Pumkin.AvatarTools
                                 EditorUtility.SetDirty(SelectedAvatar);
                                 EditorSceneManager.MarkSceneDirty(SelectedAvatar.scene);
 
-                                avatarInfo = AvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
+                                avatarInfo = PumkinsAvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
 
                                 log += Strings.Log.done;
                                 Log(log, LogType.Log);
@@ -1836,71 +1975,14 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        public void DrawMiscMenuGUI()
+        public void DrawInfoMenuGUI()
         {
-            if(_misc_expand = GUILayout.Toggle(_misc_expand, Strings.Main.misc, Styles.Foldout_title))
+            if(_info_expand = GUILayout.Toggle(_info_expand, Strings.Main.info, Styles.Foldout_title))
             {
-                if(PumkinsLanguageManager.Languages.Count == 0)
-                    PumkinsLanguageManager.LoadTranslations();
-
                 EditorGUILayout.Space();
-                EditorGUILayout.BeginHorizontal();
-                {
-                    EditorGUI.BeginChangeCheck();
-                    {
-                        if(_selectedLanguageIndex >= PumkinsLanguageManager.Languages.Count)
-                            _selectedLanguageIndex = PumkinsLanguageManager.GetIndexOfLanguage(_selectedLanguageString);
-
-                        _selectedLanguageIndex = EditorGUILayout.Popup(Strings.Misc.language, _selectedLanguageIndex, PumkinsLanguageManager.Languages.Select(o => o.ToString()).ToArray(), Styles.Popup);
-                    }
-                    if(EditorGUI.EndChangeCheck() && PumkinsLanguageManager.Languages.Count > 1)
-                    {
-                        PumkinsLanguageManager.SetLanguage(PumkinsLanguageManager.Languages[_selectedLanguageIndex]);
-                        _selectedLanguageString = Strings.Translation.ToString();
-                    }
-
-                    if(GUILayout.Button(Icons.Refresh, Styles.IconButton))
-                    {
-                        PumkinsLanguageManager.LoadTranslations();
-                    }
-                }
-                EditorGUILayout.EndHorizontal();
-
-                //if(GUILayout.Button(Strings.Misc.importLanguageAsset))
-                //{
-                //    var trans = Helpers.OpenPathGetFile<PumkinsTranslation>(_lastOpenFilePath, out string path);
-                //    if(trans == null)
-                //        Log(Strings.Log.invalidTranslation, LogType.Warning);
-
-                //    string name = Helpers.GetNameFromPath(path);
-                //    string newPath = $"{PumkinsAvatarTools.ResourceFolderPath}/{PumkinsLanguageManager.translationsPath}/{name}";
-                //    bool shouldCopy = false;
-
-                //    if(File.Exists(newPath))
-                //    {
-                //        if(EditorUtility.DisplayDialog(Strings.Warning.warn, Strings.Warning.languageAlreadyExistsOverwrite, Strings.Buttons.ok, Strings.Buttons.cancel))
-                //        {
-                //            shouldCopy = true;
-                //        }
-                //    }
-                //    if(shouldCopy)
-                //    {
-                //        File.Copy(path, newPath);
-                //        AssetDatabase.ImportAsset(newPath, ImportAssetOptions.ForceUpdate);
-                //    }
-                //}
-
-                Helpers.DrawGUILine();
-                if(!DynamicBonesExist)
-                {
-                    if(GUILayout.Button(Strings.Misc.searchForBones, Styles.BigButton))
-                        _DependencyChecker.CheckForDependencies();
-                    Helpers.DrawGUILine();
-                }
 
                 GUILayout.BeginHorizontal();
                 {
-
                     if(GUILayout.Button(new GUIContent(Strings.Buttons.openGithubPage, Icons.GithubIcon)))
                     {
                         Application.OpenURL(Strings.LINK_GITHUB);
@@ -2213,7 +2295,7 @@ namespace Pumkin.AvatarTools
                 {
                     if(avatarInfo == null)
                     {
-                        avatarInfo = AvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
+                        avatarInfo = PumkinsAvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
                     }
                 }
 
@@ -2229,7 +2311,7 @@ namespace Pumkin.AvatarTools
                         }
                         if(GUILayout.Button(Strings.Buttons.refresh))
                         {
-                            avatarInfo = AvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
+                            avatarInfo = PumkinsAvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
                         }
                     }
                     EditorGUILayout.EndHorizontal();
@@ -3177,7 +3259,7 @@ namespace Pumkin.AvatarTools
                     if(sel.gameObject.scene.name != null)
                     {
                         SelectedAvatar = sel;
-                        avatarInfo = AvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
+                        avatarInfo = PumkinsAvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
 
                     }
                     else if(!_useSceneSelectionAvatar)
@@ -3188,7 +3270,7 @@ namespace Pumkin.AvatarTools
             }
             catch(Exception e)
             {
-                Debug.Log(e.Message);
+                Log(e.Message, LogType.Warning);
             }
             _PumkinsAvatarToolsWindow.RequestRepaint(_PumkinsAvatarToolsWindow.ToolsWindow);
         }
@@ -3314,13 +3396,13 @@ namespace Pumkin.AvatarTools
                     DestroyAllComponentsOfType(SelectedAvatar, typeof(VRC_IKFollower), false, false);
                     break;
                 case ToolMenuActions.RemoveMissingScripts:
-                    DestroyMissingScripts(SelectedAvatar, false, false);
+                    DestroyMissingScripts(SelectedAvatar);
                     break;
                 default:
                     break;
             }
 
-            avatarInfo = AvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
+            avatarInfo = PumkinsAvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
 
             EditorUtility.SetDirty(SelectedAvatar);
             if(!EditorApplication.isPlaying)
@@ -3444,7 +3526,16 @@ namespace Pumkin.AvatarTools
             if(DrawingHandlesGUI || !avatar)
                 return;
 
-            _tempAvatarDescriptor = avatar.GetComponent<VRC_AvatarDescriptor>() ?? avatar.AddComponent<VRC_AvatarDescriptor>();
+            _tempAvatarDescriptor = avatar.GetComponent<VRC_AvatarDescriptor>();
+            if(!_tempAvatarDescriptor)
+            {
+                _tempAvatarDescriptor = avatar.AddComponent<VRC_AvatarDescriptor>();
+                _tempAvatarDescriptorWasAdded = true;
+            }
+            else
+            {
+                _tempAvatarDescriptorWasAdded = false;
+            }
 
             _avatarScaleOld = avatar.transform.localScale;
             _avatarScaleTemp = _avatarScaleOld.z;
@@ -3505,12 +3596,17 @@ namespace Pumkin.AvatarTools
                     }
                     else
                     {
-                        _tempAvatarDescriptor.ViewPosition = _viewPosOld;
+                        if(_tempAvatarDescriptorWasAdded)
+                            Helpers.DestroyAvatarDescriptorAndPipeline(SelectedAvatar);
+                        else
+                            _tempAvatarDescriptor.ViewPosition = _viewPosOld;                        
+                        
                         SelectedAvatar.transform.localScale = _avatarScaleOld;
                         Log(Strings.Log.canceledScaleChanges);
                     }
                 }
                 _tempAvatarDescriptor = null;
+                _tempAvatarDescriptorWasAdded = false;
             }
             finally
             {
@@ -3528,7 +3624,17 @@ namespace Pumkin.AvatarTools
             if(_editingView || _editingScale || !avatar)
                 return;
 
-            _tempAvatarDescriptor = avatar.GetComponent<VRC_AvatarDescriptor>() ?? avatar.AddComponent<VRC_AvatarDescriptor>();
+
+            _tempAvatarDescriptor = avatar.GetComponent<VRC_AvatarDescriptor>();
+            if(!_tempAvatarDescriptor)
+            {
+                _tempAvatarDescriptor = avatar.AddComponent<VRC_AvatarDescriptor>();
+                _tempAvatarDescriptorWasAdded = true;
+            }
+            else
+            {
+                _tempAvatarDescriptorWasAdded = false;
+            }
 
             _viewPosOld = _tempAvatarDescriptor.ViewPosition;
 
@@ -3570,11 +3676,16 @@ namespace Pumkin.AvatarTools
                 }
                 else
                 {
-                    _tempAvatarDescriptor.ViewPosition = _viewPosOld;
-                    Log(Strings.Log.viewpointCancelled, LogType.Log);
+                    if(_tempAvatarDescriptorWasAdded)
+                        Helpers.DestroyAvatarDescriptorAndPipeline(SelectedAvatar);
+                    else
+                        _tempAvatarDescriptor.ViewPosition = _viewPosOld;
+                    
+                    Log(Strings.Log.viewpointCancelled, LogType.Log);                    
                 }
             }
             _tempAvatarDescriptor = null;
+            _tempAvatarDescriptorWasAdded = false;
         }
 
         /// <summary>
@@ -4924,35 +5035,15 @@ namespace Pumkin.AvatarTools
         /// <summary>
         /// Destroys all Missing Script components on avatar
         /// </summary>
-        void DestroyMissingScripts(GameObject avatar, bool ignoreRoot, bool useIgnoreList)
-        {            
-            var components = avatar.GetComponentsInChildren<Component>();
-
-            int badComponentIndex = 0;
-            for(var i = 0; i < components.Length; i++)
+        void DestroyMissingScripts(GameObject avatar)
+        {
+            var ts = avatar.GetComponentsInChildren<Transform>();
+            foreach(var t in ts)
             {
-                if(components[i])
-                    continue;
-
-                string name = avatar.name;
-                Transform trans = avatar.transform;
-                while(trans.parent)
-                {
-                    name = trans.parent.name + "/" + name;
-                    trans = trans.parent;
-                }
-
-                Log(Strings.Log.hasMissingScriptDestroying, LogType.Log, name, i.ToString());                
-
-                var serializedObject = new SerializedObject(avatar);
-                var prop = serializedObject.FindProperty("m_Component");
-
-                prop.DeleteArrayElementAtIndex(i - badComponentIndex);
-                badComponentIndex++;
-
-                serializedObject.ApplyModifiedProperties();
+                if(Helpers.DestroyMissingScriptsInGameObject(t.gameObject))
+                    Log(Strings.Log.hasMissingScriptDestroying, LogType.Log, Helpers.GetGameObjectPath(t));
             }
-        }
+        }        
 
         /// <summary>
         /// Destroy all components of type.        

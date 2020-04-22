@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db3b3e978e34bca498da66131395825d, type: 3}
-  m_Name: chinese
+  m_Name: language_chinese
   m_EditorClassIdentifier: 
   languageName: "\u4E2D\u6587"
   author: "\u7981\u5FCCapostle"
@@ -23,7 +23,7 @@ MonoBehaviour:
     copier: "\u590D\u5236\u7EC4\u4EF6"
     avatarInfo: "\u6A21\u578B\u4FE1\u606F"
     thumbnails: "\u5C01\u9762\u7F29\u7565\u56FE"
-    misc: "\u6742\u7269\u5806"
+    info: Info
     avatar: "\u6A21\u578B"
     useSceneSelection: "\u81EA\u52A8\u6DFB\u52A0\u9009\u62E9\u7684\u6A21\u578B"
   buttons:
@@ -178,11 +178,14 @@ MonoBehaviour:
     lockSelectedCameraToSceneView: Lock Selected Camera to Scene View
   misc:
     uwu: uwu
-    searchForBones: "\u641C\u7D22\u52A8\u6001\u9AA8\u9ABC(DynamicBones)\u63D2\u4EF6"
-    superExperimental: "\u5B9E\u9A8C\u6027\u529F\u80FD"
-    language: "\u8BED\u8A00"
-    refresh: "\u5237\u65B0"
+    searchForBones: Search for DynamicBones
+    superExperimental: Super Experimental Stuff
+    language: Language
+    refresh: Refresh
     importLanguageAsset: Import Language Asset
+    enableVerboseLogging: Enable verbose logging
+    sceneViewOverlayWindowsAtBottom: Draw scene view overlays at the bottom
+    misc: Misc
   log:
     done: "\u5B8C\u6210"
     cancelled: "\u53D6\u6D88"
@@ -233,8 +236,7 @@ MonoBehaviour:
     loadedImageAsOverlay: "\u5DF2\u5C06 {0} \u52A0\u8F7D\u4E3A\u8986\u76D6\u56FE\u7247"
     descriptorIsMissingCantGetViewpoint: "\u7F3A\u5C11VRC\u6A21\u578B\u63CF\u8FF0\u63D2\u4EF6(VRC_Avatar
       Descriptor)\u3002\u65E0\u6CD5\u83B7\u53D6\u89C6\u89D2\u7403\u4F4D\u7F6E"
-    hasMissingScriptDestroying: '{0}''s component number {1} is a missing script.
-      Destroying'
+    hasMissingScriptDestroying: '{0} has a missing script. Destroying'
     copiedDynamicBone: Copied DynamicBone from {0}'s {1} to {2}'s {1}
     invalidTranslation: Can't load translation asset. Invalid translation
   warnings:

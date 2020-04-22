@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db3b3e978e34bca498da66131395825d, type: 3}
-  m_Name: loud
+  m_Name: LANGUAGE_LOUD
   m_EditorClassIdentifier: 
   languageName: LOUD ENGLISH
   author: EXAMPLE
@@ -23,7 +23,7 @@ MonoBehaviour:
     copier: COPY COMPONENTS
     avatarInfo: AVATAR INFO
     thumbnails: THUMBNAILS
-    misc: MISC
+    info: INFO
     avatar: AVATAR
     useSceneSelection: USE SCENE SELECTION
   buttons:
@@ -70,9 +70,9 @@ MonoBehaviour:
     revertScale: REVERT SCALE
     editScaleMoveViewpoint: Move Viewpoint
     refreshRig: Refresh Rig
-    disableDynamicBones: Disable DynamicBones
-    enableDynamicBones: Enable DynamicBones
-    toggleDynamicBones: Toggle DynamicBones
+    disableDynamicBones: DISABLE DYNAMICBONES
+    enableDynamicBones: ENABLE DYNAMICBONES
+    toggleDynamicBones: TOGGLE DYNAMICBONES
   copier:
     copyFrom: COPY FROM
     copySettings: SETTINGS
@@ -115,11 +115,11 @@ MonoBehaviour:
     audioSources: AUDIO SOURCES
     joints: JOINTS
     other: Other
-    other_ikFollowers: IK Followers
+    other_ikFollowers: IK FOLLOWERS
     ignoreList: IGNORE LIST
     includeChildren: INCLUDE CHILDREN
     size: SIZE
-    other_emptyScripts: Empty Scripts
+    other_emptyScripts: EMPTY SCRIPTS
   avatarInfo:
     name: '{0}'
     line: '---------------------'
@@ -168,11 +168,14 @@ MonoBehaviour:
     lockSelectedCameraToSceneView: Lock Selected Camera to Scene View
   misc:
     uwu: uwu
-    searchForBones: SEARCH FOR DYNAMICBONES
-    superExperimental: SUPER EXPERIMENTAL STUFF
-    language: LANGUAGE
-    refresh: REFRESH
+    searchForBones: Search for DynamicBones
+    superExperimental: Super Experimental Stuff
+    language: Language
+    refresh: Refresh
     importLanguageAsset: Import Language Asset
+    enableVerboseLogging: Enable verbose logging
+    sceneViewOverlayWindowsAtBottom: Draw scene view overlays at the bottom
+    misc: Misc
   log:
     done: DONE
     cancelled: CANCELLED
@@ -220,10 +223,9 @@ MonoBehaviour:
     loadedImageAsOverlay: LOADED {0} AS OVERLAY IMAGE
     descriptorIsMissingCantGetViewpoint: AVATAR DESCRIPTOR IS MISSING. CAN'T GET VIEWPOINT
       POSITION
-    hasMissingScriptDestroying: '{0}''s component number {1} is a missing script.
-      Destroying'
-    copiedDynamicBone: Copied DynamicBone from {0}'s {1} to {2}'s {1}
-    invalidTranslation: Can't load translation asset. Invalid translation
+    hasMissingScriptDestroying: miss      
+    copiedDynamicBone: COPIED DYNAMICBONE FROM {0}'S {1} TO {2}'S {1}
+    invalidTranslation: CAN'T LOAD TRANSLATION ASSET. INVALID TRANSLATION
   warnings:
     warn: WARNING
     notFound: NOT FOUND
@@ -234,14 +236,14 @@ MonoBehaviour:
     cantRevertRendererWithoutPrefab: CAN'T REVERT SKINNED MESH RENDERER {0}, OBJECT
       HAS NO PREFAB.
     cantLoadImageAtPath: CAN'T LOAD IMAGE AT {0}
-    doesntWorkInUnity2017: Doesn't work in Unity 2017 :(
-    armatureScaleNotOne: _Armature scale for selected avatar isn't 1! This can cause
-      issues. Please re-export your avatar with CATS' export option
-    armatureScalesDontMatch: '_Armature scales for selected avatars don''t match!
+    doesntWorkInUnity2017: DOESN'T WORK IN UNITY 2017 :(
+    armatureScaleNotOne: ARMATURE SCALE FOR SELECTED AVATAR ISN'T 1! THIS CAN CAUSE
+      ISSUES. PLEASE RE-EXPORT YOUR AVATAR WITH CATS' EXPORT OPTION
+    armatureScalesDontMatch: 'ARMATURE SCALES FOR SELECTED AVATARS DON''T MATCH!
 
-      This can cause issues'
-    noDBonesOrMissingScriptDefine: No DynamicBones found or missing script define.
-    languageAlreadyExistsOverwrite: Language Asset already exists. Overwrite?
+      THIS CAN CAUSE ISSUES'
+    noDBonesOrMissingScriptDefine: NO DYNAMICBONES FOUND OR MISSING SCRIPT DEFINE.
+    languageAlreadyExistsOverwrite: LANGUAGE ASSET ALREADY EXISTS. OVERWRITE?
   credits:
     version: VERSION
     redundantStrings: NOW WITH 100% MORE REDUNDANT STRINGS
@@ -274,7 +276,7 @@ MonoBehaviour:
     selectHumanoidAvatar: SELECT A HUMANOID AVATAR
     animationTime: TIME
     poseFromAnimation: POSE FROM ANIMATION
-    allowMotion: Allow Motion
+    allowMotion: ALLOW MOTION
   preset:
     presetName: PRESET NAME
     mode: PRESET MODE

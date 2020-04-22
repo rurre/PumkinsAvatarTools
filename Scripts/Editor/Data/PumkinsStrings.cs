@@ -49,6 +49,24 @@ namespace Pumkin.DataStructures
             get; private set;
         }
 
+        static Strings()
+        {
+            ReloadStrings();
+        }
+        static void ReloadStrings()
+        {
+            Main.Reload();
+            Buttons.Reload();
+            Tools.Reload();
+            Copier.Reload();
+            Log.Reload();
+            Warning.Reload();
+            Credits.Reload();
+            Settings.Reload();
+            Thumbnails.Reload();
+            AvatarInfo.Reload();
+        }
+
         public static class Main
         {
             public static string title = "Pumkin's Avatar Tools";
@@ -61,7 +79,7 @@ namespace Pumkin.DataStructures
             public static string avatarInfo = "_Avatar Info";
             public static string thumbnails = "_Thumbnails";
 
-            public static string misc = "_Misc";
+            public static string info = "_Info";
             public static string useSceneSelection = "_Use Scene Selection";
 
             static Main()
@@ -82,7 +100,7 @@ namespace Pumkin.DataStructures
                 copier = Translation.main.copier;
                 avatarInfo = Translation.main.avatarInfo;
                 removeAll = Translation.main.removeAll;
-                misc = Translation.main.misc;
+                info = Translation.main.info;
                 thumbnails = Translation.main.thumbnails;
                 useSceneSelection = Translation.main.useSceneSelection;
             }
@@ -493,7 +511,7 @@ namespace Pumkin.DataStructures
             public static string loadedImageAsBackground = "_Loaded '{0}' as Background image";
             public static string loadedImageAsOverlay = "_Loaded '{0}' as Overlay image";
             public static string descriptorIsMissingCantGetViewpoint = "_Avatar Descriptor is missing. Can't get Viewpoint position";
-            public static string hasMissingScriptDestroying = "_{0}'s component number {1} is a missing script. Destroying";
+            public static string hasMissingScriptDestroying = "_{0} has a missing script. Destroying";
             public static string copiedDynamicBone = "_Copied DynamicBone from {0}'s {1} to {2}'s {1}";
             public static string invalidTranslation = "_Can't load translation asset. Invalid translation";
 
@@ -615,33 +633,6 @@ namespace Pumkin.DataStructures
                 pokeOnDiscord = Translation.credits.pokeOnDiscord;
             }
         };
-        public static class Misc
-        {
-            public static string uwu = "_uwu";
-            public static string searchForBones = "_Search for DynamicBones";
-            public static string superExperimental = "_Super Experimental Stuff";
-            public static string language = "_Language";
-            public static string refresh = "_Refresh";
-            public static string importLanguageAsset = "_Import Language Asset";
-
-            static Misc()
-            {
-                Reload();
-            }
-
-            public static void Reload()
-            {
-                if(Translation is null)
-                    return;
-
-                uwu = Translation.misc.uwu;
-                searchForBones = Translation.misc.searchForBones;
-                superExperimental = Translation.misc.superExperimental;
-                language = Translation.misc.language;
-                refresh = Translation.misc.refresh;
-                importLanguageAsset = Translation.misc.importLanguageAsset;
-            }
-        }
         public static class PoseEditor
         {
             public static string version = "_Version";
@@ -762,25 +753,39 @@ namespace Pumkin.DataStructures
                 editCameraPreset = Translation.preset.editCameraPreset;
                 createCameraPreset = Translation.preset.createCameraPreset;
             }
-        }
-
-        static Strings()
+        }        
+        public static class Settings
         {
-            ReloadStrings();
-        }
+            public static string uwu = "_uwu";
+            public static string searchForBones = "_Search for DynamicBones";
+            public static string superExperimental = "_Super Experimental Stuff";
+            public static string language = "_Language";
+            public static string refresh = "_Refresh";
+            public static string importLanguageAsset = "_Import Language Asset";
+            public static string enableVerboseLogging = "_Enable verbose logging";
+            public static string sceneViewOverlayWindowsAtBottom = "_Draw scene view overlays at the bottom";
+            public static string misc = "_Misc";
 
-        static void ReloadStrings()
-        {
-            Main.Reload();
-            Buttons.Reload();
-            Tools.Reload();
-            Copier.Reload();
-            Log.Reload();
-            Warning.Reload();
-            Credits.Reload();
-            Misc.Reload();
-            Thumbnails.Reload();
-            AvatarInfo.Reload();
+            static Settings()
+            {
+                Reload();
+            }
+
+            public static void Reload()
+            {
+                if(Translation is null)
+                    return;
+
+                uwu = Translation.misc.uwu;
+                searchForBones = Translation.misc.searchForBones;
+                superExperimental = Translation.misc.superExperimental;
+                language = Translation.misc.language;
+                refresh = Translation.misc.refresh;
+                importLanguageAsset = Translation.misc.importLanguageAsset;
+                enableVerboseLogging = Translation.misc.enableVerboseLogging;
+                sceneViewOverlayWindowsAtBottom = Translation.misc.sceneViewOverlayWindowsAtBottom;
+                misc = Translation.misc.misc;
+            }
         }
     };
 }
