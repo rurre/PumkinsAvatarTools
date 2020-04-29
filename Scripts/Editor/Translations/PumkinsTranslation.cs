@@ -192,7 +192,7 @@ namespace Pumkin.Translations
         public string copyFrom = "Copy From";
 
         public string copySettings = "Settings";
-        public string createMissing = "Copy Missing";
+        public string createMissing = "Copy Missing Scripts";
         public string emptyGameObjects = "Empty GameObjects";
         public string replaceOld = "Replace Old";
 
@@ -205,7 +205,7 @@ namespace Pumkin.Translations
         public string dynamicBones_colliders = "Dynamic Bone Colliders";
         public string dynamicBones_removeOldBones = "Remove Old Bones";
         public string dynamicBones_removeOldColliders = "Remove Old Colliders";
-        public string dynamicBones_createMissing = "Copy Missing Bones";
+        public string dynamicBones_createMissing = "Copy Missing Dynamic Bones";
         public string colliders = "Colliders";
         public string colliders_box = "Box Colliders";
         public string colliders_capsule = "Capsule Colliders";
@@ -233,11 +233,20 @@ namespace Pumkin.Translations
         public string joints = "Joints";
         public string other = "Other";
         public string other_ikFollowers = "IK Followers";
+        public string aimConstraints = "Aim Constraints";
 
         public string ignoreList = "Ignore List";
         public string includeChildren = "Include Children";
         public string size = "Size";
         public string other_emptyScripts = "Empty Scripts";
+        public string lookAtConstraints = "LookAt Constraint";
+        public string parentConstraints = "Parent Constraint";
+        public string positionConstraints = "Position Constraint";
+        public string rotationConstraints = "Rotation Constraint";
+        public string scaleConstraints = "Scale Constraint";
+        public string onlyIfHasValidSources = "Only if has Valid Sources";
+        public string showCommon = "Show Common";
+        public string showAll = "Show All";
     };
 
     [Serializable]
@@ -339,7 +348,8 @@ namespace Pumkin.Translations
         public string descriptorIsMissingCantGetViewpoint = "Avatar Descriptor is missing. Can't get Viewpoint position";
         public string hasMissingScriptDestroying = "{0} has a missing script. Destroying";
         public string copiedDynamicBone = "Copied DynamicBone from {0}'s {1} to {2}'s {1}";
-        public string invalidTranslation = "Can't load translation asset. Invalid translation";
+        public string invalidTranslation = "Translation {0} is invalid.";
+        public string constraintHasNoValidSources = "{0}'s {1} has no valid sources. Destroying";
     };
 
     [Serializable]
@@ -377,7 +387,7 @@ namespace Pumkin.Translations
         public string superExperimental = "Super Experimental Stuff";
         public string language = "Language";
         public string refresh = "Refresh";
-        public string importLanguageAsset = "Import Language Asset";
+        public string importLanguage = "Import Language";
         public string enableVerboseLogging = "Enable verbose logging";
         public string sceneViewOverlayWindowsAtBottom = "Draw scene view overlays at the bottom";
         public string misc = "Misc";

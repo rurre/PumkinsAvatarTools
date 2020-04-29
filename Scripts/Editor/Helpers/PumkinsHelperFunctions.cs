@@ -11,6 +11,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Animations;
 using VRC.Core;
 using VRC.SDKBase;
 
@@ -677,6 +678,7 @@ namespace Pumkin.HelperFunctions
             }
             catch(Exception e)
             {
+                Debug.LogError(e.Message);
                 result = default;
             }
             return result;
@@ -1193,6 +1195,44 @@ namespace Pumkin.HelperFunctions
                 found = true;
             }
             return found;
+        }
+
+        /// <summary>
+        /// Checks whether constraint has any valid sources
+        /// </summary>        
+        /// <returns>Returns false if no valid source transforms in constraint</returns>
+        internal static bool ConstraintHasValidSources(IConstraint constraint)
+        {
+            var src = new List<ConstraintSource>(); 
+            constraint.GetSources(src);
+
+            foreach(var c in src)            
+                if(c.sourceTransform)
+                    return true;
+            
+            return false;
+        }
+
+        public static string NormalizePath(string path)
+        {
+            return Path.GetFullPath(new Uri(path).LocalPath)
+                       .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                       .ToUpperInvariant();
+        }
+
+        public static bool PathsAreEqual(string path, string other)
+        {
+            if(string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(other))
+                return false;
+
+            return NormalizePath(path) == NormalizePath(other);
+        }
+
+        public static string PathToLocalAssetsPath(string path)
+        {
+            if(path.StartsWith(Application.dataPath))
+                path = "Assets" + path.Substring(Application.dataPath.Length);
+            return path;
         }
     }    
 }

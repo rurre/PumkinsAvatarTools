@@ -361,7 +361,7 @@ namespace Pumkin.DataStructures
             public static string copyFrom = "_Copy From";
 
             public static string copySettings = "_Settings";
-            public static string createMissing = "_Copy Missing";
+            public static string createMissing = "_Copy Missing Scripts";
             public static string emptyGameObjects = "_Empty GameObjects";
             public static string replaceOld = "_Replace Old";
 
@@ -374,7 +374,7 @@ namespace Pumkin.DataStructures
             public static string dynamicBones_colliders = "_Dynamic Bone Colliders";
             public static string dynamicBones_removeOldBones = "_Remove Old Bones";
             public static string dynamicBones_removeOldColliders = "_Remove Old Colliders";
-            public static string dynamicBones_createMissing = "_Copy Missing Bones";
+            public static string dynamicBones_createMissing = "_Copy Missing Dynamic Bones";
             public static string colliders = "_Colliders";
             public static string colliders_box = "_Box Colliders";
             public static string colliders_capsule = "_Capsule Colliders";
@@ -403,10 +403,19 @@ namespace Pumkin.DataStructures
             public static string other = "_Other";
             public static string other_ikFollowers = "_IK Followers";            
             public static string other_emptyScripts = "_Empty Scripts";
+            public static string aimConstraints = "_Aim Constraints";
+            public static string lookAtConstraints = "_LookAt Constraints";
+            public static string parentConstraints = "_Parent Constraints";
+            public static string positionConstraints = "_Position Constraints";
+            public static string rotationConstraints = "_Rotation Constraints";
+            public static string scaleConstraints = "_Scale Constraints";
+            public static string onlyIfHasValidSources = "_Only if has Valid Sources";
 
             public static string exclusions = "_Exclusions";
             public static string includeChildren = "_Include Children";
-            public static string size = "_Size";            
+            public static string size = "_Size";
+            public static string showCommon = "_Show Common";
+            public static string showAll = "_Show All";
 
             static Copier()
             {
@@ -463,10 +472,19 @@ namespace Pumkin.DataStructures
                 other = Translation.copier.other;
                 other_ikFollowers = Translation.copier.other_ikFollowers;
                 other_emptyScripts = Translation.copier.other_emptyScripts;
+                aimConstraints = Translation.copier.aimConstraints;
+                lookAtConstraints = Translation.copier.lookAtConstraints;
+                parentConstraints = Translation.copier.parentConstraints;
+                positionConstraints = Translation.copier.positionConstraints;
+                rotationConstraints = Translation.copier.rotationConstraints;
+                scaleConstraints = Translation.copier.scaleConstraints;
+                onlyIfHasValidSources = Translation.copier.onlyIfHasValidSources;
 
                 exclusions = Translation.copier.ignoreList;
                 includeChildren = Translation.copier.includeChildren;
                 size = Translation.copier.size;               
+                showCommon = Translation.copier.showCommon;               
+                showAll = Translation.copier.showAll;               
             }
         };
         public static class Log
@@ -513,7 +531,8 @@ namespace Pumkin.DataStructures
             public static string descriptorIsMissingCantGetViewpoint = "_Avatar Descriptor is missing. Can't get Viewpoint position";
             public static string hasMissingScriptDestroying = "_{0} has a missing script. Destroying";
             public static string copiedDynamicBone = "_Copied DynamicBone from {0}'s {1} to {2}'s {1}";
-            public static string invalidTranslation = "_Can't load translation asset. Invalid translation";
+            public static string invalidTranslation = "_Translation {0} is invalid";
+            public static string constraintHasNoValidSources = "_{0}'s {1} has no valid sources. Destroying";
 
             static Log()
             {
@@ -568,6 +587,7 @@ namespace Pumkin.DataStructures
                 hasMissingScriptDestroying = Translation.log.hasMissingScriptDestroying;
                 copiedDynamicBone = Translation.log.copiedDynamicBone;
                 invalidTranslation = Translation.log.invalidTranslation;
+                constraintHasNoValidSources = Translation.log.constraintHasNoValidSources;
             }
         };
         public static class Warning
@@ -761,7 +781,7 @@ namespace Pumkin.DataStructures
             public static string superExperimental = "_Super Experimental Stuff";
             public static string language = "_Language";
             public static string refresh = "_Refresh";
-            public static string importLanguageAsset = "_Import Language Asset";
+            public static string importLanguage = "_Import Language";
             public static string enableVerboseLogging = "_Enable verbose logging";
             public static string sceneViewOverlayWindowsAtBottom = "_Draw scene view overlays at the bottom";
             public static string misc = "_Misc";
@@ -781,7 +801,7 @@ namespace Pumkin.DataStructures
                 superExperimental = Translation.misc.superExperimental;
                 language = Translation.misc.language;
                 refresh = Translation.misc.refresh;
-                importLanguageAsset = Translation.misc.importLanguageAsset;
+                importLanguage = Translation.misc.importLanguage;
                 enableVerboseLogging = Translation.misc.enableVerboseLogging;
                 sceneViewOverlayWindowsAtBottom = Translation.misc.sceneViewOverlayWindowsAtBottom;
                 misc = Translation.misc.misc;
