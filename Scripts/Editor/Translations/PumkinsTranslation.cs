@@ -203,7 +203,7 @@ namespace Pumkin.Translations
         public string transforms_avatarScale = "Avatar Scale";
         public string dynamicBones = "Dynamic Bones";
         public string dynamicBones_colliders = "Dynamic Bone Colliders";
-        public string dynamicBones_removeOldBones = "Remove Old Bones";
+        public string dynamicBones_removeOldBones = "Remove Old Dynamic Bones";
         public string dynamicBones_removeOldColliders = "Remove Old Colliders";
         public string dynamicBones_createMissing = "Copy Missing Dynamic Bones";
         public string colliders = "Colliders";
