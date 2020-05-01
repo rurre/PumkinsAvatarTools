@@ -5212,10 +5212,11 @@ namespace Pumkin.AvatarTools
                         {
                             for(int z = 0; z < rFrom.sharedMesh.blendShapeCount; z++)
                             {
-                                int index = rFrom.sharedMesh.GetBlendShapeIndex(rFrom.sharedMesh.GetBlendShapeName(z));
-                                if(index != -1)
+                                string shapeName = rFrom.sharedMesh.GetBlendShapeName(z);
+                                int shapeIndex = rTo.sharedMesh.GetBlendShapeIndex(shapeName);
+                                if(shapeIndex != -1)
                                 {
-                                    rTo.SetBlendShapeWeight(index, rFrom.GetBlendShapeWeight(index));
+                                    rTo.SetBlendShapeWeight(shapeIndex, rFrom.GetBlendShapeWeight(shapeIndex));
                                 }
                             }
                         }
