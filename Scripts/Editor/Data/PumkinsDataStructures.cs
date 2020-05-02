@@ -34,8 +34,7 @@ namespace Pumkin.DataStructures
                     "particlesystem",
                     "audiosource",
                     "trailrenderer",
-                    "light",                    
-                    "collider",
+                    "light",
                 }
             }
         };

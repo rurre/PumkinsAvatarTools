@@ -17,10 +17,17 @@ namespace Pumkin.Presets
             if(PumkinsAvatarTools.SelectedAvatar)
                 newPreset.SetupPreset("", PumkinsAvatarTools.SelectedAvatar);
 
-            if(!_window)
+            if(!_window || _window.GetType() != typeof(CreateBlendshapePopup))
             {
                 _window = CreateInstance<CreateBlendshapePopup>();
                 _window.autoRepaintOnSceneChange = true;
+
+                if(minWindowSize.magnitude > Vector2.zero.magnitude)
+                {
+                    float maxX = Mathf.Max(_window.minSize.x, minWindowSize.x);
+                    float maxY = Mathf.Max(_window.minSize.y, minWindowSize.y);
+                    _window.minSize = new Vector2(maxX, maxY);
+                }
             }
 
             if(editingExistingPreset)
@@ -36,8 +43,8 @@ namespace Pumkin.Presets
             _window.ShowUtility();
         }
 
-        private void OnEnable()
-        {
+        void OnEnable()
+        {            
             PumkinsAvatarTools.AvatarSelectionChanged += HandleSelectionChanged;            
         }
 
@@ -67,55 +74,54 @@ namespace Pumkin.Presets
 
         private void OnGUI()
         {
-            PumkinsBlendshapePreset preset = (PumkinsBlendshapePreset)CreatePresetPopupBase.preset;
-            if(!preset)
-            {
-                AssignOrCreatePreset<PumkinsBlendshapePreset>(preset);
-                return;
-            }
+            scroll = EditorGUILayout.BeginScrollView(scroll);
             try
             {
-                scroll = EditorGUILayout.BeginScrollView(scroll);
+                PumkinsBlendshapePreset preset = (PumkinsBlendshapePreset)CreatePresetPopupBase.preset;
+                if(!preset)
                 {
-                    EditorGUILayout.Space();
+                    AssignOrCreatePreset<PumkinsBlendshapePreset>(preset);
+                    return;
+                }
 
-                    preset.name = EditorGUILayout.TextField(Strings.Presets.presetName, preset.name);
+                EditorGUILayout.Space();
 
-                    Helpers.DrawGUILine();
+                preset.name = EditorGUILayout.TextField(Strings.Presets.presetName, preset.name);
 
-                    PumkinsAvatarTools.DrawAvatarSelectionWithButtonGUI(false, false);
+                Helpers.DrawGUILine();
 
-                    Helpers.DrawGUILine();
+                PumkinsAvatarTools.DrawAvatarSelectionWithButtonGUI(false, false);
 
-                    DrawBlendshapePresetControls();
+                Helpers.DrawGUILine();
 
-                    Helpers.DrawGUILine();
+                DrawBlendshapePresetControls();
 
-                    EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(preset.name) || !PumkinsAvatarTools.SelectedAvatar);
+                EditorGUILayout.EndScrollView();
+                Helpers.DrawGUILine();
+
+                EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(preset.name) || !PumkinsAvatarTools.SelectedAvatar);
+                {
+                    if(!editingExistingPreset)
                     {
-                        if(!editingExistingPreset)
+                        _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
+                        if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
                         {
-                            _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
-                            if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
+                            EditorApplication.delayCall += () =>
                             {
-                                EditorApplication.delayCall += () =>
-                                {
-                                    preset.SavePreset(_overwriteFile);
-                                    Close();
-                                };
-                            }
+                                preset.SavePreset(_overwriteFile);
+                                Close();
+                            };
                         }
                     }
-                    EditorGUI.EndDisabledGroup();
-
                 }
-                EditorGUILayout.EndScrollView();
+                EditorGUI.EndDisabledGroup();
+                EditorGUILayout.Space();
                 CreatePresetPopupBase.preset = preset;
             }
             catch
             {
-                if(this)
-                    Close();
+                EditorGUILayout.EndScrollView();                
+                Close();
             }            
         }        
 

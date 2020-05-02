@@ -13,6 +13,8 @@ namespace Pumkin.PoseEditor
 {
     public class PumkinsMuscleEditor : EditorWindow
     {
+        //static double deltaTime = 0;
+        //static double lastTime = 0;
         const string POSE_ANIMATOR_NAME = "PumkinsPoseEditorAnimator";
         
         //Main
@@ -28,6 +30,7 @@ namespace Pumkin.PoseEditor
         //Pose from animation                
         AnimationClip animClip;
         float animTimeCurrent = 0;
+        //bool playAnimation = false;
         AnimatorController ctrl;
         bool allowMotion = false;
 
@@ -118,7 +121,9 @@ namespace Pumkin.PoseEditor
         }
 
         public void OnGUI()
-        {
+        {            
+            //deltaTime = Time.time - lastTime;
+            //lastTime = Time.time;
             EditorGUILayout.BeginHorizontal();
             {
                 EditorGUILayout.LabelField(Strings.PoseEditor.title, Styles.Label_mainTitle);
@@ -155,8 +160,8 @@ namespace Pumkin.PoseEditor
         }
 
         static void HandleAvatarSelectionChanged(GameObject newAvatar)
-        {
-            ReloadPoseVariables(newAvatar);            
+        {            
+            ReloadPoseVariables(newAvatar);
         }
 
         static void HandlePoseChange(PumkinsAvatarTools.PoseChangeType changeType)
@@ -252,8 +257,9 @@ namespace Pumkin.PoseEditor
                             avatarPose.bodyPosition.y = 1;
                         }
 
-                        Undo.RegisterCompleteObjectUndo(PumkinsAvatarTools.SelectedAvatar, "Pose Editor: Set pose from sliders");                        
-                        avatarPoseHandler.SetHumanPose(ref avatarPose);                        
+
+                        Undo.RegisterCompleteObjectUndo(PumkinsAvatarTools.SelectedAvatar, "Pose Editor: Set pose from sliders");
+                        avatarPoseHandler.SetHumanPose(ref avatarPose);
                     }                    
                 }
 
@@ -284,6 +290,7 @@ namespace Pumkin.PoseEditor
             {                
                 animTimeCurrent = 0;
                 applyAnimation = true;
+                //playAnimation = false;
             }
 
             if(animClip)
@@ -292,33 +299,13 @@ namespace Pumkin.PoseEditor
                 {
                     animTimeCurrent = EditorGUILayout.Slider(Strings.PoseEditor.animationTime, animTimeCurrent, 0, animClip.length);
                 }
-                if(EditorGUI.EndChangeCheck() || applyAnimation)
+                if(EditorGUI.EndChangeCheck() || applyAnimation) //|| playAnimation)
                 {                       
                     //Save transform position and rotation to prevent root motion
                     SerialTransform currentTrans = PumkinsAvatarTools.SelectedAvatar.transform;
 
-#if UNITY_2017  //For some reason SampleAnimation refuses to work if there's no runtime animation controller set in unity 2017
-                    var tempAnim = AvatarAnimator.runtimeAnimatorController;
-                    AvatarAnimator.runtimeAnimatorController = ctrl;                    
-#endif
                     animClip.SampleAnimation(PumkinsAvatarTools.SelectedAvatar, animTimeCurrent);
 
-#if UNITY_2017  //I really don't like this but it seems to work
-                    var serialTransforms = new List<SerialTransform>(); //Save all transform values after sampling animation to prevent reverting
-                    var transforms = PumkinsAvatarTools.SelectedAvatar.GetComponentsInChildren<Transform>();
-
-                    foreach(var t in transforms)                    
-                        serialTransforms.Add(t);
-
-                    AvatarAnimator.runtimeAnimatorController = tempAnim; //Apply old animator controller; this reverts pose to first frame of animation
-
-                    for(int i = 0; i < transforms.Length; i++) //Restore pose based on transform rotations                   
-                    {
-                        transforms[i].localEulerAngles = serialTransforms[i].localEulerAngles;
-                        if(allowMotion)
-                            transforms[i].localPosition = serialTransforms[i].localPosition;
-                    }
-#endif
                     if(currentTrans) //Restore position and rotation of avatar
                         PumkinsAvatarTools.SelectedAvatar.transform.SetPositionAndRotation(currentTrans.position, currentTrans.rotation);                    
 
@@ -326,6 +313,15 @@ namespace Pumkin.PoseEditor
                 }
 
                 allowMotion = GUILayout.Toggle(allowMotion, Strings.PoseEditor.allowMotion);
+                                
+                //if(GUILayout.Button(playAnimation ? "Pause" : "Play"))
+                //    playAnimation = !playAnimation;
+
+                //if(playAnimation)
+                //{
+                //    animTimeCurrent = animTimeCurrent + (float)deltaTime;
+                //    animTimeCurrent = Helpers.WrapToRange(animTimeCurrent, 0, animClip.length);                    
+                //}
             }
             Helpers.DrawGUILine();
         }
@@ -344,8 +340,14 @@ namespace Pumkin.PoseEditor
             if(newAvatar && AvatarAnimator && AvatarAnimator.isHuman)
             {
                 avatarPose = new HumanPose();
+                
+                SerialTransform st = newAvatar.transform;
+                newAvatar.transform.position = Vector3.zero;    //Move avatar to 0,0,0 before getting human pose to prevent offsetting when applying
+                
                 avatarPoseHandler = new HumanPoseHandler(AvatarAnimator.avatar, AvatarAnimator.transform);
                 avatarPoseHandler.GetHumanPose(ref avatarPose);
+
+                newAvatar.transform.position = st.position;
 
                 //Human bone transforms to compare against
                 HashSet<Transform> humanBoneTransforms = new HashSet<Transform>();

@@ -412,6 +412,12 @@ namespace Pumkin.DataStructures
             public static string rotationConstraints = "_Rotation Constraints";
             public static string scaleConstraints = "_Scale Constraints";
             public static string onlyIfHasValidSources = "_Only if has Valid Sources";
+            public static string joints_fixed = "_Fixed Joint";
+            public static string joints_hinge = "_Hinge Joint";
+            public static string joints_spring = "_Spring Joint";
+            public static string joints_character = "_Character Joint";
+            public static string joints_configurable = "_Configurable Joint";
+            public static string joints_removeOld = "_Remove Old Joints";
 
             public static string exclusions = "_Exclusions";
             public static string includeChildren = "_Include Children";
@@ -480,7 +486,13 @@ namespace Pumkin.DataStructures
                 positionConstraints = Translation.copier.positionConstraints;
                 rotationConstraints = Translation.copier.rotationConstraints;
                 scaleConstraints = Translation.copier.scaleConstraints;
-                onlyIfHasValidSources = Translation.copier.onlyIfHasValidSources;
+                
+                joints_fixed = Translation.copier.joints_fixed;
+                joints_hinge = Translation.copier.joints_hinge;
+                joints_spring = Translation.copier.joints_spring;
+                joints_character = Translation.copier.joints_character;
+                joints_configurable = Translation.copier.joints_configurable;
+                joints_removeOld = Translation.copier.joints_removeOld;            
 
                 exclusions = Translation.copier.ignoreList;
                 includeChildren = Translation.copier.includeChildren;

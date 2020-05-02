@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Pumkin.Presets
 {
     public class CreatePosePresetPopup : CreatePresetPopupBase
-    {     
+    {
         public static string[] defaultMusclesNames;
 
         SerializedObject serializedPosePreset;
@@ -26,6 +26,9 @@ namespace Pumkin.Presets
 
         private void SetupProperties()
         {
+            if(preset is null)
+                Close();
+
             serializedPosePreset = new SerializedObject(preset);
 
             pMuscles = serializedPosePreset.FindProperty("muscles");
@@ -37,10 +40,17 @@ namespace Pumkin.Presets
         {
             AssignOrCreatePreset<PumkinsPosePreset>(newPreset);
 
-            if(!_window)
+            if(!_window || _window.GetType() != typeof(CreatePosePresetPopup))
             {
                 _window = CreateInstance<CreatePosePresetPopup>();
                 _window.autoRepaintOnSceneChange = true;
+
+                if(minWindowSize.magnitude > Vector2.zero.magnitude)
+                {
+                    float maxX = Mathf.Max(_window.minSize.x, minWindowSize.x);
+                    float maxY = Mathf.Max(_window.minSize.y, minWindowSize.y);
+                    _window.minSize = new Vector2(maxX, maxY);
+                }
             }
 
             if(editingExistingPreset)
@@ -58,66 +68,67 @@ namespace Pumkin.Presets
 
         private void OnGUI()
         {
-            PumkinsPosePreset preset = (PumkinsPosePreset)CreatePresetPopupBase.preset;
-            if(!preset)
-            {
-                AssignOrCreatePreset<PumkinsPosePreset>(null);
-                return;
-            }
-
+            scroll = EditorGUILayout.BeginScrollView(scroll);
             try
             {
-                scroll = EditorGUILayout.BeginScrollView(scroll);
+                PumkinsPosePreset preset = (PumkinsPosePreset)CreatePresetPopupBase.preset;
+                if(!preset)
                 {
-                    EditorGUILayout.Space();
+                    AssignOrCreatePreset<PumkinsPosePreset>(null);
+                    return;
+                }
 
-                    preset.name = EditorGUILayout.TextField(Strings.Presets.presetName, preset.name);
+                EditorGUILayout.Space();
 
-                    Helpers.DrawGUILine();
+                preset.name = EditorGUILayout.TextField(Strings.Presets.presetName, preset.name);
 
-                    PumkinsAvatarTools.DrawAvatarSelectionWithButtonGUI(false, false);
+                Helpers.DrawGUILine();
 
-                    Helpers.DrawGUILine();
+                PumkinsAvatarTools.DrawAvatarSelectionWithButtonGUI(false, false);
 
-                    preset.presetMode = (PumkinsPosePreset.PosePresetMode)EditorGUILayout.EnumPopup(Strings.Presets.poseMode, preset.presetMode);
+                Helpers.DrawGUILine();
 
-                    Helpers.DrawGUILine();
+                preset.presetMode = (PumkinsPosePreset.PosePresetMode)EditorGUILayout.EnumPopup(Strings.Presets.poseMode, preset.presetMode);
 
-                    if(GUILayout.Button(Strings.Buttons.openPoseEditor, Styles.BigButton))
-                        PumkinsMuscleEditor.ShowWindow();
+                Helpers.DrawGUILine();
 
-                    Helpers.DrawGUILine();
+                if(GUILayout.Button(Strings.Buttons.openPoseEditor, Styles.BigButton))
+                    PumkinsMuscleEditor.ShowWindow();
 
-                    EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedAvatar || !preset || string.IsNullOrEmpty(preset.name));
+                Helpers.DrawGUILine();
+
+                EditorGUILayout.EndScrollView();
+
+                EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedAvatar || !preset || string.IsNullOrEmpty(preset.name));
+                {
+                    if(!editingExistingPreset)
                     {
-                        if(!editingExistingPreset)
+                        _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
+                        if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
                         {
-                            _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
-                            if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
+                            preset.SetupPreset(preset.name, PumkinsAvatarTools.SelectedAvatar, preset.presetMode);
+                            if(preset)
                             {
-                                preset.SetupPreset(preset.name, PumkinsAvatarTools.SelectedAvatar, preset.presetMode);
-                                if(preset)
+                                EditorApplication.delayCall += () =>
                                 {
-                                    EditorApplication.delayCall += () =>
-                                    {
-                                        preset.SavePreset(_overwriteFile);
-                                        Close();
-                                    };
-                                }
+                                    preset.SavePreset(_overwriteFile);
+                                    Close();
+                                };
                             }
                         }
                     }
-                    EditorGUI.EndDisabledGroup();
                 }
-                EditorGUILayout.EndScrollView();
-                CreatePresetPopupBase.preset = preset;                
+                EditorGUI.EndDisabledGroup();
+                CreatePresetPopupBase.preset = preset;
+                
+                EditorGUILayout.Space();
             }
             catch
             {
-                if(this)
-                    Close();
+                EditorGUILayout.EndScrollView();                
+                Close();
             }            
-        }        
+        }
 
         protected override void RefreshSelectedPresetIndex()
         {

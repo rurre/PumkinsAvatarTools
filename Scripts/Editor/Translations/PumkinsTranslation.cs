@@ -248,6 +248,13 @@ namespace Pumkin.Translations
         public string onlyIfHasValidSources = "Only if has Valid Sources";
         public string showCommon = "Show Common";
         public string showAll = "Show All";
+
+        public string joints_fixed = "Fixed Joint";
+        public string joints_hinge = "Hinge Joint";
+        public string joints_spring = "Spring Joint";
+        public string joints_character = "Character Joint";
+        public string joints_configurable = "Configurable Joint";
+        public string joints_removeOld = "Remove Old Joints";
     };
 
     [Serializable]

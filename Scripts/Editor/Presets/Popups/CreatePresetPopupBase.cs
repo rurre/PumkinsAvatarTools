@@ -12,6 +12,8 @@ public abstract class CreatePresetPopupBase : EditorWindow
     static protected CreatePresetPopupBase _window;
     static protected PumkinPreset preset;
 
+    static protected Vector2 minWindowSize = new Vector2(340, 520);
+
     static protected GameObject Avatar { get => PumkinsAvatarTools.SelectedAvatar; }
     static protected bool _overwriteFile = true;
     static protected bool _saveEdittedChanges = true;

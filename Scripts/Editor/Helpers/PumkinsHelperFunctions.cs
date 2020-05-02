@@ -18,7 +18,7 @@ using VRC.SDKBase;
 namespace Pumkin.HelperFunctions
 {
     public static class Helpers
-    {
+    {        
         #region GUI
 
         /// <summary>
@@ -312,6 +312,11 @@ namespace Pumkin.HelperFunctions
                 UnityEngine.Object.Destroy(obj);
             else
                 UnityEngine.Object.DestroyImmediate(obj, allowDestroyingAssets);
+        }
+
+        public static float WrapToRange(float num, float min, float max)
+        {
+            return num = ((num - min) % (max - min)) + min;
         }
 
         public static void DrawBlendshapeSlidersWithLabels(ref List<PumkinsRendererBlendshapesHolder> rendererHolders, GameObject avatar, int indentLevel = 0, float labelWidthOverride = 0)
@@ -748,42 +753,22 @@ namespace Pumkin.HelperFunctions
 
         public static bool JointsAreIdentical(Joint j1, Joint j2)
         {
-            throw new NotImplementedException();
-
+            return false;
             //if(j1 == null && j2 == null)
             //    return true;
             //else if(j1.GetType() != j2.GetType())
-            //    return false;            
+            //    return false;
 
-            //if(j1 is FixedJoint)
-            //{
-            //    var j = (FixedJoint)j1;
-            //    var jj = (FixedJoint)j2;                
-            //}
+            //var j1Body = j1.connectedBody;
+            //var j1BodyTrans = j1Body.transform;
+            
+            //var j2BodyTrans = FindTransformInAnotherHierarchy(j1.transform, j2.transform.root, false);
+            //var j2Body = j2BodyTrans.GetComponent<Rigidbody>();
 
-            //if(j1 is HingeJoint)
-            //{
-            //    var j = (HingeJoint)j1;
-            //    var jj = (HingeJoint)j2;
-            //}
-
-            //if(j1 is SpringJoint)
-            //{
-            //    var j = (SpringJoint)j1;
-            //    var jj = (SpringJoint)j2;
-            //}
-
-            //if(j1 is CharacterJoint)
-            //{
-            //    var j = (CharacterJoint)j1;
-            //    var jj = (CharacterJoint)j2;
-            //}
-
-            //if(j1 is ConfigurableJoint)
-            //{
-            //    var j = (ConfigurableJoint)j1;
-            //    var jj = (ConfigurableJoint)j2;
-            //}            
+            //if(!j1BodyTrans || !j2BodyTrans)
+            //    return false;
+            
+            //return true;
         }
 
         public static bool CollidersAreIdentical(Collider col1, Collider col2)
@@ -882,11 +867,8 @@ namespace Pumkin.HelperFunctions
 
             string tPath = GetGameObjectPath(t.gameObject);
 
-#if UNITY_2017
-            var pref = PrefabUtility.GetPrefabParent(t.root.gameObject) as GameObject;
-#else
 			var pref = PrefabUtility.GetCorrespondingObjectFromSource(t.root.gameObject) as GameObject;
-#endif
+
             if(!pref)
                 return false;
 
@@ -1176,12 +1158,12 @@ namespace Pumkin.HelperFunctions
             Vector3 view = PumkinsAvatarTools.DEFAULT_VIEWPOINT;
             if(anim && anim.isHuman)
             {
-                view = anim.GetBoneTransform(HumanBodyBones.Head).position;
-                float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y - 0.005f;
+                view = anim.GetBoneTransform(HumanBodyBones.Head).position - anim.transform.position;
+                float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y - 0.005f - anim.transform.position.y;
                 view.y = eyeHeight;
                 view.z = PumkinsAvatarTools.DEFAULT_VIEWPOINT.z - 0.1f;
-            }
-            return view;
+            }            
+            return RoundVectorValues(view, 3);
         }
 
         public static bool IsAssetInAssets(UnityEngine.Object obj)

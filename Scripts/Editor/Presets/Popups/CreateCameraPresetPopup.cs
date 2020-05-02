@@ -9,16 +9,23 @@ namespace Pumkin.Presets
 {
     public class CreateCamerePresetPopup : CreatePresetPopupBase
     {
-        static Transform referenceTransform;        
+        static Transform referenceTransform;
 
         public static void ShowWindow(PumkinsCameraPreset newPreset = null)
         {
             AssignOrCreatePreset<PumkinsCameraPreset>(newPreset);
 
-            if(!_window)
-            {
+            if(!_window || _window.GetType() != typeof(CreateCamerePresetPopup))
+            {                
                 _window = CreateInstance<CreateCamerePresetPopup>();
                 _window.autoRepaintOnSceneChange = true;
+
+                if(minWindowSize.magnitude > Vector2.zero.magnitude)
+                {
+                    float maxX = Mathf.Max(_window.minSize.x, minWindowSize.x);
+                    float maxY = Mathf.Max(_window.minSize.y, minWindowSize.y);
+                    _window.minSize = new Vector2(maxX, maxY);
+                }
             }
 
             if(editingExistingPreset)
@@ -38,7 +45,7 @@ namespace Pumkin.Presets
         {
             PumkinsAvatarTools.CameraSelectionChanged += HandleCameraSelectionChanged;
             PumkinsAvatarTools.SelectedCamera.targetTexture = PumkinsAvatarTools.DefaultRT;
-            
+
             RefreshReferenceTransform();
         }
 
@@ -56,23 +63,23 @@ namespace Pumkin.Presets
         private void OnDestroy()
         {
             PumkinsAvatarTools.RestoreCameraRT(PumkinsAvatarTools.SelectedCamera);
-            if(editingExistingPreset)            
-                GetNewOffsetsAndApplyToPreset();            
+            if(editingExistingPreset)
+                GetNewOffsetsAndApplyToPreset();
         }
 
         private static void GetNewOffsetsAndApplyToPreset()
         {
             PumkinsCameraPreset p = (PumkinsCameraPreset)preset;
             Camera camera = PumkinsAvatarTools.SelectedCamera;
-            GameObject avatar = PumkinsAvatarTools.SelectedAvatar;            
+            GameObject avatar = PumkinsAvatarTools.SelectedAvatar;
             if(avatar && camera && p)
             {
                 if(p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.AvatarRoot)
                     p.CalculateOffsets(avatar.transform.root, camera);
-                else if(p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform && referenceTransform)                
-                    p.CalculateOffsets(referenceTransform, camera);                
+                else if(p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform && referenceTransform)
+                    p.CalculateOffsets(referenceTransform, camera);
                 else
-                    p.CalculateOffsets(PumkinsAvatarTools.SelectedAvatar.GetComponent<VRCSDK2.VRC_AvatarDescriptor>(), camera);                
+                    p.CalculateOffsets(PumkinsAvatarTools.SelectedAvatar.GetComponent<VRCSDK2.VRC_AvatarDescriptor>(), camera);
             }
             preset = p;
         }
@@ -103,16 +110,16 @@ namespace Pumkin.Presets
         }
 
         void OnGUI()
-        {            
-            PumkinsCameraPreset newPreset = (PumkinsCameraPreset)preset;            
-            if(!newPreset) //Not sure I like this part
-            {
-                newPreset = (PumkinsCameraPreset)AssignOrCreatePreset<PumkinsCameraPreset>(null);
-                preset = newPreset;                
-            }
-
+        {
             try
             {
+                PumkinsCameraPreset newPreset = (PumkinsCameraPreset)preset;
+                if(!newPreset) //Not sure I like this part
+                {
+                    newPreset = (PumkinsCameraPreset)AssignOrCreatePreset<PumkinsCameraPreset>(null);
+                    preset = newPreset;
+                }
+
                 Rect r = GUILayoutUtility.GetAspectRect(1.3f);
                 EditorGUI.DrawTextureTransparent(r, PumkinsAvatarTools.SelectedCamRT, ScaleMode.ScaleToFit);
 
@@ -158,45 +165,48 @@ namespace Pumkin.Presets
                         Helpers.DrawGUILine();
 
                         PumkinsAvatarTools.Instance.DrawCameraControlButtons();
+                    }
+                    EditorGUILayout.EndScrollView();
 
-                        if(!editingExistingPreset)
+                    Helpers.DrawGUILine();
+
+                    if(!editingExistingPreset)
+                    {
+                        EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedCamera || string.IsNullOrEmpty(newPreset.name) || !PumkinsAvatarTools.SelectedAvatar);
                         {
-                            EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedCamera || string.IsNullOrEmpty(newPreset.name) || !PumkinsAvatarTools.SelectedAvatar);
+                            _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
+                            EditorGUI.BeginDisabledGroup(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform && referenceTransform == null);
                             {
-                                _overwriteFile = GUILayout.Toggle(_overwriteFile, Strings.Presets.overwriteFile);
-                                EditorGUI.BeginDisabledGroup(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform && referenceTransform == null);
+                                if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
                                 {
-                                    if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
+                                    if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Viewpoint && (Avatar.GetComponent<VRC_AvatarDescriptor>() == null))
                                     {
-                                        if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Viewpoint && (Avatar.GetComponent<VRC_AvatarDescriptor>() == null))
+                                        PumkinsAvatarTools.Log(Strings.Log.descriptorIsMissingCantGetViewpoint, LogType.Warning);
+                                    }
+                                    else if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform)
+                                    {
+                                        EditorApplication.delayCall += () =>
                                         {
-                                            PumkinsAvatarTools.Log(Strings.Log.descriptorIsMissingCantGetViewpoint, LogType.Warning);
-                                        }
-                                        else if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform)
+                                            newPreset.SavePreset(referenceTransform.gameObject, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
+                                            Close();
+                                        };
+                                    }
+                                    else
+                                    {
+                                        EditorApplication.delayCall += () =>
                                         {
-                                            EditorApplication.delayCall += () =>
-                                            {
-                                                newPreset.SavePreset(referenceTransform.gameObject, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
-                                                Close();
-                                            };
-                                        }
-                                        else
-                                        {
-                                            EditorApplication.delayCall += () =>
-                                            {
-                                                newPreset.SavePreset(PumkinsAvatarTools.SelectedAvatar, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
-                                                Close();
-                                            };
-                                        }
+                                            newPreset.SavePreset(PumkinsAvatarTools.SelectedAvatar, PumkinsAvatarTools.SelectedCamera, _overwriteFile);
+                                            Close();
+                                        };
                                     }
                                 }
-                                EditorGUI.EndDisabledGroup();
+                                EditorGUILayout.Space();
                             }
                             EditorGUI.EndDisabledGroup();
                         }
+                        EditorGUI.EndDisabledGroup();
                     }
                 }
-                EditorGUILayout.EndScrollView();
             }
             catch
             {
