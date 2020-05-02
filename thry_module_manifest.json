@@ -36,8 +36,10 @@
         "Resources/Presets/Poses/Presenting.asset",
         "Resources/Presets/Poses/Sitting.asset",
         "Resources/Presets/Poses/Talking.asset",
-        "Resources/Translations/language_chinese.asset",
-        "Resources/Translations/LANGUAGE_LOUD_EXAMPLE.asset",
+        "Resources/Translations/language_chinese_preset.preset",
+        "Resources/Translations/language_russian_preset.preset",
+        "Resources/Translations/language_русский.asset",
+        "Resources/Translations/language_中文.asset",
         "Scripts/Dependencies/SingletonScriptableObject.cs",
         "Scripts/Dependencies/Editor/EditorCoroutine.cs",
         "Scripts/Dependencies/Editor/ScriptableObjectUtility.cs",
@@ -66,6 +68,7 @@
         "Scripts/Editor/Presets/Popups/CreatePosePresetPopup.cs",
         "Scripts/Editor/Presets/Popups/CreatePresetPopupBase.cs",
         "Scripts/Editor/Translations/PumkinsLanguageManager.cs",
-        "Scripts/Editor/Translations/PumkinsTranslation.cs"
+        "Scripts/Editor/Translations/PumkinsTranslation.cs",
+        "Scripts/Editor/Translations/PumkinsYAMLTools.cs"
     ]
 }

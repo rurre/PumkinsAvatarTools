@@ -184,6 +184,7 @@ namespace Pumkin.Translations
         public string disableDynamicBones = "Disable DynamicBones";
         public string enableDynamicBones = "Enable DynamicBones";
         public string toggleDynamicBones = "Toggle DynamicBones";
+        public string fixDynamicBoneScripts = "Fix DynamicBone Scripts";
     };
 
     [Serializable]
@@ -192,7 +193,7 @@ namespace Pumkin.Translations
         public string copyFrom = "Copy From";
 
         public string copySettings = "Settings";
-        public string createMissing = "Copy Missing Scripts";
+        public string createMissing = "Copy Missing Components";
         public string emptyGameObjects = "Empty GameObjects";
         public string replaceOld = "Replace Old";
 
@@ -350,6 +351,8 @@ namespace Pumkin.Translations
         public string copiedDynamicBone = "Copied DynamicBone from {0}'s {1} to {2}'s {1}";
         public string invalidTranslation = "Translation {0} is invalid.";
         public string constraintHasNoValidSources = "{0}'s {1} has no valid sources. Destroying";
+        public string avatarHasNoPrefabDragToAssets = "Selected Avatar has no prefab associated with it. Drag it into your assets to create one";
+        public string attemptingToFixDynamicBoneScripts = "Attempting to fix DynamicBone Scripts";
     };
 
     [Serializable]

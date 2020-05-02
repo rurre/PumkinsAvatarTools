@@ -1156,6 +1156,21 @@ namespace Pumkin.HelperFunctions
             return null;
         }
 
+        public static string ReplaceGUIDInLine(string line, string newGUID)
+        {
+            string search = "guid: ";
+            int guidStart = line.IndexOf(search) + search.Length;
+            int guidEnd = line.IndexOf(',', guidStart);
+            var lineArr = line.ToCharArray();
+            int copyIndex = 0;
+            for(int i = guidStart; i < guidEnd; i++)
+            {
+                lineArr[i] = newGUID[copyIndex];
+                copyIndex++;
+            }            
+            return new string(lineArr);
+        }
+
         public static Vector3 GetViewpointAtEyeLevel(Animator anim)
         {
             Vector3 view = PumkinsAvatarTools.DEFAULT_VIEWPOINT;
@@ -1228,11 +1243,22 @@ namespace Pumkin.HelperFunctions
             return NormalizePath(path) == NormalizePath(other);
         }
 
-        public static string PathToLocalAssetsPath(string path)
+        public static string AbsolutePathToLocalAssetsPath(string path)
         {
             if(path.StartsWith(Application.dataPath))
                 path = "Assets" + path.Substring(Application.dataPath.Length);
             return path;
+        }
+
+        public static string LocalAssetsPathToAbsolutePath(string localPath)
+        {
+            const string assets = "Assets/";
+            if(localPath.StartsWith(assets))
+            {
+                localPath = localPath.Remove(0, assets.Length);
+                localPath = $"{Application.dataPath}/{localPath}";
+            }
+            return localPath;
         }
     }    
 }

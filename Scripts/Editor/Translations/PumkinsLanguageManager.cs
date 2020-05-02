@@ -11,6 +11,7 @@ using System.IO;
 using UnityEditor.Presets;
 using Pumkin.HelperFunctions;
 using Pumkin.Dependencies;
+using Pumkin.YAML;
 
 public static class PumkinsLanguageManager
 {    
@@ -191,7 +192,7 @@ public static class PumkinsLanguageManager
         }
         ReplaceTranslationPresetGUIDTemp(newPath, translationScriptGUID);
 
-        string newPathLocal = Helpers.PathToLocalAssetsPath(newPath);
+        string newPathLocal = Helpers.AbsolutePathToLocalAssetsPath(newPath);
         AssetDatabase.ImportAsset(newPathLocal);
 
         LoadTranslations();
@@ -234,15 +235,30 @@ public static class PumkinsLanguageManager
             
             if(!line.Contains("m_ManagedTypePPtr"))
                 continue;
-            
-            string search = "guid: ";
-            int guidStart = line.IndexOf(search) + search.Length;
-            line = line.Remove(guidStart) + newGUID + ",";
-            lines[i] = line;
+
+            lines[i] = Helpers.ReplaceGUIDInLine(line, newGUID);
             break;
         }
         
         File.WriteAllLines(filePath, lines);
+    }    
+
+    static void ReplaceGUIDInTextBlock(string textBlock, string key, string newGUID)
+    {
+        var lines = textBlock.Split('\n');
+
+        for(int i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i];
+
+            if(!line.Contains(key))
+                continue;
+
+            string search = "guid: ";
+            int guidStart = line.IndexOf(search) + search.Length;
+            line = line.Remove(guidStart) + newGUID + ",";
+            lines[i] = line;            
+        }
     }
 }
 

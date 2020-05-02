@@ -195,6 +195,7 @@ namespace Pumkin.DataStructures
             public static string enableDynamicBones = "_Enable DynamicBones";
             public static string disableDynamicBones = "_Disable DynamicBones";
             public static string toggleDynamicBones = "_Toggle DynamicBones";
+            public static string fixDynamicBoneScripts = "_Fix DynamicBone Scripts";
 
             static Tools()
             {
@@ -223,6 +224,7 @@ namespace Pumkin.DataStructures
                 enableDynamicBones = Translation.tools.enableDynamicBones;
                 disableDynamicBones = Translation.tools.disableDynamicBones;
                 toggleDynamicBones = Translation.tools.toggleDynamicBones;
+                fixDynamicBoneScripts = Translation.tools.fixDynamicBoneScripts;
             }
         };
         public static class AvatarInfo
@@ -361,7 +363,7 @@ namespace Pumkin.DataStructures
             public static string copyFrom = "_Copy From";
 
             public static string copySettings = "_Settings";
-            public static string createMissing = "_Copy Missing Scripts";
+            public static string createMissing = "_Copy Missing Components";
             public static string emptyGameObjects = "_Empty GameObjects";
             public static string replaceOld = "_Replace Old";
 
@@ -533,6 +535,8 @@ namespace Pumkin.DataStructures
             public static string copiedDynamicBone = "_Copied DynamicBone from {0}'s {1} to {2}'s {1}";
             public static string invalidTranslation = "_Translation {0} is invalid";
             public static string constraintHasNoValidSources = "_{0}'s {1} has no valid sources. Destroying";
+            public static string avatarHasNoPrefabDragToAssets = "_Selected Avatar has no prefab associated with it. Drag it into your assets to create one";
+            public static string attemptingToFixDynamicBoneScripts = "_Attempting to fix DynamicBone Scripts";
 
             static Log()
             {
@@ -588,6 +592,8 @@ namespace Pumkin.DataStructures
                 copiedDynamicBone = Translation.log.copiedDynamicBone;
                 invalidTranslation = Translation.log.invalidTranslation;
                 constraintHasNoValidSources = Translation.log.constraintHasNoValidSources;
+                avatarHasNoPrefabDragToAssets = Translation.log.avatarHasNoPrefabDragToAssets;
+                attemptingToFixDynamicBoneScripts = Translation.log.attemptingToFixDynamicBoneScripts;
             }
         };
         public static class Warning

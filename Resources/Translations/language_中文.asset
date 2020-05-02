@@ -73,6 +73,7 @@ MonoBehaviour:
     disableDynamicBones: "\u5173\u95ED\u52A8\u6001\u9AA8\u9ABC(DynamicBones)"
     enableDynamicBones: "\u6253\u5F00\u52A8\u6001\u9AA8\u9ABC(DynamicBones)"
     toggleDynamicBones: "\u5207\u6362\u52A8\u6001\u9AA8\u9ABC(DynamicBones)"
+    fixDynamicBoneScripts: Fix DynamicBone Scripts
   copier:
     copyFrom: "\u590D\u5236\u6765\u6E90"
     copySettings: "\u8BBE\u7F6E(Settings)"
@@ -251,6 +252,9 @@ MonoBehaviour:
       {2}\u7684{1}"
     invalidTranslation: "\u65E0\u6CD5\u52A0\u8F7D\u7FFB\u8BD1\u6587\u4EF6\u3002\u65E0\u6548\u7684\u7FFB\u8BD1"
     constraintHasNoValidSources: '{0}''s {1} has no valid sources. Destroying'
+    avatarHasNoPrefabDragToAssets: Selected Avatar has no prefab associated with it.
+      Drag it into your assets to create one
+    attemptingToFixDynamicBoneScripts: Attempting to fix DynamicBone Scripts
   warnings:
     warn: "\u8B66\u544A"
     notFound: "\u65E0\u6CD5\u627E\u5230"
