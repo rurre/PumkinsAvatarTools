@@ -16,6 +16,4 @@ If you like this project and would like to give something back, consider donatin
 
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M1VOLP)
 
-**Important:** Since this is an editor script it needs to be in a folder called `Editor` anywhere in your project.
-
-**Disclaimer:** This tool is in beta and could *break everything*. Please backup your avatars. And use at your own risk.
+**Disclaimer:** This tool is in beta and I can't guarantee it won't *break everything* (though unlikely). Please backup your avatars and use at your own risk.
