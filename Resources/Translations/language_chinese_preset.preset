@@ -242,8 +242,8 @@ Preset:
     value: "\u81EA\u52A8\u540C\u6B65\u89C6\u89D2\u7403\u4F4D\u7F6E"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: tools.refreshRig
-    value: "\u91CD\u7F6E\u9AA8\u67B6"
+    propertyPath: tools.refreshSDK
+    value: Refresh SDK Window
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.disableDynamicBones
@@ -256,6 +256,10 @@ Preset:
   - target: {fileID: 0}
     propertyPath: tools.toggleDynamicBones
     value: "\u5207\u6362\u52A8\u6001\u9AA8\u9ABC(DynamicBones)"
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: tools.fixDynamicBoneScripts
+    value: Fix DynamicBone Scripts
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.copyFrom
@@ -477,6 +481,30 @@ Preset:
   - target: {fileID: 0}
     propertyPath: copier.showAll
     value: Show All
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: copier.joints_fixed
+    value: Fixed Joint
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: copier.joints_hinge
+    value: Hinge Joint
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: copier.joints_spring
+    value: Spring Joint
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: copier.joints_character
+    value: Character Joint
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: copier.joints_configurable
+    value: Configurable Joint
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: copier.joints_removeOld
+    value: Remove Old Joints
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.name
@@ -876,6 +904,23 @@ Preset:
   - target: {fileID: 0}
     propertyPath: log.constraintHasNoValidSources
     value: '{0}''s {1} has no valid sources. Destroying'
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: log.avatarHasNoPrefabDragToAssets
+    value: Selected Avatar has no prefab associated with it. Drag it into your assets
+      to create one
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: log.attemptingToFixDynamicBoneScripts
+    value: Attempting to fix DynamicBone Scripts
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: log.notSelectedInCopierIgnoring
+    value: '{0}''s {1} is not selected in the copier. Ignoring'
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: log.exitPrefabModeFirst
+    value: Please exit prefab mode before doing this
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: warnings.warn

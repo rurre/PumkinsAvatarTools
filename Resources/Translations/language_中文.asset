@@ -69,7 +69,7 @@ MonoBehaviour:
     viewpointZDepth: "Z\u8F74\u5BBD"
     revertScale: "\u91CD\u7F6E\u6BD4\u4F8B\u5927\u5C0F"
     editScaleMoveViewpoint: "\u81EA\u52A8\u540C\u6B65\u89C6\u89D2\u7403\u4F4D\u7F6E"
-    refreshRig: "\u91CD\u7F6E\u9AA8\u67B6"
+    refreshSDK: Refresh SDK Window
     disableDynamicBones: "\u5173\u95ED\u52A8\u6001\u9AA8\u9ABC(DynamicBones)"
     enableDynamicBones: "\u6253\u5F00\u52A8\u6001\u9AA8\u9ABC(DynamicBones)"
     toggleDynamicBones: "\u5207\u6362\u52A8\u6001\u9AA8\u9ABC(DynamicBones)"
@@ -135,6 +135,12 @@ MonoBehaviour:
     onlyIfHasValidSources: Only if has Valid Sources
     showCommon: Show Common
     showAll: Show All
+    joints_fixed: Fixed Joint
+    joints_hinge: Hinge Joint
+    joints_spring: Spring Joint
+    joints_character: Character Joint
+    joints_configurable: Configurable Joint
+    joints_removeOld: Remove Old Joints
   avatarInfo:
     name: '{0}'
     line: '---------------------'
@@ -255,6 +261,8 @@ MonoBehaviour:
     avatarHasNoPrefabDragToAssets: Selected Avatar has no prefab associated with it.
       Drag it into your assets to create one
     attemptingToFixDynamicBoneScripts: Attempting to fix DynamicBone Scripts
+    notSelectedInCopierIgnoring: '{0}''s {1} is not selected in the copier. Ignoring'
+    exitPrefabModeFirst: Please exit prefab mode before doing this
   warnings:
     warn: "\u8B66\u544A"
     notFound: "\u65E0\u6CD5\u627E\u5230"

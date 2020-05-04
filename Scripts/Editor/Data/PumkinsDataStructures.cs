@@ -146,15 +146,21 @@ namespace Pumkin.DataStructures
         public static GUIStyle TextField { get; internal set; }
         public static GUIStyle IconLabel { get; internal set; }
         public static GUIStyle ButtonWithToggle { get; internal set; }
+        public static GUIStyle Button { get; internal set; }
 
         static Styles()
         {
-            BigButton = new GUIStyle("Button")
-            {
-                fixedHeight = 28f,
-                stretchHeight = false,
-                stretchWidth = true,
-            };
+            Reload();
+        }
+
+        static void Reload()
+        {
+            CopierToggle = new GUIStyle("Toggle");
+            Popup = new GUIStyle("Popup");
+            Foldout = new GUIStyle("Foldout");
+            HelpBox = new GUIStyle("HelpBox");
+            Box = new GUIStyle("box");
+            Button = new GUIStyle("button");
 
             Foldout_title = new GUIStyle("ToolbarDropDown")
             {
@@ -201,17 +207,16 @@ namespace Pumkin.DataStructures
                 padding = new RectOffset(10, 10, 10, 10),
             };
 
+            BigButton = new GUIStyle("Button")
+            {
+                fixedHeight = 28f,
+                stretchHeight = false,
+                stretchWidth = true,
+            };
+
             ToolbarBigButtons = new GUIStyle("button")
             {
                 fixedHeight = 24f,
-            };
-
-            IconLabel = new GUIStyle("label")
-            {
-                fixedWidth = 20f,
-                fixedHeight = 20f,
-                imagePosition = ImagePosition.ImageOnly,
-                padding = new RectOffset(0, 0, 0, 0),
             };
 
             IconButton = new GUIStyle("button")
@@ -222,11 +227,21 @@ namespace Pumkin.DataStructures
                 padding = new RectOffset(0, 0, 0, 0),
             };
 
-            CopierToggle = new GUIStyle("Toggle");
-            Popup = new GUIStyle("Popup");
-            Foldout = new GUIStyle("Foldout");
-            HelpBox = new GUIStyle("HelpBox");
-            Box = new GUIStyle("box");
+            BigIconButton = new GUIStyle(BigButton);
+            BigIconButton.fixedWidth = 40f;
+
+            ButtonWithToggle = new GUIStyle("Button")
+            {
+                fixedHeight = 19
+            };
+
+            IconLabel = new GUIStyle("label")
+            {
+                fixedWidth = 20f,
+                fixedHeight = 20f,
+                imagePosition = ImagePosition.ImageOnly,
+                padding = new RectOffset(0, 0, 0, 0),
+            };
 
             TextField = new GUIStyle("Textfield")
             {
@@ -238,15 +253,7 @@ namespace Pumkin.DataStructures
             {
                 fixedHeight = 19f,
             };
-            LightTextField.normal.textColor = Color.white;
-
-            BigIconButton = new GUIStyle(BigButton);
-            BigIconButton.fixedWidth = 40f;
-
-            ButtonWithToggle = new GUIStyle("Button")
-            {
-                fixedHeight = 19
-            };
+            LightTextField.normal.textColor = Color.white;            
         }
     }
 

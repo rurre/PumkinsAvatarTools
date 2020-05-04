@@ -77,11 +77,6 @@ public static class PumkinsLanguageManager
         var pres = Resources.LoadAll<Preset>(resourceTranslationPath);
         var trans = Resources.LoadAll<PumkinsTranslation>(resourceTranslationPath);
 
-        //AssetDatabase.FindAssets('*.preset', resourceTranslationPath
-
-        //Preset playerSettings = AssetDatabase.LoadAssetAtPath<Preset>("Assets/Presets/Settings_Player.preset");
-        //playerSettings.ApplyTo(PlayerSettings./*no object reference to apply to*/)
-
         foreach(var p in pres)
         {
             var mods = p.PropertyModifications;
@@ -201,27 +196,27 @@ public static class PumkinsLanguageManager
     /// <summary>
     /// Doesn't work for now
     /// </summary>    
-    static void ReplaceTranslationPresetGUID(string filePath, string newGUID)
-    {
-        using(var readerStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Write))
-        using(var reader = new StreamReader(readerStream))
-        using(var writerStream = new FileStream(filePath, FileMode.Open, FileAccess.Write, FileShare.Read))
-        using(var writer = new StreamWriter(writerStream, reader.CurrentEncoding))
-        {
-            string line;
-            while((line = reader.ReadLine()) != null)
-            {                
-                if(!line.Contains("m_ManagedTypePPtr"))
-                    continue;
+    //static void ReplaceTranslationPresetGUID(string filePath, string newGUID)
+    //{
+    //    using(var readerStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Write))
+    //    using(var reader = new StreamReader(readerStream))
+    //    using(var writerStream = new FileStream(filePath, FileMode.Open, FileAccess.Write, FileShare.Read))
+    //    using(var writer = new StreamWriter(writerStream, reader.CurrentEncoding))
+    //    {
+    //        string line;
+    //        while((line = reader.ReadLine()) != null)
+    //        {                
+    //            if(!line.Contains("m_ManagedTypePPtr"))
+    //                continue;
 
-                string search = "guid: ";
-                int guidStart = line.IndexOf(search) + search.Length;                    
-                line = line.Remove(guidStart) + newGUID + ",";                
-                writer.WriteLine(line);
-                break;
-            }
-        }
-    }
+    //            string search = "guid: ";
+    //            int guidStart = line.IndexOf(search) + search.Length;                    
+    //            line = line.Remove(guidStart) + newGUID + ",";                
+    //            writer.WriteLine(line);
+    //            break;
+    //        }
+    //    }
+    //}
 
     /// <summary>
     /// TODO: Replace with one that reads only the needed lines
@@ -241,24 +236,6 @@ public static class PumkinsLanguageManager
         }
         
         File.WriteAllLines(filePath, lines);
-    }    
-
-    static void ReplaceGUIDInTextBlock(string textBlock, string key, string newGUID)
-    {
-        var lines = textBlock.Split('\n');
-
-        for(int i = 0; i < lines.Length; i++)
-        {
-            var line = lines[i];
-
-            if(!line.Contains(key))
-                continue;
-
-            string search = "guid: ";
-            int guidStart = line.IndexOf(search) + search.Length;
-            line = line.Remove(guidStart) + newGUID + ",";
-            lines[i] = line;            
-        }
     }
 }
 

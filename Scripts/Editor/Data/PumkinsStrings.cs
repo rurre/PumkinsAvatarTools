@@ -191,7 +191,7 @@ namespace Pumkin.DataStructures
             public static string viewpointZDepth = "_Z Depth";
             public static string revertScale = "_Revert Scale";
             public static string editScaleMoveViewpoint = "_Move Viewpoint";
-            public static string refreshRig = "_Refresh Rig";
+            public static string refreshSDK = "_Refresh SDK Window";
             public static string enableDynamicBones = "_Enable DynamicBones";
             public static string disableDynamicBones = "_Disable DynamicBones";
             public static string toggleDynamicBones = "_Toggle DynamicBones";
@@ -220,7 +220,7 @@ namespace Pumkin.DataStructures
                 setRendererAnchors = Translation.tools.setRendererAnchors;
                 revertScale = Translation.tools.revertScale;
                 editScaleMoveViewpoint = Translation.tools.editScaleMoveViewpoint;
-                refreshRig = Translation.tools.refreshRig;                
+                refreshSDK = Translation.tools.refreshSDK;                
                 enableDynamicBones = Translation.tools.enableDynamicBones;
                 disableDynamicBones = Translation.tools.disableDynamicBones;
                 toggleDynamicBones = Translation.tools.toggleDynamicBones;
@@ -525,7 +525,7 @@ namespace Pumkin.DataStructures
             public static string failedDoesntHave = "_Failed: '{0}' doesn't have a '{1}'";
             public static string failedAlreadyHas = "_Failed: '{0}' already has a '{1}'";
             public static string loadedCameraOverlay = "_Loaded '{0}' as Camera Overlay";
-            public static string failedHasNoIgnoring = "_'{0}' has no '{1}', Ignoring.";
+            public static string failedHasNoIgnoring = "_'{0}' has no '{1}', Ignoring";
             public static string settingQuickViewpoint = "_Setting quick Viewpoint to '{0}'";
             public static string cantSetViewpointNonHumanoid = "_Can't set Viewpoint for a non humanoid avatar";
             public static string setAvatarScaleTo = "_Set Avatar scale to '{0}'";
@@ -549,6 +549,8 @@ namespace Pumkin.DataStructures
             public static string constraintHasNoValidSources = "_{0}'s {1} has no valid sources. Destroying";
             public static string avatarHasNoPrefabDragToAssets = "_Selected Avatar has no prefab associated with it. Drag it into your assets to create one";
             public static string attemptingToFixDynamicBoneScripts = "_Attempting to fix DynamicBone Scripts";
+            public static string notSelectedInCopierIgnoring = "_{0}'s {1} is not selected in the copier. Ignoring";
+            public static string exitPrefabModeFirst = "_Please exit prefab mode before doing this";
 
             static Log()
             {
@@ -606,6 +608,8 @@ namespace Pumkin.DataStructures
                 constraintHasNoValidSources = Translation.log.constraintHasNoValidSources;
                 avatarHasNoPrefabDragToAssets = Translation.log.avatarHasNoPrefabDragToAssets;
                 attemptingToFixDynamicBoneScripts = Translation.log.attemptingToFixDynamicBoneScripts;
+                notSelectedInCopierIgnoring = Translation.log.notSelectedInCopierIgnoring;
+                exitPrefabModeFirst = Translation.log.exitPrefabModeFirst;
             }
         };
         public static class Warning
@@ -621,7 +625,7 @@ namespace Pumkin.DataStructures
             public static string doesntWorkInUnity2017 = "_Doesn't work in Unity 2017 :(";
             public static string armatureScaleNotOne = "_Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
             public static string armatureScalesDontMatch = "_Armature scales for selected avatars don't match!\nThis can cause issues";
-            public static string noDBonesOrMissingScriptDefine = "_No DynamicBones found or missing script define.";
+            public static string noDBonesOrMissingScriptDefine = "_No DynamicBones found or missing script define";
             public static string languageAlreadyExistsOverwrite = "_Language Asset already exists. Overwrite?";
 
             static Warning()
@@ -802,7 +806,7 @@ namespace Pumkin.DataStructures
             public static string importLanguage = "_Import Language";
             public static string enableVerboseLogging = "_Enable verbose logging";
             public static string sceneViewOverlayWindowsAtBottom = "_Draw scene view overlays at the bottom";
-            public static string misc = "_Misc";
+            public static string misc = "_Misc";            
 
             static Settings()
             {
@@ -822,7 +826,7 @@ namespace Pumkin.DataStructures
                 importLanguage = Translation.misc.importLanguage;
                 enableVerboseLogging = Translation.misc.enableVerboseLogging;
                 sceneViewOverlayWindowsAtBottom = Translation.misc.sceneViewOverlayWindowsAtBottom;
-                misc = Translation.misc.misc;
+                misc = Translation.misc.misc;                
             }
         }
     };

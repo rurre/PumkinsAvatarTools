@@ -1030,9 +1030,9 @@ namespace Pumkin.HelperFunctions
         }
 
         /// <summary>
-        /// Looks for object in another object's child hierarchy. Can create if missing.
+        /// Looks for transform in another transform's child hierarchy. Can create if missing.
         /// </summary>                
-        /// <returns>Transform of found object</returns>
+        /// <returns>Found or created transform</returns>
         public static Transform FindTransformInAnotherHierarchy(Transform trans, Transform otherHierarchyTrans, bool createIfMissing)
         {
             if(!trans || !otherHierarchyTrans)

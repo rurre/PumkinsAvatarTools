@@ -59,7 +59,8 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: main.avatarInfo
-    value: "\u0418\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u044F \u043E \u0410\u0432\u0430\u0442\u0430\u0440\u0435"
+    value: "\u0418\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u044F \u043E\u0431
+      \u0410\u0432\u0430\u0442\u0430\u0440\u0435"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: main.thumbnails
@@ -123,7 +124,7 @@ Preset:
   - target: {fileID: 0}
     propertyPath: buttons.joinDiscordServer
     value: "\u041F\u0440\u0438\u0441\u043E\u0435\u0434\u0435\u043D\u0438\u0442\u0441\u044F
-      \u043A Discord \u0441\u0435\u0440\u0432\u0435\u0440\u0443!"
+      \u043A \u0414\u0438\u0441\u043A\u043E\u0440\u0434 \u0441\u0435\u0440\u0432\u0435\u0440\u0443!"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: buttons.selectNone
@@ -251,11 +252,12 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.editScaleMoveViewpoint
-    value: "\u0414\u0432\u0438\u0433\u0430\u0442\u044C Viewpoint"
+    value: "\u0414\u0432\u0438\u0433\u0430\u0442\u044C viewpoint"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: tools.refreshRig
-    value: "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C Rig"
+    propertyPath: tools.refreshSDK
+    value: "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u043E\u043A\u043D\u043E
+      SDK"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tools.disableDynamicBones
@@ -270,8 +272,13 @@ Preset:
     value: "\u041F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0438\u0442\u044C DynamicBones"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
+    propertyPath: tools.fixDynamicBoneScripts
+    value: "\u0418\u0441\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u0441\u043A\u0440\u0438\u043F\u0442\u044B
+      DynamicBone"
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
     propertyPath: copier.copyFrom
-    value: "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043E\u0442"
+    value: "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0441"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.copySettings
@@ -372,7 +379,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.descriptor_copyViewpoint
-    value: "\u0422\u043E\u0447\u0430\u043A\u0430 \u0437\u0440\u0435\u043D\u0438\u044F"
+    value: "\u0422\u043E\u0447\u043A\u0430 \u0437\u0440\u0435\u043D\u0438\u044F"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.skinMeshRender
@@ -380,7 +387,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.skinMeshRender_materials
-    value: "\u041C\u0430\u0442\u0435\u0440\u0438\u044F\u043B\u044B"
+    value: "\u041C\u0430\u0442\u0435\u0440\u0438\u0430\u043B\u044B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.skinMeshRender_blendShapeValues
@@ -404,11 +411,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.copyGameObjects
-    value: Copy GameObjects
+    value: "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C GameObjects"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.copyColliderObjects
-    value: Copy Collider Objects
+    value: "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043A\u043E\u043B\u0430\u0439\u0434\u0435\u0440\u044B"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: copier.lights
@@ -494,6 +501,30 @@ Preset:
   - target: {fileID: 0}
     propertyPath: copier.showAll
     value: "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u0432\u0441\u0435"
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: copier.joints_fixed
+    value: Fixed Joint
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: copier.joints_hinge
+    value: Hinge Joint
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: copier.joints_spring
+    value: Spring Joint
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: copier.joints_character
+    value: Character Joint
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: copier.joints_configurable
+    value: Configurable Joint
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: copier.joints_removeOld
+    value: Remove Old Joints
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: avatarInfo.name
@@ -674,7 +705,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: misc.uwu
-    value: "u\u043Cu"
+    value: uwu
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: misc.searchForBones
@@ -887,6 +918,23 @@ Preset:
   - target: {fileID: 0}
     propertyPath: log.constraintHasNoValidSources
     value: '{0}''s {1} has no valid sources. Destroying'
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: log.avatarHasNoPrefabDragToAssets
+    value: Selected Avatar has no prefab associated with it. Drag it into your assets
+      to create one
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: log.attemptingToFixDynamicBoneScripts
+    value: Attempting to fix DynamicBone Scripts
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: log.notSelectedInCopierIgnoring
+    value: '{0}''s {1} is not selected in the copier. Ignoring'
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: log.exitPrefabModeFirst
+    value: Please exit prefab mode before doing this
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: warnings.warn

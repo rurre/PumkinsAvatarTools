@@ -99,8 +99,7 @@ namespace Pumkin.AvatarTools
             FillVisemes,
             SetTPose,
             EditScale,
-            RevertScale,
-            RefreshRig,
+            RevertScale,            
             RemoveIKFollowers,
             RemoveMissingScripts,
             RemoveLookAtConstraint,
@@ -184,14 +183,12 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool bCopier_animators_createObjects = false;
         [SerializeField] bool bCopier_animators_copyMainAnimator = false;
 
-        [SerializeField] bool bCopier_joints_copy = true;
-        [SerializeField] bool bCopier_joints_copySettings = true;
+        [SerializeField] bool bCopier_joints_copy = true;        
         [SerializeField] bool bCopier_joints_fixed = true;
         [SerializeField] bool bCopier_joints_character = true;
         [SerializeField] bool bCopier_joints_configurable = true;
         [SerializeField] bool bCopier_joints_spring = true;
-        [SerializeField] bool bCopier_joints_hinge = true;
-        [SerializeField] bool bCopier_joints_createMissing = true;
+        [SerializeField] bool bCopier_joints_hinge = true;        
         [SerializeField] bool bCopier_joints_createObjects = true;
         [SerializeField] bool bCopier_joints_removeOld = true;
 
@@ -405,7 +402,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool verboseLoggingEnabled = false;
         GameObject oldSelectedAvatar = null;
 
-        [SerializeField] bool handlesUiWindowPositionAtBottom = false;
+        [SerializeField] bool handlesUiWindowPositionAtBottom = false;        
 
         static string _mainScriptPath = null;
         static string _mainFolderPath = null;
@@ -415,7 +412,7 @@ namespace Pumkin.AvatarTools
         static string _resourceFolderPathLocal = null;
 
         static bool _eventsAdded = false;
-        static bool _loadedPrefs = false;
+        static bool _loadedPrefs = false;        
 
         #endregion
 
@@ -436,7 +433,7 @@ namespace Pumkin.AvatarTools
         public static GameObject SelectedAvatar
         {
             get
-            {
+            {                
                 return _selectedAvatar;
             }
             set
@@ -992,7 +989,7 @@ namespace Pumkin.AvatarTools
             {
                 EditorApplication.playModeStateChanged += HandlePlayModeStateChange;
                 Selection.selectionChanged += HandleSelectionChanged;
-                EditorSceneManager.sceneOpened += HandleSceneChange;
+                EditorSceneManager.sceneOpened += HandleSceneChange;                
 #if UNITY_2018
                 PrefabStage.prefabStageOpened += HandlePrefabStageOpened;
                 PrefabStage.prefabStageClosing += HandlePrefabStageClosed;
@@ -1122,7 +1119,7 @@ namespace Pumkin.AvatarTools
             if(SelectedAvatar)
                 oldSelectedAvatar = SelectedAvatar;
 
-            SelectedAvatar = stage.prefabContentsRoot;
+            SelectedAvatar = stage.prefabContentsRoot;            
         }
 
         void HandlePrefabStageClosed(PrefabStage stage)
@@ -1244,7 +1241,7 @@ namespace Pumkin.AvatarTools
             GUILayout.Label(Strings.Settings.misc + ":");
 
             EditorGUILayout.Space();
-
+            
             handlesUiWindowPositionAtBottom = GUILayout.Toggle(handlesUiWindowPositionAtBottom, Strings.Settings.sceneViewOverlayWindowsAtBottom);
             verboseLoggingEnabled = GUILayout.Toggle(verboseLoggingEnabled, Strings.Settings.enableVerboseLogging);
 
@@ -2815,10 +2812,7 @@ namespace Pumkin.AvatarTools
                             }
                             GUILayout.EndVertical();
                         }
-                        GUILayout.EndHorizontal();
-
-                        if(GUILayout.Button(Strings.Tools.refreshRig))
-                            DoAction(SelectedAvatar, ToolMenuActions.RefreshRig);
+                        GUILayout.EndHorizontal();                        
                     }
 
                     Helpers.DrawGUILine();
@@ -2934,6 +2928,10 @@ namespace Pumkin.AvatarTools
                         EditorGUILayout.EndHorizontal();                        
                     }
                     EditorGUI.EndDisabledGroup();
+                    Helpers.DrawGUILine();
+
+                    if(GUILayout.Button(Strings.Tools.refreshSDK, Styles.BigButton))
+                        RefreshSDK();
                     EditorGUILayout.Space();
                 }
             }
@@ -2946,7 +2944,13 @@ namespace Pumkin.AvatarTools
         private static void FixDynamicBoneScripts(GameObject avatar)
         {
 #if PUMKIN_DBONES
-            if(PrefabUtility.GetPrefabAssetType(avatar) == PrefabAssetType.NotAPrefab)
+            var prefStage = PrefabStageUtility.GetCurrentPrefabStage();
+            string prefPath = null;
+            if(prefStage != null)
+            {
+                Log(Strings.Log.exitPrefabModeFirst, LogType.Warning);
+            }
+            else if(PrefabUtility.GetPrefabAssetType(avatar) == PrefabAssetType.NotAPrefab)
             {
                 Log(Strings.Log.avatarHasNoPrefabDragToAssets, LogType.Error);
                 return;
@@ -2958,7 +2962,9 @@ namespace Pumkin.AvatarTools
 
             try
             {
-                var prefPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(SelectedAvatar);
+                if(prefPath == null)
+                    prefPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(SelectedAvatar);
+
                 if(string.IsNullOrEmpty(prefPath))
                     return;
 
@@ -3707,7 +3713,7 @@ namespace Pumkin.AvatarTools
             if(anim.isHuman)
                 Log(Strings.Log.settingQuickViewpoint, LogType.Log, desc.ViewPosition.ToString());
             else
-                Log(Strings.Log.cantSetViewpointNonHumanoid, LogType.Log, desc.ViewPosition.ToString());
+                Log(Strings.Log.cantSetViewpointNonHumanoid, LogType.Warning, desc.ViewPosition.ToString());
         }
 
         /// <summary>
@@ -3874,10 +3880,7 @@ namespace Pumkin.AvatarTools
                     break;
                 case ToolMenuActions.RevertScale:
                     RevertScale(SelectedAvatar);
-                    break;
-                case ToolMenuActions.RefreshRig:
-                    RefreshRig(SelectedAvatar);
-                    break;
+                    break;                
                 case ToolMenuActions.RemoveIKFollowers:
                     DestroyAllComponentsOfType(SelectedAvatar, typeof(VRC_IKFollower), false, false);
                     break;
@@ -3989,17 +3992,11 @@ namespace Pumkin.AvatarTools
         }
 
         /// <summary>
-        /// Removes and readds the object animator's unity avatar. Potentially fixes the sdk warning for the rig missing stuff
+        /// Refreshes the VRC SDK window
         /// </summary>        
-        private void RefreshRig(GameObject selectedAvatar)
+        private void RefreshSDK()
         {
-            if(!selectedAvatar)
-                return;
-
-            Animator animator = selectedAvatar.GetComponent<Animator>();
-            Avatar avatar = animator.avatar;
-            animator.avatar = null;
-            EditorApplication.delayCall += () => animator.avatar = avatar;
+            VRCSdkControlPanel.window?.Reset();            
         }
 
         /// <summary>
@@ -4420,7 +4417,7 @@ namespace Pumkin.AvatarTools
                 {
 #if PUMKIN_DBONES || PUMKIN_OLD_DBONES
                     if(bCopier_dynamicBones_removeOldColliders)
-                        DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, true);
+                        DestroyAllComponentsOfType(objTo, typeof(DynamicBoneCollider), false, true);
                     CopyAllDynamicBoneColliders(objFrom, objTo, bCopier_dynamicBones_createObjectsColliders, true);
 #endif
                 }
@@ -4428,7 +4425,7 @@ namespace Pumkin.AvatarTools
                 {
 #if PUMKIN_DBONES || PUMKIN_OLD_DBONES
                     if (bCopier_dynamicBones_removeOldBones)
-                        DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, true);
+                        DestroyAllComponentsOfType(objTo, typeof(DynamicBone), false, true);
                     if (bCopier_dynamicBones_copySettings || bCopier_dynamicBones_createMissing)
                         CopyAllDynamicBonesNew(objFrom, objTo, bCopier_dynamicBones_createMissing, true);
 #endif
@@ -4465,6 +4462,8 @@ namespace Pumkin.AvatarTools
             }
             if(bCopier_joints_copy && CopierTabs.ComponentIsInSelectedTab<Joint>(_copier_selectedTab))
             {
+                if(bCopier_joints_removeOld)
+                    DestroyAllComponentsOfType(objTo, typeof(Joint), false, true);
                 CopyAllJoints(objFrom, objTo, bCopier_joints_createObjects, true);
             }
 
@@ -5124,8 +5123,40 @@ namespace Pumkin.AvatarTools
             var jointFromArr = from.GetComponentsInChildren<Joint>(true);
 
             for(int i = 0; i < jointFromArr.Length; i++)
-            {                
+            {
+                var jointFrom = jointFromArr[i];
+                var jointTransFrom = jointFrom.transform;
+
+                Type jointType = jointFrom.GetType();
+                if((!bCopier_joints_character && jointType == typeof(CharacterJoint)) ||
+                    (!bCopier_joints_configurable && jointType == typeof(ConfigurableJoint)) ||
+                    (!bCopier_joints_fixed && jointType == typeof(FixedJoint)) ||
+                    (!bCopier_joints_spring && jointType == typeof(SpringJoint)) ||
+                    (!bCopier_joints_hinge && jointType == typeof(CharacterJoint)))
+                {
+                    Log(Strings.Log.notSelectedInCopierIgnoring, LogType.Log, jointTransFrom.gameObject.name, jointType.Name);                    
+                    continue;
+                }                
+
+                var jointTransTo = Helpers.FindTransformInAnotherHierarchy(jointTransFrom, to.transform, createGameObjects);
                 
+                if(!jointTransTo)
+                    continue;
+
+                Log(Strings.Log.copyAttempt, LogType.Log, jointType.Name, jointTransFrom.gameObject.name, jointTransTo.gameObject.name);
+                Joint jointTo = jointTransTo.gameObject.AddComponent(jointFrom.GetType()) as Joint;
+
+                ComponentUtility.CopyComponent(jointFrom);
+                ComponentUtility.PasteComponentValues(jointTo);
+
+                Transform targetTrans = null;
+                Rigidbody targetBody = null;
+                if(jointTo.connectedBody != null)
+                    targetTrans = Helpers.FindTransformInAnotherHierarchy(jointFrom.connectedBody.transform, to.transform, createGameObjects);
+                if(targetTrans != null)
+                    targetBody = targetTrans.GetComponent<Rigidbody>();
+
+                jointTo.connectedBody = targetBody;
             }
         }
 

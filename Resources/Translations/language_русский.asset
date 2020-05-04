@@ -21,7 +21,7 @@ MonoBehaviour:
     tools: "\u0413\u043B\u0430\u0432\u043D\u043E\u0435"
     removeAll: "\u0423\u0431\u0440\u0430\u0442\u044C \u0432\u0441\u0435"
     copier: "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u041A\u043E\u043C\u043F\u043E\u043D\u0435\u043D\u0442\u044B"
-    avatarInfo: "\u0418\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u044F \u043E
+    avatarInfo: "\u0418\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u044F \u043E\u0431
       \u0410\u0432\u0430\u0442\u0430\u0440\u0435"
     thumbnails: Thumbnails
     info: "\u0418\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u044F"
@@ -42,7 +42,7 @@ MonoBehaviour:
     openPoseEditor: "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u0420\u0435\u0434\u0430\u043A\u0442\u043E\u0440
       \u041F\u043E\u0437"
     joinDiscordServer: "\u041F\u0440\u0438\u0441\u043E\u0435\u0434\u0435\u043D\u0438\u0442\u0441\u044F
-      \u043A Discord \u0441\u0435\u0440\u0432\u0435\u0440\u0443!"
+      \u043A \u0414\u0438\u0441\u043A\u043E\u0440\u0434 \u0441\u0435\u0440\u0432\u0435\u0440\u0443!"
     selectNone: "\u0423\u0431\u0440\u0430\u0442\u044C \u0432\u0441\u0435"
     selectAll: "\u0412\u044B\u0431\u0440\u0430\u0442\u044C \u0432\u0441\u0435"
     browse: "\u0418\u0441\u043A\u0430\u0442\u044C"
@@ -83,15 +83,17 @@ MonoBehaviour:
     setRendererAnchors: Set Renderer Anchors
     viewpointZDepth: "Z \u0413\u043B\u0443\u0431\u0438\u043D\u0430"
     revertScale: "\u0421\u0431\u0440\u043E\u0441\u0438\u0442\u044C \u0440\u0430\u0437\u043C\u0435\u0440"
-    editScaleMoveViewpoint: "\u0414\u0432\u0438\u0433\u0430\u0442\u044C Viewpoint"
-    refreshRig: "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C Rig"
+    editScaleMoveViewpoint: "\u0414\u0432\u0438\u0433\u0430\u0442\u044C viewpoint"
+    refreshSDK: "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u043E\u043A\u043D\u043E
+      SDK"
     disableDynamicBones: "\u041E\u0442\u043A\u043B\u044E\u0447\u0438\u0442\u044C DynamicBones"
     enableDynamicBones: "\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C DynamicBones"
     toggleDynamicBones: "\u041F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0438\u0442\u044C
       DynamicBones"
-    fixDynamicBoneScripts: Fix DynamicBone Scripts
+    fixDynamicBoneScripts: "\u0418\u0441\u043F\u0440\u0430\u0432\u0438\u0442\u044C
+      \u0441\u043A\u0440\u0438\u043F\u0442\u044B DynamicBone"
   copier:
-    copyFrom: "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043E\u0442"
+    copyFrom: "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0441"
     copySettings: "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438"
     createMissing: "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043E\u0442\u0441\u0443\u0442\u0441\u0432\u0443\u044E\u0441\u0449\u0438\u0435
       \u0441\u043A\u0440\u0438\u043F\u0442\u044B"
@@ -122,16 +124,18 @@ MonoBehaviour:
     descriptor: Avatar Descriptor
     descriptor_pipelineId: Pipeline Id
     descriptor_animationOverrides: Animation Overrides
-    descriptor_copyViewpoint: "\u0422\u043E\u0447\u0430\u043A\u0430 \u0437\u0440\u0435\u043D\u0438\u044F"
+    descriptor_copyViewpoint: "\u0422\u043E\u0447\u043A\u0430 \u0437\u0440\u0435\u043D\u0438\u044F"
     skinMeshRender: Skinned Mesh Renderers
-    skinMeshRender_materials: "\u041C\u0430\u0442\u0435\u0440\u0438\u044F\u043B\u044B"
+    skinMeshRender_materials: "\u041C\u0430\u0442\u0435\u0440\u0438\u0430\u043B\u044B"
     skinMeshRender_blendShapeValues: BlendShape Values
     particleSystems: Particle Systems
     rigidBodies: Rigid Bodies
     trailRenderers: Trail Renderers
     meshRenderers: Mesh Renderers
-    copyGameObjects: Copy GameObjects
-    copyColliderObjects: Copy Collider Objects
+    copyGameObjects: "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C
+      GameObjects"
+    copyColliderObjects: "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C
+      \u043A\u043E\u043B\u0430\u0439\u0434\u0435\u0440\u044B"
     lights: Lights
     animators: "\u0410\u043D\u0438\u043C\u0430\u0442\u043E\u0440\u044B"
     copyMainAnimator: "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C
@@ -154,6 +158,12 @@ MonoBehaviour:
     onlyIfHasValidSources: Only if has Valid Sources
     showCommon: "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u043E\u0431\u0449\u0438\u0435 "
     showAll: "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u0432\u0441\u0435"
+    joints_fixed: Fixed Joint
+    joints_hinge: Hinge Joint
+    joints_spring: Spring Joint
+    joints_character: Character Joint
+    joints_configurable: Configurable Joint
+    joints_removeOld: Remove Old Joints
   avatarInfo:
     name: '{0}'
     line: '---------------------'
@@ -202,7 +212,7 @@ MonoBehaviour:
     applyBodyRotation: Apply Body Rotation
     lockSelectedCameraToSceneView: Lock Selected Camera to Scene View
   misc:
-    uwu: "u\u043Cu"
+    uwu: uwu
     searchForBones: Search for DynamicBones
     superExperimental: Super Experimental Stuff
     language: "\u042F\u0437\u044B\u043A"
@@ -268,6 +278,8 @@ MonoBehaviour:
     avatarHasNoPrefabDragToAssets: Selected Avatar has no prefab associated with it.
       Drag it into your assets to create one
     attemptingToFixDynamicBoneScripts: Attempting to fix DynamicBone Scripts
+    notSelectedInCopierIgnoring: '{0}''s {1} is not selected in the copier. Ignoring'
+    exitPrefabModeFirst: Please exit prefab mode before doing this
   warnings:
     warn: Warning
     notFound: "\u041D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u043E"

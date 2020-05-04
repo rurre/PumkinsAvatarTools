@@ -9,7 +9,7 @@ namespace Pumkin.Translations
 {
     [Serializable, CreateAssetMenu
     (
-        fileName = "Language_New",
+        fileName = "language_new",
         menuName = "Pumkin/Avatar Tools/Create Translation"
     )]
     public class PumkinsTranslation : ScriptableObject
@@ -180,7 +180,7 @@ namespace Pumkin.Translations
         public string viewpointZDepth = "Z Depth";
         public string revertScale = "Revert Scale";
         public string editScaleMoveViewpoint = "Move Viewpoint";
-        public string refreshRig = "Refresh Rig";
+        public string refreshSDK = "Refresh SDK Window";
         public string disableDynamicBones = "Disable DynamicBones";
         public string enableDynamicBones = "Enable DynamicBones";
         public string toggleDynamicBones = "Toggle DynamicBones";
@@ -336,7 +336,7 @@ namespace Pumkin.Translations
         public string failedDoesntHave = "Failed: '{0}' doesn't have a '{1}'";
         public string failedAlreadyHas = "Failed: '{0}' already has a '{1}'";
         public string loadedCameraOverlay = "Loaded '{0}' as Camera Overlay";
-        public string failedHasNoIgnoring = "'{0}' has no '{1}', Ignoring.";
+        public string failedHasNoIgnoring = "'{0}' has no '{1}', Ignoring";
         public string settingQuickViewpoint = "Setting quick Viewpoint to '{0}'";
         public string cantSetViewpointNonHumanoid = "Can't set Viewpoint for a non humanoid avatar";
         public string setAvatarScaleTo = "Set Avatar scale to '{0}'";
@@ -356,10 +356,12 @@ namespace Pumkin.Translations
         public string descriptorIsMissingCantGetViewpoint = "Avatar Descriptor is missing. Can't get Viewpoint position";
         public string hasMissingScriptDestroying = "{0} has a missing script. Destroying";
         public string copiedDynamicBone = "Copied DynamicBone from {0}'s {1} to {2}'s {1}";
-        public string invalidTranslation = "Translation {0} is invalid.";
+        public string invalidTranslation = "Translation {0} is invalid";
         public string constraintHasNoValidSources = "{0}'s {1} has no valid sources. Destroying";
         public string avatarHasNoPrefabDragToAssets = "Selected Avatar has no prefab associated with it. Drag it into your assets to create one";
         public string attemptingToFixDynamicBoneScripts = "Attempting to fix DynamicBone Scripts";
+        public string notSelectedInCopierIgnoring = "{0}'s {1} is not selected in the copier. Ignoring";
+        public string exitPrefabModeFirst = "Please exit prefab mode before doing this";
     };
 
     [Serializable]
@@ -376,7 +378,7 @@ namespace Pumkin.Translations
         public string doesntWorkInUnity2017 = "Doesn't work in Unity 2017 :(";
         public string armatureScaleNotOne = "Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
         public string armatureScalesDontMatch = "Armature scales for selected avatars don't match!\nThis can cause issues";
-        public string noDBonesOrMissingScriptDefine = "No DynamicBones found or missing script define.";
+        public string noDBonesOrMissingScriptDefine = "No DynamicBones found or missing script define";
         public string languageAlreadyExistsOverwrite = "Language Asset already exists. Overwrite?";
     };
 
@@ -400,7 +402,7 @@ namespace Pumkin.Translations
         public string importLanguage = "Import Language";
         public string enableVerboseLogging = "Enable verbose logging";
         public string sceneViewOverlayWindowsAtBottom = "Draw scene view overlays at the bottom";
-        public string misc = "Misc";
+        public string misc = "Misc";        
     };
 
     [Serializable]
