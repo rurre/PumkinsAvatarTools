@@ -102,16 +102,16 @@ namespace Pumkin.Presets
 
                 EditorGUILayout.Space();
 
-                switch((PumkinsAvatarTools.CameraBackgroundOverrideType)pBackgroundType.enumValueIndex)
+                switch((PumkinsCameraPreset.CameraBackgroundOverrideType)pBackgroundType.enumValueIndex)
                 {
-                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Color:
+                    case PumkinsCameraPreset.CameraBackgroundOverrideType.Color:
                         EditorGUILayout.PropertyField(pBackgroundColor, new GUIContent("Background Color"));
                         break;
-                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Image:
+                    case PumkinsCameraPreset.CameraBackgroundOverrideType.Image:
                         EditorGUILayout.PropertyField(pBackgroundImagePath, new GUIContent("Image Path"));
                         EditorGUILayout.PropertyField(pBackgroundImageTint, new GUIContent("Image Tint"));
                         break;
-                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Skybox:
+                    case PumkinsCameraPreset.CameraBackgroundOverrideType.Skybox:
                         EditorGUILayout.PropertyField(pBackgroundMaterial, new GUIContent("Material"));
                         break;
                     default:

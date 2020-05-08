@@ -129,6 +129,7 @@ namespace Pumkin.Translations
         public string info = "Info";
         public string avatar = "Avatar";
         public string useSceneSelection = "Use Scene Selection";
+        public string experimental = "Experimental";
     };
 
     [Serializable]
@@ -184,7 +185,7 @@ namespace Pumkin.Translations
         public string disableDynamicBones = "Disable DynamicBones";
         public string enableDynamicBones = "Enable DynamicBones";
         public string toggleDynamicBones = "Toggle DynamicBones";
-        public string fixDynamicBoneScripts = "Fix DynamicBone Scripts";
+        public string fixDynamicBoneScripts = "Fix Missing DynamicBone Scripts in Prefab";
     };
 
     [Serializable]
@@ -358,7 +359,7 @@ namespace Pumkin.Translations
         public string copiedDynamicBone = "Copied DynamicBone from {0}'s {1} to {2}'s {1}";
         public string invalidTranslation = "Translation {0} is invalid";
         public string constraintHasNoValidSources = "{0}'s {1} has no valid sources. Destroying";
-        public string avatarHasNoPrefabDragToAssets = "Selected Avatar has no prefab associated with it. Drag it into your assets to create one";
+        public string avatarHasNoPrefab = "Selected Avatar has no prefab associated with it. Only prefabs can be fixed for now";
         public string attemptingToFixDynamicBoneScripts = "Attempting to fix DynamicBone Scripts";
         public string notSelectedInCopierIgnoring = "{0}'s {1} is not selected in the copier. Ignoring";
         public string exitPrefabModeFirst = "Please exit prefab mode before doing this";
@@ -395,14 +396,14 @@ namespace Pumkin.Translations
     public class SettingsStrings
     {
         public string uwu = "uwu";
-        public string searchForBones = "Search for DynamicBones";
-        public string superExperimental = "Super Experimental Stuff";
+        public string searchForBones = "Search for DynamicBones";        
         public string language = "Language";
         public string refresh = "Refresh";
         public string importLanguage = "Import Language";
         public string enableVerboseLogging = "Enable verbose logging";
         public string sceneViewOverlayWindowsAtBottom = "Draw scene view overlays at the bottom";
-        public string misc = "Misc";        
+        public string misc = "Misc";
+        public string showExperimentalMenu = "Show experimental menu";
     };
 
     [Serializable]

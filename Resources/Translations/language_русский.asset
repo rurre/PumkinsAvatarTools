@@ -28,6 +28,7 @@ MonoBehaviour:
     avatar: "\u0410\u0432\u0430\u0442\u0430\u0440"
     useSceneSelection: "\u0412\u044B\u0431\u0438\u0440\u0430\u0442\u044C \u0438\u0437
       \u0441\u0446\u0435\u043D\u044B \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438"
+    experimental: Experimental
   buttons:
     selectFromScene: "\u0412\u044B\u0431\u0440\u0430\u0442\u044C \u0438\u0437 \u0441\u0446\u0435\u043D\u044B"
     copySelected: "\u041A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u043E\u0435"
@@ -214,7 +215,6 @@ MonoBehaviour:
   misc:
     uwu: uwu
     searchForBones: Search for DynamicBones
-    superExperimental: Super Experimental Stuff
     language: "\u042F\u0437\u044B\u043A"
     refresh: "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C"
     importLanguage: "\u0418\u043C\u043F\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C
@@ -222,6 +222,7 @@ MonoBehaviour:
     enableVerboseLogging: Enable verbose logging
     sceneViewOverlayWindowsAtBottom: Draw scene view overlays at the bottom
     misc: "\u0414\u0440\u0443\u0433\u043E\u0435"
+    showExperimentalMenu: Show experimental menu
   log:
     done: "\u0413\u043E\u0442\u043E\u0432\u043E"
     cancelled: "\u041E\u0442\u043C\u0435\u043D\u0435\u043D\u043D\u043E"
@@ -275,8 +276,8 @@ MonoBehaviour:
     copiedDynamicBone: Copied DynamicBone from {0}'s {1} to {2}'s {1}
     invalidTranslation: Translation {0} is invalid.
     constraintHasNoValidSources: '{0}''s {1} has no valid sources. Destroying'
-    avatarHasNoPrefabDragToAssets: Selected Avatar has no prefab associated with it.
-      Drag it into your assets to create one
+    avatarHasNoPrefab: Selected Avatar has no prefab associated with it. Only prefabs
+      can be fixed for now
     attemptingToFixDynamicBoneScripts: Attempting to fix DynamicBone Scripts
     notSelectedInCopierIgnoring: '{0}''s {1} is not selected in the copier. Ignoring'
     exitPrefabModeFirst: Please exit prefab mode before doing this

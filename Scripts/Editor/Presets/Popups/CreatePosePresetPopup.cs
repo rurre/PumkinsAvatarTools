@@ -93,7 +93,7 @@ namespace Pumkin.Presets
                 Helpers.DrawGUILine();
 
                 if(GUILayout.Button(Strings.Buttons.openPoseEditor, Styles.BigButton))
-                    PumkinsMuscleEditor.ShowWindow();
+                    PumkinsPoseEditor.ShowWindow();
 
                 Helpers.DrawGUILine();
 

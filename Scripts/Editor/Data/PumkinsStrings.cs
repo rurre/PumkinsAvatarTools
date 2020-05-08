@@ -81,6 +81,7 @@ namespace Pumkin.DataStructures
 
             public static string info = "_Info";
             public static string useSceneSelection = "_Use Scene Selection";
+            public static string experimental = "_Experimental";
 
             static Main()
             {
@@ -103,6 +104,7 @@ namespace Pumkin.DataStructures
                 info = Translation.main.info;
                 thumbnails = Translation.main.thumbnails;
                 useSceneSelection = Translation.main.useSceneSelection;
+                experimental = Translation.main.experimental;
             }
         };
         public static class Buttons
@@ -195,7 +197,7 @@ namespace Pumkin.DataStructures
             public static string enableDynamicBones = "_Enable DynamicBones";
             public static string disableDynamicBones = "_Disable DynamicBones";
             public static string toggleDynamicBones = "_Toggle DynamicBones";
-            public static string fixDynamicBoneScripts = "_Fix DynamicBone Scripts";
+            public static string fixDynamicBoneScripts = "_Fix Missing DynamicBone Scripts in Prefab";
 
             static Tools()
             {
@@ -547,7 +549,7 @@ namespace Pumkin.DataStructures
             public static string copiedDynamicBone = "_Copied DynamicBone from {0}'s {1} to {2}'s {1}";
             public static string invalidTranslation = "_Translation {0} is invalid";
             public static string constraintHasNoValidSources = "_{0}'s {1} has no valid sources. Destroying";
-            public static string avatarHasNoPrefabDragToAssets = "_Selected Avatar has no prefab associated with it. Drag it into your assets to create one";
+            public static string avatarHasNoPrefab = "_Selected Avatar has no prefab associated with it. Only prefabs can be fixed for now";
             public static string attemptingToFixDynamicBoneScripts = "_Attempting to fix DynamicBone Scripts";
             public static string notSelectedInCopierIgnoring = "_{0}'s {1} is not selected in the copier. Ignoring";
             public static string exitPrefabModeFirst = "_Please exit prefab mode before doing this";
@@ -606,7 +608,7 @@ namespace Pumkin.DataStructures
                 copiedDynamicBone = Translation.log.copiedDynamicBone;
                 invalidTranslation = Translation.log.invalidTranslation;
                 constraintHasNoValidSources = Translation.log.constraintHasNoValidSources;
-                avatarHasNoPrefabDragToAssets = Translation.log.avatarHasNoPrefabDragToAssets;
+                avatarHasNoPrefab = Translation.log.avatarHasNoPrefab;
                 attemptingToFixDynamicBoneScripts = Translation.log.attemptingToFixDynamicBoneScripts;
                 notSelectedInCopierIgnoring = Translation.log.notSelectedInCopierIgnoring;
                 exitPrefabModeFirst = Translation.log.exitPrefabModeFirst;
@@ -799,14 +801,14 @@ namespace Pumkin.DataStructures
         public static class Settings
         {
             public static string uwu = "_uwu";
-            public static string searchForBones = "_Search for DynamicBones";
-            public static string superExperimental = "_Super Experimental Stuff";
+            public static string searchForBones = "_Search for DynamicBones";            
             public static string language = "_Language";
             public static string refresh = "_Refresh";
             public static string importLanguage = "_Import Language";
             public static string enableVerboseLogging = "_Enable verbose logging";
             public static string sceneViewOverlayWindowsAtBottom = "_Draw scene view overlays at the bottom";
-            public static string misc = "_Misc";            
+            public static string misc = "_Misc";
+            public static string showExperimentalMenu = "_Show experimental menu";
 
             static Settings()
             {
@@ -819,14 +821,14 @@ namespace Pumkin.DataStructures
                     return;
 
                 uwu = Translation.misc.uwu;
-                searchForBones = Translation.misc.searchForBones;
-                superExperimental = Translation.misc.superExperimental;
+                searchForBones = Translation.misc.searchForBones;                
                 language = Translation.misc.language;
                 refresh = Translation.misc.refresh;
                 importLanguage = Translation.misc.importLanguage;
                 enableVerboseLogging = Translation.misc.enableVerboseLogging;
                 sceneViewOverlayWindowsAtBottom = Translation.misc.sceneViewOverlayWindowsAtBottom;
-                misc = Translation.misc.misc;                
+                misc = Translation.misc.misc;
+                showExperimentalMenu = Translation.misc.showExperimentalMenu;                
             }
         }
     };

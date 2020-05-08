@@ -2,6 +2,7 @@
 using Pumkin.DataStructures;
 using Pumkin.Dependencies;
 using Pumkin.HelperFunctions;
+using Pumkin.PoseEditor;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -199,7 +200,7 @@ namespace Pumkin.Presets
                     humanPoseHandler.SetHumanPose(ref humanPose);
                     avatar.transform.SetPositionAndRotation(pos, rot);                    
 
-                    PumkinsAvatarTools.OnPoseWasChanged(PumkinsAvatarTools.PoseChangeType.Reset);
+                    PumkinsPoseEditor.OnPoseWasChanged(PumkinsPoseEditor.PoseChangeType.Reset);
                     return true;
                 }
                 else
