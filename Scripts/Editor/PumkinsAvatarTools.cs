@@ -49,7 +49,8 @@ namespace Pumkin.AvatarTools
 
         [SerializeField] float _tools_quickSetup_viewpointZDepth = 0.06f;
 
-        [SerializeField] bool _tools_quickSetup_setRendererAnchor = true;
+        [SerializeField] bool _tools_quickSetup_setSkinnedMeshRendererAnchor = true;
+        [SerializeField] bool _tools_quickSetup_setMeshRendererAnchor = true;
         [SerializeField] string _tools_quickSetup_setRenderAnchor_path = "Armature/Hips/Spine";
 
         //Editing Viewpoint        
@@ -996,7 +997,7 @@ namespace Pumkin.AvatarTools
             RefreshBackgroundOverrideType();
 
             if(_lastOpenFilePath == default(string))
-                _lastOpenFilePath = MainFolderPath + PumkinsPresetManager.camerasPath + "/Example Images";
+                _lastOpenFilePath = MainFolderPath + PumkinsPresetManager.resourceCamerasPath + "/Example Images";
         }
 
         public void HandleSceneChange(Scene scene, OpenSceneMode mode)
@@ -1211,7 +1212,7 @@ namespace Pumkin.AvatarTools
 
             if(GUILayout.Button(Strings.Settings.importLanguage))
             {
-                PumkinsLanguageManager.ImportLanguageAsset();
+                PumkinsLanguageManager.OpenFileImportLanguagePreset();
             }
 
             if(!DynamicBonesExist)
@@ -2415,10 +2416,8 @@ namespace Pumkin.AvatarTools
                 }
                 if(EditorGUI.EndChangeCheck())
                 {
-                    if(_presetToolbarSelectedIndex == (int)PresetToolbarOptions.Blendshape)
-                    {
-                        SetupBlendeshapeRendererHolders(SelectedAvatar);
-                    }
+                    if(_presetToolbarSelectedIndex == (int)PresetToolbarOptions.Blendshape)                    
+                        SetupBlendeshapeRendererHolders(SelectedAvatar);                    
                 }
 
                 EditorGUILayout.Space();
@@ -2503,6 +2502,8 @@ namespace Pumkin.AvatarTools
                     SelectedCamera.transform.position = SceneView.lastActiveSceneView.camera.transform.position;
                     SelectedCamera.transform.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
                 }
+
+                EditorGUILayout.Space();
 
                 lockSelectedCameraToSceneView = GUILayout.Toggle(lockSelectedCameraToSceneView, Strings.Thumbnails.lockSelectedCameraToSceneView);
 
@@ -2659,7 +2660,7 @@ namespace Pumkin.AvatarTools
                     EditorGUILayout.EndHorizontal();
                 }                
 
-                EditorGUILayout.Space();
+                Helpers.DrawGUILine();
             }
             EditorGUI.EndDisabledGroup();
         }
@@ -2726,8 +2727,13 @@ namespace Pumkin.AvatarTools
                                 QuickSetViewpoint(SelectedAvatar, _tools_quickSetup_viewpointZDepth);
                             if(_tools_quickSetup_forceTPose)
                                 DoAction(SelectedAvatar, ToolMenuActions.SetTPose);
-                            if(_tools_quickSetup_setRendererAnchor)
-                                SetRendererAnchor(SelectedAvatar, _tools_quickSetup_setRenderAnchor_path);
+                            if(!Helpers.StringIsNullOrWhiteSpace(_tools_quickSetup_setRenderAnchor_path))
+                            {
+                                if(_tools_quickSetup_setSkinnedMeshRendererAnchor)
+                                    SetSkinnedMeshRendererAnchor(SelectedAvatar, _tools_quickSetup_setRenderAnchor_path);
+                                if(_tools_quickSetup_setMeshRendererAnchor)
+                                    SetMeshRendererAnchor(SelectedAvatar, _tools_quickSetup_setRenderAnchor_path);
+                            }
                         }
 
                         if(GUILayout.Button(Icons.Settings, Styles.BigIconButton))
@@ -2759,16 +2765,21 @@ namespace Pumkin.AvatarTools
                         _tools_quickSetup_forceTPose = GUILayout.Toggle(_tools_quickSetup_forceTPose, Strings.Tools.setTPose);
                         //_tools_quickSetup_autoRig = GUILayout.Toggle(_tools_quickSetup_autoRig, "_Setup Rig");
 
+                        EditorGUILayout.Space();
+
                         GUILayout.BeginHorizontal();
                         {
-                            _tools_quickSetup_setRendererAnchor = GUILayout.Toggle(_tools_quickSetup_setRendererAnchor, Strings.Tools.setRendererAnchors);
-                            EditorGUI.BeginDisabledGroup(!_tools_quickSetup_setRendererAnchor);
-                            {
-                                _tools_quickSetup_setRenderAnchor_path = EditorGUILayout.TextField(_tools_quickSetup_setRenderAnchor_path);
-                            }
-                            EditorGUI.EndDisabledGroup();
+                            GUILayout.Label(Strings.Tools.anchorPath);                            
+                            _tools_quickSetup_setRenderAnchor_path = EditorGUILayout.TextField(_tools_quickSetup_setRenderAnchor_path);                            
                         }
                         GUILayout.EndHorizontal();
+
+                        EditorGUI.BeginDisabledGroup(Helpers.StringIsNullOrWhiteSpace(_tools_quickSetup_setRenderAnchor_path));
+                        {
+                            _tools_quickSetup_setSkinnedMeshRendererAnchor = GUILayout.Toggle(_tools_quickSetup_setSkinnedMeshRendererAnchor, Strings.Tools.setSkinnedMeshRendererAnchors);
+                            _tools_quickSetup_setMeshRendererAnchor = GUILayout.Toggle(_tools_quickSetup_setMeshRendererAnchor, Strings.Tools.setMeshRendererAnchors);                                                    
+                        }
+                        EditorGUI.EndDisabledGroup();
 
                     }
 
@@ -2819,7 +2830,19 @@ namespace Pumkin.AvatarTools
                             }
                             GUILayout.EndVertical();
                         }
-                        GUILayout.EndHorizontal();                        
+                        GUILayout.EndHorizontal();
+
+                        GUILayout.Space(15);
+
+                        _tools_quickSetup_setRenderAnchor_path = EditorGUILayout.TextField(Strings.Tools.anchorPath, _tools_quickSetup_setRenderAnchor_path);
+                        EditorGUI.BeginDisabledGroup(Helpers.StringIsNullOrWhiteSpace(_tools_quickSetup_setRenderAnchor_path));
+                        {
+                            if(GUILayout.Button(Strings.Tools.setSkinnedMeshRendererAnchors))
+                                SetSkinnedMeshRendererAnchor(SelectedAvatar, _tools_quickSetup_setRenderAnchor_path);
+                            if(GUILayout.Button(Strings.Tools.setMeshRendererAnchors))
+                                SetMeshRendererAnchor(SelectedAvatar, _tools_quickSetup_setRenderAnchor_path);
+                        }
+                        EditorGUI.EndDisabledGroup();
                     }
 
                     Helpers.DrawGUILine();
@@ -2949,26 +2972,29 @@ namespace Pumkin.AvatarTools
         private static void FixDynamicBoneScriptsInPrefab(GameObject avatar)
         {
 #if PUMKIN_DBONES
+            bool selectionIsInAssets = false;
             var prefStage = PrefabStageUtility.GetCurrentPrefabStage();
-            string prefPath = null;
+            var prefType = PrefabUtility.GetPrefabAssetType(avatar);
+
             if(prefStage != null)
             {
                 Log(Strings.Log.exitPrefabModeFirst, LogType.Warning);
             }
-            else if(PrefabUtility.GetPrefabAssetType(avatar) == PrefabAssetType.NotAPrefab)
+            else if(prefType == PrefabAssetType.NotAPrefab)
             {
                 Log(Strings.Log.avatarHasNoPrefab, LogType.Error);
                 return;
             }
             else
             {
+                if(Helpers.IsAssetInAssets(avatar))
+                    selectionIsInAssets = true;
                 Log(Strings.Log.attemptingToFixDynamicBoneScripts, LogType.Log);
-            }
+            }            
 
             try
-            {
-                if(prefPath == null)
-                    prefPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(SelectedAvatar);
+            {                
+                string prefPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(SelectedAvatar);
 
                 if(string.IsNullOrEmpty(prefPath))
                     return;
@@ -3011,9 +3037,25 @@ namespace Pumkin.AvatarTools
                     blocks[i] = PumkinsYAMLTools.LinesToBlock(lines);
                 }
 
-                PumkinsYAMLTools.WriteBlocksToFile(prefPath, blocks);
+                PumkinsYAMLTools.WriteBlocksToFile(prefPath, blocks);                
+                AssetDatabase.ImportAsset(prefPath, ImportAssetOptions.ForceUpdate);                
 
-                AssetDatabase.ImportAsset(prefPath, ImportAssetOptions.ForceUpdate);
+                if(selectionIsInAssets)
+                {
+                    var prefObj = AssetDatabase.LoadAssetAtPath<GameObject>(prefPath);                    
+                    if(prefObj != null)
+                    {
+                        EditorGUIUtility.PingObject(prefObj);
+                        Selection.activeObject = null;
+                        EditorApplication.delayCall += () =>
+                        {
+                            EditorApplication.delayCall += () =>
+                            {
+                                Selection.activeObject = prefObj;
+                            };
+                        };
+                    }
+                }
 
                 Log(Strings.Log.done);
             }
@@ -3025,6 +3067,11 @@ namespace Pumkin.AvatarTools
         return;
 #endif
         }
+
+        /// <summary>
+        /// WIP, doesn't work.
+        /// </summary>
+        /// <param name="avatar"></param>
         private static void FixDynamicBoneScriptsTemp(GameObject avatar)
         {
 #if PUMKIN_DBONES            
@@ -3219,15 +3266,29 @@ namespace Pumkin.AvatarTools
             EditorGUI.EndDisabledGroup();
 
             EditorGUI.BeginDisabledGroup(pr.Count == 0);
-            {
+            {                
                 if(GUILayout.Button(Strings.Buttons.selectInAssets))
                 {
                     var asset = pr[pSelectedPresetIndex.intValue];
                     if(asset)
-                        Selection.activeObject = asset;
-                }
+                    {                            
+                        Helpers.SelectAndPing(asset);
+                    }
+                }              
             }
             EditorGUI.EndDisabledGroup();
+
+            if(GUILayout.Button(Strings.Buttons.selectFolder))
+            {
+                string path = null;
+                if(typeof(T) == typeof(PumkinsCameraPreset))
+                    path = PumkinsPresetManager.localCamerasPath;
+                else if(typeof(T) == typeof(PumkinsPosePreset))
+                    path = PumkinsPresetManager.localPosesPath;
+                else if(typeof(T) == typeof(PumkinsBlendshapePreset))
+                    path = PumkinsPresetManager.localBlendshapesPath;
+                Helpers.SelectAndPing(path);
+            }
 
             Helpers.DrawGUILine();
 
@@ -3274,7 +3335,7 @@ namespace Pumkin.AvatarTools
             bool needsRefresh = false;
             RawImage raw = _cameraBackgroundImage; //GetCameraBackgroundRawImage(false);
             GameObject background = _cameraBackground; //GetCameraBackground();
-            //
+            
             if(Helpers.DrawDropdownWithToggle(ref _thumbnails_useCameraBackground_expand, ref bThumbnails_use_camera_background, Strings.Thumbnails.useCameraBackground))
             {
                 RefreshBackgroundOverrideType();
@@ -4380,12 +4441,12 @@ namespace Pumkin.AvatarTools
         /// <summary>
         /// Sets the Probe Anchor of all Skinned Mesh Renderers to transform by path
         /// </summary>        
-        private void SetRendererAnchor(GameObject avatar, string anchorPath)
+        private void SetSkinnedMeshRendererAnchor(GameObject avatar, string anchorPath)
         {
             Transform anchor = avatar.transform.Find(anchorPath);
             if(!anchor)
             {
-                Log(Strings.Log.noSkinnedMeshFound);
+                Log(Strings.Log.transformNotFound, LogType.Warning, anchorPath);
                 return;
             }
 
@@ -4401,14 +4462,36 @@ namespace Pumkin.AvatarTools
         }
 
         /// <summary>
+        /// Sets the Probe Anchor of all Mesh Renderers to transform by path
+        /// </summary>   
+        private void SetMeshRendererAnchor(GameObject avatar, string anchorPath)
+        {
+            Transform anchor = avatar.transform.Find(anchorPath);
+            if(!anchor)
+            {
+                Log(Strings.Log.transformNotFound, LogType.Warning, anchorPath);
+                return;
+            }
+
+            var renders = avatar.GetComponentsInChildren<MeshRenderer>(true);
+            foreach(var render in renders)
+            {
+                if(render)
+                {
+                    render.probeAnchor = anchor;
+                    Log(Strings.Log.setProbeAnchorTo, LogType.Log, render.name, anchor.name);
+                }
+            }
+        }
+
+
+        #endregion
+
+        #region Copy Functions
+
+        /// <summary>
         /// Copies Components and Values from one object to another.
         /// </summary>       
-
-
-#endregion
-
-#region Copy Functions
-        
         void CopyComponents(GameObject objFrom, GameObject objTo)
         {
             string log = "";

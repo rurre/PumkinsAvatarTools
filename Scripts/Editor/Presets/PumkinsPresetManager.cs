@@ -22,10 +22,15 @@ namespace Pumkin.Presets
 
     public static class PumkinsPresetManager
     {
-        public static readonly string presetsPath = "Presets/";
-        public static readonly string camerasPath = presetsPath + "Cameras";
-        public static readonly string posesPath = presetsPath + "Poses";
-        public static readonly string blendshapesPath = presetsPath + "Blendshapes";
+        public static readonly string resourcePresetsPath = "Presets/";
+        public static readonly string resourceCamerasPath = resourcePresetsPath + "Cameras";
+        public static readonly string resourcesPosesPath = resourcePresetsPath + "Poses";
+        public static readonly string resourcesBlendshapesPath = resourcePresetsPath + "Blendshapes";
+        
+        public static readonly string localPresetsPath = PumkinsAvatarTools.MainFolderPathLocal + "/resources/" + resourcePresetsPath;
+        public static readonly string localCamerasPath = PumkinsAvatarTools.MainFolderPathLocal + "/resources/" + resourceCamerasPath;
+        public static readonly string localPosesPath = PumkinsAvatarTools.MainFolderPathLocal + "/resources/" + resourcesPosesPath;
+        public static readonly string localBlendshapesPath = PumkinsAvatarTools.MainFolderPathLocal + "/resources/" + resourcesBlendshapesPath;
 
         static List<PumkinsCameraPreset> _cameraPresets;
         static List<PumkinsPosePreset> _humanPosePresets;
@@ -100,19 +105,19 @@ namespace Pumkin.Presets
         {
             if(typeof(T) == typeof(PumkinsCameraPreset))
             {                
-                Resources.LoadAll<PumkinsCameraPreset>(camerasPath);
+                Resources.LoadAll<PumkinsCameraPreset>(resourceCamerasPath);
                 CameraPresets = Resources.FindObjectsOfTypeAll<PumkinsCameraPreset>().ToList();
                 CleanupPresetsOfType<PumkinsCameraPreset>();                
             }
             else if(typeof(T) == typeof(PumkinsPosePreset))
             {
-                Resources.LoadAll<PumkinsPosePreset>(posesPath);
+                Resources.LoadAll<PumkinsPosePreset>(resourcesPosesPath);
                 PosePresets = Resources.FindObjectsOfTypeAll<PumkinsPosePreset>().ToList();
                 CleanupPresetsOfType<PumkinsPosePreset>();
             }
             else if(typeof(T) == typeof(PumkinsBlendshapePreset))
             {
-                Resources.LoadAll<PumkinsBlendshapePreset>(blendshapesPath);
+                Resources.LoadAll<PumkinsBlendshapePreset>(resourcesBlendshapesPath);
                 BlendshapePresets = Resources.FindObjectsOfTypeAll<PumkinsBlendshapePreset>().ToList();
                 CleanupPresetsOfType<PumkinsBlendshapePreset>();
             }

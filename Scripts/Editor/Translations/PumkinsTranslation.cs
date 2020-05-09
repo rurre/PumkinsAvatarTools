@@ -162,6 +162,7 @@ namespace Pumkin.Translations
         public string savePreset = "Save Preset";
         public string selectInAssets = "Select in Assets";
         public string openFolder = "Open Folder";
+        public string selectFolder = "Select Folder";
         public string ok = "Ok";
     };
 
@@ -177,7 +178,8 @@ namespace Pumkin.Translations
         public string editScale = "Edit Scale";
         public string autoViewpoint = "Auto Viewpoint";
         public string setTPose = "Force TPose";
-        public string setRendererAnchors = "Set Renderer Anchors";
+        public string setRendererAnchors = "Set Mesh Renderer Anchors";
+        public string setSkinnedMeshRendererAnchors = "Set Skinned Mesh Renderer Anchors";
         public string viewpointZDepth = "Z Depth";
         public string revertScale = "Revert Scale";
         public string editScaleMoveViewpoint = "Move Viewpoint";
@@ -186,6 +188,8 @@ namespace Pumkin.Translations
         public string enableDynamicBones = "Enable DynamicBones";
         public string toggleDynamicBones = "Toggle DynamicBones";
         public string fixDynamicBoneScripts = "Fix Missing DynamicBone Scripts in Prefab";
+        public string hierarchyPath = "Hierarchy Path";
+        public string anchorPath = "Anchor Path";
     };
 
     [Serializable]
@@ -363,6 +367,7 @@ namespace Pumkin.Translations
         public string attemptingToFixDynamicBoneScripts = "Attempting to fix DynamicBone Scripts";
         public string notSelectedInCopierIgnoring = "{0}'s {1} is not selected in the copier. Ignoring";
         public string exitPrefabModeFirst = "Please exit prefab mode before doing this";
+        public string transformNotFound = "Transform at '{0}' not found";
     };
 
     [Serializable]
@@ -380,7 +385,7 @@ namespace Pumkin.Translations
         public string armatureScaleNotOne = "Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
         public string armatureScalesDontMatch = "Armature scales for selected avatars don't match!\nThis can cause issues";
         public string noDBonesOrMissingScriptDefine = "No DynamicBones found or missing script define";
-        public string languageAlreadyExistsOverwrite = "Language Asset already exists. Overwrite?";
+        public string languageAlreadyExistsOverwrite = "Language preset already exists. Overwrite?";
     };
 
     [Serializable]

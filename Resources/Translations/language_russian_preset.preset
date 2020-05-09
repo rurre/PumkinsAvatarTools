@@ -80,6 +80,10 @@ Preset:
       \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438"
     objectReference: {fileID: 0}
   - target: {fileID: 0}
+    propertyPath: main.experimental
+    value: Experimental
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
     propertyPath: buttons.selectFromScene
     value: "\u0412\u044B\u0431\u0440\u0430\u0442\u044C \u0438\u0437 \u0441\u0446\u0435\u043D\u044B"
     objectReference: {fileID: 0}
@@ -712,10 +716,6 @@ Preset:
     value: Search for DynamicBones
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: misc.superExperimental
-    value: Super Experimental Stuff
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
     propertyPath: misc.language
     value: "\u042F\u0437\u044B\u043A"
     objectReference: {fileID: 0}
@@ -739,6 +739,10 @@ Preset:
   - target: {fileID: 0}
     propertyPath: misc.misc
     value: "\u0414\u0440\u0443\u0433\u043E\u0435"
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: misc.showExperimentalMenu
+    value: Show experimental menu
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.done
@@ -920,9 +924,9 @@ Preset:
     value: '{0}''s {1} has no valid sources. Destroying'
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: log.avatarHasNoPrefabDragToAssets
-    value: Selected Avatar has no prefab associated with it. Drag it into your assets
-      to create one
+    propertyPath: log.avatarHasNoPrefab
+    value: Selected Avatar has no prefab associated with it. Only prefabs can be fixed
+      for now
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: log.attemptingToFixDynamicBoneScripts

@@ -2,6 +2,7 @@
 using Pumkin.DataStructures;
 using Pumkin.Extensions;
 using Pumkin.HelperFunctions;
+using Pumkin.Presets;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -1241,6 +1242,27 @@ namespace Pumkin.HelperFunctions
                 localPath = $"{Application.dataPath}/{localPath}";
             }
             return localPath;
+        }
+
+        public static void SelectAndPing(UnityEngine.Object obj)
+        {
+            if(obj == null)
+                return;
+
+            Selection.activeObject = obj;
+            EditorGUIUtility.PingObject(obj);
+        }
+
+        public static void SelectAndPing(string assetPath)
+        {
+            if(StringIsNullOrWhiteSpace(assetPath))
+                return;
+
+            if(assetPath[assetPath.Length - 1] == '/')
+                assetPath = assetPath.Substring(0, assetPath.Length - 1);
+            
+            UnityEngine.Object obj = AssetDatabase.LoadAssetAtPath(assetPath, typeof(UnityEngine.Object));
+            SelectAndPing(obj);
         }
     }    
 }

@@ -159,18 +159,20 @@ public static class PumkinsLanguageManager
         return lang != default(PumkinsTranslation) ? true : false;
     }
 
-    public static void ImportLanguageAsset()
+    public static void OpenFileImportLanguagePreset()
     {
         var filterStrings = ExtensionStrings.GetFilterString(typeof(PumkinsTranslation));
         string filePath = EditorUtility.OpenFilePanelWithFilters("Pick a Translation", "", filterStrings);
+        var asset = ImportLanguagePreset(filePath);
 
-        ImportLanguageAsset(filePath);
+        if(asset != null)        
+            EditorGUIUtility.PingObject(asset);
     }
 
-    public static void ImportLanguageAsset(string path)
+    public static Preset ImportLanguagePreset(string path)
     {
         if(Helpers.StringIsNullOrWhiteSpace(path))
-            return;
+            return null;
 
         string newPath = translationFullPath + Path.GetFileName(path);
 
@@ -191,6 +193,8 @@ public static class PumkinsLanguageManager
         AssetDatabase.ImportAsset(newPathLocal);
 
         LoadTranslations();
+
+        return AssetDatabase.LoadAssetAtPath<Preset>(newPathLocal);
     }
 
     /// <summary>

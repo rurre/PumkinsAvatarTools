@@ -136,6 +136,7 @@ namespace Pumkin.DataStructures
             public static string savePreset = "_Save Preset";
             public static string selectInAssets = "_Select in Assets";
             public static string openFolder = "_Open Folder";
+            public static string selectFolder = "_Select Folder";
             public static string ok = "_Ok";
 
             static Buttons()
@@ -175,6 +176,7 @@ namespace Pumkin.DataStructures
                 savePreset = Translation.buttons.savePreset;
                 selectInAssets = Translation.buttons.selectInAssets;
                 openFolder = Translation.buttons.openFolder;
+                selectFolder = Translation.buttons.selectFolder;
                 ok = Translation.buttons.ok;
             }
         };
@@ -189,7 +191,8 @@ namespace Pumkin.DataStructures
             public static string editScale = "_Edit Scale";
             public static string autoViewpoint = "_Auto Viewpoint";
             public static string setTPose = "_Force TPose";
-            public static string setRendererAnchors = "_Set Renderer Anchors";
+            public static string setMeshRendererAnchors = "_Set Mesh Renderer Anchors";
+            public static string setSkinnedMeshRendererAnchors = "_Set Skinned Mesh Renderer Anchors";
             public static string viewpointZDepth = "_Z Depth";
             public static string revertScale = "_Revert Scale";
             public static string editScaleMoveViewpoint = "_Move Viewpoint";
@@ -198,6 +201,8 @@ namespace Pumkin.DataStructures
             public static string disableDynamicBones = "_Disable DynamicBones";
             public static string toggleDynamicBones = "_Toggle DynamicBones";
             public static string fixDynamicBoneScripts = "_Fix Missing DynamicBone Scripts in Prefab";
+            public static string hierarchyPath = "_Hierarchy Path";
+            public static string anchorPath = "_Anchor Path";
 
             static Tools()
             {
@@ -219,7 +224,8 @@ namespace Pumkin.DataStructures
                 autoViewpoint = Translation.tools.autoViewpoint;
                 setTPose = Translation.tools.setTPose;
                 viewpointZDepth = Translation.tools.viewpointZDepth;
-                setRendererAnchors = Translation.tools.setRendererAnchors;
+                setMeshRendererAnchors = Translation.tools.setRendererAnchors;
+                setSkinnedMeshRendererAnchors = Translation.tools.setSkinnedMeshRendererAnchors;
                 revertScale = Translation.tools.revertScale;
                 editScaleMoveViewpoint = Translation.tools.editScaleMoveViewpoint;
                 refreshSDK = Translation.tools.refreshSDK;                
@@ -227,6 +233,8 @@ namespace Pumkin.DataStructures
                 disableDynamicBones = Translation.tools.disableDynamicBones;
                 toggleDynamicBones = Translation.tools.toggleDynamicBones;
                 fixDynamicBoneScripts = Translation.tools.fixDynamicBoneScripts;
+                hierarchyPath = Translation.tools.hierarchyPath;
+                anchorPath = Translation.tools.anchorPath;
             }
         };
         public static class AvatarInfo
@@ -553,6 +561,7 @@ namespace Pumkin.DataStructures
             public static string attemptingToFixDynamicBoneScripts = "_Attempting to fix DynamicBone Scripts";
             public static string notSelectedInCopierIgnoring = "_{0}'s {1} is not selected in the copier. Ignoring";
             public static string exitPrefabModeFirst = "_Please exit prefab mode before doing this";
+            public static string transformNotFound = "_Transform at '{0}' not found";
 
             static Log()
             {
@@ -612,6 +621,7 @@ namespace Pumkin.DataStructures
                 attemptingToFixDynamicBoneScripts = Translation.log.attemptingToFixDynamicBoneScripts;
                 notSelectedInCopierIgnoring = Translation.log.notSelectedInCopierIgnoring;
                 exitPrefabModeFirst = Translation.log.exitPrefabModeFirst;
+                transformNotFound = Translation.log.transformNotFound;
             }
         };
         public static class Warning
