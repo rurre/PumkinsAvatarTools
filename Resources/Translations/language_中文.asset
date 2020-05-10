@@ -55,6 +55,7 @@ MonoBehaviour:
     savePreset: "\u4FDD\u5B58\u9884\u8BBE"
     selectInAssets: "\u5728\u76EE\u5F55\u4E2D\u9009\u62E9"
     openFolder: "\u6253\u5F00\u6587\u4EF6\u5939"
+    selectFolder: Select Folder
     ok: "\u786E\u8BA4"
   tools:
     fillVisemes: "\u81EA\u52A8\u586B\u5145\u53E3\u578B"
@@ -67,6 +68,7 @@ MonoBehaviour:
     autoViewpoint: "\u81EA\u52A8\u8C03\u6574\u89C6\u89D2\u7403"
     setTPose: "\u81EA\u52A8\u59FF\u52BF\u4E3AT\u5B57\u578B"
     setRendererAnchors: "\u8BBE\u7F6E\u6E32\u67D3\u5668\u7684\u4F4D\u7F6E"
+    setSkinnedMeshRendererAnchors: Set Skinned Mesh Renderer Anchors
     viewpointZDepth: "Z\u8F74\u5BBD"
     revertScale: "\u91CD\u7F6E\u6BD4\u4F8B\u5927\u5C0F"
     editScaleMoveViewpoint: "\u81EA\u52A8\u540C\u6B65\u89C6\u89D2\u7403\u4F4D\u7F6E"
@@ -75,6 +77,8 @@ MonoBehaviour:
     enableDynamicBones: "\u6253\u5F00\u52A8\u6001\u9AA8\u9ABC(DynamicBones)"
     toggleDynamicBones: "\u5207\u6362\u52A8\u6001\u9AA8\u9ABC(DynamicBones)"
     fixDynamicBoneScripts: Fix DynamicBone Scripts
+    hierarchyPath: Hierarchy Path
+    anchorPath: Anchor Path
   copier:
     copyFrom: "\u590D\u5236\u6765\u6E90"
     copySettings: "\u8BBE\u7F6E(Settings)"
@@ -193,6 +197,9 @@ MonoBehaviour:
     applyBodyPosition: "\u5E94\u7528\u8EAB\u4F53\u4F4D\u7F6E"
     applyBodyRotation: "\u5E94\u7528\u8EAB\u4F53\u65CB\u8F6C"
     lockSelectedCameraToSceneView: "\u5C06\u9009\u5B9A\u7684\u6444\u5F71\u673A\u9501\u5B9A\u5230\u573A\u666F\u89C6\u89D2"
+    overlayImagePath: Overlay Image Path
+    imagePath: Image Path
+    backgroundColor: Background Color
   misc:
     uwu: uwu
     searchForBones: "\u641C\u7D22\u52A8\u6001\u9AA8\u9ABC(DynamicBones)\u63D2\u4EF6"
@@ -264,6 +271,8 @@ MonoBehaviour:
     attemptingToFixDynamicBoneScripts: Attempting to fix DynamicBone Scripts
     notSelectedInCopierIgnoring: '{0}''s {1} is not selected in the copier. Ignoring'
     exitPrefabModeFirst: Please exit prefab mode before doing this
+    transformNotFound: Transform at '{0}' not found
+    cantApplyPreset: Can't apply preset
   warnings:
     warn: "\u8B66\u544A"
     notFound: "\u65E0\u6CD5\u627E\u5230"

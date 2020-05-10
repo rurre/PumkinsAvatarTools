@@ -112,7 +112,7 @@ namespace Pumkin.Translations
         public string offsetMode = "Offset Mode";
         public string camera = "Camera";
         public string editCameraPreset = "Edit Camera Preset";
-        public string createCameraPreset = "Create Camera Preset";
+        public string createCameraPreset = "Create Camera Preset";        
     }
 
     [Serializable]
@@ -314,6 +314,9 @@ namespace Pumkin.Translations
         public string applyBodyPosition = "Apply Body Position";
         public string applyBodyRotation = "Apply Body Rotation";
         public string lockSelectedCameraToSceneView = "Lock Selected Camera to Scene View";
+        public string overlayImagePath = "Overlay Image Path";
+        public string imagePath = "Image Path";
+        public string backgroundColor = "Background Color";
     };
 
     [Serializable]
@@ -368,6 +371,7 @@ namespace Pumkin.Translations
         public string notSelectedInCopierIgnoring = "{0}'s {1} is not selected in the copier. Ignoring";
         public string exitPrefabModeFirst = "Please exit prefab mode before doing this";
         public string transformNotFound = "Transform at '{0}' not found";
+        public string cantApplyPreset = "Can't apply preset";
     };
 
     [Serializable]

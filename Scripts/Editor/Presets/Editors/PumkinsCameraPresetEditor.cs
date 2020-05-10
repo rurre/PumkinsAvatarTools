@@ -63,56 +63,57 @@ namespace Pumkin.Presets
         {            
             st.UpdateIfRequiredOrScript();
 
-            EditorGUILayout.PropertyField(pName, new GUIContent("Preset Name"));
+            EditorGUILayout.PropertyField(pName, new GUIContent(Strings.Presets.presetName));
 
             Helpers.DrawGUILine();
 
-            EditorGUILayout.PropertyField(pOffsetMode, new GUIContent("Offset Mode"));
+            EditorGUILayout.PropertyField(pOffsetMode, new GUIContent(Strings.Presets.offsetMode));
 
             if((PumkinsCameraPreset.CameraOffsetMode)pOffsetMode.enumValueIndex == PumkinsCameraPreset.CameraOffsetMode.Transform)
-                EditorGUILayout.PropertyField(pTransformPath, new GUIContent("Transform Path"));
+                EditorGUILayout.PropertyField(pTransformPath, new GUIContent(Strings.Presets.transform));
 
             EditorGUILayout.Space();
 
 
-            EditorGUILayout.PropertyField(pPositionOffset, new GUIContent("Position Offset"));
-            EditorGUILayout.PropertyField(pRotationAnglesOffset, new GUIContent("Rotation Offset"));            
+            EditorGUILayout.PropertyField(pPositionOffset, new GUIContent(Strings.Thumbnails.positionOffset));
+            EditorGUILayout.PropertyField(pRotationAnglesOffset, new GUIContent(Strings.Thumbnails.rotationOffset));            
 
             Helpers.DrawGUILine();
 
-            EditorGUILayout.PropertyField(pUseOverlay, new GUIContent("Use Camera Overlay"));            
+            EditorGUILayout.PropertyField(pUseOverlay, new GUIContent(Strings.Thumbnails.useCameraOverlay));            
 
             if(pUseOverlay.boolValue)
             {
                 EditorGUILayout.Space();
 
-                EditorGUILayout.PropertyField(pOverlayImagePath, new GUIContent("Overlay Image Path"));
-                EditorGUILayout.PropertyField(pOverlayImageTint, new GUIContent("Overlay Tint"));                
+                EditorGUILayout.PropertyField(pOverlayImagePath, new GUIContent(Strings.Thumbnails.overlayImagePath));
+                EditorGUILayout.Space();
+                EditorGUILayout.PropertyField(pOverlayImageTint, new GUIContent(Strings.Thumbnails.tint));                
             }
 
             Helpers.DrawGUILine();
 
-            EditorGUILayout.PropertyField(pUseBackground, new GUIContent("Use Camera Background"));
+            EditorGUILayout.PropertyField(pUseBackground, new GUIContent(Strings.Thumbnails.useCameraBackground));
 
             if(pUseBackground.boolValue)
             {
                 EditorGUILayout.Space();
 
-                EditorGUILayout.PropertyField(pBackgroundType, new GUIContent("Background Type"));
+                EditorGUILayout.PropertyField(pBackgroundType, new GUIContent(Strings.Thumbnails.backgroundType));
 
                 EditorGUILayout.Space();
 
                 switch((PumkinsCameraPreset.CameraBackgroundOverrideType)pBackgroundType.enumValueIndex)
                 {
                     case PumkinsCameraPreset.CameraBackgroundOverrideType.Color:
-                        EditorGUILayout.PropertyField(pBackgroundColor, new GUIContent("Background Color"));
+                        EditorGUILayout.PropertyField(pBackgroundColor, new GUIContent(Strings.Thumbnails.backgroundColor));
                         break;
                     case PumkinsCameraPreset.CameraBackgroundOverrideType.Image:
-                        EditorGUILayout.PropertyField(pBackgroundImagePath, new GUIContent("Image Path"));
-                        EditorGUILayout.PropertyField(pBackgroundImageTint, new GUIContent("Image Tint"));
+                        EditorGUILayout.PropertyField(pBackgroundImagePath, new GUIContent(Strings.Thumbnails.imagePath));
+                        EditorGUILayout.PropertyField(pBackgroundImageTint, new GUIContent(Strings.Thumbnails.tint));
                         break;
                     case PumkinsCameraPreset.CameraBackgroundOverrideType.Skybox:
-                        EditorGUILayout.PropertyField(pBackgroundMaterial, new GUIContent("Material"));
+                        EditorGUILayout.PropertyField(pBackgroundMaterial, new GUIContent(Strings.Thumbnails.backgroundType_Material));
                         break;
                     default:
                         break;

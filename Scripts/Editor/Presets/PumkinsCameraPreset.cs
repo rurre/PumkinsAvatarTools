@@ -45,7 +45,9 @@ namespace Pumkin.Presets
             if(!cam || !avatar)
                 return false;
             
-            Undo.RegisterFullObjectHierarchyUndo(cam.gameObject, "Apply Camera Preset");                 
+            Undo.RegisterFullObjectHierarchyUndo(cam.gameObject, "Apply Camera Preset");
+
+            Helpers.FixCameraClippingPlanes(cam);
 
             Transform dummy = null;
             try
@@ -118,7 +120,7 @@ namespace Pumkin.Presets
                     default:                        
                         break;
                 }
-            }
+            }            
 
             PumkinsAvatarTools.Instance.RefreshBackgroundOverrideType();
 

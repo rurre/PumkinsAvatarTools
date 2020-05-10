@@ -99,6 +99,8 @@ namespace Pumkin.Presets
 
                 EditorGUILayout.EndScrollView();
 
+                Helpers.DrawGUILine();
+
                 EditorGUI.BeginDisabledGroup(!PumkinsAvatarTools.SelectedAvatar || !preset || string.IsNullOrEmpty(preset.name));
                 {
                     if(!editingExistingPreset)

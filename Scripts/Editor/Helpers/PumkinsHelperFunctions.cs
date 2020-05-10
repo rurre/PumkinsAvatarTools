@@ -437,8 +437,8 @@ namespace Pumkin.HelperFunctions
                 }
             }
 
-            if(rendererHolders.Count > 0)
-                Helpers.DrawGUILine();
+            //if(rendererHolders.Count > 0)
+                //DrawGUILine();
 
             EditorGUI.indentLevel -= indentLevel;
         }
@@ -1139,8 +1139,10 @@ namespace Pumkin.HelperFunctions
             return null;
         }
 
-        public static string ReplaceGUIDInLine(string line, string newGUID)
+        public static string ReplaceGUIDInLine(string line, string newGUID, out bool replaced)
         {
+            replaced = false;
+
             string search = "guid: ";
             int guidStart = line.IndexOf(search) + search.Length;
             int guidEnd = line.IndexOf(',', guidStart);
@@ -1148,6 +1150,9 @@ namespace Pumkin.HelperFunctions
             int copyIndex = 0;
             for(int i = guidStart; i < guidEnd; i++)
             {
+                if(!replaced && lineArr[i] != newGUID[copyIndex])
+                    replaced = true;
+
                 lineArr[i] = newGUID[copyIndex];
                 copyIndex++;
             }            
@@ -1170,8 +1175,12 @@ namespace Pumkin.HelperFunctions
         public static bool IsAssetInAssets(UnityEngine.Object obj)
         {
             string path = AssetDatabase.GetAssetPath(obj);
-            bool flag = !string.IsNullOrEmpty(path);
-            return flag;
+            if(string.IsNullOrEmpty(path))
+                return false;
+            
+            if(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path) != null)            
+                return true;
+            return false;
         }
 
         public static bool DestroyMissingScriptsInGameObject(GameObject obj)
@@ -1235,6 +1244,7 @@ namespace Pumkin.HelperFunctions
 
         public static string LocalAssetsPathToAbsolutePath(string localPath)
         {
+            localPath = NormalizePathSlashes(localPath);
             const string assets = "Assets/";
             if(localPath.StartsWith(assets))
             {
@@ -1242,6 +1252,13 @@ namespace Pumkin.HelperFunctions
                 localPath = $"{Application.dataPath}/{localPath}";
             }
             return localPath;
+        }
+
+        public static string NormalizePathSlashes(string path)
+        {
+            if(!string.IsNullOrEmpty(path))
+                path = path.Replace('\\', '/');
+            return path;
         }
 
         public static void SelectAndPing(UnityEngine.Object obj)

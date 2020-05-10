@@ -16,7 +16,8 @@ using Pumkin.YAML;
 public static class PumkinsLanguageManager
 {    
     static readonly string resourceTranslationPath = "Translations/";
-    public static readonly string translationFullPath = PumkinsAvatarTools.ResourceFolderPath + '/' + resourceTranslationPath;        
+    public static readonly string translationPath = PumkinsAvatarTools.ResourceFolderPath + '/' + resourceTranslationPath;        
+    public static readonly string translationPathLocal = PumkinsAvatarTools.ResourceFolderPathLocal + '/' + resourceTranslationPath;
     
     static List<PumkinsTranslation> _languages = new List<PumkinsTranslation>();    
 
@@ -91,12 +92,12 @@ public static class PumkinsLanguageManager
 
             var tr = trans.FirstOrDefault(t => t.author == author && t.languageName == langName);
             if(tr == default)
-                tr = ScriptableObjectUtility.CreateAndSaveAsset<PumkinsTranslation>("language_" + langName, translationFullPath);
+                tr = ScriptableObjectUtility.CreateAndSaveAsset<PumkinsTranslation>("language_" + langName, translationPath);
 
             if(p.CanBeAppliedTo(tr))
                 p.ApplyTo(tr);
             else
-                PumkinsAvatarTools.Log("Can't apply preset", LogType.Warning);
+                PumkinsAvatarTools.Log(Strings.Log.cantApplyPreset, LogType.Error);
         }
     }
 
@@ -174,7 +175,7 @@ public static class PumkinsLanguageManager
         if(Helpers.StringIsNullOrWhiteSpace(path))
             return null;
 
-        string newPath = translationFullPath + Path.GetFileName(path);
+        string newPath = translationPath + Path.GetFileName(path);
 
         bool shouldDelete = false;
         if(File.Exists(newPath))
@@ -227,6 +228,7 @@ public static class PumkinsLanguageManager
     /// </summary>    
     static void ReplaceTranslationPresetGUIDTemp(string filePath, string newGUID)
     {
+        bool replaced = false;
         var lines = File.ReadAllLines(filePath);
         for(int i = 0; i < lines.Length; i++)
         {
@@ -235,11 +237,11 @@ public static class PumkinsLanguageManager
             if(!line.Contains("m_ManagedTypePPtr"))
                 continue;
 
-            lines[i] = Helpers.ReplaceGUIDInLine(line, newGUID);
+            lines[i] = Helpers.ReplaceGUIDInLine(line, newGUID, out replaced);
             break;
         }
-        
-        File.WriteAllLines(filePath, lines);
+        if(replaced)
+            File.WriteAllLines(filePath, lines);
     }
 }
 

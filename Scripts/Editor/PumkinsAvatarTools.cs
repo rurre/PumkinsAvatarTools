@@ -338,7 +338,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] float[] _tempHumanPoseMuscles;
         [SerializeField] SerializedProperty _serializedTempHumanPoseMuscles;
 
-        static List<PumkinsRendererBlendshapesHolder> _selectedAvatarRendererHolders;
+        static List<PumkinsRendererBlendshapesHolder> _selectedAvatarRendererHolders;        
 
         #endregion
 
@@ -598,7 +598,7 @@ namespace Pumkin.AvatarTools
             {
                 if(_resourceFolderPathLocal == null)
                     _resourceFolderPathLocal = Helpers.AbsolutePathToLocalAssetsPath(ResourceFolderPath);
-                return _resourceFolderPath;
+                return _resourceFolderPathLocal;
             }            
         }
 
@@ -989,12 +989,12 @@ namespace Pumkin.AvatarTools
 
             _emptyTexture = new Texture2D(2, 2);
             cameraOverlayTexture = new Texture2D(2, 2);
-            cameraBackgroundTexture = new Texture2D(2, 2);
+            cameraBackgroundTexture = new Texture2D(2, 2);            
 
             LoadPrefs();
 
             RestoreTexturesFromPaths();
-            RefreshBackgroundOverrideType();
+            RefreshBackgroundOverrideType();                      
 
             if(_lastOpenFilePath == default(string))
                 _lastOpenFilePath = MainFolderPath + PumkinsPresetManager.resourceCamerasPath + "/Example Images";
@@ -1210,10 +1210,14 @@ namespace Pumkin.AvatarTools
             }
             EditorGUILayout.EndHorizontal();
 
-            if(GUILayout.Button(Strings.Settings.importLanguage))
+            EditorGUILayout.BeginHorizontal();
             {
-                PumkinsLanguageManager.OpenFileImportLanguagePreset();
+                if(GUILayout.Button(Strings.Buttons.openFolder))            
+                    Helpers.SelectAndPing(PumkinsLanguageManager.translationPathLocal);
+                if(GUILayout.Button(Strings.Settings.importLanguage))            
+                    PumkinsLanguageManager.OpenFileImportLanguagePreset();
             }
+            EditorGUILayout.EndHorizontal();
 
             if(!DynamicBonesExist)
             {
@@ -2446,15 +2450,10 @@ namespace Pumkin.AvatarTools
         public void DrawThumbanailBlendshapeGUI()
         {
             EditorGUILayout.LabelField(new GUIContent(Strings.Thumbnails.blendshapes));
-            if(SelectedAvatar)
-            {
-                Helpers.DrawBlendshapeSlidersWithLabels(ref _selectedAvatarRendererHolders, SelectedAvatar);
-            }
-            else
-            {
-                EditorGUILayout.LabelField(new GUIContent(Strings.PoseEditor.selectHumanoidAvatar), Styles.HelpBox_OneLine);
-                Helpers.DrawGUILine();
-            }
+            if(SelectedAvatar)            
+                Helpers.DrawBlendshapeSlidersWithLabels(ref _selectedAvatarRendererHolders, SelectedAvatar);            
+            else            
+                EditorGUILayout.LabelField(new GUIContent(Strings.PoseEditor.selectHumanoidAvatar), Styles.HelpBox_OneLine);            
             EditorGUILayout.Space();
         }
 
@@ -2470,9 +2469,7 @@ namespace Pumkin.AvatarTools
 
             EditorGUILayout.Space();
 
-            posePresetTryFixSinking = GUILayout.Toggle(posePresetTryFixSinking, Strings.Thumbnails.tryFixPoseSinking);
-
-            Helpers.DrawGUILine();
+            posePresetTryFixSinking = GUILayout.Toggle(posePresetTryFixSinking, Strings.Thumbnails.tryFixPoseSinking);            
         }
 
         public void DrawThumbnailCameraGUI()
@@ -2658,9 +2655,7 @@ namespace Pumkin.AvatarTools
                         }
                     }
                     EditorGUILayout.EndHorizontal();
-                }                
-
-                Helpers.DrawGUILine();
+                }                                
             }
             EditorGUI.EndDisabledGroup();
         }
@@ -3032,7 +3027,7 @@ namespace Pumkin.AvatarTools
                         if(!lines[j].Contains("m_Script:"))
                             continue;
 
-                        lines[j] = Helpers.ReplaceGUIDInLine(lines[j], dboneGUID);
+                        lines[j] = Helpers.ReplaceGUIDInLine(lines[j], dboneGUID, out bool _);
                     }
                     blocks[i] = PumkinsYAMLTools.LinesToBlock(lines);
                 }
@@ -3198,6 +3193,8 @@ namespace Pumkin.AvatarTools
                 RefreshPresetIndex<T>();
 
             bool shouldDisable = !SelectedAvatar || (pr.Count > 0 && pSelectedPresetIndex.intValue >= pr.Count && pr[pSelectedPresetIndex.intValue] == null);
+
+            Helpers.DrawGUILine();
 
             GUILayout.BeginHorizontal();
             {
@@ -6186,11 +6183,13 @@ namespace Pumkin.AvatarTools
         /// </summary>        
         public static void RefreshPresetIndex<T>() where T : PumkinPreset
         {
-            if(typeof(T) == typeof(PumkinsCameraPreset))
+            Type t = typeof(T);
+            Type tP = typeof(PumkinPreset);
+            if(typeof(T) == typeof(PumkinsCameraPreset) || t == tP)
                 RefreshPresetIndexByString<T>(Instance._selectedCameraPresetString);
-            else if(typeof(T) == typeof(PumkinsPosePreset))
+            if(typeof(T) == typeof(PumkinsPosePreset) || t == tP)
                 RefreshPresetIndexByString<T>(Instance._selectedPosePresetString);
-            else if(typeof(T) == typeof(PumkinsBlendshapePreset))
+            if(typeof(T) == typeof(PumkinsBlendshapePreset) || t == tP)
                 RefreshPresetIndexByString<T>(Instance._selectedBlendshapePresetString);
         }
 
@@ -6469,9 +6468,6 @@ namespace Pumkin.AvatarTools
             {
                 JsonUtility.FromJsonOverwrite(data, this);
                 RefreshLanguage();
-                RefreshPresetIndex<PumkinsCameraPreset>();
-                RefreshPresetIndex<PumkinsPosePreset>();
-                RefreshPresetIndex<PumkinsBlendshapePreset>();
                 LogVerbose("Loaded tool window preferences");
             }
             else

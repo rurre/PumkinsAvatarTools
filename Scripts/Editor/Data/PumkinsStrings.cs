@@ -328,7 +328,10 @@ namespace Pumkin.DataStructures
             public static string viewpoint = "_Viewpoint";
             public static string applyBodyPosition = "_Apply Body Position";
             public static string applyBodyRotation = "_Apply Body Rotation";
-            public static string lockSelectedCameraToSceneView = "_Lock Selected Camera to Scene View";
+            public static string lockSelectedCameraToSceneView = "_Lock Selected Camera to Scene View";                                    
+            public static string overlayImagePath = "_Overlay Image Path";
+            public static string imagePath = "_Image Path";
+            public static string backgroundColor = "_Background Color";
 
             static Thumbnails()
             {
@@ -366,6 +369,9 @@ namespace Pumkin.DataStructures
                 applyBodyPosition = Translation.thumbnails.applyBodyPosition;
                 applyBodyRotation = Translation.thumbnails.applyBodyRotation;
                 lockSelectedCameraToSceneView = Translation.thumbnails.lockSelectedCameraToSceneView;
+                overlayImagePath = Translation.thumbnails.overlayImagePath;
+                imagePath = Translation.thumbnails.imagePath;
+                backgroundColor = Translation.thumbnails.backgroundColor;
             }
         }
         public static class Copier
@@ -562,6 +568,7 @@ namespace Pumkin.DataStructures
             public static string notSelectedInCopierIgnoring = "_{0}'s {1} is not selected in the copier. Ignoring";
             public static string exitPrefabModeFirst = "_Please exit prefab mode before doing this";
             public static string transformNotFound = "_Transform at '{0}' not found";
+            public static string cantApplyPreset = "_Can't apply preset";
 
             static Log()
             {
@@ -622,6 +629,7 @@ namespace Pumkin.DataStructures
                 notSelectedInCopierIgnoring = Translation.log.notSelectedInCopierIgnoring;
                 exitPrefabModeFirst = Translation.log.exitPrefabModeFirst;
                 transformNotFound = Translation.log.transformNotFound;
+                cantApplyPreset = Translation.log.cantApplyPreset;
             }
         };
         public static class Warning
@@ -776,7 +784,7 @@ namespace Pumkin.DataStructures
             public static string offsetMode = "_Offset Mode";
             public static string camera = "_Camera";
             public static string editCameraPreset = "_Edit Camera Preset";
-            public static string createCameraPreset = "_Create Camera Preset";
+            public static string createCameraPreset = "_Create Camera Preset";            
 
             static Presets()
             {
@@ -805,7 +813,7 @@ namespace Pumkin.DataStructures
                 offsetMode = Translation.preset.offsetMode;
                 camera = Translation.preset.camera;
                 editCameraPreset = Translation.preset.editCameraPreset;
-                createCameraPreset = Translation.preset.createCameraPreset;
+                createCameraPreset = Translation.preset.createCameraPreset;                
             }
         }        
         public static class Settings

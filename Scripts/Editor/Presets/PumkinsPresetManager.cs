@@ -4,6 +4,7 @@ using Pumkin.HelperFunctions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -24,13 +25,17 @@ namespace Pumkin.Presets
     {
         public static readonly string resourcePresetsPath = "Presets/";
         public static readonly string resourceCamerasPath = resourcePresetsPath + "Cameras";
-        public static readonly string resourcesPosesPath = resourcePresetsPath + "Poses";
-        public static readonly string resourcesBlendshapesPath = resourcePresetsPath + "Blendshapes";
+        public static readonly string resourcePosesPath = resourcePresetsPath + "Poses";
+        public static readonly string resourceBlendshapesPath = resourcePresetsPath + "Blendshapes";
         
         public static readonly string localPresetsPath = PumkinsAvatarTools.MainFolderPathLocal + "/resources/" + resourcePresetsPath;
         public static readonly string localCamerasPath = PumkinsAvatarTools.MainFolderPathLocal + "/resources/" + resourceCamerasPath;
-        public static readonly string localPosesPath = PumkinsAvatarTools.MainFolderPathLocal + "/resources/" + resourcesPosesPath;
-        public static readonly string localBlendshapesPath = PumkinsAvatarTools.MainFolderPathLocal + "/resources/" + resourcesBlendshapesPath;
+        public static readonly string localPosesPath = PumkinsAvatarTools.MainFolderPathLocal + "/resources/" + resourcePosesPath;
+        public static readonly string localBlendshapesPath = PumkinsAvatarTools.MainFolderPathLocal + "/resources/" + resourceBlendshapesPath;
+
+        static string cameraPresetScriptGUID = null;
+        static string blendshapePresetScriptGUID = null;
+        static string posePresetScriptGUID = null;
 
         static List<PumkinsCameraPreset> _cameraPresets;
         static List<PumkinsPosePreset> _humanPosePresets;
@@ -82,42 +87,51 @@ namespace Pumkin.Presets
         public static void CleanupPresetsOfType<T>() where T : PumkinPreset
         {
             var tools = PumkinsAvatarTools.Instance;
-            foreach(var p in GameObject.FindObjectsOfType<T>())
+            string typeName = typeof(T).Name;
+            var presets = GameObject.FindObjectsOfType<T>();
+
+            Type t = typeof(T);
+            Type tP = typeof(PumkinPreset);
+
+            foreach(var preset in presets)
             {
-                if(p && !Helpers.IsAssetInAssets(p))
+                if(preset && !Helpers.IsAssetInAssets(preset))
                 {
-                    PumkinsAvatarTools.LogVerbose("Destroying orphanned " + typeof(T).Name);
-                    Helpers.DestroyAppropriate(p);
+                    PumkinsAvatarTools.LogVerbose($"Destroying orphanned {typeName}");
+                    Helpers.DestroyAppropriate(preset);
                 }
             }
 
-            if(typeof(T) == typeof(PumkinsCameraPreset))            
-                CameraPresets.RemoveAll(o => o == default(PumkinsCameraPreset) || string.IsNullOrEmpty(AssetDatabase.GetAssetPath(o)) || string.IsNullOrEmpty(o.name));            
-            else if(typeof(T) == typeof(PumkinsPosePreset))            
-                PosePresets.RemoveAll(o => o == default(PumkinsPosePreset) || string.IsNullOrEmpty(AssetDatabase.GetAssetOrScenePath(o)) || string.IsNullOrEmpty(o.name));
-            else if(typeof(T) == typeof(PumkinsBlendshapePreset))
-                BlendshapePresets.RemoveAll(o => o == default(PumkinsBlendshapePreset) || string.IsNullOrEmpty(AssetDatabase.GetAssetOrScenePath(o)) || string.IsNullOrEmpty(o.name));
+            if(typeof(T) == typeof(PumkinsCameraPreset) || t == tP)            
+                CameraPresets.RemoveAll(o => o == default(PumkinsCameraPreset) || !Helpers.IsAssetInAssets(o));            
+            if(typeof(T) == typeof(PumkinsPosePreset) || t == tP)            
+                PosePresets.RemoveAll(o => o == default(PumkinsPosePreset) || !Helpers.IsAssetInAssets(o));
+            if(typeof(T) == typeof(PumkinsBlendshapePreset) || t == tP)
+                BlendshapePresets.RemoveAll(o => o == default(PumkinsBlendshapePreset) || !Helpers.IsAssetInAssets(o));
 
             PumkinsAvatarTools.RefreshPresetIndex<T>();
         }
 
         public static void LoadPresets<T>() where T : PumkinPreset
         {
-            if(typeof(T) == typeof(PumkinsCameraPreset))
+            Type t = typeof(T);
+            Type pT = typeof(PumkinPreset);
+            FixScriptReferences<T>();
+            if(t == typeof(PumkinsCameraPreset) || t == pT)
             {                
                 Resources.LoadAll<PumkinsCameraPreset>(resourceCamerasPath);
                 CameraPresets = Resources.FindObjectsOfTypeAll<PumkinsCameraPreset>().ToList();
                 CleanupPresetsOfType<PumkinsCameraPreset>();                
             }
-            else if(typeof(T) == typeof(PumkinsPosePreset))
+            if(typeof(T) == typeof(PumkinsPosePreset) || t == pT)
             {
-                Resources.LoadAll<PumkinsPosePreset>(resourcesPosesPath);
+                Resources.LoadAll<PumkinsPosePreset>(resourcePosesPath);
                 PosePresets = Resources.FindObjectsOfTypeAll<PumkinsPosePreset>().ToList();
                 CleanupPresetsOfType<PumkinsPosePreset>();
             }
-            else if(typeof(T) == typeof(PumkinsBlendshapePreset))
+            if(typeof(T) == typeof(PumkinsBlendshapePreset) || t == pT)
             {
-                Resources.LoadAll<PumkinsBlendshapePreset>(resourcesBlendshapesPath);
+                Resources.LoadAll<PumkinsBlendshapePreset>(resourceBlendshapesPath);
                 BlendshapePresets = Resources.FindObjectsOfTypeAll<PumkinsBlendshapePreset>().ToList();
                 CleanupPresetsOfType<PumkinsBlendshapePreset>();
             }
@@ -229,6 +243,122 @@ namespace Pumkin.Presets
                 if(openWindow)
                     PumkinsAvatarTools.Instance.SelectThumbnailPresetToolbarOption(toolbarOption);
             }            
+        }
+
+        static void SetupGUID<T>() where T : PumkinPreset
+        {
+            if(typeof(T) == typeof(PumkinPreset))
+            {
+                SetupAllGUIDs();    // bad redirect to setup all
+                return;
+            }
+
+            string typeName = typeof(T).Name;
+            var guids = AssetDatabase.FindAssets(typeName);
+            string guid = null;
+            string path = null;
+            foreach(var g in guids)
+            {
+                path = AssetDatabase.GUIDToAssetPath(g);
+                if(!path.EndsWith($"{typeName}.cs"))
+                    continue;
+                guid = g;
+                break;
+            }
+
+            if(typeof(T) == typeof(PumkinsBlendshapePreset))
+                blendshapePresetScriptGUID = guid;
+            else if(typeof(T) == typeof(PumkinsCameraPreset))
+                cameraPresetScriptGUID = guid;
+            else if(typeof(T) == typeof(PumkinsPosePreset))
+                posePresetScriptGUID = guid;
+            else
+                return;
+
+            PumkinsAvatarTools.LogVerbose($"Set GUID of {typeof(T).Name} script at {path} to {guid}");
+        }
+        static void SetupAllGUIDs()
+        {
+            SetupGUID<PumkinsCameraPreset>();
+            SetupGUID<PumkinsPosePreset>();
+            SetupGUID<PumkinsBlendshapePreset>();
+        }
+        public static void FixScriptReferences<T>() where T : PumkinPreset
+        {
+            SetupGUID<T>();
+
+            Type t = typeof(T);
+            Type pT = typeof(PumkinPreset);
+                  
+            var pathsGuids = new Dictionary<string, string>();            
+            if(t == typeof(PumkinsBlendshapePreset) || t == pT)                            
+                pathsGuids.Add(Helpers.LocalAssetsPathToAbsolutePath(localBlendshapesPath), blendshapePresetScriptGUID);            
+            if(t == typeof(PumkinsCameraPreset) || t == pT)                
+                pathsGuids.Add(Helpers.LocalAssetsPathToAbsolutePath(localCamerasPath), cameraPresetScriptGUID);            
+            if(t == typeof(PumkinsPosePreset) || t == pT)
+                pathsGuids.Add(Helpers.LocalAssetsPathToAbsolutePath(localPosesPath), posePresetScriptGUID);            
+            
+            foreach(var kv in pathsGuids)
+            {
+                var path = kv.Key;
+                var guid = kv.Value;
+                if(!Directory.Exists(path))
+                {
+                    PumkinsAvatarTools.LogVerbose($"Directory {path} doesn't exist. Can't fix references");
+                    continue;
+                }
+                var files = Directory.GetFiles($"{path}", "*.asset", SearchOption.AllDirectories);
+                foreach(var file in files)
+                {
+                    if(ReplacePresetGUIDTemp(file, guid))
+                        AssetDatabase.ImportAsset(Helpers.AbsolutePathToLocalAssetsPath(file), ImportAssetOptions.ForceUpdate);
+                }
+                PumkinsAvatarTools.LogVerbose($"Fixed references for type {typeof(T).Name}");
+            }            
+        }
+
+        public static void FixAllPresetScriptReferences()
+        {
+            SetupAllGUIDs();
+
+            FixScriptReferences<PumkinsCameraPreset>();
+            FixScriptReferences<PumkinsPosePreset>();
+            FixScriptReferences<PumkinsBlendshapePreset>();
+        }
+
+        /// <summary>
+        /// TODO: Replace with one that reads only the needed lines
+        /// </summary>    
+        static bool ReplacePresetGUIDTemp(string filePath, string newGUID)
+        {
+            filePath = Helpers.AbsolutePathToLocalAssetsPath(filePath);
+            if(Helpers.StringIsNullOrWhiteSpace(filePath) || Helpers.StringIsNullOrWhiteSpace(newGUID))
+            {
+                PumkinsAvatarTools.LogVerbose($"Filepath ({filePath}) or GUID ({newGUID}) is empty", LogType.Warning);
+                return false;
+            }
+            else if(!File.Exists(filePath))
+            {
+                PumkinsAvatarTools.Log($"File {filePath} doesn't exist. Can't fix preset references", LogType.Warning);
+                return false;
+            }
+            var lines = File.ReadAllLines(filePath);            
+            for(int i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i];
+
+                if(!line.Contains("m_Script"))
+                    continue;
+
+                lines[i] = Helpers.ReplaceGUIDInLine(line, newGUID, out bool replaced);
+                if(replaced)
+                {
+                    File.WriteAllLines(filePath, lines);
+                    return true;
+                }
+                break;
+            }            
+            return false;
         }
     }
 }
