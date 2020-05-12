@@ -37,7 +37,7 @@ namespace Pumkin.AvatarTools
             pressedReloadButton = false;
         }
 
-        [MenuItem("Tools/Pumkin/Avatar Tools", false, 0)]
+        [MenuItem("Pumkin/Tools/Avatar Tools", false, 0)]
         public static void ShowWindow()
         {
             //Show existing window instance. If one doesn't exist, make one.
@@ -50,7 +50,7 @@ namespace Pumkin.AvatarTools
             _toolsWindow.Show();
         }
 
-        [MenuItem("Tools/Pumkin/Reset Tool Preferences", false, 50)]
+        [MenuItem("Pumkin/Tools/Reset Tool Preferences", false, 50)]
         public static void ResetPrefs()
         {
             EditorPrefs.DeleteKey("PumkinToolsWindow");

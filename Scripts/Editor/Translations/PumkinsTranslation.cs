@@ -245,11 +245,11 @@ namespace Pumkin.Translations
         public string includeChildren = "Include Children";
         public string size = "Size";
         public string other_emptyScripts = "Empty Scripts";
-        public string lookAtConstraints = "LookAt Constraint";
-        public string parentConstraints = "Parent Constraint";
-        public string positionConstraints = "Position Constraint";
-        public string rotationConstraints = "Rotation Constraint";
-        public string scaleConstraints = "Scale Constraint";
+        public string lookAtConstraints = "LookAt Constraints";
+        public string parentConstraints = "Parent Constraints";
+        public string positionConstraints = "Position Constraints";
+        public string rotationConstraints = "Rotation Constraints";
+        public string scaleConstraints = "Scale Constraints";
         public string onlyIfHasValidSources = "Only if has Valid Sources";
         public string showCommon = "Show Common";
         public string showAll = "Show All";

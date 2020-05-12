@@ -1074,9 +1074,9 @@ namespace Pumkin.AvatarTools
 
                 SelectedCamera = GetVRCCamOrMainCam();
 
-                var pm = FindObjectOfType<RuntimeBlueprintCreation>();
-                if(pm && pm.pipelineManager && pm.pipelineManager.contentType == PipelineManager.ContentType.avatar)
-                    SelectedAvatar = pm.pipelineManager.transform.root.gameObject;
+                var ps = FindObjectOfType<PipelineSaver>();                
+                if(ps && ps.contentType == PipelineManager.ContentType.avatar)
+                    SelectedAvatar = ps.gameObject;
 
                 HideAllOtherAvatars(shouldHideOtherAvatars, SelectedAvatar);
 
@@ -1120,7 +1120,7 @@ namespace Pumkin.AvatarTools
         #endregion
 
         #region Debug
-#if PUMKIN_DEBUG
+#if PUMKIN_DEV
         string testPath = "";
 #endif
         #endregion
@@ -1238,7 +1238,7 @@ namespace Pumkin.AvatarTools
             verboseLoggingEnabled = GUILayout.Toggle(verboseLoggingEnabled, Strings.Settings.enableVerboseLogging);
 
             EditorGUILayout.Space();
-#if PUMKIN_DEBUG
+#if PUMKIN_DEV
             if(GUILayout.Button("Generate Thry Manifest"))
             {
                 ThryModuleManifest.Generate();
@@ -3998,8 +3998,7 @@ namespace Pumkin.AvatarTools
                     DestroyAllComponentsOfType(SelectedAvatar, typeof(Animator), true, false);
                     break;
                 case ToolMenuActions.RemoveAudioSources:
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(VRC_SpatialAudioSource), false, false);
-                    DestroyAllComponentsOfType(SelectedAvatar, typeof(ONSPAudioSource), false, false);
+                    DestroyAllComponentsOfType(SelectedAvatar, typeof(VRC_SpatialAudioSource), false, false);                    
                     DestroyAllComponentsOfType(SelectedAvatar, typeof(AudioSource), false, false);
                     break;
                 case ToolMenuActions.RemoveJoints:
@@ -4676,8 +4675,7 @@ namespace Pumkin.AvatarTools
 
             for(int i = 0; i < audioFromArr.Length; i++)
             {
-                var audioFrom = audioFromArr[i];
-                var onspAudioFrom = audioFromArr[i].GetComponent<ONSPAudioSource>();    //This component is getting deprecated
+                var audioFrom = audioFromArr[i];                
                 var spatialAudioFrom = audioFromArr[i].GetComponent<VRC_SpatialAudioSource>();
 
                 var transTo = Helpers.FindTransformInAnotherHierarchy(audioFrom.transform, to.transform, createGameObjects);
@@ -4691,17 +4689,14 @@ namespace Pumkin.AvatarTools
 
                 if(audioFrom != null)
                 {
-                    var audioTo = audioToObj.GetComponent<AudioSource>();
-                    var onspTo = audioToObj.GetComponent<ONSPAudioSource>();
+                    var audioTo = audioToObj.GetComponent<AudioSource>();                    
                     var spatialAudioTo = audioToObj.GetComponent<VRC_SpatialAudioSource>();
 
                     if(audioTo == null && bCopier_audioSources_createMissing)
                     {
                         audioTo = audioToObj.AddComponent<AudioSource>();
                         if(spatialAudioFrom != null)
-                            spatialAudioTo = audioToObj.AddComponent<VRC_SpatialAudioSource>();
-                        else if(onspAudioFrom != null)
-                            onspTo = audioToObj.AddComponent<ONSPAudioSource>();
+                            spatialAudioTo = audioToObj.AddComponent<VRC_SpatialAudioSource>();                        
                     }
 
                     if((audioTo != null && bCopier_audioSources_copySettings) || bCopier_audioSources_createMissing)
@@ -4713,12 +4708,7 @@ namespace Pumkin.AvatarTools
                         {
                             ComponentUtility.CopyComponent(spatialAudioFrom);
                             ComponentUtility.PasteComponentValues(spatialAudioTo);
-                        }
-                        else if(onspAudioFrom != null)
-                        {
-                            ComponentUtility.CopyComponent(onspAudioFrom);
-                            ComponentUtility.PasteComponentValues(onspTo);
-                        }
+                        }                        
                         Log(log + " - " + Strings.Log.success);
                     }
                 }

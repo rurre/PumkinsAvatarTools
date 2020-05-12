@@ -23,14 +23,16 @@ namespace Pumkin.HelperFunctions
         #region GUI
 
         /// <summary>
-        /// Completely arbitrarely try to guess the width of a text string. For now
+        /// Completely arbitrarely try to guess the width of a text string. 
+        /// TODO: replace with something that actually works
         /// </summary>        
         public static float CalculateTextWidth(string text, GUIStyle style = null)
         {
             if(style == null)
                 style = new GUIStyle("label");
 
-            return text.Length * style.font.fontSize * 0.9f;
+            float arbitrary = text.Length > 10 ? 0.9f : 1;
+            return text.Length * arbitrary * style.font.fontSize;
         }
 
         public static void DrawGUILine(float height = 1f, bool spacedOut = true)

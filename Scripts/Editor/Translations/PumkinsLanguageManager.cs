@@ -39,16 +39,23 @@ public static class PumkinsLanguageManager
     {
         var guids = AssetDatabase.FindAssets(typeof(PumkinsTranslation).Name);
         translationScriptGUID = guids[0];
-                
-        foreach(var lang in Languages)
+        
+        var def = PumkinsTranslation.GetOrCreateDefaultTranslation();
+        for(int i = Languages.Count - 1; i >= 0; i--)
         {
+            var lang = Languages[i];
+            if(i == 0 && def.Equals(lang))
+                break;
+
             if(!Helpers.IsAssetInAssets(lang))
-                Helpers.DestroyAppropriate(lang);
-        }
+            {
+                Helpers.DestroyAppropriate(lang, true); //careful with allow destroying assets here
+                Languages.RemoveAt(i);
+            }
+        }        
 
         LoadTranslationPresets();
-
-        var def = PumkinsTranslation.GetOrCreateDefaultTranslation();
+        
         if(Languages.Count == 0 || !def.Equals(Languages[0]))
             Languages.Insert(0, PumkinsTranslation.Default);
 

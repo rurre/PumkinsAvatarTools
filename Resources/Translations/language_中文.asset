@@ -23,10 +23,10 @@ MonoBehaviour:
     copier: "\u590D\u5236\u7EC4\u4EF6"
     avatarInfo: "\u6A21\u578B\u4FE1\u606F"
     thumbnails: "\u5C01\u9762\u7F29\u7565\u56FE"
-    info: Info
+    info: "\u4E86\u89E3\u5DE5\u5177\u7BB1"
     avatar: "\u6A21\u578B"
     useSceneSelection: "\u81EA\u52A8\u6DFB\u52A0\u9009\u62E9\u7684\u6A21\u578B"
-    experimental: Experimental
+    experimental: "\u5B9E\u9A8C\u6027"
   buttons:
     selectFromScene: "\u6DFB\u52A0\u9009\u62E9\u7684\u6A21\u578B"
     copySelected: "\u590D\u5236\u6240\u9009\u7684\u7EC4\u4EF6"
@@ -42,7 +42,7 @@ MonoBehaviour:
     selectNone: "\u5168\u4E0D\u9009"
     selectAll: "\u5168\u9009"
     browse: "\u6253\u5F00"
-    setFromCamera: "\u4ECE\u76F8\u673A\u83B7\u53D6"
+    setFromCamera: "\u4ECE\u6444\u50CF\u673A\u83B7\u53D6"
     reset: "\u91CD\u7F6E"
     edit: "\u7F16\u8F91\u4FDD\u5B58"
     load: "\u52A0\u8F7D"
@@ -55,8 +55,8 @@ MonoBehaviour:
     savePreset: "\u4FDD\u5B58\u9884\u8BBE"
     selectInAssets: "\u5728\u76EE\u5F55\u4E2D\u9009\u62E9"
     openFolder: "\u6253\u5F00\u6587\u4EF6\u5939"
-    selectFolder: Select Folder
-    ok: "\u786E\u8BA4"
+    selectFolder: "\u9009\u62E9\u6587\u4EF6\u5939"
+    ok: "\u786E\u5B9A"
   tools:
     fillVisemes: "\u81EA\u52A8\u586B\u5145\u53E3\u578B"
     editViewpoint: "\u624B\u52A8\u8C03\u6574\u89C6\u89D2\u7403"
@@ -64,21 +64,22 @@ MonoBehaviour:
     zeroBlendshapes: "\u5F52\u96F6\u8868\u60C5\u5F62\u6001\u952E\u6570\u503C"
     resetPose: "\u91CD\u7F6E\u59FF\u52BF"
     resetToTPose: "\u91CD\u7F6E\u59FF\u52BF\u4E3AT\u5B57\u578B"
-    editScale: "\u8BBE\u7F6E\u6BD4\u4F8B\u5927\u5C0F"
+    editScale: "\u8BBE\u7F6E\u7F29\u653E\u6BD4\u4F8B\u5927\u5C0F"
     autoViewpoint: "\u81EA\u52A8\u8C03\u6574\u89C6\u89D2\u7403"
     setTPose: "\u81EA\u52A8\u59FF\u52BF\u4E3AT\u5B57\u578B"
-    setRendererAnchors: "\u8BBE\u7F6E\u6E32\u67D3\u5668\u7684\u4F4D\u7F6E"
-    setSkinnedMeshRendererAnchors: Set Skinned Mesh Renderer Anchors
+    setRendererAnchors: "\u8BBE\u7F6E\u6E32\u67D3\u5668(Mesh Renderer)\u63A2\u6D4B\u5668\u4F4D\u7F6E"
+    setSkinnedMeshRendererAnchors: "\u8BBE\u7F6E\u8499\u76AE\u7F51\u683C\u6E32\u67D3\u5668(Skinned
+      Mesh Renderer)\u63A2\u6D4B\u5668\u4F4D\u7F6E"
     viewpointZDepth: "Z\u8F74\u5BBD"
-    revertScale: "\u91CD\u7F6E\u6BD4\u4F8B\u5927\u5C0F"
+    revertScale: "\u91CD\u7F6E\u7F29\u653E\u6BD4\u4F8B\u5927\u5C0F"
     editScaleMoveViewpoint: "\u81EA\u52A8\u540C\u6B65\u89C6\u89D2\u7403\u4F4D\u7F6E"
-    refreshSDK: Refresh SDK Window
+    refreshSDK: "\u5237\u65B0SDK\u7A97\u53E3"
     disableDynamicBones: "\u5173\u95ED\u52A8\u6001\u9AA8\u9ABC(DynamicBones)"
     enableDynamicBones: "\u6253\u5F00\u52A8\u6001\u9AA8\u9ABC(DynamicBones)"
     toggleDynamicBones: "\u5207\u6362\u52A8\u6001\u9AA8\u9ABC(DynamicBones)"
-    fixDynamicBoneScripts: Fix DynamicBone Scripts
-    hierarchyPath: Hierarchy Path
-    anchorPath: Anchor Path
+    fixDynamicBoneScripts: "\u4FEE\u590D\u52A8\u6001\u9AA8\u9ABC(DynamicBones)\u811A\u672C"
+    hierarchyPath: "\u5C42\u6B21\u8DEF\u5F84"
+    anchorPath: "\u63A2\u6D4B\u5668\u8DEF\u5F84(\u89E3\u51B3\u9634\u5F71\u4E0D\u5747)"
   copier:
     copyFrom: "\u590D\u5236\u6765\u6E90"
     copySettings: "\u8BBE\u7F6E(Settings)"
@@ -88,8 +89,8 @@ MonoBehaviour:
     transforms: "\u5916\u89C2(Transforms)"
     transforms_position: "\u4F4D\u7F6E(Position)"
     transforms_rotation: "\u65CB\u8F6C(Rotation)"
-    transforms_scale: "\u6BD4\u4F8B\u5927\u5C0F(Scale)"
-    transforms_avatarScale: "\u6A21\u578B\u6BD4\u4F8B\u5927\u5C0F"
+    transforms_scale: "\u7F29\u653E(Scale)"
+    transforms_avatarScale: "\u6A21\u578B\u7F29\u653E\u6BD4\u4F8B\u5927\u5C0F"
     dynamicBones: "\u52A8\u6001\u9AA8\u9ABC(Dynamic Bones)"
     dynamicBones_colliders: "\u52A8\u6001\u9AA8\u9ABC\u78B0\u649E(Dynamic Bone Colliders)"
     dynamicBones_removeOldBones: "\u5220\u9664\u65E7\u7684\u52A8\u6001\u9AA8\u9ABC(Dynamic
@@ -127,25 +128,25 @@ MonoBehaviour:
     joints: "\u8282\u70B9(Joints)"
     other: "\u5176\u4ED6                         "
     other_ikFollowers: "IK\u8DDF\u968F(IK Followers)"
-    aimConstraints: Aim Constraints
+    aimConstraints: "\u76EE\u6807\u62D8\u675F(Aim Constraints)"
     ignoreList: "\u5FFD\u7565\u5217\u8868"
     includeChildren: "\u5305\u62EC\u5B50\u9879"
     size: "\u5927\u5C0F"
     other_emptyScripts: "\u7A7A\u811A\u672C(Empty Scripts)"
-    lookAtConstraints: LookAt Constraint
-    parentConstraints: Parent Constraint
-    positionConstraints: Position Constraint
-    rotationConstraints: Rotation Constraint
-    scaleConstraints: Scale Constraint
-    onlyIfHasValidSources: Only if has Valid Sources
-    showCommon: Show Common
-    showAll: Show All
-    joints_fixed: Fixed Joint
-    joints_hinge: Hinge Joint
-    joints_spring: Spring Joint
-    joints_character: Character Joint
-    joints_configurable: Configurable Joint
-    joints_removeOld: Remove Old Joints
+    lookAtConstraints: "\u67E5\u770B\u7EA6\u675F(LookAt Constraint)"
+    parentConstraints: "\u7236\u62D8\u675F(Parent Constraint)"
+    positionConstraints: "\u4F4D\u7F6E\u62D8\u675F(Position Constraint)"
+    rotationConstraints: "\u65CB\u8F6C\u62D8\u675F(Rotation Constraint)"
+    scaleConstraints: "\u7F29\u653E\u62D8\u675F(Scale Constraint)"
+    onlyIfHasValidSources: "\u53EA\u6709\u5728\u6709\u6709\u6548\u6765\u6E90\u7684\u60C5\u51B5\u4E0B"
+    showCommon: "\u663E\u793A\u5E38\u7528"
+    showAll: "\u663E\u793A\u6240\u6709"
+    joints_fixed: "\u56FA\u5B9A\u5173\u8282(Fixed Joint)"
+    joints_hinge: "\u94F0\u94FE\u5173\u8282(Hinge Joint)"
+    joints_spring: "\u5F39\u7C27\u5173\u8282(Spring Joint)"
+    joints_character: "\u89D2\u8272\u5173\u8282(Character Joint)"
+    joints_configurable: "\u53EF\u914D\u7F6E\u5173\u8282(Configurable Joint)"
+    joints_removeOld: "\u5220\u9664\u65E7\u7684\u5173\u8282(Joint)"
   avatarInfo:
     name: '{0}'
     line: '---------------------'
@@ -181,9 +182,9 @@ MonoBehaviour:
     backgroundType_Image: "\u56FE\u7247"
     hideOtherAvatars: "\u4E0A\u4F20\u65F6\u9690\u85CF\u5176\u4ED6\u6A21\u578B"
     tint: "\u8272\u8C03"
-    useCameraOverlay: "\u4F7F\u7528\u76F8\u673A\u8986\u76D6    "
-    useCameraBackground: "\u4F7F\u7528\u76F8\u673A\u80CC\u666F    "
-    selectedCamera: "\u9009\u62E9\u7684\u76F8\u673A"
+    useCameraOverlay: "\u4F7F\u7528\u6444\u5F71\u673A\u8986\u76D6    "
+    useCameraBackground: "\u4F7F\u7528\u6444\u5F71\u673A\u80CC\u666F    "
+    selectedCamera: "\u9009\u62E9\u7684\u6444\u5F71\u673A"
     offset: "\u504F\u79FB"
     blendshapes: "\u8868\u60C5\u5F62\u6001\u952E"
     poses: "\u59FF\u52BF"
@@ -197,19 +198,19 @@ MonoBehaviour:
     applyBodyPosition: "\u5E94\u7528\u8EAB\u4F53\u4F4D\u7F6E"
     applyBodyRotation: "\u5E94\u7528\u8EAB\u4F53\u65CB\u8F6C"
     lockSelectedCameraToSceneView: "\u5C06\u9009\u5B9A\u7684\u6444\u5F71\u673A\u9501\u5B9A\u5230\u573A\u666F\u89C6\u89D2"
-    overlayImagePath: Overlay Image Path
-    imagePath: Image Path
-    backgroundColor: Background Color
+    overlayImagePath: "\u8986\u76D6\u56FE\u7247\u8DEF\u5F84"
+    imagePath: "\u56FE\u7247\u8DEF\u5F84"
+    backgroundColor: "\u80CC\u666F\u8272"
   misc:
     uwu: uwu
     searchForBones: "\u641C\u7D22\u52A8\u6001\u9AA8\u9ABC(DynamicBones)\u63D2\u4EF6"
     language: "\u8BED\u8A00"
     refresh: "\u5237\u65B0"
-    importLanguage: Import Language
-    enableVerboseLogging: Enable verbose logging
-    sceneViewOverlayWindowsAtBottom: Draw scene view overlays at the bottom
-    misc: Misc
-    showExperimentalMenu: Show experimental menu
+    importLanguage: "\u5BFC\u5165\u8BED\u8A00"
+    enableVerboseLogging: "\u542F\u7528\u8BE6\u7EC6\u65E5\u5FD7\u8BB0\u5F55"
+    sceneViewOverlayWindowsAtBottom: "\u5728\u5E95\u90E8\u7ED8\u5236\u573A\u666F\u89C6\u56FE\u8986\u76D6"
+    misc: "\u5176\u4ED6"
+    showExperimentalMenu: "\u663E\u793A\u5B9E\u9A8C\u83DC\u5355"
   log:
     done: "\u5B8C\u6210"
     cancelled: "\u53D6\u6D88"
@@ -234,7 +235,7 @@ MonoBehaviour:
     failedDoesntHave: "\u5931\u8D25: {0} \u6CA1\u6709 {1}"
     failedAlreadyHas: "\u5931\u8D25: {0} \u5DF2\u6709 {1}"
     loadedCameraOverlay: "\u5DF2\u5C06\u56FE\u7247 {0} \u52A0\u8F7D\u4E3A\u76F8\u673A"
-    failedHasNoIgnoring: '''{0}'' has no ''{1}'', Ignoring.'
+    failedHasNoIgnoring: "'{0}' \u6CA1\u6709 '{1}', \u5FFD\u7565\u3002"
     settingQuickViewpoint: "\u5C06\u89C6\u89D2\u7403\u5FEB\u901F\u8BBE\u7F6E\u4E3A
       {0}"
     cantSetViewpointNonHumanoid: "\u65E0\u6CD5\u4E3A\u975E\u4EBA\u5F62(Humanoid)\u6A21\u578B\u8BBE\u7F6E\u89C6\u89D2\u7403"
@@ -265,14 +266,14 @@ MonoBehaviour:
     copiedDynamicBone: "\u5DF2\u5C06\u63D2\u4EF6\u4ECE{0}\u7684{1} \u590D\u5236\u5230
       {2}\u7684{1}"
     invalidTranslation: "\u65E0\u6CD5\u52A0\u8F7D\u7FFB\u8BD1\u6587\u4EF6\u3002\u65E0\u6548\u7684\u7FFB\u8BD1"
-    constraintHasNoValidSources: '{0}''s {1} has no valid sources. Destroying'
-    avatarHasNoPrefab: Selected Avatar has no prefab associated with it. Only prefabs
-      can be fixed for now
-    attemptingToFixDynamicBoneScripts: Attempting to fix DynamicBone Scripts
-    notSelectedInCopierIgnoring: '{0}''s {1} is not selected in the copier. Ignoring'
-    exitPrefabModeFirst: Please exit prefab mode before doing this
-    transformNotFound: Transform at '{0}' not found
-    cantApplyPreset: Can't apply preset
+    constraintHasNoValidSources: "{0} \u7684 {1} \u6CA1\u6709\u6709\u6548\u7684\u6E90\u3002\u5DF2\u7834\u574F"
+    avatarHasNoPrefab: "\u9009\u5B9A\u7684\u5316\u8EAB\u6CA1\u6709\u5173\u8054\u7684\u9884\u8BBE\u3002\u73B0\u5728\u53EA\u80FD\u56FA\u5B9A\u9884\u5236\u4F53"
+    attemptingToFixDynamicBoneScripts: "\u5C1D\u8BD5\u4FEE\u590D\u52A8\u6001\u9AA8\u9ABC(DynamicBones)\u811A\u672C"
+    notSelectedInCopierIgnoring: "\u672A\u5728\u590D\u5236\u5668\u4E2D\u9009\u62E9
+      {0} \u7684 {1} \uFF0C\u5FFD\u7565"
+    exitPrefabModeFirst: "\u8BF7\u5728\u6267\u884C\u6B64\u64CD\u4F5C\u4E4B\u524D\u9000\u51FA\u9884\u5236\u6A21\u5F0F"
+    transformNotFound: "\u5728 '{0}' \u4E0A\u627E\u4E0D\u5230\u8F6C\u6362"
+    cantApplyPreset: "\u65E0\u6CD5\u5E94\u7528\u9884\u8BBE"
   warnings:
     warn: "\u8B66\u544A"
     notFound: "\u65E0\u6CD5\u627E\u5230"
@@ -291,24 +292,24 @@ MonoBehaviour:
     languageAlreadyExistsOverwrite: "\u7FFB\u8BD1\u6587\u4EF6\u5DF2\u5B58\u5728\u3002\u662F\u5426\u8986\u76D6\uFF1F"
   credits:
     version: "\u7248\u672C"
-    redundantStrings: "\u7FFB\u8BD1\u8005\uFF1A\u56E0\u4E3A\u82F1\u8BED\u4E0D\u597D\u53EF\u80FD\u4F1A\u6709\u70B9\u51FA\u5165\uFF0C\u6B22\u8FCE\u6307\u51FA\uFF0C\u53EF\u4EE5\u52A0\u6211QQ474696397\u544A\u8BC9\u6211\uFF0C\u70B9\u51FB\u53F3\u4E0A\u89D2\u7684\u661F\u661F\u5F00\u59CB\u4F7F\u7528"
-    addMoreStuff: "\u4F5C\u8005\uFF1A\u73B0\u5728\u4E00\u5B9A\u6709\u591A\u4F59\u7684\u5B57\u7B26\u4E32\uFF0C\u6211\u4F1A\u6DFB\u52A0\u66F4\u591A\u7684\u529F\u80FD"
-    pokeOnDiscord: "        \u53EF\u4EE5\u5728Discord\u641C\u7D22Pumkin#2020\u6DFB\u52A0\u6211\u4E3A\u597D\u53CB"
+    redundantStrings: "\u7FFB\u8BD1\u8005\uFF1A\u56E0\u4E3A\u82F1\u8BED\u4E0D\u597D\u53EF\u80FD\u4F1A\u6709\u70B9\u51FA\u5165\uFF0C\u6B22\u8FCE\u6307\u51FA\u53EF\u4EE5\u52A0\u6211QQ474696397\u544A\u8BC9\u6211"
+    addMoreStuff: "        \u5F53\u524D\u811A\u672C\u63D2\u4EF6\u540D\u5B57\u4E3B\u8981\u4EE5\u4E2D\u6587\u7248unity\u4E3A\u4E3B\uFF0C\u70B9\u51FB\u53F3\u4E0A\u89D2\u7EE7\u7EED\u4F7F\u7528"
+    pokeOnDiscord: "\u4F5C\u8005\uFF1A\u73B0\u5728\u6709\u591A\u4F59\u5B57\u7B26\u4E32\uFF0C\u6211\u4F1A\u6DFB\u52A0\u66F4\u591A\u529F\u80FD\uFF0C\u53EF\u4EE5\u5728Discord\u641C\u7D22Pumkin#2020\u6DFB\u52A0\u6211\u597D\u53CB"
   poseEditor:
-    title: "Pumkin\u7684\u59FF\u52BF\u7F16\u8F91\u5668"
+    title: "Pumkin\u7684\u52A8\u4F5C\u7F16\u8F91\u5668"
     scene: "\u573A\u666F"
     sceneLoadAdditive: "\u52A0\u8F7D\u6DFB\u52A0\u7269"
     sceneOverrideLights: "\u8986\u76D6\u5149"
     avatarPosition: "\u6A21\u578B\u4F4D\u7F6E"
-    avatarPositionOverridePose: "\u8986\u76D6\u59FF\u52BF"
+    avatarPositionOverridePose: "\u8986\u76D6\u52A8\u4F5C"
     avatarPositionOverrideBlendshapes: "\u8986\u76D6\u8868\u60C5\u5F62\u6001\u952E"
     sceneSaveChanges: "\u4FDD\u5B58\u573A\u666F\u66F4\u6539"
     unloadScene: "\u79FB\u9664\u573A\u666F"
     resetPosition: "\u590D\u4F4D\u4F4D\u7F6E"
-    pose: "\u59FF\u52BF"
-    newPose: "\u65B0\u7684\u59FF\u52BF"
-    onlySavePoseChanges: "\u4EC5\u4FDD\u5B58\u59FF\u52BF\u66F4\u6539"
-    loadPose: "\u52A0\u8F7D\u59FF\u52BF"
+    pose: "\u52A8\u4F5C"
+    newPose: "\u65B0\u7684\u52A8\u4F5C"
+    onlySavePoseChanges: "\u4EC5\u4FDD\u5B58\u52A8\u4F5C\u66F4\u6539"
+    loadPose: "\u52A0\u8F7D\u52A8\u4F5C"
     blendshapes: "\u8868\u60C5\u5F62\u6001\u952E"
     newPreset: "\u65B0\u9884\u8BBE"
     loadPreset: "\u8F7D\u5165\u9884\u8BBE"
@@ -316,28 +317,28 @@ MonoBehaviour:
     reloadButton: "\u91CD\u65B0\u52A0\u8F7D"
     bodyPositionYTooSmall: "\u4EBA\u5F62\u59FF\u52BF(humanPose).\u8EAB\u4F53\u4F4D\u7F6E(bodyPosition).y
       \u662F {0}, \u8FD9\u53EF\u80FD\u4E0D\u662F\u4F60\u60F3\u8981\u7684. \u8BF7\u5C06\u4EBA\u5F62\u59FF\u52BF(humanPose).\u8EAB\u4F53\u4F4D\u7F6E(bodyPosition).y\u8BBE\u7F6E\u4E3A1"
-    muscles: "\u5F71\u54CD\u529B"
+    muscles: "\u808C\u8089"
     transformRotations: "\u53D8\u6362\u65CB\u8F6C"
     selectHumanoidAvatar: "\u9009\u62E9\u4EBA\u5F62(Humanoid)\u6A21\u578B"
-    animationTime: "\u65F6\u95F4"
+    animationTime: "\u52A8\u753B\u65F6\u95F4"
     poseFromAnimation: "\u6765\u81EA\u52A8\u753B\u7684\u59FF\u52BF"
     allowMotion: "\u5141\u8BB8\u8FD0\u52A8"
   preset:
     presetName: "\u9884\u8BBE\u540D\u79F0"
     mode: "\u9884\u8BBE\u6A21\u5F0F"
     otherNames: "\u5176\u4ED6\u540D\u79F0"
-    poseMode: "\u59FF\u52BF\u6A21\u5F0F"
-    editPosePreset: "\u7F16\u8F91\u59FF\u52BF\u9884\u8BBE"
-    createPosePreset: "\u521B\u5EFA\u59FF\u52BF\u9884\u8BBE"
+    poseMode: "\u52A8\u4F5C\u6A21\u5F0F"
+    editPosePreset: "\u7F16\u8F91\u52A8\u4F5C\u9884\u8BBE"
+    createPosePreset: "\u521B\u5EFA\u52A8\u4F5C\u9884\u8BBE"
     overwriteFile: "\u8986\u76D6\u6587\u4EF6"
     transformDoesntBelongToAvatar: "{0} \u4E0D\u5C5E\u4E8E\u6A21\u578B {1}"
-    cameraPreset: "\u76F8\u673A\u9884\u8BBE"
-    posePreset: "\u59FF\u52BF\u9884\u8BBE"
-    blendshapePreset: "\u9884\u8BBE"
+    cameraPreset: "\u6444\u5F71\u673A\u9884\u8BBE"
+    posePreset: "\u52A8\u4F5C\u9884\u8BBE"
+    blendshapePreset: "\u5F62\u6001\u952E\u9884\u8BBE"
     editBlendshapePreset: "\u7F16\u8F91\u8868\u60C5\u5F62\u6001\u952E\u9884\u8BBE"
     createBlendshapePreset: "\u521B\u5EFA\u8868\u60C5\u5F62\u6001\u952E\u9884\u8BBE"
-    transform: "\u53D8\u6362"
+    transform: "\u8F6C\u6362"
     offsetMode: "\u504F\u79FB\u6A21\u5F0F"
-    camera: "\u76F8\u673A"
+    camera: "\u6444\u50CF\u673A"
     editCameraPreset: "\u7F16\u8F91\u76F8\u673A\u9884\u8BBE"
     createCameraPreset: "\u521B\u5EFA\u76F8\u673A\u9884\u8BBE"
