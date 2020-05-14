@@ -112,9 +112,9 @@ namespace Pumkin.AvatarTools
             FixDynamicBoneScripts,
         };
 
-        readonly string DUMMY_NAME = "_Dummy";
-        readonly string VIEWPOINT_DUMMY_NAME = "_PumkinsViewpointDummy";
-        readonly string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";
+        readonly static string DUMMY_NAME = "_Dummy";
+        readonly static string VIEWPOINT_DUMMY_NAME = "_PumkinsViewpointDummy";
+        readonly static string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";
 
         #endregion
 
@@ -687,10 +687,7 @@ namespace Pumkin.AvatarTools
         public static Camera SelectedCamera
         {
             get
-            {
-                if(!_selectedCamera)
-                    _selectedCamera = GetVRCCamOrMainCam();
-
+            {   
                 return _selectedCamera;
             }
             set
@@ -698,9 +695,9 @@ namespace Pumkin.AvatarTools
                 if(_selectedCamera != value)
                 {
                     RestoreCameraRT(_selectedCamera);
-                    _selectedCamera = value;
-                    OnCameraSelectionChanged(_selectedCamera);
+                    OnCameraSelectionChanged(value);
                 }
+                _selectedCamera = value;
             }
         }
 
@@ -898,7 +895,14 @@ namespace Pumkin.AvatarTools
                     bgc = bg.gameObject.AddComponent<Canvas>();
                 bgc.worldCamera = camera;
                 if(camera)
+                {
                     bgc.planeDistance = camera.farClipPlane - 2;
+                    bg.gameObject.SetActive(true);
+                }
+                else
+                {
+                    bg.gameObject.SetActive(false);
+                }
             }
             if(fg)
             {
@@ -907,7 +911,14 @@ namespace Pumkin.AvatarTools
                     fgc = fg.gameObject.AddComponent<Canvas>();
                 fgc.worldCamera = camera;
                 if(camera)
+                {
                     fgc.planeDistance = camera.nearClipPlane + 0.01f;
+                    fg.gameObject.SetActive(true);
+                }
+                else
+                {
+                    fg.gameObject.SetActive(false);
+                }
             }
         }
 
@@ -1010,16 +1021,15 @@ namespace Pumkin.AvatarTools
             RestoreTexturesFromPaths();
             RefreshBackgroundOverrideType();
 
-            CleanupTempObjects();
+            DestroyDummies();
+
+            SelectedCamera = GetVRCCamOrMainCam();
 
             if(_lastOpenFilePath == default(string))
                 _lastOpenFilePath = MainFolderPath + PumkinsPresetManager.resourceCamerasPath + "/Example Images";
-        }
 
-        private void CleanupTempObjects()
-        {            
-            Helpers.DestroyAppropriate(GameObject.Find(SCALE_RULER_DUMMY_NAME));
-        }
+            lockSelectedCameraToSceneView = false;
+        }        
 
         public void HandleSceneChange(Scene scene, OpenSceneMode mode)
         {
@@ -1050,28 +1060,14 @@ namespace Pumkin.AvatarTools
         }
 
         public static void DestroyDummies()
-        {
-            GameObject bg = GameObject.Find(CAMERA_BACKGROUND_NAME);
-            GameObject fg = GameObject.Find(CAMERA_OVERLAY_NAME);
-
-            if(bg)
-            {
-                if(EditorApplication.isPlaying)
-                    Destroy(bg);
-                else
-                    DestroyImmediate(bg);
-            }
-            if(fg)
-            {
-                if(EditorApplication.isPlaying)
-                    Destroy(fg);
-                else
-                    DestroyImmediate(fg);
-            }
+        {            
+            Helpers.DestroyAppropriate(GameObject.Find(CAMERA_BACKGROUND_NAME));            
+            Helpers.DestroyAppropriate(GameObject.Find(CAMERA_OVERLAY_NAME));            
+            Helpers.DestroyAppropriate(GameObject.Find(SCALE_RULER_DUMMY_NAME));            
         }
 
         void HandlePlayModeStateChange(PlayModeStateChange mode)
-        {
+        {            
             if(mode == PlayModeStateChange.ExitingEditMode || mode == PlayModeStateChange.ExitingPlayMode)
             {
                 if(_editingView)
@@ -1084,6 +1080,8 @@ namespace Pumkin.AvatarTools
             else if(mode == PlayModeStateChange.EnteredEditMode)
             {
                 LoadPrefs();
+
+                SelectedCamera = GetVRCCamOrMainCam();
             }
             else if(mode == PlayModeStateChange.EnteredPlayMode)
             {
@@ -1091,9 +1089,7 @@ namespace Pumkin.AvatarTools
 
                 LoadPrefs();
                 _emptyTexture = new Texture2D(2, 2);
-                cameraOverlayTexture = new Texture2D(2, 2);
-
-                SelectedCamera = GetVRCCamOrMainCam();
+                cameraOverlayTexture = new Texture2D(2, 2);                
 
                 var ps = FindObjectOfType<PipelineSaver>();                
                 if(ps && ps.contentType == PipelineManager.ContentType.avatar)
@@ -1110,6 +1106,7 @@ namespace Pumkin.AvatarTools
                         uiCam.depth = 1f;
                 }
             }
+            SelectedCamera = GetVRCCamOrMainCam();
         }
 
         void HandleSelectionChanged()
@@ -1316,6 +1313,8 @@ namespace Pumkin.AvatarTools
             }
             EditorGUILayout.EndScrollView();
 
+            if(lockSelectedCameraToSceneView && _selectedCamera)
+                SelectedCamera.transform.SetPositionAndRotation(SceneView.lastActiveSceneView.camera.transform.position, SceneView.lastActiveSceneView.camera.transform.rotation);
 
             if(GUI.changed)
             {
@@ -1360,9 +1359,7 @@ namespace Pumkin.AvatarTools
             {
                 DrawEditingViewpointGUI();
             }
-
-            if(lockSelectedCameraToSceneView && SelectedCamera)
-                SelectedCamera.transform.SetPositionAndRotation(SceneView.lastActiveSceneView.camera.transform.position, SceneView.lastActiveSceneView.camera.transform.rotation);
+            
             if(DrawingHandlesGUI)
                 _PumkinsAvatarToolsWindow.RequestRepaint(this);
         }
@@ -2469,7 +2466,8 @@ namespace Pumkin.AvatarTools
 
         public void DrawThumbnailCameraGUI()
         {
-            SelectedCamera = EditorGUILayout.ObjectField(Strings.Thumbnails.selectedCamera, SelectedCamera, typeof(Camera), true) as Camera;
+            //TODO: Make it so camera isn't being searched for every frame in the property
+            SelectedCamera = EditorGUILayout.ObjectField(Strings.Thumbnails.selectedCamera, SelectedCamera, typeof(Camera), true) as Camera;            
 
             Helpers.DrawGUILine();
 
@@ -3321,23 +3319,22 @@ namespace Pumkin.AvatarTools
         /// </summary>
         public void DrawBackgroundGUI()
         {
-            if(!SelectedCamera)
-                return;
-
             bool needsRefresh = false;
             RawImage raw = _cameraBackgroundImage; //GetCameraBackgroundRawImage(false);
             GameObject background = _cameraBackground; //GetCameraBackground();
-            
+
+            EditorGUI.BeginDisabledGroup(!_selectedCamera);
             if(Helpers.DrawDropdownWithToggle(ref _thumbnails_useCameraBackground_expand, ref bThumbnails_use_camera_background, Strings.Thumbnails.useCameraBackground))
             {
                 RefreshBackgroundOverrideType();
                 needsRefresh = true;
 
-                if(bThumbnails_use_camera_background)
+                if(bThumbnails_use_camera_background && _selectedCamera)
                     _thumbsCameraBgClearFlagsOld = SelectedCamera.clearFlags;
                 else
                     RestoreCameraClearFlags();
             }
+            EditorGUI.EndDisabledGroup();
 
             if(bThumbnails_use_camera_background)
             {
@@ -3345,7 +3342,7 @@ namespace Pumkin.AvatarTools
                 background = GetCameraBackground(true);
                 if(cameraBackgroundType == PumkinsCameraPreset.CameraBackgroundOverrideType.Image)
                 {
-                    if(raw.texture && !background.activeInHierarchy)
+                    if(_selectedCamera && raw.texture && !background.activeInHierarchy)
                         background.SetActive(true);
                     else if(!raw.texture && background.activeInHierarchy)
                         background.SetActive(false);
@@ -3409,7 +3406,7 @@ namespace Pumkin.AvatarTools
                         break;
                         case PumkinsCameraPreset.CameraBackgroundOverrideType.Image:
                         {
-                            if(bThumbnails_use_camera_background)
+                            if(bThumbnails_use_camera_background && _selectedCamera)
                                 SelectedCamera.clearFlags = _thumbsCameraBgClearFlagsOld;
 
                             EditorGUILayout.Space();
@@ -3465,6 +3462,7 @@ namespace Pumkin.AvatarTools
             RawImage raw = _cameraOverlayImage; //GetCameraOverlayRawImage(false);
             GameObject overlay = _cameraOverlay; //GetCameraOverlay(false);
 
+            EditorGUI.BeginDisabledGroup(!_selectedCamera);
             if(Helpers.DrawDropdownWithToggle(ref _thumbnails_useCameraOverlay_expand, ref bThumbnails_use_camera_overlay, Strings.Thumbnails.useCameraOverlay))
             {
                 if(cameraOverlayTexture == null && !string.IsNullOrEmpty(_overlayPath))
@@ -3472,12 +3470,13 @@ namespace Pumkin.AvatarTools
 
                 needsRefresh = true;
             }
+            EditorGUI.EndDisabledGroup();
 
             if(bThumbnails_use_camera_overlay)
             {
                 raw = GetCameraOverlayRawImage(true);
                 overlay = GetCameraOverlay(true);
-                if(raw.texture)
+                if(_selectedCamera && raw.texture)
                 {
                     if(!overlay.activeInHierarchy)
                         overlay.SetActive(true);
@@ -3676,6 +3675,9 @@ namespace Pumkin.AvatarTools
             {
                 img.color = cameraOverlayImageTint;
                 img.texture = newTexture;
+                if(img.canvas)
+                    img.canvas.worldCamera = SelectedCamera;
+                
                 if(newTexture)
                     fg.SetActive(true);
                 else
@@ -3717,6 +3719,9 @@ namespace Pumkin.AvatarTools
             {
                 img.color = cameraBackgroundImageTint;
                 img.texture = newTexture;
+                if(img.canvas)
+                    img.canvas.worldCamera = SelectedCamera;
+                
                 if(newTexture)
                     bg.SetActive(true);
                 else
