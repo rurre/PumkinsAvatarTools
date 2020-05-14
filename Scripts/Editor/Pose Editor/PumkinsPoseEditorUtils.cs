@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Pumkin.PoseEditor
 {
-    public class PumkinsMuscleEditorUtils
+    public class PumkinsPoseEditorUtils
     {
         public static void HandleClickSelection(GameObject gameObject, Event evt)
         {

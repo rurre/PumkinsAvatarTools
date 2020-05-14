@@ -2,6 +2,7 @@
 using Pumkin.DataStructures;
 using Pumkin.Dependencies;
 using Pumkin.HelperFunctions;
+using Pumkin.PoseEditor;
 using System;
 using UnityEditor;
 using UnityEngine;
@@ -13,7 +14,8 @@ namespace Pumkin.Presets
     public class PumkinsCameraPreset : PumkinPreset
     {
         public enum CameraOffsetMode { Viewpoint, AvatarRoot, Transform };
-        
+        public enum CameraBackgroundOverrideType { Color, Skybox, Image };
+
         public CameraOffsetMode offsetMode = CameraOffsetMode.Viewpoint;
         public Vector3 positionOffset = Vector3.zero;
         public Vector3 rotationAnglesOffset = Vector3.zero;
@@ -24,7 +26,7 @@ namespace Pumkin.Presets
         public Color overlayImageTint = Color.white;
 
         public bool useBackground = false;
-        public PumkinsAvatarTools.CameraBackgroundOverrideType backgroundType = PumkinsAvatarTools.CameraBackgroundOverrideType.Color;
+        public CameraBackgroundOverrideType backgroundType = CameraBackgroundOverrideType.Color;
         public Color backgroundColor = Color.white;
 
         public string backgroundImagePath = "";
@@ -43,7 +45,9 @@ namespace Pumkin.Presets
             if(!cam || !avatar)
                 return false;
             
-            Undo.RegisterFullObjectHierarchyUndo(cam.gameObject, "Apply Camera Preset");                 
+            Undo.RegisterFullObjectHierarchyUndo(cam.gameObject, "Apply Camera Preset");
+
+            Helpers.FixCameraClippingPlanes(cam);
 
             Transform dummy = null;
             try
@@ -103,20 +107,20 @@ namespace Pumkin.Presets
                 PumkinsAvatarTools.Instance.cameraBackgroundType = backgroundType;
                 switch(backgroundType)
                 {
-                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Color:                        
+                    case CameraBackgroundOverrideType.Color:                        
                         PumkinsAvatarTools.Instance.SetCameraBackgroundToColor(backgroundColor);
                         break;
-                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Image:
+                    case CameraBackgroundOverrideType.Image:
                         PumkinsAvatarTools.Instance.cameraBackgroundImageTint = backgroundImageTint;
                         PumkinsAvatarTools.Instance.SetBackgroundToImageFromPath(backgroundImagePath);
                         break;
-                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Skybox:
+                    case CameraBackgroundOverrideType.Skybox:
                         PumkinsAvatarTools.Instance.SetCameraBackgroundToSkybox(backgroundMaterial);
                         break;
                     default:                        
                         break;
                 }
-            }
+            }            
 
             PumkinsAvatarTools.Instance.RefreshBackgroundOverrideType();
 
@@ -161,14 +165,14 @@ namespace Pumkin.Presets
             {
                 switch(p.backgroundType)
                 {
-                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Color:
+                    case CameraBackgroundOverrideType.Color:
                         p.backgroundColor = PumkinsAvatarTools.Instance._thumbsCamBgColor;
                         break;
-                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Image:
+                    case CameraBackgroundOverrideType.Image:
                         p.backgroundImagePath = PumkinsAvatarTools.Instance._backgroundPath;
                         p.backgroundImageTint = PumkinsAvatarTools.Instance.cameraBackgroundImageTint;
                         break;
-                    case PumkinsAvatarTools.CameraBackgroundOverrideType.Skybox:
+                    case CameraBackgroundOverrideType.Skybox:
                         p.backgroundMaterial = RenderSettings.skybox;
                         break;
                     default:

@@ -2,6 +2,7 @@
 using Pumkin.DataStructures;
 using Pumkin.Extensions;
 using Pumkin.HelperFunctions;
+using Pumkin.Presets;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,24 +12,27 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Animations;
 using VRC.Core;
 using VRC.SDKBase;
 
 namespace Pumkin.HelperFunctions
 {
     public static class Helpers
-    {
+    {        
         #region GUI
 
         /// <summary>
-        /// Completely arbitrarely try to guess the width of a text string. For now
+        /// Completely arbitrarely try to guess the width of a text string. 
+        /// TODO: replace with something that actually works
         /// </summary>        
         public static float CalculateTextWidth(string text, GUIStyle style = null)
         {
             if(style == null)
                 style = new GUIStyle("label");
 
-            return text.Length * style.font.fontSize * 0.9f;
+            float arbitrary = text.Length > 10 ? 0.9f : 1;
+            return text.Length * arbitrary * style.font.fontSize;
         }
 
         public static void DrawGUILine(float height = 1f, bool spacedOut = true)
@@ -313,6 +317,11 @@ namespace Pumkin.HelperFunctions
                 UnityEngine.Object.DestroyImmediate(obj, allowDestroyingAssets);
         }
 
+        public static float WrapToRange(float num, float min, float max)
+        {
+            return num = ((num - min) % (max - min)) + min;
+        }
+
         public static void DrawBlendshapeSlidersWithLabels(ref List<PumkinsRendererBlendshapesHolder> rendererHolders, GameObject avatar, int indentLevel = 0, float labelWidthOverride = 0)
         {
             if(rendererHolders == null || avatar == null)
@@ -430,8 +439,8 @@ namespace Pumkin.HelperFunctions
                 }
             }
 
-            if(rendererHolders.Count > 0)
-                Helpers.DrawGUILine();
+            //if(rendererHolders.Count > 0)
+                //DrawGUILine();
 
             EditorGUI.indentLevel -= indentLevel;
         }
@@ -677,6 +686,7 @@ namespace Pumkin.HelperFunctions
             }
             catch(Exception e)
             {
+                Debug.LogError(e.Message);
                 result = default;
             }
             return result;
@@ -746,42 +756,22 @@ namespace Pumkin.HelperFunctions
 
         public static bool JointsAreIdentical(Joint j1, Joint j2)
         {
-            throw new NotImplementedException();
-
+            return false;
             //if(j1 == null && j2 == null)
             //    return true;
             //else if(j1.GetType() != j2.GetType())
-            //    return false;            
+            //    return false;
 
-            //if(j1 is FixedJoint)
-            //{
-            //    var j = (FixedJoint)j1;
-            //    var jj = (FixedJoint)j2;                
-            //}
+            //var j1Body = j1.connectedBody;
+            //var j1BodyTrans = j1Body.transform;
+            
+            //var j2BodyTrans = FindTransformInAnotherHierarchy(j1.transform, j2.transform.root, false);
+            //var j2Body = j2BodyTrans.GetComponent<Rigidbody>();
 
-            //if(j1 is HingeJoint)
-            //{
-            //    var j = (HingeJoint)j1;
-            //    var jj = (HingeJoint)j2;
-            //}
-
-            //if(j1 is SpringJoint)
-            //{
-            //    var j = (SpringJoint)j1;
-            //    var jj = (SpringJoint)j2;
-            //}
-
-            //if(j1 is CharacterJoint)
-            //{
-            //    var j = (CharacterJoint)j1;
-            //    var jj = (CharacterJoint)j2;
-            //}
-
-            //if(j1 is ConfigurableJoint)
-            //{
-            //    var j = (ConfigurableJoint)j1;
-            //    var jj = (ConfigurableJoint)j2;
-            //}            
+            //if(!j1BodyTrans || !j2BodyTrans)
+            //    return false;
+            
+            //return true;
         }
 
         public static bool CollidersAreIdentical(Collider col1, Collider col2)
@@ -880,11 +870,8 @@ namespace Pumkin.HelperFunctions
 
             string tPath = GetGameObjectPath(t.gameObject);
 
-#if UNITY_2017
-            var pref = PrefabUtility.GetPrefabParent(t.root.gameObject) as GameObject;
-#else
 			var pref = PrefabUtility.GetCorrespondingObjectFromSource(t.root.gameObject) as GameObject;
-#endif
+
             if(!pref)
                 return false;
 
@@ -1046,9 +1033,9 @@ namespace Pumkin.HelperFunctions
         }
 
         /// <summary>
-        /// Looks for object in another object's child hierarchy. Can create if missing.
+        /// Looks for transform in another transform's child hierarchy. Can create if missing.
         /// </summary>                
-        /// <returns>Transform of found object</returns>
+        /// <returns>Found or created transform</returns>
         public static Transform FindTransformInAnotherHierarchy(Transform trans, Transform otherHierarchyTrans, bool createIfMissing)
         {
             if(!trans || !otherHierarchyTrans)
@@ -1154,24 +1141,48 @@ namespace Pumkin.HelperFunctions
             return null;
         }
 
+        public static string ReplaceGUIDInLine(string line, string newGUID, out bool replaced)
+        {
+            replaced = false;
+
+            string search = "guid: ";
+            int guidStart = line.IndexOf(search) + search.Length;
+            int guidEnd = line.IndexOf(',', guidStart);
+            var lineArr = line.ToCharArray();
+            int copyIndex = 0;
+            for(int i = guidStart; i < guidEnd; i++)
+            {
+                if(!replaced && lineArr[i] != newGUID[copyIndex])
+                    replaced = true;
+
+                lineArr[i] = newGUID[copyIndex];
+                copyIndex++;
+            }            
+            return new string(lineArr);
+        }
+
         public static Vector3 GetViewpointAtEyeLevel(Animator anim)
         {
             Vector3 view = PumkinsAvatarTools.DEFAULT_VIEWPOINT;
             if(anim && anim.isHuman)
             {
-                view = anim.GetBoneTransform(HumanBodyBones.Head).position;
-                float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y - 0.005f;
+                view = anim.GetBoneTransform(HumanBodyBones.Head).position - anim.transform.position;
+                float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y - 0.005f - anim.transform.position.y;
                 view.y = eyeHeight;
                 view.z = PumkinsAvatarTools.DEFAULT_VIEWPOINT.z - 0.1f;
-            }
-            return view;
+            }            
+            return RoundVectorValues(view, 3);
         }
 
         public static bool IsAssetInAssets(UnityEngine.Object obj)
         {
             string path = AssetDatabase.GetAssetPath(obj);
-            bool flag = !string.IsNullOrEmpty(path);
-            return flag;
+            if(string.IsNullOrEmpty(path))
+                return false;
+            
+            if(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path) != null)            
+                return true;
+            return false;
         }
 
         public static bool DestroyMissingScriptsInGameObject(GameObject obj)
@@ -1193,6 +1204,84 @@ namespace Pumkin.HelperFunctions
                 found = true;
             }
             return found;
+        }
+
+        /// <summary>
+        /// Checks whether constraint has any valid sources
+        /// </summary>        
+        /// <returns>Returns false if no valid source transforms in constraint</returns>
+        internal static bool ConstraintHasValidSources(IConstraint constraint)
+        {
+            var src = new List<ConstraintSource>(); 
+            constraint.GetSources(src);
+
+            foreach(var c in src)            
+                if(c.sourceTransform)
+                    return true;
+            
+            return false;
+        }
+
+        public static string NormalizePath(string path)
+        {
+            return Path.GetFullPath(new Uri(path).LocalPath)
+                       .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                       .ToUpperInvariant();
+        }
+
+        public static bool PathsAreEqual(string path, string other)
+        {
+            if(string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(other))
+                return false;
+
+            return NormalizePath(path) == NormalizePath(other);
+        }
+
+        public static string AbsolutePathToLocalAssetsPath(string path)
+        {
+            if(path.StartsWith(Application.dataPath))
+                path = "Assets" + path.Substring(Application.dataPath.Length);
+            return path;
+        }
+
+        public static string LocalAssetsPathToAbsolutePath(string localPath)
+        {
+            localPath = NormalizePathSlashes(localPath);
+            const string assets = "Assets/";
+            if(localPath.StartsWith(assets))
+            {
+                localPath = localPath.Remove(0, assets.Length);
+                localPath = $"{Application.dataPath}/{localPath}";
+            }
+            return localPath;
+        }
+
+        public static string NormalizePathSlashes(string path)
+        {
+            if(!string.IsNullOrEmpty(path))
+                path = path.Replace('\\', '/');
+            return path;
+        }
+
+        public static void SelectAndPing(UnityEngine.Object obj)
+        {
+            if(obj == null)
+                return;
+
+            Selection.activeObject = obj;
+            EditorGUIUtility.PingObject(obj);
+        }
+
+        public static void SelectAndPing(string assetPath)
+        {
+            if(StringIsNullOrWhiteSpace(assetPath))
+                return;
+
+            if(assetPath[assetPath.Length - 1] == '/')
+                assetPath = assetPath.Substring(0, assetPath.Length - 1);
+            
+            UnityEngine.Object obj = AssetDatabase.LoadAssetAtPath(assetPath, typeof(UnityEngine.Object));
+            SelectAndPing(obj);
         }
     }    
 }

@@ -17,6 +17,56 @@ using VRCSDK2.Validation.Performance.Stats;
 
 namespace Pumkin.DataStructures
 {
+    public static class CopierTabs
+    {
+        public enum Tab { Common, All };    //All needs to be last
+        static readonly Dictionary<Tab, string[]> Tabs = new Dictionary<Tab, string[]>()
+        {
+            { 
+                Tab.Common, 
+                new string[] //Initially lowercase to avoid having to cast them every time
+                {                    
+                    "dynamicbone",
+                    "dynamicbonecollider",                    
+                    "vrc_avatardescriptor",
+                    "skinnedmeshrenderer",
+                    "meshrenderer",
+                    "particlesystem",
+                    "audiosource",
+                    "trailrenderer",
+                    "light",
+                }
+            }
+        };
+
+        public static Tab GetComponentTab<T>()
+        {
+            return GetComponentTab(typeof(T).Name);
+        }
+
+        public static Tab GetComponentTab(string typeName)
+        {
+            foreach(var tab in Tabs)            
+                if(tab.Value.Contains(typeName))
+                    return tab.Key;
+            
+            return Tab.All;
+        }
+
+        public static bool ComponentIsInSelectedTab<T>(Tab selectedTab)
+        {
+            return ComponentIsInSelectedTab(typeof(T).Name.ToLower(), selectedTab);
+        }
+
+        public static bool ComponentIsInSelectedTab(string componentName, Tab selectedTab)
+        {
+            var tb = GetComponentTab(componentName);
+            if(selectedTab >= tb)
+                return true;
+            return false;
+        }
+    }    
+
     public class ExtensionPair
     {
         public string name;
@@ -39,7 +89,7 @@ namespace Pumkin.DataStructures
     {        
         static Dictionary<Type, ExtensionPair> Extensions { get; set; } = new Dictionary<Type, ExtensionPair>()
         {
-            { typeof(PumkinsTranslation), new ExtensionPair("Translation", new string[] { "asset" }) },
+            { typeof(PumkinsTranslation), new ExtensionPair("Translation", new string[] { "asset", "preset" }) },
             { typeof(Texture2D), new ExtensionPair("Image", new string[] { "jpg", "png", "jpeg", "tga", "bmp"}) },
             //{ typeof(Texture), new string[] { "jpg", "png", "jpeg", "tga", "bmp"} },            
             //{ typeof(AudioClip), new string[] { "wav"} },            
@@ -50,7 +100,7 @@ namespace Pumkin.DataStructures
             bool found = Extensions.TryGetValue(type, out var pairs);            
             string[] s = { $"{pairs.name}", $"{String.Join(",", pairs.extensions)}"};
             return s;
-        }
+        }        
     }
 
     public static class Colors
@@ -96,15 +146,21 @@ namespace Pumkin.DataStructures
         public static GUIStyle TextField { get; internal set; }
         public static GUIStyle IconLabel { get; internal set; }
         public static GUIStyle ButtonWithToggle { get; internal set; }
+        public static GUIStyle Button { get; internal set; }
 
         static Styles()
         {
-            BigButton = new GUIStyle("Button")
-            {
-                fixedHeight = 28f,
-                stretchHeight = false,
-                stretchWidth = true,
-            };
+            Reload();
+        }
+
+        static void Reload()
+        {
+            CopierToggle = new GUIStyle("Toggle");
+            Popup = new GUIStyle("Popup");
+            Foldout = new GUIStyle("Foldout");
+            HelpBox = new GUIStyle("HelpBox");
+            Box = new GUIStyle("box");
+            Button = new GUIStyle("button");
 
             Foldout_title = new GUIStyle("ToolbarDropDown")
             {
@@ -151,17 +207,16 @@ namespace Pumkin.DataStructures
                 padding = new RectOffset(10, 10, 10, 10),
             };
 
+            BigButton = new GUIStyle("Button")
+            {
+                fixedHeight = 28f,
+                stretchHeight = false,
+                stretchWidth = true,
+            };
+
             ToolbarBigButtons = new GUIStyle("button")
             {
                 fixedHeight = 24f,
-            };
-
-            IconLabel = new GUIStyle("label")
-            {
-                fixedWidth = 20f,
-                fixedHeight = 20f,
-                imagePosition = ImagePosition.ImageOnly,
-                padding = new RectOffset(0, 0, 0, 0),
             };
 
             IconButton = new GUIStyle("button")
@@ -172,11 +227,21 @@ namespace Pumkin.DataStructures
                 padding = new RectOffset(0, 0, 0, 0),
             };
 
-            CopierToggle = new GUIStyle("Toggle");
-            Popup = new GUIStyle("Popup");
-            Foldout = new GUIStyle("Foldout");
-            HelpBox = new GUIStyle("HelpBox");
-            Box = new GUIStyle("box");
+            BigIconButton = new GUIStyle(BigButton);
+            BigIconButton.fixedWidth = 40f;
+
+            ButtonWithToggle = new GUIStyle("Button")
+            {
+                fixedHeight = 19
+            };
+
+            IconLabel = new GUIStyle("label")
+            {
+                fixedWidth = 20f,
+                fixedHeight = 20f,
+                imagePosition = ImagePosition.ImageOnly,
+                padding = new RectOffset(0, 0, 0, 0),
+            };
 
             TextField = new GUIStyle("Textfield")
             {
@@ -188,15 +253,7 @@ namespace Pumkin.DataStructures
             {
                 fixedHeight = 19f,
             };
-            LightTextField.normal.textColor = Color.white;
-
-            BigIconButton = new GUIStyle(BigButton);
-            BigIconButton.fixedWidth = 40f;
-
-            ButtonWithToggle = new GUIStyle("Button")
-            {
-                fixedHeight = 19
-            };
+            LightTextField.normal.textColor = Color.white;            
         }
     }
 
@@ -231,40 +288,15 @@ namespace Pumkin.DataStructures
         public static Texture2D GithubIcon { get; internal set; }
         public static Texture2D KofiIcon { get; internal set; }
         public static Texture2D Refresh { get; internal set; }
+        public static Texture2D AimConstraint { get; internal set; }
+        public static Texture2D LookAtConstraint { get; internal set; }
+        public static Texture2D ParentConstraint { get; internal set; }
+        public static Texture2D PositionConstraint { get; internal set; }
+        public static Texture2D RotationConstraint { get; internal set; }
+        public static Texture2D ScaleConstraint { get; internal set; }
 
         static Icons()
         {
-#if UNITY_2017
-            Star = EditorGUIUtility.FindTexture("Favorite Icon");
-            CsScript = EditorGUIUtility.FindTexture("cs Script Icon");
-            Transform = EditorGUIUtility.FindTexture("Transform Icon");
-            Avatar = EditorGUIUtility.FindTexture("Avatar Icon");
-            SkinnedMeshRenderer = EditorGUIUtility.FindTexture("SkinnedMeshRenderer Icon");
-            ColliderBox = EditorGUIUtility.FindTexture("BoxCollider Icon");
-            DefaultAsset = EditorGUIUtility.FindTexture("DefaultAsset Icon");
-            Help = EditorGUIUtility.FindTexture("_Help");
-            ParticleSystem = EditorGUIUtility.FindTexture("ParticleSystem Icon");
-            RigidBody = EditorGUIUtility.FindTexture("Rigidbody Icon");
-            Prefab = EditorGUIUtility.FindTexture("Prefab Icon");
-            TrailRenderer = EditorGUIUtility.FindTexture("TrailRenderer Icon");
-            MeshRenderer = EditorGUIUtility.FindTexture("MeshRenderer Icon");
-            Light = EditorGUIUtility.FindTexture("Light Icon");
-            Animator = EditorGUIUtility.FindTexture("Animator Icon");
-            AudioSource = EditorGUIUtility.FindTexture("AudioSource Icon");
-            Joint = EditorGUIUtility.FindTexture("FixedJoint Icon");
-            Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");            
-            Delete = EditorGUIUtility.FindTexture("TreeEditor.Trash");
-            ToggleOff = EditorGUIUtility.FindTexture("toggle");
-            ToggleOn = EditorGUIUtility.FindTexture("toggle on");
-            SerializableAsset = EditorGUIUtility.FindTexture("BillboardAsset Icon");
-
-            Settings = Resources.Load("icons/settings-icon") as Texture2D ?? EditorGUIUtility.FindTexture("ClothInspector.SettingsTool");
-            BoneIcon = Resources.Load("icons/bone-icon") as Texture2D ?? CsScript;
-            BoneColliderIcon = Resources.Load("icons/bonecollider-icon") as Texture2D ?? DefaultAsset;
-            DiscordIcon = Resources.Load("icons/discord-logo") as Texture2D ?? Star;
-            GithubIcon = Resources.Load("icons/github-logo") as Texture2D ?? Star;
-            KofiIcon = Resources.Load("icons/kofi-logo") as Texture2D ?? Star;
-#else
             Star = (Texture2D)EditorGUIUtility.IconContent("Favorite Icon").image;
             CsScript = (Texture2D)EditorGUIUtility.IconContent("cs Script Icon").image;
             Transform = (Texture2D)EditorGUIUtility.IconContent("Transform Icon").image;
@@ -287,6 +319,12 @@ namespace Pumkin.DataStructures
             ToggleOff = (Texture2D)EditorGUIUtility.IconContent("Toggle").image;
             ToggleOn = (Texture2D)EditorGUIUtility.IconContent("Toggle On").image;
             SerializableAsset = (Texture2D)EditorGUIUtility.IconContent("BillboardAsset Icon").image;
+            AimConstraint = (Texture2D)EditorGUIUtility.IconContent("AimConstraint Icon").image;
+            LookAtConstraint = (Texture2D)EditorGUIUtility.IconContent("LookAtConstraint Icon").image;
+            ParentConstraint = (Texture2D)EditorGUIUtility.IconContent("ParentConstraint Icon").image;
+            PositionConstraint = (Texture2D)EditorGUIUtility.IconContent("PositionConstraint Icon").image;
+            RotationConstraint = (Texture2D)EditorGUIUtility.IconContent("RotationConstraint Icon").image;
+            ScaleConstraint = (Texture2D)EditorGUIUtility.IconContent("ScaleConstraint Icon").image;
 
             Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");
 
@@ -295,7 +333,6 @@ namespace Pumkin.DataStructures
             DiscordIcon = Resources.Load("icons/discord-logo") as Texture2D ?? Star;
             GithubIcon = Resources.Load("icons/github-logo") as Texture2D ?? Star;
             KofiIcon = Resources.Load("icons/kofi-logo") as Texture2D ?? Star;
-#endif
         }
 
     }    

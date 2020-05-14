@@ -10,10 +10,15 @@ using Pumkin.AvatarTools;
 using System.IO;
 using UnityEditor.Presets;
 using Pumkin.HelperFunctions;
+using Pumkin.Dependencies;
+using Pumkin.YAML;
 
 public static class PumkinsLanguageManager
 {    
-    public static readonly string translationsPath = "Translations/";
+    static readonly string resourceTranslationPath = "Translations/";
+    public static readonly string translationPath = PumkinsAvatarTools.ResourceFolderPath + '/' + resourceTranslationPath;        
+    public static readonly string translationPathLocal = PumkinsAvatarTools.ResourceFolderPathLocal + '/' + resourceTranslationPath;
+    
     static List<PumkinsTranslation> _languages = new List<PumkinsTranslation>();    
 
     public static List<PumkinsTranslation> Languages
@@ -26,21 +31,35 @@ public static class PumkinsLanguageManager
         {
             _languages = value;
         }
-    }    
+    }
+
+    static string translationScriptGUID;
     
     public static void LoadTranslations()
-    {        
-        foreach(var lang in Languages)
+    {
+        var guids = AssetDatabase.FindAssets(typeof(PumkinsTranslation).Name);
+        translationScriptGUID = guids[0];
+        
+        var def = PumkinsTranslation.GetOrCreateDefaultTranslation();
+        for(int i = Languages.Count - 1; i >= 0; i--)
         {
+            var lang = Languages[i];
+            if(i == 0 && def.Equals(lang))
+                break;
+
             if(!Helpers.IsAssetInAssets(lang))
-                Helpers.DestroyAppropriate(lang);
+            {
+                Helpers.DestroyAppropriate(lang, true); //careful with allow destroying assets here
+                Languages.RemoveAt(i);
+            }
         }        
 
-        var def = PumkinsTranslation.GetOrCreateDefaultTranslation();
+        LoadTranslationPresets();
+        
         if(Languages.Count == 0 || !def.Equals(Languages[0]))
             Languages.Insert(0, PumkinsTranslation.Default);
 
-        var loaded = Resources.LoadAll<PumkinsTranslation>(translationsPath);
+        var loaded = Resources.LoadAll<PumkinsTranslation>(resourceTranslationPath);
 
         foreach(var l in loaded)
         {
@@ -59,7 +78,35 @@ public static class PumkinsLanguageManager
         }
         langs += " }";
         PumkinsAvatarTools.LogVerbose(langs);
-    }    
+    }
+
+    private static void LoadTranslationPresets()
+    {
+        var pres = Resources.LoadAll<Preset>(resourceTranslationPath);
+        var trans = Resources.LoadAll<PumkinsTranslation>(resourceTranslationPath);
+
+        foreach(var p in pres)
+        {
+            var mods = p.PropertyModifications;
+            string langName = mods.FirstOrDefault(m => m.propertyPath == "languageName").value;
+            string author = mods.FirstOrDefault(m => m.propertyPath == "author").value;
+
+            if(Helpers.StringIsNullOrWhiteSpace(langName) || Helpers.StringIsNullOrWhiteSpace(author))
+            {
+                PumkinsAvatarTools.Log(Strings.Log.invalidTranslation, LogType.Error, p.name);
+                continue;
+            }
+
+            var tr = trans.FirstOrDefault(t => t.author == author && t.languageName == langName);
+            if(tr == default)
+                tr = ScriptableObjectUtility.CreateAndSaveAsset<PumkinsTranslation>("language_" + langName, translationPath);
+
+            if(p.CanBeAppliedTo(tr))
+                p.ApplyTo(tr);
+            else
+                PumkinsAvatarTools.Log(Strings.Log.cantApplyPreset, LogType.Error);
+        }
+    }
 
     public static int GetIndexOfLanguage(string nameAndAuthor)
     {
@@ -120,10 +167,88 @@ public static class PumkinsLanguageManager
         return lang != default(PumkinsTranslation) ? true : false;
     }
 
-    public static void ImportLanguageAsset(string path)
-    {        
-        var lang = Helpers.OpenPathGetFile<PumkinsTranslation>(path, out _);
-        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
-    }    
+    public static void OpenFileImportLanguagePreset()
+    {
+        var filterStrings = ExtensionStrings.GetFilterString(typeof(PumkinsTranslation));
+        string filePath = EditorUtility.OpenFilePanelWithFilters("Pick a Translation", "", filterStrings);
+        var asset = ImportLanguagePreset(filePath);
+
+        if(asset != null)        
+            EditorGUIUtility.PingObject(asset);
+    }
+
+    public static Preset ImportLanguagePreset(string path)
+    {
+        if(Helpers.StringIsNullOrWhiteSpace(path))
+            return null;
+
+        string newPath = translationPath + Path.GetFileName(path);
+
+        bool shouldDelete = false;
+        if(File.Exists(newPath))
+            if(EditorUtility.DisplayDialog(Strings.Warning.warn, Strings.Warning.languageAlreadyExistsOverwrite, Strings.Buttons.ok, Strings.Buttons.cancel))
+                shouldDelete = true;
+
+        if(!Helpers.PathsAreEqual(path, newPath))
+        {
+            if(shouldDelete)
+                File.Delete(newPath);
+            File.Copy(path, newPath);
+        }
+        ReplaceTranslationPresetGUIDTemp(newPath, translationScriptGUID);
+
+        string newPathLocal = Helpers.AbsolutePathToLocalAssetsPath(newPath);
+        AssetDatabase.ImportAsset(newPathLocal);
+
+        LoadTranslations();
+
+        return AssetDatabase.LoadAssetAtPath<Preset>(newPathLocal);
+    }
+
+    /// <summary>
+    /// Doesn't work for now
+    /// </summary>    
+    //static void ReplaceTranslationPresetGUID(string filePath, string newGUID)
+    //{
+    //    using(var readerStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Write))
+    //    using(var reader = new StreamReader(readerStream))
+    //    using(var writerStream = new FileStream(filePath, FileMode.Open, FileAccess.Write, FileShare.Read))
+    //    using(var writer = new StreamWriter(writerStream, reader.CurrentEncoding))
+    //    {
+    //        string line;
+    //        while((line = reader.ReadLine()) != null)
+    //        {                
+    //            if(!line.Contains("m_ManagedTypePPtr"))
+    //                continue;
+
+    //            string search = "guid: ";
+    //            int guidStart = line.IndexOf(search) + search.Length;                    
+    //            line = line.Remove(guidStart) + newGUID + ",";                
+    //            writer.WriteLine(line);
+    //            break;
+    //        }
+    //    }
+    //}
+
+    /// <summary>
+    /// TODO: Replace with one that reads only the needed lines
+    /// </summary>    
+    static void ReplaceTranslationPresetGUIDTemp(string filePath, string newGUID)
+    {
+        bool replaced = false;
+        var lines = File.ReadAllLines(filePath);
+        for(int i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i];
+            
+            if(!line.Contains("m_ManagedTypePPtr"))
+                continue;
+
+            lines[i] = Helpers.ReplaceGUIDInLine(line, newGUID, out replaced);
+            break;
+        }
+        if(replaced)
+            File.WriteAllLines(filePath, lines);
+    }
 }
 

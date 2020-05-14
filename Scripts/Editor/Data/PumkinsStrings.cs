@@ -11,12 +11,8 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-#if PUMKIN_VRCSDK1
-        public const string TOOLS_VERSION_STRING = "0.7.2b - Old SDK";
-#else
-        public const string TOOLS_VERSION_STRING = "0.7.2b - Work in Progress";
-#endif        
-        public const double toolsVersion = 0.72;
+        public const string TOOLS_VERSION_STRING = "0.8b";
+        public const double toolsVersion = 0.8;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.1b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -81,6 +77,7 @@ namespace Pumkin.DataStructures
 
             public static string info = "_Info";
             public static string useSceneSelection = "_Use Scene Selection";
+            public static string experimental = "_Experimental";
 
             static Main()
             {
@@ -103,6 +100,7 @@ namespace Pumkin.DataStructures
                 info = Translation.main.info;
                 thumbnails = Translation.main.thumbnails;
                 useSceneSelection = Translation.main.useSceneSelection;
+                experimental = Translation.main.experimental;
             }
         };
         public static class Buttons
@@ -134,6 +132,7 @@ namespace Pumkin.DataStructures
             public static string savePreset = "_Save Preset";
             public static string selectInAssets = "_Select in Assets";
             public static string openFolder = "_Open Folder";
+            public static string selectFolder = "_Select Folder";
             public static string ok = "_Ok";
 
             static Buttons()
@@ -173,6 +172,7 @@ namespace Pumkin.DataStructures
                 savePreset = Translation.buttons.savePreset;
                 selectInAssets = Translation.buttons.selectInAssets;
                 openFolder = Translation.buttons.openFolder;
+                selectFolder = Translation.buttons.selectFolder;
                 ok = Translation.buttons.ok;
             }
         };
@@ -187,14 +187,18 @@ namespace Pumkin.DataStructures
             public static string editScale = "_Edit Scale";
             public static string autoViewpoint = "_Auto Viewpoint";
             public static string setTPose = "_Force TPose";
-            public static string setRendererAnchors = "_Set Renderer Anchors";
+            public static string setMeshRendererAnchors = "_Set Mesh Renderer Anchors";
+            public static string setSkinnedMeshRendererAnchors = "_Set Skinned Mesh Renderer Anchors";
             public static string viewpointZDepth = "_Z Depth";
             public static string revertScale = "_Revert Scale";
             public static string editScaleMoveViewpoint = "_Move Viewpoint";
-            public static string refreshRig = "_Refresh Rig";
+            public static string refreshSDK = "_Refresh SDK Window";
             public static string enableDynamicBones = "_Enable DynamicBones";
             public static string disableDynamicBones = "_Disable DynamicBones";
             public static string toggleDynamicBones = "_Toggle DynamicBones";
+            public static string fixDynamicBoneScripts = "_Fix Missing DynamicBone Scripts in Prefab";
+            public static string hierarchyPath = "_Hierarchy Path";
+            public static string anchorPath = "_Anchor Path";
 
             static Tools()
             {
@@ -216,13 +220,17 @@ namespace Pumkin.DataStructures
                 autoViewpoint = Translation.tools.autoViewpoint;
                 setTPose = Translation.tools.setTPose;
                 viewpointZDepth = Translation.tools.viewpointZDepth;
-                setRendererAnchors = Translation.tools.setRendererAnchors;
+                setMeshRendererAnchors = Translation.tools.setRendererAnchors;
+                setSkinnedMeshRendererAnchors = Translation.tools.setSkinnedMeshRendererAnchors;
                 revertScale = Translation.tools.revertScale;
                 editScaleMoveViewpoint = Translation.tools.editScaleMoveViewpoint;
-                refreshRig = Translation.tools.refreshRig;                
+                refreshSDK = Translation.tools.refreshSDK;                
                 enableDynamicBones = Translation.tools.enableDynamicBones;
                 disableDynamicBones = Translation.tools.disableDynamicBones;
                 toggleDynamicBones = Translation.tools.toggleDynamicBones;
+                fixDynamicBoneScripts = Translation.tools.fixDynamicBoneScripts;
+                hierarchyPath = Translation.tools.hierarchyPath;
+                anchorPath = Translation.tools.anchorPath;
             }
         };
         public static class AvatarInfo
@@ -316,7 +324,10 @@ namespace Pumkin.DataStructures
             public static string viewpoint = "_Viewpoint";
             public static string applyBodyPosition = "_Apply Body Position";
             public static string applyBodyRotation = "_Apply Body Rotation";
-            public static string lockSelectedCameraToSceneView = "_Lock Selected Camera to Scene View";
+            public static string lockSelectedCameraToSceneView = "_Lock Selected Camera to Scene View";                                    
+            public static string overlayImagePath = "_Overlay Image Path";
+            public static string imagePath = "_Image Path";
+            public static string backgroundColor = "_Background Color";
 
             static Thumbnails()
             {
@@ -354,6 +365,9 @@ namespace Pumkin.DataStructures
                 applyBodyPosition = Translation.thumbnails.applyBodyPosition;
                 applyBodyRotation = Translation.thumbnails.applyBodyRotation;
                 lockSelectedCameraToSceneView = Translation.thumbnails.lockSelectedCameraToSceneView;
+                overlayImagePath = Translation.thumbnails.overlayImagePath;
+                imagePath = Translation.thumbnails.imagePath;
+                backgroundColor = Translation.thumbnails.backgroundColor;
             }
         }
         public static class Copier
@@ -361,7 +375,7 @@ namespace Pumkin.DataStructures
             public static string copyFrom = "_Copy From";
 
             public static string copySettings = "_Settings";
-            public static string createMissing = "_Copy Missing";
+            public static string createMissing = "_Copy Missing Components";
             public static string emptyGameObjects = "_Empty GameObjects";
             public static string replaceOld = "_Replace Old";
 
@@ -372,9 +386,9 @@ namespace Pumkin.DataStructures
             public static string transforms_avatarScale = "_Avatar Scale";
             public static string dynamicBones = "_Dynamic Bones";
             public static string dynamicBones_colliders = "_Dynamic Bone Colliders";
-            public static string dynamicBones_removeOldBones = "_Remove Old Bones";
+            public static string dynamicBones_removeOldBones = "_Remove Old Dynamic Bones";
             public static string dynamicBones_removeOldColliders = "_Remove Old Colliders";
-            public static string dynamicBones_createMissing = "_Copy Missing Bones";
+            public static string dynamicBones_createMissing = "_Create Missing Dynamic Bones";
             public static string colliders = "_Colliders";
             public static string colliders_box = "_Box Colliders";
             public static string colliders_capsule = "_Capsule Colliders";
@@ -403,10 +417,25 @@ namespace Pumkin.DataStructures
             public static string other = "_Other";
             public static string other_ikFollowers = "_IK Followers";            
             public static string other_emptyScripts = "_Empty Scripts";
+            public static string aimConstraints = "_Aim Constraints";
+            public static string lookAtConstraints = "_LookAt Constraints";
+            public static string parentConstraints = "_Parent Constraints";
+            public static string positionConstraints = "_Position Constraints";
+            public static string rotationConstraints = "_Rotation Constraints";
+            public static string scaleConstraints = "_Scale Constraints";
+            public static string onlyIfHasValidSources = "_Only if has Valid Sources";
+            public static string joints_fixed = "_Fixed Joint";
+            public static string joints_hinge = "_Hinge Joint";
+            public static string joints_spring = "_Spring Joint";
+            public static string joints_character = "_Character Joint";
+            public static string joints_configurable = "_Configurable Joint";
+            public static string joints_removeOld = "_Remove Old Joints";
 
             public static string exclusions = "_Exclusions";
             public static string includeChildren = "_Include Children";
-            public static string size = "_Size";            
+            public static string size = "_Size";
+            public static string showCommon = "_Show Common";
+            public static string showAll = "_Show All";
 
             static Copier()
             {
@@ -434,7 +463,7 @@ namespace Pumkin.DataStructures
                 dynamicBones_colliders = Translation.copier.dynamicBones_colliders;
                 dynamicBones_removeOldBones = Translation.copier.dynamicBones_removeOldBones;
                 dynamicBones_removeOldColliders = Translation.copier.dynamicBones_removeOldColliders;
-                dynamicBones_createMissing = Translation.copier.createMissing;
+                dynamicBones_createMissing = Translation.copier.dynamicBones_createMissing;
                 colliders = Translation.copier.colliders;
                 colliders_box = Translation.copier.colliders_box;
                 colliders_capsule = Translation.copier.colliders_capsule;
@@ -463,10 +492,25 @@ namespace Pumkin.DataStructures
                 other = Translation.copier.other;
                 other_ikFollowers = Translation.copier.other_ikFollowers;
                 other_emptyScripts = Translation.copier.other_emptyScripts;
+                aimConstraints = Translation.copier.aimConstraints;
+                lookAtConstraints = Translation.copier.lookAtConstraints;
+                parentConstraints = Translation.copier.parentConstraints;
+                positionConstraints = Translation.copier.positionConstraints;
+                rotationConstraints = Translation.copier.rotationConstraints;
+                scaleConstraints = Translation.copier.scaleConstraints;
+                
+                joints_fixed = Translation.copier.joints_fixed;
+                joints_hinge = Translation.copier.joints_hinge;
+                joints_spring = Translation.copier.joints_spring;
+                joints_character = Translation.copier.joints_character;
+                joints_configurable = Translation.copier.joints_configurable;
+                joints_removeOld = Translation.copier.joints_removeOld;            
 
                 exclusions = Translation.copier.ignoreList;
                 includeChildren = Translation.copier.includeChildren;
                 size = Translation.copier.size;               
+                showCommon = Translation.copier.showCommon;               
+                showAll = Translation.copier.showAll;               
             }
         };
         public static class Log
@@ -493,7 +537,7 @@ namespace Pumkin.DataStructures
             public static string failedDoesntHave = "_Failed: '{0}' doesn't have a '{1}'";
             public static string failedAlreadyHas = "_Failed: '{0}' already has a '{1}'";
             public static string loadedCameraOverlay = "_Loaded '{0}' as Camera Overlay";
-            public static string failedHasNoIgnoring = "_'{0}' has no '{1}', Ignoring.";
+            public static string failedHasNoIgnoring = "_'{0}' has no '{1}', Ignoring";
             public static string settingQuickViewpoint = "_Setting quick Viewpoint to '{0}'";
             public static string cantSetViewpointNonHumanoid = "_Can't set Viewpoint for a non humanoid avatar";
             public static string setAvatarScaleTo = "_Set Avatar scale to '{0}'";
@@ -513,7 +557,14 @@ namespace Pumkin.DataStructures
             public static string descriptorIsMissingCantGetViewpoint = "_Avatar Descriptor is missing. Can't get Viewpoint position";
             public static string hasMissingScriptDestroying = "_{0} has a missing script. Destroying";
             public static string copiedDynamicBone = "_Copied DynamicBone from {0}'s {1} to {2}'s {1}";
-            public static string invalidTranslation = "_Can't load translation asset. Invalid translation";
+            public static string invalidTranslation = "_Translation {0} is invalid";
+            public static string constraintHasNoValidSources = "_{0}'s {1} has no valid sources. Destroying";
+            public static string avatarHasNoPrefab = "_Selected Avatar has no prefab associated with it. Only prefabs can be fixed for now";
+            public static string attemptingToFixDynamicBoneScripts = "_Attempting to fix DynamicBone Scripts";
+            public static string notSelectedInCopierIgnoring = "_{0}'s {1} is not selected in the copier. Ignoring";
+            public static string exitPrefabModeFirst = "_Please exit prefab mode before doing this";
+            public static string transformNotFound = "_Transform at '{0}' not found";
+            public static string cantApplyPreset = "_Can't apply preset";
 
             static Log()
             {
@@ -568,6 +619,13 @@ namespace Pumkin.DataStructures
                 hasMissingScriptDestroying = Translation.log.hasMissingScriptDestroying;
                 copiedDynamicBone = Translation.log.copiedDynamicBone;
                 invalidTranslation = Translation.log.invalidTranslation;
+                constraintHasNoValidSources = Translation.log.constraintHasNoValidSources;
+                avatarHasNoPrefab = Translation.log.avatarHasNoPrefab;
+                attemptingToFixDynamicBoneScripts = Translation.log.attemptingToFixDynamicBoneScripts;
+                notSelectedInCopierIgnoring = Translation.log.notSelectedInCopierIgnoring;
+                exitPrefabModeFirst = Translation.log.exitPrefabModeFirst;
+                transformNotFound = Translation.log.transformNotFound;
+                cantApplyPreset = Translation.log.cantApplyPreset;
             }
         };
         public static class Warning
@@ -583,7 +641,7 @@ namespace Pumkin.DataStructures
             public static string doesntWorkInUnity2017 = "_Doesn't work in Unity 2017 :(";
             public static string armatureScaleNotOne = "_Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
             public static string armatureScalesDontMatch = "_Armature scales for selected avatars don't match!\nThis can cause issues";
-            public static string noDBonesOrMissingScriptDefine = "_No DynamicBones found or missing script define.";
+            public static string noDBonesOrMissingScriptDefine = "_No DynamicBones found or missing script define";
             public static string languageAlreadyExistsOverwrite = "_Language Asset already exists. Overwrite?";
 
             static Warning()
@@ -722,7 +780,7 @@ namespace Pumkin.DataStructures
             public static string offsetMode = "_Offset Mode";
             public static string camera = "_Camera";
             public static string editCameraPreset = "_Edit Camera Preset";
-            public static string createCameraPreset = "_Create Camera Preset";
+            public static string createCameraPreset = "_Create Camera Preset";            
 
             static Presets()
             {
@@ -751,20 +809,20 @@ namespace Pumkin.DataStructures
                 offsetMode = Translation.preset.offsetMode;
                 camera = Translation.preset.camera;
                 editCameraPreset = Translation.preset.editCameraPreset;
-                createCameraPreset = Translation.preset.createCameraPreset;
+                createCameraPreset = Translation.preset.createCameraPreset;                
             }
         }        
         public static class Settings
         {
             public static string uwu = "_uwu";
-            public static string searchForBones = "_Search for DynamicBones";
-            public static string superExperimental = "_Super Experimental Stuff";
+            public static string searchForBones = "_Search for DynamicBones";            
             public static string language = "_Language";
             public static string refresh = "_Refresh";
-            public static string importLanguageAsset = "_Import Language Asset";
+            public static string importLanguage = "_Import Language";
             public static string enableVerboseLogging = "_Enable verbose logging";
             public static string sceneViewOverlayWindowsAtBottom = "_Draw scene view overlays at the bottom";
             public static string misc = "_Misc";
+            public static string showExperimentalMenu = "_Show experimental menu";
 
             static Settings()
             {
@@ -777,14 +835,14 @@ namespace Pumkin.DataStructures
                     return;
 
                 uwu = Translation.misc.uwu;
-                searchForBones = Translation.misc.searchForBones;
-                superExperimental = Translation.misc.superExperimental;
+                searchForBones = Translation.misc.searchForBones;                
                 language = Translation.misc.language;
                 refresh = Translation.misc.refresh;
-                importLanguageAsset = Translation.misc.importLanguageAsset;
+                importLanguage = Translation.misc.importLanguage;
                 enableVerboseLogging = Translation.misc.enableVerboseLogging;
                 sceneViewOverlayWindowsAtBottom = Translation.misc.sceneViewOverlayWindowsAtBottom;
                 misc = Translation.misc.misc;
+                showExperimentalMenu = Translation.misc.showExperimentalMenu;                
             }
         }
     };

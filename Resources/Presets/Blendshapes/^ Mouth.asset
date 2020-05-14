@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65df42acc29efd546902636e201a2390, type: 3}
+  m_Script: {fileID: 11500000, guid: 07d674684c7fea343bce521502a11a57, type: 3}
   m_Name: ^ Mouth
   m_EditorClassIdentifier: 
   name: Examples/^ Mouth

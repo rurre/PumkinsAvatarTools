@@ -1,6 +1,7 @@
 ﻿using Pumkin.HelperFunctions;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -65,7 +66,7 @@ namespace Pumkin.Extensions
                 }
             }
             return t;
-        }
+        }        
 
         public static bool IsSameTexture(this Texture2D first, Texture2D second)
         {
@@ -167,7 +168,6 @@ namespace Pumkin.Extensions
             }
             catch { }            
             return null;
-        }
-
+        }        
     }    
 }

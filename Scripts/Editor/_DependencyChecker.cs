@@ -154,7 +154,7 @@ namespace Pumkin.DependencyChecker
             return null;
         }
 
-        public static string GetRelativePath(string path)
+        static string GetRelativePath(string path)
         {            
             if(path.StartsWith(Application.dataPath))            
                 path = "Assets" + path.Substring(Application.dataPath.Length);            
