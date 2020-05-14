@@ -54,7 +54,7 @@ public static class PumkinsLanguageManager
             }
         }        
 
-        LoadTranslationPresets();
+        //LoadTranslationPresets();
         
         if(Languages.Count == 0 || !def.Equals(Languages[0]))
             Languages.Insert(0, PumkinsTranslation.Default);
@@ -82,10 +82,10 @@ public static class PumkinsLanguageManager
 
     private static void LoadTranslationPresets()
     {
-        var pres = Resources.LoadAll<Preset>(resourceTranslationPath);
-        var trans = Resources.LoadAll<PumkinsTranslation>(resourceTranslationPath);
+        var presets = Resources.LoadAll<Preset>(resourceTranslationPath);
+        var translations = Resources.LoadAll<PumkinsTranslation>(resourceTranslationPath);
 
-        foreach(var p in pres)
+        foreach(var p in presets)
         {
             var mods = p.PropertyModifications;
             string langName = mods.FirstOrDefault(m => m.propertyPath == "languageName").value;
@@ -97,7 +97,7 @@ public static class PumkinsLanguageManager
                 continue;
             }
 
-            var tr = trans.FirstOrDefault(t => t.author == author && t.languageName == langName);
+            var tr = translations.FirstOrDefault(t => t.author == author && t.languageName == langName);
             if(tr == default)
                 tr = ScriptableObjectUtility.CreateAndSaveAsset<PumkinsTranslation>("language_" + langName, translationPath);
 
