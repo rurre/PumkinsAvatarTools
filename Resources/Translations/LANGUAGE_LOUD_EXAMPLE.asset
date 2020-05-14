@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c9c0b4a90f2c8b4eb666c744e4a7737, type: 3}
+  m_Script: {fileID: 11500000, guid: cc94f2e7f78c3564384d86193c77f172, type: 3}
   m_Name: LANGUAGE_LOUD_EXAMPLE
   m_EditorClassIdentifier: 
   languageName: LOUD ENGLISH

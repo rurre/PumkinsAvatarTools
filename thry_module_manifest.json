@@ -2,7 +2,7 @@
     "name": "Pumkin's Avatar Tools",
     "description": "A set of tools to help you setup avatars easier.\nIncludes a component copier and tools to make thumbnails.\nTo launch the tools go to Tools > Pumkin > Avatar Tools.",
     "classname": "Pumkin.AvatarTools.PumkinsAvatarTools",
-    "version": 0.80,
+    "version": 0.8,
     "requirement": {
         "type": "VRC_SDK_VERSION",
         "data": ">=0.0"
@@ -38,8 +38,8 @@
         "Resources/Presets/Poses/Talking.asset",
         "Resources/ScaleRuler/lineup_prefab.prefab",
         "Resources/ScaleRuler/lineup_wall.fbx",
-        "Resources/ScaleRuler/lineup_wall_material.mat",        
-        "Resources/Translations/LANGUAGE_LOUD_EXAMPLE.asset",        
+        "Resources/ScaleRuler/lineup_wall_material.mat",
+        "Resources/Translations/LANGUAGE_LOUD_EXAMPLE.asset",
         "Resources/Translations/language_中文.asset",
         "Scripts/Dependencies/SingletonScriptableObject.cs",
         "Scripts/Dependencies/Editor/EditorCoroutine.cs",
