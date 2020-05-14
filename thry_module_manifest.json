@@ -39,7 +39,7 @@
         "Resources/ScaleRuler/lineup_prefab.prefab",
         "Resources/ScaleRuler/lineup_wall.fbx",
         "Resources/ScaleRuler/lineup_wall_material.mat",        
-        "Resources/Translations/language_LOUD ENGLISH.asset",        
+        "Resources/Translations/LANGUAGE_LOUD_EXAMPLE.asset",        
         "Resources/Translations/language_中文.asset",
         "Scripts/Dependencies/SingletonScriptableObject.cs",
         "Scripts/Dependencies/Editor/EditorCoroutine.cs",
