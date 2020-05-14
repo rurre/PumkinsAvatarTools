@@ -14,17 +14,17 @@ using Pumkin.Dependencies;
 using Pumkin.YAML;
 
 public static class PumkinsLanguageManager
-{    
+{
     static readonly string resourceTranslationPath = "Translations/";
-    public static readonly string translationPath = PumkinsAvatarTools.ResourceFolderPath + '/' + resourceTranslationPath;        
+    public static readonly string translationPath = PumkinsAvatarTools.ResourceFolderPath + '/' + resourceTranslationPath;
     public static readonly string translationPathLocal = PumkinsAvatarTools.ResourceFolderPathLocal + '/' + resourceTranslationPath;
-    
-    static List<PumkinsTranslation> _languages = new List<PumkinsTranslation>();    
+
+    static List<PumkinsTranslation> _languages = new List<PumkinsTranslation>();
 
     public static List<PumkinsTranslation> Languages
     {
         get
-        {            
+        {
             return _languages;
         }
         private set
@@ -34,12 +34,12 @@ public static class PumkinsLanguageManager
     }
 
     static string translationScriptGUID;
-    
+
     public static void LoadTranslations()
     {
         var guids = AssetDatabase.FindAssets(typeof(PumkinsTranslation).Name);
         translationScriptGUID = guids[0];
-        
+
         var def = PumkinsTranslation.GetOrCreateDefaultTranslation();
         for(int i = Languages.Count - 1; i >= 0; i--)
         {
@@ -52,10 +52,11 @@ public static class PumkinsLanguageManager
                 Helpers.DestroyAppropriate(lang, true); //careful with allow destroying assets here
                 Languages.RemoveAt(i);
             }
-        }        
+        }
 
         //LoadTranslationPresets();
-        
+        FixTranslationAssets();
+
         if(Languages.Count == 0 || !def.Equals(Languages[0]))
             Languages.Insert(0, PumkinsTranslation.Default);
 
@@ -122,7 +123,7 @@ public static class PumkinsLanguageManager
     {
         string s = nameAndAuthor.ToLower();
         return Languages.FirstOrDefault(o => o.ToString().ToLower() == s);
-    }    
+    }
 
     public static void SetLanguage(PumkinsTranslation translationFile)
     {
@@ -154,14 +155,14 @@ public static class PumkinsLanguageManager
 
     public static bool LanguageExists(PumkinsTranslation translation)
     {
-        if (translation == null)
+        if(translation == null)
             return false;
         return LanguageExists(translation.languageName, translation.author);
     }
 
     public static bool LanguageExists(string languageName, string author)
     {
-        if (Helpers.StringIsNullOrWhiteSpace(languageName) || Helpers.StringIsNullOrWhiteSpace(author))
+        if(Helpers.StringIsNullOrWhiteSpace(languageName) || Helpers.StringIsNullOrWhiteSpace(author))
             return false;
         var lang = Languages.FirstOrDefault(l => (l.author == author) && (l.languageName == languageName));
         return lang != default(PumkinsTranslation) ? true : false;
@@ -173,7 +174,7 @@ public static class PumkinsLanguageManager
         string filePath = EditorUtility.OpenFilePanelWithFilters("Pick a Translation", "", filterStrings);
         var asset = ImportLanguagePreset(filePath);
 
-        if(asset != null)        
+        if(asset != null)
             EditorGUIUtility.PingObject(asset);
     }
 
@@ -195,7 +196,7 @@ public static class PumkinsLanguageManager
                 File.Delete(newPath);
             File.Copy(path, newPath);
         }
-        ReplaceTranslationPresetGUIDTemp(newPath, translationScriptGUID);
+        ReplaceTranslationGUIDTemp(newPath, "m_ManagedTypePPtr", translationScriptGUID);
 
         string newPathLocal = Helpers.AbsolutePathToLocalAssetsPath(newPath);
         AssetDatabase.ImportAsset(newPathLocal);
@@ -206,42 +207,17 @@ public static class PumkinsLanguageManager
     }
 
     /// <summary>
-    /// Doesn't work for now
-    /// </summary>    
-    //static void ReplaceTranslationPresetGUID(string filePath, string newGUID)
-    //{
-    //    using(var readerStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Write))
-    //    using(var reader = new StreamReader(readerStream))
-    //    using(var writerStream = new FileStream(filePath, FileMode.Open, FileAccess.Write, FileShare.Read))
-    //    using(var writer = new StreamWriter(writerStream, reader.CurrentEncoding))
-    //    {
-    //        string line;
-    //        while((line = reader.ReadLine()) != null)
-    //        {                
-    //            if(!line.Contains("m_ManagedTypePPtr"))
-    //                continue;
-
-    //            string search = "guid: ";
-    //            int guidStart = line.IndexOf(search) + search.Length;                    
-    //            line = line.Remove(guidStart) + newGUID + ",";                
-    //            writer.WriteLine(line);
-    //            break;
-    //        }
-    //    }
-    //}
-
-    /// <summary>
     /// TODO: Replace with one that reads only the needed lines
     /// </summary>    
-    static void ReplaceTranslationPresetGUIDTemp(string filePath, string newGUID)
+    static bool ReplaceTranslationGUIDTemp(string filePath, string lineIdentifier, string newGUID)
     {
         bool replaced = false;
         var lines = File.ReadAllLines(filePath);
         for(int i = 0; i < lines.Length; i++)
         {
             var line = lines[i];
-            
-            if(!line.Contains("m_ManagedTypePPtr"))
+
+            if(!line.Contains(lineIdentifier))
                 continue;
 
             lines[i] = Helpers.ReplaceGUIDInLine(line, newGUID, out replaced);
@@ -249,6 +225,15 @@ public static class PumkinsLanguageManager
         }
         if(replaced)
             File.WriteAllLines(filePath, lines);
+        return replaced;
+    }
+
+    static void FixTranslationAssets()
+    {
+        var files = Directory.GetFiles(Helpers.LocalAssetsPathToAbsolutePath(translationPathLocal));
+        foreach(var path in files)
+            if(ReplaceTranslationGUIDTemp(path, "m_Script", translationScriptGUID))
+                AssetDatabase.ImportAsset(Helpers.AbsolutePathToLocalAssetsPath(path));
     }
 }
 
