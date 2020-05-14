@@ -3,7 +3,7 @@
 # PumkinsAvatarTools
 An editor script that adds tools to help you setup avatars faster and easier. It includes a component copier that makes it a lot easier to reimport your avatars, and tools to make your thumbnails nicer.
 
-To install these tools grab the `.unitypackage` bellow then simply import it to your unity project.
+To install these tools grab the `.unitypackage` from [releases](https://github.com/rurre/PumkinsAvatarTools/releases/latest) then simply import it into your unity project.
 **Make sure to delete any older versions of Pumkin Tools from your project before importing**
 
 Also make sure that you are using the [correct version of Unity](https://docs.vrchat.com/docs/current-unity-version) and the [latest version of the VRChat SDK2](https://docs.vrchat.com/docs/setting-up-the-sdk)
