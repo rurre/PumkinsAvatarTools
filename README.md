@@ -1,7 +1,5 @@
 # [Download the latest unity package here](https://github.com/rurre/PumkinsAvatarTools/releases/latest)
-
 ---------------------
-
 # PumkinsAvatarTools
 An editor script that adds tools to help you setup avatars faster and easier. It includes a component copier that makes it a lot easier to reimport your avatars, and tools to make your thumbnails nicer.
 
