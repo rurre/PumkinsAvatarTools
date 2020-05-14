@@ -112,6 +112,10 @@ namespace Pumkin.AvatarTools
             FixDynamicBoneScripts,
         };
 
+        readonly string DUMMY_NAME = "_Dummy";
+        readonly string VIEWPOINT_DUMMY_NAME = "_PumkinsViewpointDummy";
+        readonly string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";
+
         #endregion
 
         #region Component Copier
@@ -297,13 +301,15 @@ namespace Pumkin.AvatarTools
         readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET_TRANSFORM = new Vector3(0, 180f, 0);
 
         readonly Vector3 DEFAULT_CAMERA_POSITION_OFFSET_AVATAR = new Vector3(0, 0.025f, 0.269f);
-        readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET_AVATAR = new Vector3(0, 180f, 0);
+        readonly Vector3 DEFAULT_CAMERA_ROTATION_OFFSET_AVATAR = new Vector3(0, 180f, 0);        
 
         static Camera _selectedCamera;
 
         static Material _rtMat;
         static RenderTexture _defaultRT;
         static RenderTexture _vrcRT;
+        static GameObject _scaleRulerPrefab;
+        static GameObject _scaleRuler;
 
         static RenderTexture oldCamRt;
 
@@ -616,7 +622,15 @@ namespace Pumkin.AvatarTools
         {
             get
             {
-                return _defaultRT = Resources.Load("Materials/PumkinsThumbnailCamRT", typeof(RenderTexture)) as RenderTexture;
+                return _defaultRT = Resources.Load<RenderTexture>("CameraRT/PumkinsThumbnailCamRT");
+            }
+        }
+
+        public static GameObject ScaleRulerPrefab
+        {
+            get
+            {                
+                return _scaleRulerPrefab = Resources.Load<GameObject>("ScaleRuler/lineup_prefab");                
             }
         }
 
@@ -660,7 +674,7 @@ namespace Pumkin.AvatarTools
             {
                 if(!_rtMat)
                 {
-                    _rtMat = Resources.Load("Materials/PumkinsThumbnailCamUnlit", typeof(Material)) as Material;
+                    _rtMat = Resources.Load("CameraRT/PumkinsThumbnailCamUnlit", typeof(Material)) as Material;
                 }
                 return _rtMat;
             }
@@ -994,10 +1008,17 @@ namespace Pumkin.AvatarTools
             LoadPrefs();
 
             RestoreTexturesFromPaths();
-            RefreshBackgroundOverrideType();                      
+            RefreshBackgroundOverrideType();
+
+            CleanupTempObjects();
 
             if(_lastOpenFilePath == default(string))
                 _lastOpenFilePath = MainFolderPath + PumkinsPresetManager.resourceCamerasPath + "/Example Images";
+        }
+
+        private void CleanupTempObjects()
+        {            
+            Helpers.DestroyAppropriate(GameObject.Find(SCALE_RULER_DUMMY_NAME));
         }
 
         public void HandleSceneChange(Scene scene, OpenSceneMode mode)
@@ -1408,9 +1429,7 @@ namespace Pumkin.AvatarTools
             if(handlesUiWindowPositionAtBottom)
                 rect = new Rect(10, rect.height - 10 - windowSize.y, windowSize.x, windowSize.y);
             else
-                rect = new Rect(new Vector2(10, 10), windowSize);
-
-            DrawScalingRuler();
+                rect = new Rect(new Vector2(10, 10), windowSize);            
 
             Handles.BeginGUI();
             {
@@ -1500,31 +1519,7 @@ namespace Pumkin.AvatarTools
                     current.Use();
                 }
             }
-        }
-
-        /// <summary>
-        /// Draws the scaling ruler when editing avatar scale. Does nothing for now, will show example avatar sizes later
-        /// </summary>
-        void DrawScalingRuler()
-        {
-            ////Actually pretty laggy, probably need to draw a mesh instead
-            //Vector3 rulerStartPos;
-            //rulerStartPos = SelectedAvatar.transform.position + new Vector3(-0.3f, 0, 0);
-            //float rulerEndHeight = rulerStartPos.y + 5;
-            //float currentHeight = rulerStartPos.y;
-            //float step = 0.01f;
-
-            //bool flip = false;
-            //for(; currentHeight < rulerEndHeight; currentHeight += step)
-            //{
-            //    if(flip = !flip)
-            //        Handles.color = Color.black;
-            //    else
-            //        Handles.color = Color.white;
-
-            //    Handles.CubeHandleCap(0, new Vector3(rulerStartPos.x, currentHeight, rulerStartPos.z), Quaternion.identity, step, EventType.Repaint);
-            //}
-        }
+        }        
 
         public static void DrawAvatarSelectionWithButtonGUI(bool showSelectFromSceneButton = true, bool showSceneSelectionCheckBox = true)
         {
@@ -3911,7 +3906,7 @@ namespace Pumkin.AvatarTools
             }
             else
             {
-                var tempDummy = new GameObject("_tempDummy").transform;
+                var tempDummy = new GameObject(DUMMY_NAME).transform;
                 tempDummy.position = desc.ViewPosition + desc.transform.root.position;
                 tempDummy.parent = SelectedAvatar.transform;
                 desc.transform.root.localScale = Helpers.RoundVectorValues(new Vector3(newScale, newScale, newScale), 3);
@@ -4174,11 +4169,11 @@ namespace Pumkin.AvatarTools
 
             if(!_scaleViewpointDummy)
             {
-                var g = GameObject.Find("_PumkinsViewpointDummy");
+                var g = GameObject.Find(VIEWPOINT_DUMMY_NAME);
                 if(g)
                     _scaleViewpointDummy = g.transform;
                 else
-                    _scaleViewpointDummy = new GameObject("_PumkinsViewpointDummy").transform;
+                    _scaleViewpointDummy = new GameObject(VIEWPOINT_DUMMY_NAME).transform;
             }
 
             _scaleViewpointDummy.position = _viewPosTemp;
@@ -4188,6 +4183,21 @@ namespace Pumkin.AvatarTools
             _tempToolOld = Tools.current;
             Tools.current = Tool.None;
             Selection.activeGameObject = SelectedAvatar;
+
+            SetupScaleRuler();
+        }
+
+        void SetupScaleRuler()
+        {            
+            if(_scaleRuler != null)
+                Helpers.DestroyAppropriate(_scaleRuler);
+
+            if(!ScaleRulerPrefab)
+                return;
+
+            _scaleRuler = Instantiate(ScaleRulerPrefab, SelectedAvatar.transform.position, ScaleRulerPrefab.transform.rotation);
+            _scaleRuler.name = SCALE_RULER_DUMMY_NAME;
+            _scaleRuler.hideFlags = HideFlags.HideAndDontSave;
         }
 
         /// <summary>
@@ -4241,7 +4251,9 @@ namespace Pumkin.AvatarTools
             finally
             {
                 if(_scaleViewpointDummy)
-                    DestroyImmediate(_scaleViewpointDummy.gameObject);
+                    Helpers.DestroyAppropriate(_scaleViewpointDummy.gameObject);
+                if(_scaleRuler)
+                    Helpers.DestroyAppropriate(_scaleRuler);
             }
         }
 

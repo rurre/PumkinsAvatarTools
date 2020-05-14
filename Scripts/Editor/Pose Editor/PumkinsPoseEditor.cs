@@ -16,8 +16,7 @@ namespace Pumkin.PoseEditor
         public enum PoseChangeType { Reset, Normal, PoseEditor };
 
         //static double deltaTime = 0;
-        //static double lastTime = 0;
-        const string POSE_ANIMATOR_NAME = "PumkinsPoseEditorAnimator";
+        //static double lastTime = 0;        
 
         static List<PumkinsPosePreset> _defaultPoses;
         public static List<PumkinsPosePreset> DefaultPoses
@@ -67,8 +66,7 @@ namespace Pumkin.PoseEditor
         //Pose from animation                
         AnimationClip animClip;
         float animTimeCurrent = 0;
-        //bool playAnimation = false;
-        AnimatorController ctrl;
+        //bool playAnimation = false;        
         bool allowMotion = false;
 
         static Animator _avatarAnimator;        
@@ -121,9 +119,7 @@ namespace Pumkin.PoseEditor
 
         private void Awake()
         {
-            ctrl = Resources.Load<AnimatorController>("Pose Editor/" + POSE_ANIMATOR_NAME);
-            if(!ctrl)            
-                ctrl = AnimatorController.CreateAnimatorControllerAtPath(PumkinsAvatarTools.MainFolderPath + "Resources/Pose Editor" + POSE_ANIMATOR_NAME);            
+            
         }
 
         private void OnFocus()
@@ -322,8 +318,6 @@ namespace Pumkin.PoseEditor
                 EditorGUILayout.Space();
 
                 PumkinsAvatarTools.Instance.posePresetTryFixSinking = GUILayout.Toggle(PumkinsAvatarTools.Instance.posePresetTryFixSinking, Strings.Thumbnails.tryFixPoseSinking);                
-
-                Helpers.DrawGUILine();
 
                 PumkinsAvatarTools.Instance.DrawPresetGUI<PumkinsPosePreset>();
             }
