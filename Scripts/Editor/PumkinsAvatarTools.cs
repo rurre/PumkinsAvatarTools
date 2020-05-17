@@ -722,7 +722,7 @@ namespace Pumkin.AvatarTools
                 {
                     _cameraOverlay = new GameObject(CAMERA_OVERLAY_NAME)
                     {
-                        hideFlags = HideFlags.HideInHierarchy,
+                        hideFlags = HideFlags.HideAndDontSave,
                         tag = "EditorOnly"
                     };
                 }
@@ -738,7 +738,7 @@ namespace Pumkin.AvatarTools
                 {
                     _cameraBackground = new GameObject(CAMERA_BACKGROUND_NAME)
                     {
-                        hideFlags = HideFlags.HideInHierarchy,
+                        hideFlags = HideFlags.HideAndDontSave,
                         tag = "EditorOnly"
                     };
                 }
