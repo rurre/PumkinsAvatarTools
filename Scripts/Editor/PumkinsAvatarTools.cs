@@ -235,6 +235,10 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool bCopier_scaleConstraint_createObjects = true;
         [SerializeField] bool bCopier_scaleConstraint_copy = true;
         [SerializeField] bool bCopier_scaleConstraint_onlyIfHasValidSources = true;
+        
+        //[SerializeField] bool bCopier_cloth_replaceOld = true;
+        //[SerializeField] bool bCopier_cloth_createObjects = true;
+        //[SerializeField] bool bCopier_cloth_copy = true;        
 
         [SerializeField] CopierTabs.Tab _copier_selectedTab = CopierTabs.Tab.Common;        
 
@@ -5767,6 +5771,95 @@ namespace Pumkin.AvatarTools
 
             }
         }
+
+        ///// <summary>
+        ///// Bad function //TODO:Rewrite with unity properties
+        ///// </summary>
+        //void CopyAllClothComponents(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        //{
+        //    var clothFromArr = from.GetComponentsInChildren<Cloth>(true);
+        //    const string typeString = "Cloth";
+
+        //    for(int i = 0; i < clothFromArr.Length; i++)
+        //    {
+        //        var clothFrom = clothFromArr[i];
+
+        //        if(useIgnoreList && Helpers.ShouldIgnoreObject(clothFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
+        //            continue;
+
+        //        var transTo = Helpers.FindTransformInAnotherHierarchy(clothFrom.transform, to.transform, createGameObjects);
+
+        //        if(transTo != null)
+        //        {
+        //            var clothTo = transTo.GetComponent<Cloth>();                                                                             
+
+        //            if(bCopier_cloth_replaceOld || clothTo == null)
+        //            {
+        //                Helpers.DestroyAppropriate(clothTo);
+
+        //                ComponentUtility.CopyComponent(clothFrom);
+        //                clothTo = transTo.gameObject.AddComponent<Cloth>();
+        //                ComponentUtility.PasteComponentValues(clothTo);
+
+        //                var capsuleColFrom = clothFrom.capsuleColliders;
+        //                var capsuleColTo = new List<CapsuleCollider>();
+
+        //                foreach(var fromCollider in capsuleColFrom)
+        //                {
+        //                    var newColTrans = Helpers.FindTransformInAnotherHierarchy(fromCollider.transform, to.transform, createGameObjects);
+        //                    var newCol = newColTrans.GetComponent<CapsuleCollider>();
+        //                    if(newColTrans && !capsuleColTo.Contains(newCol))
+        //                        capsuleColTo.Add(newCol);                            
+        //                }
+        //                clothTo.capsuleColliders = capsuleColTo.ToArray();
+
+        //                var sphereColFrom = clothFrom.sphereColliders;
+        //                var sphereColTo = new List<ClothSphereColliderPair>();
+
+        //                foreach(var fromCollider in sphereColFrom)
+        //                {
+        //                    var newColTransFirst = Helpers.FindTransformInAnotherHierarchy(fromCollider.first.transform, to.transform, createGameObjects);
+        //                    var newColTransSecond = Helpers.FindTransformInAnotherHierarchy(fromCollider.second.transform, to.transform, createGameObjects);
+                            
+        //                    var newColFirst = newColTransFirst.GetComponent<SphereCollider>();
+        //                    var newColSecond = newColTransFirst.GetComponent<SphereCollider>();
+
+        //                    var allSphereColls = new List<SphereCollider>();
+        //                    foreach(var sc in sphereColTo)  //I forgot how to linq
+        //                    {
+        //                        allSphereColls.Add(sc.first);
+        //                        allSphereColls.Add(sc.second);
+        //                    }
+        //                    if(allSphereColls.Contains(newColSecond))
+        //                    {
+        //                        var cols = newColTransSecond.GetComponents<SphereCollider>();
+        //                        foreach(var c in cols)
+        //                        {
+        //                            if(!allSphereColls.Contains(c))
+        //                                newColSecond = c;
+        //                        }
+        //                    }
+
+        //                    var newPair = new ClothSphereColliderPair(newColFirst, newColSecond);
+
+        //                    if(newColTransFirst && !sphereColTo.Contains(newPair))
+        //                        sphereColTo.Add(newPair);
+        //                }
+        //                clothTo.sphereColliders = sphereColTo.ToArray();
+
+        //                Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
+        //                        CopierSelectedFrom.name,
+        //                        clothFrom.transform == clothFrom.transform.root ? "root" : clothFrom.gameObject.name,
+        //                        SelectedAvatar.name,
+        //                        transTo == transTo.root ? "root" : transTo.gameObject.name);
+        //            }
+        //            else
+        //            {
+        //                Log(Strings.Log.failedAlreadyHas, LogType.Log, clothFrom.gameObject.name, typeString);
+        //            }
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Copies all Position Constrains in object and it's children
