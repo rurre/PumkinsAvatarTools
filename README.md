@@ -2,6 +2,9 @@
 ---------------------
 # Pumkin's Avatar Tools
 An editor script that adds tools to help you setup avatars faster and easier. It includes a component copier that makes it a lot easier to reimport your avatars, and tools to make your thumbnails nicer.
+<p align="center">
+<img src="https://user-images.githubusercontent.com/16716633/82481547-2311ae80-9ade-11ea-89d4-5a311c318fe3.gif"></img>
+</p>
 
 To install these tools grab the `.unitypackage` from [releases](https://github.com/rurre/PumkinsAvatarTools/releases/latest) then simply import it into your unity project.
 **Make sure to delete any older versions of Pumkin Tools from your project before importing**
