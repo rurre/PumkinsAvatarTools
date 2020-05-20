@@ -1232,8 +1232,8 @@ namespace Pumkin.AvatarTools
             {
                 if(GUILayout.Button(Strings.Buttons.openFolder))
                     Helpers.SelectAndPing(PumkinsLanguageManager.translationPathLocal);
-                if(GUILayout.Button(Strings.Settings.importLanguage))
-                    PumkinsLanguageManager.OpenFileImportLanguagePreset();
+                //if(GUILayout.Button(Strings.Settings.importLanguage))
+                //    PumkinsLanguageManager.OpenFileImportLanguagePreset();
             }
             EditorGUILayout.EndHorizontal();
 
