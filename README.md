@@ -21,6 +21,14 @@ If you need help, want to report a bug, offer suggestions or want to test WIP bu
 
 If you like this project and would like to give something back, consider donating by buying me a ko-fi! Thanks~ 
 
+## Screenshots:
+<p align="center">
+  <a href="https://user-images.githubusercontent.com/16716633/82672488-16f63000-9c49-11ea-96d7-797ba0e836b4.png"><img src="https://user-images.githubusercontent.com/16716633/82672488-16f63000-9c49-11ea-96d7-797ba0e836b4.png" height="300"></a>
+  <a href="https://user-images.githubusercontent.com/16716633/82672489-16f63000-9c49-11ea-81cf-2af0f68f0cd0.png"><img src="https://user-images.githubusercontent.com/16716633/82672489-16f63000-9c49-11ea-81cf-2af0f68f0cd0.png" height="300"></a>
+  <a href="https://user-images.githubusercontent.com/16716633/82672494-178ec680-9c49-11ea-83e1-efbe19d02215.png"><img src="https://user-images.githubusercontent.com/16716633/82672494-178ec680-9c49-11ea-83e1-efbe19d02215.png" height="300"></a>
+  <a href="https://user-images.githubusercontent.com/16716633/82672483-15c50300-9c49-11ea-97ae-245117527d89.png"><img src="https://user-images.githubusercontent.com/16716633/82672483-15c50300-9c49-11ea-97ae-245117527d89.png" height="300"></a>
+</p>
+
 ---------------------------
 
 <p align="center">
