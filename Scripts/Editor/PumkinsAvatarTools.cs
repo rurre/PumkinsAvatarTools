@@ -5161,6 +5161,7 @@ namespace Pumkin.AvatarTools
                         {
                             Log("_Couldn't set root {0} for new DynamicBone in {1}'s {2}. GameObject is missing. Removing.", LogType.Warning, dbFrom.m_Root.name ?? "null", newDynBone.transform.root.name, newDynBone.transform.name == newDynBone.transform.root.name ? "root" : newDynBone.transform.root.name);
                             DestroyImmediate(newDynBone);
+                            continue;
                         }
 
                         if(dbFrom.m_ReferenceObject)

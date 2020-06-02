@@ -498,6 +498,7 @@ namespace Pumkin.DataStructures
                 positionConstraints = Translation.copier.positionConstraints;
                 rotationConstraints = Translation.copier.rotationConstraints;
                 scaleConstraints = Translation.copier.scaleConstraints;
+                onlyIfHasValidSources = Translation.copier.onlyIfHasValidSources;
                 
                 joints_fixed = Translation.copier.joints_fixed;
                 joints_hinge = Translation.copier.joints_hinge;
