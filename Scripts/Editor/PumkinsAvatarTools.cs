@@ -3413,8 +3413,10 @@ namespace Pumkin.AvatarTools
                             break;
                         case PumkinsCameraPreset.CameraBackgroundOverrideType.Skybox:
                             {
-                                if(bThumbnails_use_camera_background)
+                                if(bThumbnails_use_camera_background && SelectedCamera)
+                                {
                                     SelectedCamera.clearFlags = CameraClearFlags.Skybox;
+                                }
 
                                 Material mat = RenderSettings.skybox;
                                 EditorGUI.BeginChangeCheck();
