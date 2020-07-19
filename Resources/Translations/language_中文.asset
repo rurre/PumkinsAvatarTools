@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc94f2e7f78c3564384d86193c77f172, type: 3}
+  m_Script: {fileID: 11500000, guid: 801041f436e402e498c298e96a6dfca9, type: 3}
   m_Name: "language_\u4E2D\u6587"
   m_EditorClassIdentifier: 
   languageName: "\u4E2D\u6587"

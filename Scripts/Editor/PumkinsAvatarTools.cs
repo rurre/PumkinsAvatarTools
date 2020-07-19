@@ -3389,7 +3389,7 @@ namespace Pumkin.AvatarTools
             if(_thumbnails_useCameraBackground_expand || needsRefresh)
             {
                 EditorGUILayout.Space();
-                EditorGUI.BeginDisabledGroup(!bThumbnails_use_camera_background);
+                EditorGUI.BeginDisabledGroup(!_selectedCamera);
                 {
                     EditorGUI.BeginChangeCheck();
                     {
@@ -3407,7 +3407,7 @@ namespace Pumkin.AvatarTools
                             {
                                 EditorGUI.BeginChangeCheck();
                                 {
-                                    _thumbsCamBgColor = EditorGUILayout.ColorField(Strings.Thumbnails.backgroundType_Color, SelectedCamera.backgroundColor);
+                                    _thumbsCamBgColor = EditorGUILayout.ColorField(Strings.Thumbnails.backgroundType_Color, _selectedCamera ? SelectedCamera.backgroundColor : Color.grey);
                                 }
                                 if(EditorGUI.EndChangeCheck())
                                 {
@@ -3417,7 +3417,7 @@ namespace Pumkin.AvatarTools
                             break;
                         case PumkinsCameraPreset.CameraBackgroundOverrideType.Skybox:
                             {
-                                if(bThumbnails_use_camera_background && SelectedCamera)
+                                if(bThumbnails_use_camera_background && _selectedCamera)
                                 {
                                     SelectedCamera.clearFlags = CameraClearFlags.Skybox;
                                 }
@@ -3763,6 +3763,9 @@ namespace Pumkin.AvatarTools
         /// </summary>        
         public void SetCameraBackgroundToSkybox(Material skyboxMaterial)
         {
+            if(!_selectedCamera)
+                return;
+
             SelectedCamera.clearFlags = CameraClearFlags.Skybox;
             RenderSettings.skybox = skyboxMaterial;
         }
@@ -3772,6 +3775,9 @@ namespace Pumkin.AvatarTools
         /// </summary>        
         public void SetCameraBackgroundToColor(Color color)
         {
+            if(!_selectedCamera)
+                return;
+
             _thumbsCamBgColor = color;
             SelectedCamera.backgroundColor = color;
             SelectedCamera.clearFlags = CameraClearFlags.SolidColor;
@@ -3975,6 +3981,8 @@ namespace Pumkin.AvatarTools
                 case ToolMenuActions.RemoveDynamicBoneColliders:
 #if PUMKIN_DBONES || PUMKIN_OLD_DBONES
                     DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false, false);
+                    CleanupDynamicBonesColliderArraySizes();
+
 #endif
                     break;
                 case ToolMenuActions.RemoveDynamicBones:
@@ -4075,6 +4083,24 @@ namespace Pumkin.AvatarTools
             EditorUtility.SetDirty(SelectedAvatar);
             if(!EditorApplication.isPlaying)
                 EditorSceneManager.MarkSceneDirty(SelectedAvatar.scene);
+        }
+
+        private static void CleanupDynamicBonesColliderArraySizes()
+        {
+            var dbones = SelectedAvatar.GetComponentsInChildren<DynamicBone>(true);
+            if(dbones != null && dbones.Length > 0)
+            {
+                SerializedObject so = new SerializedObject(dbones);
+                if(so != null)
+                {
+                    var prop = so.FindProperty("m_Colliders");
+                    if(prop != null)
+                    {
+                        prop.arraySize = 0;
+                        so.ApplyModifiedProperties();   //Sets count of colliders in array to 0 so the safety system ignores them
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -5041,6 +5067,13 @@ namespace Pumkin.AvatarTools
 #endif
         }
 
+        /// <summary>
+        /// Temporary fixes to dbones using dirty dynamic types
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="createMissing"></param>
+        /// <param name="useIgnoreList"></param>
         void CopyAllDynamicBonesNew(GameObject from, GameObject to, bool createMissing, bool useIgnoreList)
         {
 #if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
@@ -5051,6 +5084,10 @@ namespace Pumkin.AvatarTools
                 return;
 
             var dBoneFromArr = from.GetComponentsInChildren<DynamicBone>(true);
+
+            //Handle collider issues
+            Type colliderListType = typeof(DynamicBone).GetField("m_Colliders").FieldType;
+            Type colliderType = colliderListType.GetGenericArguments().FirstOrDefault();
 
             List<DynamicBone> newBones = new List<DynamicBone>();
             foreach(var dbFrom in dBoneFromArr)
@@ -5161,7 +5198,7 @@ namespace Pumkin.AvatarTools
                         ComponentUtility.CopyComponent(dbFrom);
                         ComponentUtility.PasteComponentValues(newDynBone);
 
-                        newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_Root.transform, newDynBone.transform.root, false);
+                        newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_Root.transform, newDynBone.transform.root, false);                        
 
                         if(!newDynBone.m_Root)
                         {
@@ -5173,12 +5210,7 @@ namespace Pumkin.AvatarTools
                         if(dbFrom.m_ReferenceObject)
                             newDynBone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_ReferenceObject, newDynBone.transform.root, false);
 
-#if PUMKIN_DBONES
-                        var newColliders = new List<DynamicBoneColliderBase>();
-#elif PUMKIN_OLD_DBONES
-                        var newColliders = new List<DynamicBoneCollider>();
-#endif
-
+                        dynamic newColliders = Activator.CreateInstance(colliderListType);
 
                         for(int i = 0; i < newDynBone.m_Colliders.Count; i++)
                         {
@@ -5187,17 +5219,14 @@ namespace Pumkin.AvatarTools
                             if(!badRefCollider)
                                 continue;
 
-#if PUMKIN_DBONES
-                            DynamicBoneColliderBase fixedRefCollider = null;
-#elif PUMKIN_OLD_DBONES
-                            DynamicBoneCollider fixedRefCollider = null;
-#endif
+                            dynamic fixedRefCollider = null;
+
                             var t = Helpers.FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
 
                             if(t == null)
                                 continue;
 
-                            var toColls = t.GetComponents<DynamicBoneCollider>();
+                            dynamic[] toColls = t.GetComponents(colliderType);
                             foreach(var c in toColls)
                             {
                                 if(c.m_Bound == badRefCollider.m_Bound && c.m_Center == badRefCollider.m_Center && c.m_Direction == badRefCollider.m_Direction &&
@@ -5205,7 +5234,7 @@ namespace Pumkin.AvatarTools
                                     fixedRefCollider = c;
                             }
 
-                            if(fixedRefCollider)
+                            if(fixedRefCollider != null)
                             {
                                 LogVerbose("Fixed reference for {0} in {1}", LogType.Log, fixedRefCollider.name, newDynBone.name);
                                 newColliders.Add(fixedRefCollider);
@@ -5239,6 +5268,205 @@ namespace Pumkin.AvatarTools
             }
 #endif
         }
+
+//        void CopyAllDynamicBonesNew(GameObject from, GameObject to, bool createMissing, bool useIgnoreList)
+//        {
+//#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
+//            Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
+//            return;
+//#else
+//            if(!from || !to)
+//                return;
+
+//            var dBoneFromArr = from.GetComponentsInChildren<DynamicBone>(true);
+
+//            List<DynamicBone> newBones = new List<DynamicBone>();
+//            foreach(var dbFrom in dBoneFromArr)
+//            {
+//                if(useIgnoreList && Helpers.ShouldIgnoreObject(dbFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
+//                    continue;
+
+//                var transTo = Helpers.FindTransformInAnotherHierarchy(dbFrom.transform, to.transform, bCopier_dynamicBones_createObjects);
+//                if(!transTo)
+//                    continue;
+
+//                var dBoneToArr = transTo.GetComponents<DynamicBone>();
+
+//                if(!dbFrom.m_Root)
+//                {
+//                    LogVerbose("DynamicBone {0} of {1} doesn't have a root assigned. Ignoring", LogType.Warning, dbFrom.transform.name, dbFrom.transform.root.name);
+//                    continue;
+//                }
+
+//                bool foundSameDynBone = false;
+
+//                foreach(var bone in dBoneToArr)
+//                {
+//                    if(!bone.m_Root || newBones.Contains(bone))
+//                        continue;
+
+//                    //Check if the roots are the same to decide if it's supposed to be the same dyn bone script
+//                    if(bone.m_Root.name == dbFrom.m_Root.name)
+//                    {
+//                        //Check if exclusions are the same
+//                        List<string> exToPaths = bone.m_Exclusions
+//                            .Where(o => o != null)
+//                            .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
+//                            .ToList();
+
+//                        List<string> exFromPaths = dbFrom.m_Exclusions
+//                            .Where(o => o != null)
+//                            .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
+//                            .ToList();
+
+//                        bool exclusionsDifferent = false;
+//                        var exArr = exToPaths.Intersect(exFromPaths).ToArray();
+
+//                        if(exArr != null && (exToPaths.Count != 0 && exFromPaths.Count != 0) && exArr.Length == 0)
+//                            exclusionsDifferent = true;
+
+//                        //Check if colliders are the same
+//                        List<string> colToPaths = bone.m_Colliders
+//                            .Where(c => c != null)
+//                            .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
+//                            .ToList();
+
+//                        List<string> colFromPaths = bone.m_Colliders
+//                            .Where(c => c != null)
+//                            .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
+//                            .ToList();
+
+//                        bool collidersDifferent = false;
+//                        var colArr = colToPaths.Intersect(colFromPaths).ToArray();
+
+//                        if(colArr != null && (colToPaths.Count != 0 && colFromPaths.Count != 0) && colArr.Length == 0)
+//                            collidersDifferent = true;
+
+//                        //Found the same bone because root, exclusions and colliders are the same
+//                        if(!exclusionsDifferent && !collidersDifferent)
+//                        {
+//                            foundSameDynBone = true;
+//                            if(bCopier_dynamicBones_copySettings)
+//                            {
+//                                LogVerbose("{0} already has this DynamicBone, but we have to copy settings. Copying.", LogType.Log, bone.name);
+
+//                                bone.m_Damping = dbFrom.m_Damping;
+//                                bone.m_DampingDistrib = dbFrom.m_DampingDistrib;
+//                                bone.m_DistanceToObject = dbFrom.m_DistanceToObject;
+//                                bone.m_DistantDisable = dbFrom.m_DistantDisable;
+//                                bone.m_Elasticity = dbFrom.m_Elasticity;
+//                                bone.m_ElasticityDistrib = dbFrom.m_ElasticityDistrib;
+//                                bone.m_EndLength = dbFrom.m_EndLength;
+//                                bone.m_EndOffset = dbFrom.m_EndOffset;
+//                                bone.m_Force = dbFrom.m_Force;
+//                                bone.m_FreezeAxis = dbFrom.m_FreezeAxis;
+//                                bone.m_Gravity = dbFrom.m_Gravity;
+//                                bone.m_Inert = dbFrom.m_Inert;
+//                                bone.m_InertDistrib = dbFrom.m_InertDistrib;
+//                                bone.m_Radius = dbFrom.m_Radius;
+//                                bone.m_RadiusDistrib = dbFrom.m_RadiusDistrib;
+//                                bone.m_Stiffness = dbFrom.m_Stiffness;
+//                                bone.m_StiffnessDistrib = dbFrom.m_StiffnessDistrib;
+
+//                                bone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_ReferenceObject, bone.transform, false);
+//                            }
+//                            else
+//                            {
+//                                LogVerbose("{0} already has this DynamicBone but we aren't copying settings. Ignoring", LogType.Log, bone.name);
+//                            }
+//                            break;
+//                        }
+//                    }
+//                }
+
+//                if(!foundSameDynBone)
+//                {
+//                    if(createMissing)
+//                    {
+//                        LogVerbose("{0} doesn't have this DynamicBone but we have to create one. Creating.", LogType.Log, dbFrom.name);
+
+//                        var newDynBone = transTo.gameObject.AddComponent<DynamicBone>();
+//                        ComponentUtility.CopyComponent(dbFrom);
+//                        ComponentUtility.PasteComponentValues(newDynBone);
+
+//                        newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_Root.transform, newDynBone.transform.root, false);
+
+//                        if(!newDynBone.m_Root)
+//                        {
+//                            Log("_Couldn't set root {0} for new DynamicBone in {1}'s {2}. GameObject is missing. Removing.", LogType.Warning, dbFrom.m_Root.name ?? "null", newDynBone.transform.root.name, newDynBone.transform.name == newDynBone.transform.root.name ? "root" : newDynBone.transform.root.name);
+//                            DestroyImmediate(newDynBone);
+//                            continue;
+//                        }
+
+//                        if(dbFrom.m_ReferenceObject)
+//                            newDynBone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_ReferenceObject, newDynBone.transform.root, false);
+
+//#if PUMKIN_DBONES
+//                        var newColliders = new List<DynamicBoneColliderBase>();
+//#elif PUMKIN_OLD_DBONES
+//                        var newColliders = new List<DynamicBoneCollider>();
+//#endif
+
+
+//                        for(int i = 0; i < newDynBone.m_Colliders.Count; i++)
+//                        {
+//                            var badRefCollider = newDynBone.m_Colliders[i];
+
+//                            if(!badRefCollider)
+//                                continue;
+
+//#if PUMKIN_DBONES
+//                            DynamicBoneColliderBase fixedRefCollider = null;
+//#elif PUMKIN_OLD_DBONES
+//                            DynamicBoneCollider fixedRefCollider = null;
+//#endif
+//                            var t = Helpers.FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
+
+//                            if(t == null)
+//                                continue;
+
+//                            var toColls = t.GetComponents<DynamicBoneCollider>();
+//                            foreach(var c in toColls)
+//                            {
+//                                if(c.m_Bound == badRefCollider.m_Bound && c.m_Center == badRefCollider.m_Center && c.m_Direction == badRefCollider.m_Direction &&
+//                                   !newDynBone.m_Colliders.Contains(c))
+//                                    fixedRefCollider = c;
+//                            }
+
+//                            if(fixedRefCollider)
+//                            {
+//                                LogVerbose("Fixed reference for {0} in {1}", LogType.Log, fixedRefCollider.name, newDynBone.name);
+//                                newColliders.Add(fixedRefCollider);
+//                            }
+//                        }
+
+//                        newDynBone.m_Colliders = newColliders;
+
+//                        var newExclusions = new HashSet<Transform>();
+
+//                        foreach(var ex in newDynBone.m_Exclusions)
+//                        {
+//                            if(!ex)
+//                                continue;
+
+//                            var t = Helpers.FindTransformInAnotherHierarchy(ex.transform, to.transform, false);
+//                            if(t)
+//                                newExclusions.Add(t);
+//                        }
+
+//                        newDynBone.m_Exclusions = newExclusions.ToList();
+//                        newBones.Add(newDynBone);
+
+//                        Log(Strings.Log.copiedDynamicBone, LogType.Log, dbFrom.transform.root.name, dbFrom.transform.name == dbFrom.transform.root.name ? "root" : dbFrom.transform.name, transTo.root.name);
+//                    }
+//                    else
+//                    {
+//                        LogVerbose("{0} doesn't have has this DynamicBone and we aren't creating a new one. Ignoring.", LogType.Log, dbFrom.name);
+//                    }
+//                }
+//            }
+//#endif
+//        }
 
         /// <summary>
         /// Copies Box, Capsule, Sphere and Mesh colliders from one object to another and all of it's children at once.
@@ -6219,7 +6447,7 @@ namespace Pumkin.AvatarTools
                     }
                 }
             }
-        }
+        }        
 
         #endregion
 
