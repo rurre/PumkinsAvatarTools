@@ -11,7 +11,7 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "0.8.1b - Work In Progress";
+        public const string TOOLS_VERSION_STRING = "0.8.2b - Work In Progress";
         public const double toolsVersion = 0.81;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.2b - Work in Progress";
@@ -498,6 +498,7 @@ namespace Pumkin.DataStructures
                 positionConstraints = Translation.copier.positionConstraints;
                 rotationConstraints = Translation.copier.rotationConstraints;
                 scaleConstraints = Translation.copier.scaleConstraints;
+                onlyIfHasValidSources = Translation.copier.onlyIfHasValidSources;
                 
                 joints_fixed = Translation.copier.joints_fixed;
                 joints_hinge = Translation.copier.joints_hinge;
