@@ -54,7 +54,7 @@ namespace Pumkin.PoseEditor
         public static event PoseChangedHandler PoseChanged;
 
         //Main
-        static bool windowIsFocused = false;
+        //static bool windowIsFocused = false;
         static HumanPose avatarPose;
         static HumanPoseHandler avatarPoseHandler;
         Vector2 scroll = Vector2.zero;       
@@ -124,12 +124,12 @@ namespace Pumkin.PoseEditor
 
         private void OnFocus()
         {
-            windowIsFocused = true;
+            //windowIsFocused = true;
         }
 
         private void OnLostFocus()
         {
-            windowIsFocused = false;
+            //windowIsFocused = false;
         }
 
         private void OnEnable()

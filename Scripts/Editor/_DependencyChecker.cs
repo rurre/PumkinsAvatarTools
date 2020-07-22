@@ -73,10 +73,8 @@ namespace Pumkin.DependencyChecker
             switch(DBonesVersion)
             {
                 case PumkinsDBonesVersion.NewVersionWithBaseColliders:
-                    definesToAdd.Add(HAS_DBONES);
-                    break;
                 case PumkinsDBonesVersion.OldVersion:
-                    definesToAdd.Add(HAS_OLD_DBONES);
+                    definesToAdd.Add(HAS_DBONES);
                     break;
                 case PumkinsDBonesVersion.NotFound:
                 default:

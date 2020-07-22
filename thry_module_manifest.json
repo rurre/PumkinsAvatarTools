@@ -2,7 +2,7 @@
     "name": "Pumkin's Avatar Tools",
     "description": "A set of tools to help you setup avatars easier.\nIncludes a component copier and tools to make thumbnails.\nTo launch the tools go to Tools > Pumkin > Avatar Tools.",
     "classname": "Pumkin.AvatarTools.PumkinsAvatarTools",
-    "version": 0.8,
+    "version": 0.82,
     "requirement": {
         "type": "VRC_SDK_VERSION",
         "data": ">=0.0"
@@ -24,7 +24,6 @@
         "Resources/Presets/Blendshapes/^ Mouth.asset",
         "Resources/Presets/Cameras/Bad Thumbnail.asset",
         "Resources/Presets/Cameras/Presenting Pink.asset",
-        "Resources/Presets/Cameras/Profile.asset",
         "Resources/Presets/Cameras/Simple Dark.asset",
         "Resources/Presets/Cameras/Example Images/bg_diagonal_stripes.png",
         "Resources/Presets/Cameras/Example Images/bg_diagonal_stripes_bw.png",
