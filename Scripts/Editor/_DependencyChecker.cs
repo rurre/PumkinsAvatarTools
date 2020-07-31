@@ -52,7 +52,7 @@ namespace Pumkin.DependencyChecker
         {            
             SDKVersion = GetVRCSDKVersion();
             DBonesVersion = GetDynamicBonesVersion();
-            MainToolsOK = GetType("Pumkin.AvatarTools.PumkinsAvatarTools") != null ? true : false;            
+            MainToolsOK = GetTypeFromName("Pumkin.AvatarTools.PumkinsAvatarTools") != null ? true : false;            
 
             var definesToAdd = new HashSet<string>();
             var currentDefines = ScriptDefinesManager.GetDefinesAsArray();                
@@ -90,12 +90,12 @@ namespace Pumkin.DependencyChecker
         static PumkinsSDKVersion GetVRCSDKVersion()
         {
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for VRChat SDK in project...");
-            Type sdkType = GetType("VRCSDK2.VRC_AvatarDescriptor");
+            Type sdkType = GetTypeFromName("VRCSDK2.VRC_AvatarDescriptor");
 
             if(sdkType != null)
             {
                 Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found VRChat SDK.");
-                Type perfStatsType = GetType("VRCSDK2.Validation.Performance.Stats.AvatarPerformanceStats");
+                Type perfStatsType = GetTypeFromName("VRCSDK2.Validation.Performance.Stats.AvatarPerformanceStats");
                 if(perfStatsType != null)
                     return PumkinsSDKVersion.WithPerfromanceRanks;
                 return PumkinsSDKVersion.BeforePerformanceRanks;
@@ -111,8 +111,8 @@ namespace Pumkin.DependencyChecker
         static PumkinsDBonesVersion GetDynamicBonesVersion()
         {
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for DynamicBones in project...");
-            Type boneColliderType = GetType("DynamicBoneCollider");
-            Type boneColliderBaseType = GetType("DynamicBoneColliderBase");                               
+            Type boneColliderType = GetTypeFromName("DynamicBoneCollider");
+            Type boneColliderBaseType = GetTypeFromName("DynamicBoneColliderBase");                               
 
             var dynPaths = new List<string>();
             dynPaths.AddRange(Directory.GetFiles(Application.dataPath, "DynamicBone.cs", SearchOption.AllDirectories));
@@ -138,7 +138,7 @@ namespace Pumkin.DependencyChecker
             }
         }        
 
-        static Type GetType(string typeName)
+        public static Type GetTypeFromName(string typeName)
         {
             var type = Type.GetType(typeName);
             if(type != null)

@@ -2957,6 +2957,49 @@ namespace Pumkin.AvatarTools
             }
         }
 
+        //static void FixDynamicBoneScripts(GameObject avatar)
+        //{
+        //    var dboneType = _DependencyChecker.GetTypeFromName("DynamicBone");
+        //    if(dboneType == null)
+        //    {
+        //        Debug.Log("Can't find dynamic bones in project");
+        //        return;
+        //    }
+
+        //    Component tempDBone = null;            
+        //    try
+        //    {                
+        //        var db = Resources.FindObjectsOfTypeAll(dboneType);
+        //        tempDBone = avatar.AddComponent(dboneType);                
+        //        SerializedProperty tempScript = new SerializedObject(tempDBone).FindProperty("m_Script");
+                
+        //        var comps = avatar.GetComponentsInChildren<Component>().Where(c => c != null);
+        //        foreach(var comp in comps)
+        //        {
+        //            if(comp.GetType() != dboneType)
+        //                continue;
+        //            var ms = MonoScript.FromMonoBehaviour(comp as MonoBehaviour);
+                    
+        //            var serialComp = new SerializedObject(comp);
+        //            var compScript = serialComp.FindProperty("m_Script");
+        //            var dboneScript = new SerializedObject(ms).FindProperty("m_Script");
+        //            var refs = dboneScript.FindPropertyRelative("m_DefaultReferences");
+        //            //boneScript.objectReferenceValue = tempScript.objectReferenceValue;
+        //            //boneScript.objectReferenceInstanceIDValue = tempScript.objectReferenceInstanceIDValue;
+        //            //compScript.FindPropertyRelative("m_PathID").longValue = dboneScript.FindPropertyRelative("m_PathID").longValue;
+        //            //compScript.FindPropertyRelative("m_FileID").longValue = dboneScript.FindPropertyRelative("m_FileID").longValue;
+        //            var en = dboneScript.Copy();
+        //            while(en.Next(true))
+        //                Debug.Log(en.name);
+        //            serialComp.ApplyModifiedProperties();
+        //        }
+        //    }
+        //    finally
+        //    {
+        //        Helpers.DestroyAppropriate(tempDBone);
+        //    }
+        //}
+
         /// <summary>
         /// Bad function. Does too many things at once and other bad stuff. Will fix once I get a better yaml serializer
         /// </summary>
@@ -3072,77 +3115,6 @@ namespace Pumkin.AvatarTools
                     }
                 }
 
-                Log(Strings.Log.done);
-            }
-            catch(Exception e)
-            {
-                Log(e.Message);
-            }
-#else
-        return;
-#endif
-        }
-
-        /// <summary>
-        /// WIP, doesn't work.
-        /// </summary>
-        /// <param name="avatar"></param>
-        private static void FixDynamicBoneScriptsTemp(GameObject avatar)
-        {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-            try
-            {
-                var guids = AssetDatabase.FindAssets("DynamicBone");
-                string dboneGUID = null;
-                foreach(var guid in guids)
-                {
-                    var path = AssetDatabase.GUIDToAssetPath(guid);
-                    if(path.EndsWith("DynamicBone.cs"))
-                    {
-                        dboneGUID = guid;
-                        break;
-                    }
-                }
-
-                if(string.IsNullOrEmpty(dboneGUID))
-                {
-                    Log("Can't find DynamicBones for some reason", LogType.Error);
-                    return;
-                }
-
-                var components = SelectedAvatar.GetComponentsInChildren<Component>(true);
-                var props = new List<SerializedProperty>();
-
-                var transforms = SelectedAvatar.GetComponentsInChildren<Transform>();
-                foreach(var t in transforms)
-                {
-                    string s = $"{t.gameObject.name}\n{{\n";
-                    var comps = t.gameObject.GetComponents<Component>();
-                    var badComponents = new List<int>();
-
-                    for(int i = 0; i < comps.Length; i++) //Add null components to bad components list by index
-                    {
-                        var comp = comps[i];
-                        if(comp != null)
-                            continue;
-                        badComponents.Add(i);
-                    }
-
-                    if(badComponents.Count == 0)    //Skip if all components are valid
-                        continue;
-
-                    SerializedObject obj = new SerializedObject(t.gameObject);
-                    var prop = obj.FindProperty("m_Component");
-                    for(int j = 0; j < prop.arraySize; j++)
-                    {
-                        if(!badComponents.Contains(j))  //Skip all valid components by checking against bad component index list
-                            continue;
-
-                        s += prop.FindPropertyRelative("*");
-                    }
-                    s += "}\n";
-                    Debug.Log(s);
-                }
                 Log(Strings.Log.done);
             }
             catch(Exception e)
@@ -4087,6 +4059,7 @@ namespace Pumkin.AvatarTools
 
         private static void CleanupDynamicBonesColliderArraySizes()
         {
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
             var dbones = SelectedAvatar.GetComponentsInChildren<DynamicBone>(true);
             if(dbones != null && dbones.Length > 0)
             {
@@ -4101,6 +4074,7 @@ namespace Pumkin.AvatarTools
                     }
                 }
             }
+#endif
         }
 
         /// <summary>
@@ -4553,9 +4527,9 @@ namespace Pumkin.AvatarTools
         }
 
 
-        #endregion
+#endregion
 
-        #region Copy Functions
+#region Copy Functions
 
         /// <summary>
         /// Copies Components and Values from one object to another.
@@ -6322,9 +6296,9 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        #endregion
+#endregion
 
-        #region Destroy Functions    
+#region Destroy Functions    
 
         /// <summary>
         /// Destroys ParticleSystem in object
@@ -6449,9 +6423,9 @@ namespace Pumkin.AvatarTools
             }
         }        
 
-        #endregion
+#endregion
 
-        #region Utility Functions        
+#region Utility Functions        
 
         /// <summary>
         /// Not actually resets everything but backgrounnd and overlay stuff
@@ -6602,9 +6576,9 @@ namespace Pumkin.AvatarTools
                 Instance._selectedBlendshapePresetString = presetString;
         }
 
-        #endregion
+#endregion
 
-        #region Helper Functions        
+#region Helper Functions        
 
         /// <summary>
         /// Sets selected camera clear flags back to _thumbsCameraBgClearFlagsOld
@@ -6902,6 +6876,6 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        #endregion
+#endregion
     }
 }

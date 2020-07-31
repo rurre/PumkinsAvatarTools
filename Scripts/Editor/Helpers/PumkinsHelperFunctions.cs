@@ -1166,11 +1166,18 @@ namespace Pumkin.HelperFunctions
             Vector3 view = PumkinsAvatarTools.DEFAULT_VIEWPOINT;
             if(anim && anim.isHuman)
             {
-                view = anim.GetBoneTransform(HumanBodyBones.Head).position - anim.transform.position;
-                float eyeHeight = anim.GetBoneTransform(HumanBodyBones.LeftEye).position.y - 0.005f - anim.transform.position.y;
-                view.y = eyeHeight;
-                view.z = PumkinsAvatarTools.DEFAULT_VIEWPOINT.z - 0.1f;
-            }            
+                var eye = anim.GetBoneTransform(HumanBodyBones.LeftEye);
+                var head = anim.GetBoneTransform(HumanBodyBones.Head);
+                if(eye && head)
+                {
+                    view = head.position - anim.transform.position;
+                    float eyeHeight = eye.position.y - 0.005f - anim.transform.position.y;
+                    view.y = eyeHeight;
+                    view.z = PumkinsAvatarTools.DEFAULT_VIEWPOINT.z - 0.1f;
+                }
+                else
+                    return PumkinsAvatarTools.DEFAULT_VIEWPOINT;
+            }
             return RoundVectorValues(view, 3);
         }
 
