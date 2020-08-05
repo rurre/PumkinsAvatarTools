@@ -114,7 +114,7 @@ namespace Pumkin.AvatarTools
 
         readonly static string DUMMY_NAME = "_Dummy";
         readonly static string VIEWPOINT_DUMMY_NAME = "_PumkinsViewpointDummy";
-        readonly static string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";
+        readonly static string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";         
 
         #endregion
 
@@ -876,6 +876,8 @@ namespace Pumkin.AvatarTools
         public static event AvatarChangedHandler AvatarSelectionChanged;
         public static event CameraChangeHandler CameraSelectionChanged;
 
+        EditorApplication.CallbackFunction updateCallback;
+
         #endregion
 
         #region Event Definitions
@@ -998,7 +1000,12 @@ namespace Pumkin.AvatarTools
         public void HandleOnEnable()
         {
             LogVerbose("Tools window: OnEnable()");
+
+            if(updateCallback == null)
+                updateCallback = new EditorApplication.CallbackFunction(OnUpdate);
+
             SceneView.onSceneGUIDelegate += OnSceneGUI;
+            EditorApplication.update += updateCallback;
             if(!_eventsAdded) //Not sure if this is necessary anymore
             {
                 EditorApplication.playModeStateChanged += HandlePlayModeStateChange;
@@ -1045,12 +1052,13 @@ namespace Pumkin.AvatarTools
         {
             LogVerbose("Tools window: OnDisable()");
             SceneView.onSceneGUIDelegate -= OnSceneGUI;
+            EditorApplication.update -= updateCallback;
             Selection.selectionChanged -= HandleSelectionChanged;
             EditorApplication.playModeStateChanged -= HandlePlayModeStateChange;
             EditorSceneManager.sceneOpened -= HandleSceneChange;
 #if UNITY_2018
             PrefabStage.prefabStageOpened -= HandlePrefabStageOpened;
-            PrefabStage.prefabStageClosing -= HandlePrefabStageClosed;
+            PrefabStage.prefabStageClosing -= HandlePrefabStageClosed;            
 #endif
             _eventsAdded = false;
 
@@ -1186,6 +1194,60 @@ namespace Pumkin.AvatarTools
             }
         }
 
+        void OnUpdate()
+        {
+            //Sync selected camera to scene camera
+            if(lockSelectedCameraToSceneView && _selectedCamera)
+                SelectedCamera.transform.SetPositionAndRotation(SceneView.lastActiveSceneView.camera.transform.position, SceneView.lastActiveSceneView.camera.transform.rotation);
+
+            //Draw camera overlay
+            GameObject overlay = null;            
+            if(bThumbnails_use_camera_overlay)
+            {
+                var raw = GetCameraOverlayRawImage(true);
+                overlay = GetCameraOverlay(true);
+                if(_selectedCamera && raw.texture)
+                {
+                    if(!overlay.activeInHierarchy)
+                        overlay.SetActive(true);
+                }
+                else
+                {
+                    overlay.SetActive(false);
+                }
+            }
+            else
+            {
+                if(overlay)
+                    overlay.SetActive(false);
+            }
+
+            //Draw camera background
+            GameObject background = null;
+            if(bThumbnails_use_camera_background)
+            {
+                var raw = GetCameraBackgroundRawImage(true);
+                background = GetCameraBackground(true);
+                if(cameraBackgroundType == PumkinsCameraPreset.CameraBackgroundOverrideType.Image)
+                {
+                    if(_selectedCamera && raw.texture && !background.activeInHierarchy)
+                        background.SetActive(true);
+                    else if(!raw.texture && background.activeInHierarchy)
+                        background.SetActive(false);
+                }
+                else
+                {
+                    if(background.activeInHierarchy)
+                        background.SetActive(false);
+                }
+            }
+            else
+            {
+                if(background)
+                    background.SetActive(false);
+            }
+        }
+
         void DrawSettingsGUI()
         {
             EditorGUILayout.Space();
@@ -1315,10 +1377,7 @@ namespace Pumkin.AvatarTools
 
                 Helpers.DrawGUILine();
             }
-            EditorGUILayout.EndScrollView();
-
-            if(lockSelectedCameraToSceneView && _selectedCamera)
-                SelectedCamera.transform.SetPositionAndRotation(SceneView.lastActiveSceneView.camera.transform.position, SceneView.lastActiveSceneView.camera.transform.rotation);
+            EditorGUILayout.EndScrollView();            
 
             if(GUI.changed)
             {
@@ -2488,21 +2547,21 @@ namespace Pumkin.AvatarTools
 
         public void DrawCameraControlButtons()
         {
+            //Camera to scene view button
+            if(GUILayout.Button(Strings.Buttons.alignCameraToView, Styles.BigButton))
+            {
+                SelectedCamera.transform.position = SceneView.lastActiveSceneView.camera.transform.position;
+                SelectedCamera.transform.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
+            }
+
+            EditorGUILayout.Space();
+
+            lockSelectedCameraToSceneView = GUILayout.Toggle(lockSelectedCameraToSceneView, Strings.Thumbnails.lockSelectedCameraToSceneView);
+
+            Helpers.DrawGUILine();
+
             EditorGUI.BeginDisabledGroup(!SelectedCamera || !SelectedAvatar);
             {
-                //Camera to scene view button
-                if(GUILayout.Button(Strings.Buttons.alignCameraToView, Styles.BigButton))
-                {
-                    SelectedCamera.transform.position = SceneView.lastActiveSceneView.camera.transform.position;
-                    SelectedCamera.transform.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
-                }
-
-                EditorGUILayout.Space();
-
-                lockSelectedCameraToSceneView = GUILayout.Toggle(lockSelectedCameraToSceneView, Strings.Thumbnails.lockSelectedCameraToSceneView);
-
-                Helpers.DrawGUILine();
-
                 //Center Camera on Viewpoint button
                 GUILayout.BeginHorizontal();
                 {
@@ -3332,31 +3391,13 @@ namespace Pumkin.AvatarTools
                     _thumbsCameraBgClearFlagsOld = SelectedCamera.clearFlags;
                 else
                     RestoreCameraClearFlags();
-            }
-            EditorGUI.EndDisabledGroup();
 
-            if(bThumbnails_use_camera_background)
-            {
-                raw = GetCameraBackgroundRawImage(true);
-                background = GetCameraBackground(true);
-                if(cameraBackgroundType == PumkinsCameraPreset.CameraBackgroundOverrideType.Image)
-                {
-                    if(_selectedCamera && raw.texture && !background.activeInHierarchy)
-                        background.SetActive(true);
-                    else if(!raw.texture && background.activeInHierarchy)
-                        background.SetActive(false);
-                }
+                if(bThumbnails_use_camera_background)
+                    _cameraBackground.SetActive(true);
                 else
-                {
-                    if(background.activeInHierarchy)
-                        background.SetActive(false);
-                }
+                    _cameraBackground.SetActive(false);
             }
-            else
-            {
-                if(background)
-                    background.SetActive(false);
-            }
+            EditorGUI.EndDisabledGroup();            
 
             if(_thumbnails_useCameraBackground_expand || needsRefresh)
             {
@@ -3469,29 +3510,14 @@ namespace Pumkin.AvatarTools
                 if(cameraOverlayTexture == null && !string.IsNullOrEmpty(_overlayPath))
                     SetOverlayToImageFromPath(_overlayPath);
 
+                if(bThumbnails_use_camera_overlay)
+                    _cameraOverlay.SetActive(true);
+                else
+                    _cameraOverlay.SetActive(false);
+
                 needsRefresh = true;
             }
             EditorGUI.EndDisabledGroup();
-
-            if(bThumbnails_use_camera_overlay)
-            {
-                raw = GetCameraOverlayRawImage(true);
-                overlay = GetCameraOverlay(true);
-                if(_selectedCamera && raw.texture)
-                {
-                    if(!overlay.activeInHierarchy)
-                        overlay.SetActive(true);
-                }
-                else
-                {
-                    overlay.SetActive(false);
-                }
-            }
-            else
-            {
-                if(overlay)
-                    overlay.SetActive(false);
-            }
 
             if(_thumbnails_useCameraOverlay_expand || needsRefresh)
             {
