@@ -1176,8 +1176,14 @@ namespace Pumkin.HelperFunctions
                     view.z = PumkinsAvatarTools.DEFAULT_VIEWPOINT.z - 0.1f;
                 }
                 else
+                {
+                    PumkinsAvatarTools.Log("No Eye or Head bones assigned", LogType.Warning);
                     return PumkinsAvatarTools.DEFAULT_VIEWPOINT;
+                }
             }
+            else            
+                PumkinsAvatarTools.Log(Strings.Log.cantSetViewpointNonHumanoid);
+            
             return RoundVectorValues(view, 3);
         }
 
@@ -1289,6 +1295,65 @@ namespace Pumkin.HelperFunctions
             
             UnityEngine.Object obj = AssetDatabase.LoadAssetAtPath(assetPath, typeof(UnityEngine.Object));
             SelectAndPing(obj);
+        }
+
+        public static void MakeReferencesLocal<T>(Transform localRoot, params SerializedProperty[] properties) where T : UnityEngine.Component
+        {
+            if(localRoot == null)
+            {
+                PumkinsAvatarTools.LogVerbose("localRoot is null");
+                return;
+            }
+            else if(properties == null || properties.Length == 0)            
+                return;            
+
+            var sRoot = new SerializedObject(localRoot.gameObject);
+
+            foreach(var prop in properties)
+            {                
+                if(prop == null || prop.propertyType != SerializedPropertyType.ObjectReference)                                    
+                    continue;                
+
+                Component newComp = null;
+
+                var obj = prop.objectReferenceValue;
+                if(obj != null)
+                {
+                    Transform t = null;
+                    if(obj as Component)
+                    {
+                        var o = obj as Component;
+                        t = o.transform;
+                    }
+                    else if(obj as GameObject)
+                    {
+                        var o = obj as GameObject;
+                        t = o.transform;
+                    }
+                    else if(obj as Transform)
+                    {
+                        var o = obj as Transform;
+                        t = o;
+                    }
+                    else
+                    {
+                        PumkinsAvatarTools.Log($"{prop.name} isn't a GameObject or a component.", LogType.Error);
+                        continue;
+                    }
+
+                    var newTrans = FindTransformInAnotherHierarchy(t, localRoot, false);
+
+                    if(!newTrans)
+                    {
+                        PumkinsAvatarTools.LogVerbose($"Couldn't find {prop} in {localRoot}'s hierarchy");
+                        continue;
+                    }
+
+                    newComp = newTrans.GetComponent<T>();
+                }                
+                prop.objectReferenceValue = newComp;
+            }
+            sRoot.ApplyModifiedProperties();
         }
     }    
 }

@@ -164,6 +164,7 @@ namespace Pumkin.Translations
         public string openFolder = "Open Folder";
         public string selectFolder = "Select Folder";
         public string ok = "Ok";
+        public string moveToEyes = "Move to Eyes";
     };
 
     [Serializable]
@@ -190,6 +191,7 @@ namespace Pumkin.Translations
         public string fixDynamicBoneScripts = "Fix Missing DynamicBone Scripts in Prefab";
         public string hierarchyPath = "Hierarchy Path";
         public string anchorPath = "Anchor Path";
+        public string fillEyeBones = "Fill Eye Bones";
     };
 
     [Serializable]
@@ -222,6 +224,9 @@ namespace Pumkin.Translations
         public string descriptor_pipelineId = "Pipeline Id";
         public string descriptor_animationOverrides = "Animation Overrides";
         public string descriptor_copyViewpoint = "Viewpoint";
+        public string descriptor_playableLayers = "Playable Layers";
+        public string descriptor_eyeLookSettings = "Eye Look Settings";
+        public string descriptor_expressions = "Expressions";
         public string skinMeshRender = "Skinned Mesh Renderers";
         public string skinMeshRender_materials = "Materials";
         public string skinMeshRender_blendShapeValues = "BlendShape Values";

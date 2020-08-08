@@ -11,10 +11,10 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "0.8.2b";
-        public const double toolsVersion = 0.82;
+        public const string TOOLS_VERSION_STRING = "0.9b";
+        public const double toolsVersion = 0.90;
 
-        public const string POSE_EDITOR_VERSION_NUMBER = "0.1.2b - Work in Progress";
+        public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
         public const string LINK_DONATION = "https://ko-fi.com/notpumkin";
         public const string LINK_DISCORD = "https://discord.gg/7vyekJv";
@@ -134,6 +134,7 @@ namespace Pumkin.DataStructures
             public static string openFolder = "_Open Folder";
             public static string selectFolder = "_Select Folder";
             public static string ok = "_Ok";
+            public static string moveToEyes = "_Move to Eyes";
 
             static Buttons()
             {
@@ -174,6 +175,7 @@ namespace Pumkin.DataStructures
                 openFolder = Translation.buttons.openFolder;
                 selectFolder = Translation.buttons.selectFolder;
                 ok = Translation.buttons.ok;
+                moveToEyes = Translation.buttons.moveToEyes;
             }
         };
         public static class Tools
@@ -199,6 +201,7 @@ namespace Pumkin.DataStructures
             public static string fixDynamicBoneScripts = "_Fix Missing DynamicBone Scripts in Prefab";
             public static string hierarchyPath = "_Hierarchy Path";
             public static string anchorPath = "_Anchor Path";
+            public static string fillEyeBones = "_Fill Eye Bones";
 
             static Tools()
             {
@@ -231,6 +234,7 @@ namespace Pumkin.DataStructures
                 fixDynamicBoneScripts = Translation.tools.fixDynamicBoneScripts;
                 hierarchyPath = Translation.tools.hierarchyPath;
                 anchorPath = Translation.tools.anchorPath;
+                fillEyeBones = Translation.tools.fillEyeBones;
             }
         };
         public static class AvatarInfo
@@ -243,7 +247,7 @@ namespace Pumkin.DataStructures
             public static string uniqueMaterials = "_Unique Materials: {0} ({1})";
             public static string ikFollowers = "_IK Followers: {0} ({1})";
             public static string overallPerformance = "_Overall Performance: {0}";
-#if PUMKIN_VRCSDK2
+
             public static string bones = "_Bones: {0} - {1}";
             public static string skinnedMeshRenderers = "_Skinned Mesh Renderers: {0} ({1}) - {2}";
             public static string meshRenderers = "_Mesh Renderers: {0} ({1}) - {2}";
@@ -253,19 +257,7 @@ namespace Pumkin.DataStructures
             public static string dynamicBoneColliders = "_Dynamic Bone Colliders: {0} ({1}) - {2}";
             public static string dynamicBoneColliderTransforms = "_Collider Affected Transforms: {0} ({1}) - {2}";
             public static string particleSystems = "_Particle Systems: {0} ({1}) - {2}";
-            public static string maxParticles = "_Max Particles: {0} ({1}) - {2}";            
-#else
-            public static string bones = "_Bones: {0}";
-            public static string skinnedMeshRenderers = "_Skinned Mesh Renderers: {0} ({1})";
-            public static string meshRenderers = "_Mesh Renderers: {0} ({1})";
-            public static string polygons = "_Polygons: {0} ({1})";
-            public static string usedMaterialSlots = "_Used Material Slots: {0} ({1})";            
-            public static string dynamicBoneTransforms = "_Dynamic Bone Transforms: {0} ({1})";
-            public static string dynamicBoneColliders = "_Dynamic Bone Colliders: {0} ({1})";
-            public static string dynamicBoneColliderTransforms = "_Collider Affected Transforms: {0} ({1})";
-            public static string particleSystems = "_Particle Systems: {0} ({1})";
-            public static string maxParticles = "_Max Particles: {0} ({1})";        
-#endif
+            public static string maxParticles = "_Max Particles: {0} ({1}) - {2}";
 
             static AvatarInfo()
             {
@@ -399,6 +391,9 @@ namespace Pumkin.DataStructures
             public static string descriptor_pipelineId = "_Pipeline Id";
             public static string descriptor_animationOverrides = "_Animation Overrides";
             public static string descriptor_copyViewpoint = "_Viewpoint";
+            public static string descriptor_playableLayers = "_Playable Layers";
+            public static string descriptor_eyeLookSettings = "_Eye Look Settings";
+            public static string descriptor_expressions = "_Expressions";
             public static string skinMeshRender = "_Skinned Mesh Renderers";
             public static string skinMeshRender_materials = "_Materials";
             public static string skinMeshRender_blendShapeValues = "_BlendShape Values";
@@ -470,10 +465,16 @@ namespace Pumkin.DataStructures
                 colliders_sphere = Translation.copier.colliders_sphere;
                 colliders_mesh = Translation.copier.colliders_mesh;
                 colliders_removeOld = Translation.copier.colliders_removeOld;
+                
                 descriptor = Translation.copier.descriptor;
                 descriptor_pipelineId = Translation.copier.descriptor_pipelineId;
                 descriptor_animationOverrides = Translation.copier.descriptor_animationOverrides;
-                descriptor_copyViewpoint = Translation.copier.descriptor_copyViewpoint;
+                descriptor_copyViewpoint = Translation.copier.descriptor_copyViewpoint;                
+                descriptor_playableLayers = Translation.copier.descriptor_playableLayers;
+                descriptor_eyeLookSettings = Translation.copier.descriptor_eyeLookSettings;
+                descriptor_expressions = Translation.copier.descriptor_expressions;
+
+
                 skinMeshRender = Translation.copier.skinMeshRender;
                 skinMeshRender_materials = Translation.copier.skinMeshRender_materials;
                 skinMeshRender_blendShapeValues = Translation.copier.skinMeshRender_blendShapeValues;

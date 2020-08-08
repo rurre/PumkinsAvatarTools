@@ -19,7 +19,7 @@ namespace Pumkin.DependencyChecker
         public static string MainScriptPath { get; private set; }        
 
         public enum PumkinsDBonesVersion { NotFound, OldVersion, NewVersionWithBaseColliders }
-        public enum PumkinsSDKVersion { NotFound, BeforePerformanceRanks, WithPerfromanceRanks }        
+        public enum PumkinsSDKVersion { NotFound, SDK2, SDK3 }
 
         public static PumkinsSDKVersion SDKVersion
         {
@@ -57,19 +57,6 @@ namespace Pumkin.DependencyChecker
             var definesToAdd = new HashSet<string>();
             var currentDefines = ScriptDefinesManager.GetDefinesAsArray();                
 
-            switch(SDKVersion)
-            {
-                case PumkinsSDKVersion.BeforePerformanceRanks:
-                    definesToAdd.Add(HAS_SDK1);
-                    break;
-                case PumkinsSDKVersion.WithPerfromanceRanks:
-                    definesToAdd.Add(HAS_SDK2);
-                    break;
-                case PumkinsSDKVersion.NotFound:
-                default:
-                    break;
-            }
-
             switch(DBonesVersion)
             {
                 case PumkinsDBonesVersion.NewVersionWithBaseColliders:
@@ -89,20 +76,13 @@ namespace Pumkin.DependencyChecker
         /// </summary>        
         static PumkinsSDKVersion GetVRCSDKVersion()
         {
-            Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for VRChat SDK in project...");
-            Type sdkType = GetTypeFromName("VRCSDK2.VRC_AvatarDescriptor");
-
-            if(sdkType != null)
-            {
-                Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found VRChat SDK.");
-                Type perfStatsType = GetTypeFromName("VRCSDK2.Validation.Performance.Stats.AvatarPerformanceStats");
-                if(perfStatsType != null)
-                    return PumkinsSDKVersion.WithPerfromanceRanks;
-                return PumkinsSDKVersion.BeforePerformanceRanks;
-            }            
-
-            Debug.Log("<color=blue>PumkinsAvatarTools</color>: VRChat SDK not found. Please import the SDK to use these tools.");
+#if VRC_SDK_VRCSDK3
+            return PumkinsSDKVersion.SDK3;
+#elif VRC_SDK_VRCSDK2
+            return PumkinsSDKVersion.SDK2;
+#else
             return PumkinsSDKVersion.NotFound;
+#endif
         }
 
         /// <summary>

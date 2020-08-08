@@ -7,10 +7,10 @@ using System.Linq;
 using Pumkin.Extensions;
 using Pumkin.AvatarTools;
 using System.IO;
-using VRCSDK2;
 using Pumkin.Translations;
 
-#if PUMKIN_VRCSDK2
+#if VRC_SDK_VRCSDK2
+using VRCSDK2;
 using VRCSDK2.Validation.Performance;
 using VRCSDK2.Validation.Performance.Stats;
 #endif
@@ -29,6 +29,7 @@ namespace Pumkin.DataStructures
                     "dynamicbone",
                     "dynamicbonecollider",                    
                     "vrc_avatardescriptor",
+                    "vrcavatardescriptor",
                     "skinnedmeshrenderer",
                     "meshrenderer",
                     "particlesystem",

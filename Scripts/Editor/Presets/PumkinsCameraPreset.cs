@@ -6,7 +6,7 @@ using Pumkin.PoseEditor;
 using System;
 using UnityEditor;
 using UnityEngine;
-using VRCSDK2;
+using VRC.SDKBase;
 
 namespace Pumkin.Presets
 {

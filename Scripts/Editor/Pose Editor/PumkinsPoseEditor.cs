@@ -15,9 +15,6 @@ namespace Pumkin.PoseEditor
     {
         public enum PoseChangeType { Reset, Normal, PoseEditor };
 
-        //static double deltaTime = 0;
-        //static double lastTime = 0;        
-
         static List<PumkinsPosePreset> _defaultPoses;
         public static List<PumkinsPosePreset> DefaultPoses
         {
@@ -66,7 +63,8 @@ namespace Pumkin.PoseEditor
         //Pose from animation                
         AnimationClip animClip;
         float animTimeCurrent = 0;
-        //bool playAnimation = false;        
+        bool playAnimation = false;
+        public float animationSpeed = 0.03f;
         bool allowMotion = false;
 
         static Animator _avatarAnimator;        
@@ -76,6 +74,8 @@ namespace Pumkin.PoseEditor
         static bool _openedSettings = false;
 
         static List<PoseEditorBone> bones = new List<PoseEditorBone>();
+
+        EditorApplication.CallbackFunction updateCallback;
 
         public static Animator AvatarAnimator
         {
@@ -143,6 +143,11 @@ namespace Pumkin.PoseEditor
             PoseChanged += HandlePoseChange;
 
             SceneView.onSceneGUIDelegate += DrawHandlesGUI;
+
+            if(updateCallback == null)
+                updateCallback = new EditorApplication.CallbackFunction(OnUpdate);
+
+            EditorApplication.update += updateCallback;
         }        
 
         private void OnDisable()
@@ -150,13 +155,14 @@ namespace Pumkin.PoseEditor
             PumkinsAvatarTools.AvatarSelectionChanged -= HandleAvatarSelectionChanged;
             PoseChanged -= HandlePoseChange;
 
+            playAnimation = false;
+
             SceneView.onSceneGUIDelegate -= DrawHandlesGUI;
+            EditorApplication.update -= updateCallback;
         }
 
         public void OnGUI()
         {            
-            //deltaTime = Time.time - lastTime;
-            //lastTime = Time.time;
             EditorGUILayout.BeginHorizontal();
             {
                 EditorGUILayout.LabelField(Strings.PoseEditor.title, Styles.Label_mainTitle);
@@ -335,7 +341,7 @@ namespace Pumkin.PoseEditor
             {                
                 animTimeCurrent = 0;
                 applyAnimation = true;
-                //playAnimation = false;
+                playAnimation = false;
             }
 
             if(animClip)
@@ -344,31 +350,45 @@ namespace Pumkin.PoseEditor
                 {
                     animTimeCurrent = EditorGUILayout.Slider(Strings.PoseEditor.animationTime, animTimeCurrent, 0, animClip.length);
                 }
-                if(EditorGUI.EndChangeCheck() || applyAnimation) //|| playAnimation)
-                {                       
-                    //Save transform position and rotation to prevent root motion
-                    SerialTransform currentTrans = PumkinsAvatarTools.SelectedAvatar.transform;
-
-                    animClip.SampleAnimation(PumkinsAvatarTools.SelectedAvatar, animTimeCurrent);
-
-                    if(currentTrans) //Restore position and rotation of avatar
-                        PumkinsAvatarTools.SelectedAvatar.transform.SetPositionAndRotation(currentTrans.position, currentTrans.rotation);                    
-
-                   ReloadPoseVariables(PumkinsAvatarTools.SelectedAvatar);
+                if(EditorGUI.EndChangeCheck() || applyAnimation)
+                {
+                    ApplyAnimation();
                 }
 
                 allowMotion = GUILayout.Toggle(allowMotion, Strings.PoseEditor.allowMotion);
-                                
-                //if(GUILayout.Button(playAnimation ? "Pause" : "Play"))
-                //    playAnimation = !playAnimation;
 
-                //if(playAnimation)
-                //{
-                //    animTimeCurrent = animTimeCurrent + (float)deltaTime;
-                //    animTimeCurrent = Helpers.WrapToRange(animTimeCurrent, 0, animClip.length);                    
-                //}
+                if(GUILayout.Button(playAnimation ? "Pause" : "Play"))                
+                    playAnimation = !playAnimation;                
             }
             Helpers.DrawGUILine();
+        }
+
+        private void ApplyAnimation()
+        {
+            //Save transform position and rotation to prevent root motion
+            SerialTransform currentTrans = PumkinsAvatarTools.SelectedAvatar.transform;
+
+            animClip.SampleAnimation(PumkinsAvatarTools.SelectedAvatar, animTimeCurrent);
+
+            if(currentTrans) //Restore position and rotation of avatar
+                PumkinsAvatarTools.SelectedAvatar.transform.SetPositionAndRotation(currentTrans.position, currentTrans.rotation);
+
+            ReloadPoseVariables(PumkinsAvatarTools.SelectedAvatar);
+        }
+
+        void OnUpdate()
+        {
+            if(playAnimation)
+            {
+                if(!animClip || animClip.length == 0)
+                {
+                    playAnimation = false;
+                    return;
+                }
+
+                animTimeCurrent = Helpers.WrapToRange(animTimeCurrent + Time.deltaTime, 0, animClip.length);
+                ApplyAnimation();
+            }
         }
 
         private static void ReloadPoseVariables(GameObject newAvatar)

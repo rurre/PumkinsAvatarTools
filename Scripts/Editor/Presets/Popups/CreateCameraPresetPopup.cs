@@ -79,7 +79,7 @@ namespace Pumkin.Presets
                 else if(p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform && referenceTransform)
                     p.CalculateOffsets(referenceTransform, camera);
                 else
-                    p.CalculateOffsets(PumkinsAvatarTools.SelectedAvatar.GetComponent<VRCSDK2.VRC_AvatarDescriptor>(), camera);
+                    p.CalculateOffsets(PumkinsAvatarTools.SelectedAvatar.GetComponent<VRC_AvatarDescriptor>(), camera);
             }
             preset = p;
         }

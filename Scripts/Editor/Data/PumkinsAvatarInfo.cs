@@ -13,9 +13,7 @@ namespace Pumkin.AvatarTools
 {
     public class PumkinsAvatarInfo //Need to improve this class sometime when I overhaul the performance stats
     {
-#if PUMKIN_VRCSDK2
         AvatarPerformanceStats perfStats = new AvatarPerformanceStats();
-#endif
         public string Name { get; private set; }
         public string CachedInfo { get; private set; }
 
@@ -87,13 +85,13 @@ namespace Pumkin.AvatarTools
             if(o == null)
                 return;
 
-#if PUMKIN_VRCSDK2
+
             try
             {
                 AvatarPerformance.CalculatePerformanceStats(o.name, o, perfStats);
             }
             catch { }
-#endif
+
             Name = o.name;
 
             var shaderHash = new HashSet<Shader>();
@@ -295,7 +293,7 @@ namespace Pumkin.AvatarTools
                 }
                 try
                 {
-#if PUMKIN_VRCSDK2
+
                     CachedInfo =
                     string.Format(Strings.AvatarInfo.name, Name) + "\n" +
                     string.Format(Strings.AvatarInfo.line) + "\n" +
@@ -315,27 +313,6 @@ namespace Pumkin.AvatarTools
                     string.Format(Strings.AvatarInfo.ikFollowers, IKFollowers, IKFollowers_Total) + "\n" +
                     Strings.AvatarInfo.line + "\n" +
                     string.Format(Strings.AvatarInfo.overallPerformance, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.Overall));
-#else
-                    CachedInfo =
-                    string.Format(Strings.AvatarInfo.name, Name) + "\n" +
-                    string.Format(Strings.AvatarInfo.line) + "\n" +
-                    string.Format(Strings.AvatarInfo.gameObjects, GameObjects, GameObjects_Total) + "\n" +
-                    string.Format(Strings.AvatarInfo.bones, Bones, "?") + "\n\n" +
-                    string.Format(Strings.AvatarInfo.skinnedMeshRenderers, SkinnedMeshRenderers, SkinnedMeshRenderers_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.meshRenderers, MeshRenderers, MeshRenderers_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.polygons, Polygons, Polygons_Total, "?") + "\n\n" +
-                    string.Format(Strings.AvatarInfo.usedMaterialSlots, MaterialSlots, MaterialSlots_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.uniqueMaterials, UniqueMaterials, UniqueMaterials_Total) + "\n" +
-                    string.Format(Strings.AvatarInfo.shaders, ShaderCount) + "\n\n" +
-                    string.Format(Strings.AvatarInfo.dynamicBoneTransforms, DynamicBoneTransforms, DynamicBoneTransforms_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.dynamicBoneColliders, DynamicBoneColliders, DynamicBoneColliders_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.dynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, "?") + "\n\n" +
-                    string.Format(Strings.AvatarInfo.particleSystems, ParticleSystems, ParticleSystems_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, "?") + "\n\n" +
-                    string.Format(Strings.AvatarInfo.ikFollowers, IKFollowers, IKFollowers_Total) + "\n" +
-                    Strings.AvatarInfo.line + "\n" +
-                    string.Format(Strings.AvatarInfo.overallPerformance, "?");
-#endif
                 }
                 catch
                 {
