@@ -13,7 +13,7 @@ namespace Pumkin.PoseEditor
 {
     public class PumkinsPoseEditor : EditorWindow
     {
-        public enum PoseChangeType { Reset, Normal, PoseEditor };
+        public enum PoseChangeType { Reset, Normal, PoseEditor }
 
         static List<PumkinsPosePreset> _defaultPoses;
         public static List<PumkinsPosePreset> DefaultPoses
@@ -37,7 +37,6 @@ namespace Pumkin.PoseEditor
                             }),
                         PumkinsPosePreset.CreatePreset("Idle", new float[]
                             {
-
                             }),
                     };
                 }
@@ -119,7 +118,6 @@ namespace Pumkin.PoseEditor
 
         private void Awake()
         {
-            
         }
 
         private void OnFocus()
@@ -309,7 +307,6 @@ namespace Pumkin.PoseEditor
                             PumkinsAvatarTools.Log(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, avatarPose.bodyPosition.y.ToString());
                             avatarPose.bodyPosition.y = 1;
                         }
-
 
                         Undo.RegisterCompleteObjectUndo(PumkinsAvatarTools.SelectedAvatar, "Pose Editor: Set pose from sliders");
                         avatarPoseHandler.SetHumanPose(ref avatarPose);
