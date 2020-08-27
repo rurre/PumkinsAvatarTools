@@ -24,7 +24,7 @@ namespace Pumkin.Presets
         public Quaternion bodyRotation = Quaternion.identity;
 
         private PumkinsPosePreset() { }
-        public enum PosePresetMode { HumanPose, TransformRotations };
+        public enum PosePresetMode { HumanPose, TransformRotations }
 
         /// <summary>
         /// Creates and returns a PosePreset based on transform rotations only
