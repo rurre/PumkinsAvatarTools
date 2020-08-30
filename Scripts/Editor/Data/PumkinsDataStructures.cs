@@ -19,7 +19,7 @@ namespace Pumkin.DataStructures
 {
     public static class CopierTabs
     {
-        public enum Tab { Common, All };    //All needs to be last
+        public enum Tab { Common, All }    //All needs to be last
         static readonly Dictionary<Tab, string[]> Tabs = new Dictionary<Tab, string[]>()
         {
             { 
@@ -335,7 +335,6 @@ namespace Pumkin.DataStructures
             GithubIcon = Resources.Load("icons/github-logo") as Texture2D ?? Star;
             KofiIcon = Resources.Load("icons/kofi-logo") as Texture2D ?? Star;
         }
-
     }    
 
     /// <summary>

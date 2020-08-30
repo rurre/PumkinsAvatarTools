@@ -26,7 +26,6 @@ using VRC_AvatarDescriptor = VRC.SDK3.Avatars.Components.VRCAvatarDescriptor;
 using VRC_AvatarDescriptor = VRCSDK2.VRC_AvatarDescriptor;
 #endif
 
-
 /// <summary>
 /// PumkinsAvatarTools by, well, Pumkin
 /// https://github.com/rurre/PumkinsAvatarTools
@@ -117,7 +116,7 @@ namespace Pumkin.AvatarTools
             RemovePositionConstraint,
             FixDynamicBoneScripts,
             FillEyeBones,
-        };
+        }
 
         readonly static string DUMMY_NAME = "_Dummy";
         readonly static string VIEWPOINT_DUMMY_NAME = "_PumkinsViewpointDummy";
@@ -281,7 +280,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] int _presetToolbarSelectedIndex = 0;
         [SerializeField] CameraClearFlags _thumbsCameraBgClearFlagsOld = CameraClearFlags.Skybox;
 
-        public enum PresetToolbarOptions { Camera, Pose, Blendshape };
+        public enum PresetToolbarOptions { Camera, Pose, Blendshape }
 
         [SerializeField] public int _selectedCameraPresetIndex = 0;
         [SerializeField] public string _selectedCameraPresetString = "";
@@ -445,7 +444,6 @@ namespace Pumkin.AvatarTools
 
 #region Properties
 
-
         public static PumkinsAvatarTools Instance
         {
             get
@@ -453,7 +451,6 @@ namespace Pumkin.AvatarTools
                 return _PumkinsAvatarToolsWindow.ToolsWindow;
             }
         }
-
 
         public static GameObject SelectedAvatar
         {
@@ -593,7 +590,6 @@ namespace Pumkin.AvatarTools
                         _mainFolderPath = folder[0];
                     else
                         _mainFolderPath = Directory.GetParent(MainScriptPath).Parent.FullName;
-
                 }
                 return _mainFolderPath;
             }
@@ -1596,7 +1592,6 @@ namespace Pumkin.AvatarTools
                     if(Selection.activeObject)
                         SelectAvatarFromScene();
 
-
             if(showSceneSelectionCheckBox)
                 _useSceneSelectionAvatar = GUILayout.Toggle(_useSceneSelectionAvatar, Strings.Main.useSceneSelection);
         }
@@ -2147,7 +2142,6 @@ namespace Pumkin.AvatarTools
 
                     if(CopierTabs.ComponentIsInSelectedTab<ParentConstraint>(_copier_selectedTab))
                     {
-
                         //Parent Constraints menu
                         Helpers.DrawDropdownWithToggle(ref _copier_expand_parentConstraints, ref bCopier_parentConstraint_copy, Strings.Copier.parentConstraints, Icons.ParentConstraint);
                         if(_copier_expand_parentConstraints)
@@ -2661,7 +2655,6 @@ namespace Pumkin.AvatarTools
                             break;
                     }
 
-
                     EditorGUILayout.Space();
 
                     EditorGUILayout.BeginHorizontal();
@@ -2839,7 +2832,6 @@ namespace Pumkin.AvatarTools
                             _tools_quickSetup_setMeshRendererAnchor = GUILayout.Toggle(_tools_quickSetup_setMeshRendererAnchor, Strings.Tools.setMeshRendererAnchors);
                         }
                         EditorGUI.EndDisabledGroup();
-
                     }
 
                     Helpers.DrawGUILine();
@@ -2951,7 +2943,6 @@ namespace Pumkin.AvatarTools
                         {
                             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
                             {
-
                                 EditorGUI.BeginDisabledGroup(!DynamicBonesExist);
                                 {
                                     if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones, Icons.BoneIcon)))
@@ -2985,7 +2976,6 @@ namespace Pumkin.AvatarTools
 
                             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
                             {
-
                                 EditorGUI.BeginDisabledGroup(!DynamicBonesExist);
                                 {
                                     if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones_colliders, Icons.BoneColliderIcon)))
@@ -3303,7 +3293,6 @@ namespace Pumkin.AvatarTools
                             CreateBlendshapePopup.ShowWindow(pr[pSelectedPresetIndex.intValue] as PumkinsBlendshapePreset);
                             PumkinsAvatarTools.SetupBlendeshapeRendererHolders(SelectedAvatar);
                         }
-
                     }
                     if(GUILayout.Button(Strings.Buttons.load))
                     {
@@ -3889,7 +3878,6 @@ namespace Pumkin.AvatarTools
                     {
                         SelectedAvatar = sel;
                         avatarInfo = PumkinsAvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
-
                     }
                     else if(!_useSceneSelectionAvatar)
                     {
@@ -4304,7 +4292,6 @@ namespace Pumkin.AvatarTools
             if(_editingView || _editingScale || !avatar)
                 return;
 
-
             _tempAvatarDescriptor = avatar.GetComponent<VRC_AvatarDescriptor>();
             if(!_tempAvatarDescriptor)
             {
@@ -4529,7 +4516,6 @@ namespace Pumkin.AvatarTools
                 }
             }
         }
-
 
 #endregion
 
@@ -5054,7 +5040,6 @@ namespace Pumkin.AvatarTools
             sDesc.ApplyModifiedProperties();
         }
 
-
         /// <summary>
         /// Copies all DynamicBoneColliders from object and it's children to another object.
         /// </summary>        
@@ -5307,7 +5292,6 @@ namespace Pumkin.AvatarTools
 #endif
         }
 
-
         /// <summary>
         /// Copies Box, Capsule, Sphere and Mesh colliders from one object to another and all of it's children at once.
         /// </summary>
@@ -5528,7 +5512,6 @@ namespace Pumkin.AvatarTools
                     {
                         Log(log + Strings.Log.failedDoesntHave, LogType.Warning, rTo.gameObject.name, rFrom.GetType().ToString());
                     }
-
                 }
             }
         }
@@ -5642,7 +5625,6 @@ namespace Pumkin.AvatarTools
                         Log(Strings.Log.failedAlreadyHas, LogType.Log, partSys.gameObject.name, "ParticleSystem");
                     }
                 }
-
             }
         }
 
@@ -5717,7 +5699,6 @@ namespace Pumkin.AvatarTools
                         Log(Strings.Log.failedAlreadyHas, LogType.Log, aimCon.gameObject.name, typeString);
                     }
                 }
-
             }
         }
 
@@ -5793,7 +5774,6 @@ namespace Pumkin.AvatarTools
                         Log(Strings.Log.failedAlreadyHas, LogType.Log, lookCon.gameObject.name, typeString);
                     }
                 }
-
             }
         }
 
@@ -5862,7 +5842,6 @@ namespace Pumkin.AvatarTools
                         Log(Strings.Log.failedAlreadyHas, LogType.Log, parCon.gameObject.name, typeString);
                     }
                 }
-
             }
         }
 
@@ -6020,7 +5999,6 @@ namespace Pumkin.AvatarTools
                         Log(Strings.Log.failedAlreadyHas, LogType.Log, posCon.gameObject.name, typeString);
                     }
                 }
-
             }
         }
 
@@ -6089,7 +6067,6 @@ namespace Pumkin.AvatarTools
                         Log(Strings.Log.failedAlreadyHas, LogType.Log, rotCon.gameObject.name, typeString);
                     }
                 }
-
             }
         }
 
@@ -6158,7 +6135,6 @@ namespace Pumkin.AvatarTools
                         Log(Strings.Log.failedAlreadyHas, LogType.Log, scaleCon.gameObject.name, typeString);
                     }
                 }
-
             }
         }
 
@@ -6512,7 +6488,6 @@ namespace Pumkin.AvatarTools
             }
             else
             {
-
                 pref = PrefabUtility.GetCorrespondingObjectFromSource(render.gameObject) as GameObject;
 
                 if(pref != null)
@@ -6522,7 +6497,6 @@ namespace Pumkin.AvatarTools
                     Log(Strings.Log.meshPrefabMissingCantRevertBlednshapes, LogType.Error);
                     return;
                 }
-
 
                 if(render.sharedMesh.blendShapeCount == prefRender.sharedMesh.blendShapeCount)
                 {

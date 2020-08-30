@@ -90,7 +90,7 @@ namespace Pumkin.Translations
             hashCode = hashCode * -1521134295 + EqualityComparer<PresetStrings>.Default.GetHashCode(preset);
             return hashCode;
         }
-    };
+    }
 
     [Serializable]
     public class PresetStrings
@@ -130,7 +130,7 @@ namespace Pumkin.Translations
         public string avatar = "Avatar";
         public string useSceneSelection = "Use Scene Selection";
         public string experimental = "Experimental";
-    };
+    }
 
     [Serializable]
     public class ButtonStrings
@@ -165,7 +165,7 @@ namespace Pumkin.Translations
         public string selectFolder = "Select Folder";
         public string ok = "Ok";
         public string moveToEyes = "Move to Eyes";
-    };
+    }
 
     [Serializable]
     public class ToolStrings
@@ -192,7 +192,7 @@ namespace Pumkin.Translations
         public string hierarchyPath = "Hierarchy Path";
         public string anchorPath = "Anchor Path";
         public string fillEyeBones = "Fill Eye Bones";
-    };
+    }
 
     [Serializable]
     public class CopierStrings
@@ -265,7 +265,7 @@ namespace Pumkin.Translations
         public string joints_character = "Character Joint";
         public string joints_configurable = "Configurable Joint";
         public string joints_removeOld = "Remove Old Joints";
-    };
+    }
 
     [Serializable]
     public class AvatarInfoStrings
@@ -288,7 +288,7 @@ namespace Pumkin.Translations
         public string overallPerformance = "Overall Performance: {0}";
         public string selectAvatarFirst = "Select an Avatar first";
         public string ikFollowers = "IK Followers: {0} ({1})";
-    };
+    }
 
     [Serializable]
     public class ThumbnailStrings
@@ -322,7 +322,7 @@ namespace Pumkin.Translations
         public string overlayImagePath = "Overlay Image Path";
         public string imagePath = "Image Path";
         public string backgroundColor = "Background Color";
-    };
+    }
 
     [Serializable]
     public class LogStrings
@@ -377,7 +377,7 @@ namespace Pumkin.Translations
         public string exitPrefabModeFirst = "Please exit prefab mode before doing this";
         public string transformNotFound = "Transform at '{0}' not found";
         public string cantApplyPreset = "Can't apply preset";
-    };
+    }
 
     [Serializable]
     public class WarningStrings
@@ -395,7 +395,7 @@ namespace Pumkin.Translations
         public string armatureScalesDontMatch = "Armature scales for selected avatars don't match!\nThis can cause issues";
         public string noDBonesOrMissingScriptDefine = "No DynamicBones found or missing script define";
         public string languageAlreadyExistsOverwrite = "Language preset already exists. Overwrite?";
-    };
+    }
 
     [Serializable]
     public class CreditsStrings
@@ -404,7 +404,7 @@ namespace Pumkin.Translations
         public string redundantStrings = "Now with 100% more redundant strings";
         public string addMoreStuff = "I'll add more stuff to this eventually";
         public string pokeOnDiscord = "Poke me on Discord at Pumkin#2020";
-    };
+    }
 
     [Serializable]
     public class SettingsStrings
@@ -418,7 +418,7 @@ namespace Pumkin.Translations
         public string sceneViewOverlayWindowsAtBottom = "Draw scene view overlays at the bottom";
         public string misc = "Misc";
         public string showExperimentalMenu = "Show experimental menu";
-    };
+    }
 
     [Serializable]
     public class PoseEditorStrings

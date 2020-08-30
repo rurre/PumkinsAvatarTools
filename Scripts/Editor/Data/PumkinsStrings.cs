@@ -102,7 +102,7 @@ namespace Pumkin.DataStructures
                 useSceneSelection = Translation.main.useSceneSelection;
                 experimental = Translation.main.experimental;
             }
-        };
+        }
         public static class Buttons
         {
             public static string selectFromScene = "_Select from Scene";
@@ -177,7 +177,7 @@ namespace Pumkin.DataStructures
                 ok = Translation.buttons.ok;
                 moveToEyes = Translation.buttons.moveToEyes;
             }
-        };
+        }
         public static class Tools
         {
             public static string fillVisemes = "_Fill Visemes";
@@ -236,7 +236,7 @@ namespace Pumkin.DataStructures
                 anchorPath = Translation.tools.anchorPath;
                 fillEyeBones = Translation.tools.fillEyeBones;
             }
-        };
+        }
         public static class AvatarInfo
         {
             public static string name = "_{0}";
@@ -474,7 +474,6 @@ namespace Pumkin.DataStructures
                 descriptor_eyeLookSettings = Translation.copier.descriptor_eyeLookSettings;
                 descriptor_expressions = Translation.copier.descriptor_expressions;
 
-
                 skinMeshRender = Translation.copier.skinMeshRender;
                 skinMeshRender_materials = Translation.copier.skinMeshRender_materials;
                 skinMeshRender_blendShapeValues = Translation.copier.skinMeshRender_blendShapeValues;
@@ -514,7 +513,7 @@ namespace Pumkin.DataStructures
                 showCommon = Translation.copier.showCommon;               
                 showAll = Translation.copier.showAll;               
             }
-        };
+        }
         public static class Log
         {
             public static string done = "_Done";
@@ -629,7 +628,7 @@ namespace Pumkin.DataStructures
                 transformNotFound = Translation.log.transformNotFound;
                 cantApplyPreset = Translation.log.cantApplyPreset;
             }
-        };
+        }
         public static class Warning
         {
             public static string warn = "_Warning";
@@ -669,7 +668,7 @@ namespace Pumkin.DataStructures
                 noDBonesOrMissingScriptDefine = Translation.warnings.noDBonesOrMissingScriptDefine;
                 languageAlreadyExistsOverwrite = Translation.warnings.languageAlreadyExistsOverwrite;
             }
-        };
+        }
         public static class Credits
         {
             public static string version = "_Version";
@@ -692,7 +691,7 @@ namespace Pumkin.DataStructures
                 addMoreStuff = Translation.credits.addMoreStuff;
                 pokeOnDiscord = Translation.credits.pokeOnDiscord;
             }
-        };
+        }
         public static class PoseEditor
         {
             public static string version = "_Version";
@@ -847,5 +846,5 @@ namespace Pumkin.DataStructures
                 showExperimentalMenu = Translation.misc.showExperimentalMenu;                
             }
         }
-    };
+    }
 }

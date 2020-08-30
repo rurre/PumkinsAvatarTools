@@ -13,8 +13,8 @@ namespace Pumkin.Presets
     [Serializable]
     public class PumkinsCameraPreset : PumkinPreset
     {
-        public enum CameraOffsetMode { Viewpoint, AvatarRoot, Transform };
-        public enum CameraBackgroundOverrideType { Color, Skybox, Image };
+        public enum CameraOffsetMode { Viewpoint, AvatarRoot, Transform }
+        public enum CameraBackgroundOverrideType { Color, Skybox, Image }
 
         public CameraOffsetMode offsetMode = CameraOffsetMode.Viewpoint;
         public Vector3 positionOffset = Vector3.zero;
