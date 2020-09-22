@@ -1428,7 +1428,7 @@ namespace Pumkin.AvatarTools
                 return;
             }
 
-            Vector2 windowSize = new Vector2(200, 50);
+            Vector2 windowSize = new Vector2(200, 68);
 
             Rect rect = SceneView.currentDrawingSceneView.camera.pixelRect;
             if(handlesUiWindowPositionAtBottom)
