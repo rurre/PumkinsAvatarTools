@@ -36,11 +36,11 @@ namespace Pumkin.AvatarTools
     [ExecuteInEditMode, CanEditMultipleObjects, Serializable]
     public class PumkinsAvatarTools : EditorWindow
     {
-#region Variables        
+#region Variables
 
 #region Tools
 
-        [SerializeField] private static GameObject _selectedAvatar; // use property        
+        [SerializeField] private static GameObject _selectedAvatar; // use property
 
         [SerializeField] static bool _useSceneSelectionAvatar = false;
 
@@ -58,7 +58,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool _tools_quickSetup_setMeshRendererAnchor = true;
         [SerializeField] string _tools_quickSetup_setRenderAnchor_path = "Armature/Hips/Spine";
 
-        //Editing Viewpoint        
+        //Editing Viewpoint
         bool _editingView = false;
         Vector3 _viewPosOld;
         Vector3 _viewPosTemp;
@@ -120,7 +120,7 @@ namespace Pumkin.AvatarTools
 
         readonly static string DUMMY_NAME = "_Dummy";
         readonly static string VIEWPOINT_DUMMY_NAME = "_PumkinsViewpointDummy";
-        readonly static string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";         
+        readonly static string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";
 
 #endregion
 
@@ -148,9 +148,9 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool bCopier_descriptor_copyPipelineId = false;
         [SerializeField] bool bCopier_descriptor_copyViewpoint = true;
         [SerializeField] bool bCopier_descriptor_copyAvatarScale = true;
-        
+
         [SerializeField] bool bCopier_descriptor_copyAnimationOverrides = true;
-        
+
         [SerializeField] bool bCopier_descriptor_copyEyeLookSettings = true;
         [SerializeField] bool bCopier_descriptor_copyPlayableLayers = true;
         [SerializeField] bool bCopier_descriptor_copyExpressions = true;
@@ -246,17 +246,17 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool bCopier_scaleConstraint_createObjects = true;
         [SerializeField] bool bCopier_scaleConstraint_copy = true;
         [SerializeField] bool bCopier_scaleConstraint_onlyIfHasValidSources = true;
-        
+
         //[SerializeField] bool bCopier_cloth_replaceOld = true;
         //[SerializeField] bool bCopier_cloth_createObjects = true;
-        //[SerializeField] bool bCopier_cloth_copy = true;        
+        //[SerializeField] bool bCopier_cloth_copy = true;
 
         [SerializeField] CopierTabs.Tab _copier_selectedTab = CopierTabs.Tab.Common;
 
         bool _copierCheckedArmatureScales = false;
         bool _copierShowArmatureScaleWarning = false;
 
-        //Ignore Array        
+        //Ignore Array
         [SerializeField] bool _copierIgnoreArray_expand = false;
         [SerializeField] SerializedProperty _serializedIgnoreArrayProp;
         [SerializeField] Transform[] _copierIgnoreArray = new Transform[0];
@@ -367,7 +367,7 @@ namespace Pumkin.AvatarTools
 
         static PumkinsAvatarInfo avatarInfo = new PumkinsAvatarInfo();
         static string _avatarInfoSpace = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-        static string _avatarInfoString = Strings.AvatarInfo.selectAvatarFirst + _avatarInfoSpace; //Please don't hurt me for this        
+        static string _avatarInfoString = Strings.AvatarInfo.selectAvatarFirst + _avatarInfoSpace; //Please don't hurt me for this
 
 #endregion
 
@@ -764,8 +764,8 @@ namespace Pumkin.AvatarTools
             if(overlay && !_cameraOverlayImage)
                 _cameraOverlayImage = overlay.GetComponent<RawImage>();
 
-            if(!_cameraOverlayImage && createIfMissing)            
-                SetupCameraRawImageAndCanvas(_cameraOverlay, ref _cameraOverlayImage, true);            
+            if(!_cameraOverlayImage && createIfMissing)
+                SetupCameraRawImageAndCanvas(_cameraOverlay, ref _cameraOverlayImage, true);
 
             return _cameraOverlayImage;
         }
@@ -905,7 +905,7 @@ namespace Pumkin.AvatarTools
                     bgc = bg.gameObject.AddComponent<Canvas>();
                 bgc.worldCamera = camera;
                 if(camera)
-                    bgc.planeDistance = camera.farClipPlane - 2;                                
+                    bgc.planeDistance = camera.farClipPlane - 2;
             }
             if(fg)
             {
@@ -913,8 +913,8 @@ namespace Pumkin.AvatarTools
                 if(!fgc)
                     fgc = fg.gameObject.AddComponent<Canvas>();
                 fgc.worldCamera = camera;
-                if(camera)                
-                    fgc.planeDistance = camera.nearClipPlane + 0.01f;             
+                if(camera)
+                    fgc.planeDistance = camera.nearClipPlane + 0.01f;
             }
         }
 
@@ -1048,7 +1048,7 @@ namespace Pumkin.AvatarTools
             EditorSceneManager.sceneOpened -= HandleSceneChange;
 #if UNITY_2018
             PrefabStage.prefabStageOpened -= HandlePrefabStageOpened;
-            PrefabStage.prefabStageClosing -= HandlePrefabStageClosed;            
+            PrefabStage.prefabStageClosing -= HandlePrefabStageClosed;
 #endif
             _eventsAdded = false;
 
@@ -1194,10 +1194,10 @@ namespace Pumkin.AvatarTools
             GameObject overlay = GetCameraOverlay(true);
             if(bThumbnails_use_camera_overlay)
             {
-                var raw = GetCameraOverlayRawImage(true);                
+                var raw = GetCameraOverlayRawImage(true);
                 if(!raw.texture && !string.IsNullOrEmpty(_overlayPath))
                     SetOverlayToImageFromPath(_overlayPath);
-                
+
                 if(_selectedCamera && raw.texture)
                 {
                     if(!overlay.activeInHierarchy)
@@ -1218,7 +1218,7 @@ namespace Pumkin.AvatarTools
             GameObject background = GetCameraBackground(true);
             if(bThumbnails_use_camera_background)
             {
-                var raw = GetCameraBackgroundRawImage(true);                
+                var raw = GetCameraBackgroundRawImage(true);
                 if(cameraBackgroundType == PumkinsCameraPreset.CameraBackgroundOverrideType.Image)
                 {
                     if(!raw.texture && !string.IsNullOrEmpty(_backgroundPath))
@@ -1370,7 +1370,7 @@ namespace Pumkin.AvatarTools
 
                 Helpers.DrawGUILine();
             }
-            EditorGUILayout.EndScrollView();            
+            EditorGUILayout.EndScrollView();
 
             if(GUI.changed)
             {
@@ -1386,7 +1386,7 @@ namespace Pumkin.AvatarTools
                 EditorGUILayout.Space();
 
                 //EditorGUI.BeginDisabledGroup(!DynamicBonesExist || !SelectedAvatar);
-                //{                    
+                //{
                 //    if(GUILayout.Button(Strings.Tools.fixDynamicBoneScripts, Styles.BigButton))
                 //        DoAction(SelectedAvatar, ToolMenuActions.FixDynamicBoneScripts);
                 //}
@@ -1396,7 +1396,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Draws the small windows inside the scene view when scaling the avatar or moving the viewpoint
-        /// </summary>        
+        /// </summary>
         void OnSceneGUI(SceneView sceneView)
         {
             if(!DrawingHandlesGUI)
@@ -1442,7 +1442,7 @@ namespace Pumkin.AvatarTools
                 {
                     GUILayout.Label(Strings.Tools.editViewpoint);
                     if(GUILayout.Button(Strings.Buttons.moveToEyes, GUILayout.MinWidth(80)))
-                    {                        
+                    {
                         Helpers.GetViewpointAtEyeLevel(SelectedAvatar.GetComponent<Animator>());
                         EndEditingViewpoint(SelectedAvatar, true);
                     }
@@ -2058,7 +2058,7 @@ namespace Pumkin.AvatarTools
 
                     if(CopierTabs.ComponentIsInSelectedTab<Transform>(_copier_selectedTab))
                     {
-                        //Transforms menu                    
+                        //Transforms menu
                         Helpers.DrawDropdownWithToggle(ref _copier_expand_transforms, ref bCopier_transforms_copy, Strings.Copier.transforms, Icons.Transform);
                         if(_copier_expand_transforms)
                         {
@@ -2280,7 +2280,7 @@ namespace Pumkin.AvatarTools
 
                     EditorGUILayout.Space();
 
-                    //=======================================================                    
+                    //=======================================================
 
                     //Ignore Array
                     EditorGUI.BeginChangeCheck();
@@ -3028,20 +3028,20 @@ namespace Pumkin.AvatarTools
         //        return;
         //    }
 
-        //    Component tempDBone = null;            
+        //    Component tempDBone = null;
         //    try
-        //    {                
+        //    {
         //        var db = Resources.FindObjectsOfTypeAll(dboneType);
-        //        tempDBone = avatar.AddComponent(dboneType);                
+        //        tempDBone = avatar.AddComponent(dboneType);
         //        SerializedProperty tempScript = new SerializedObject(tempDBone).FindProperty("m_Script");
-                
+
         //        var comps = avatar.GetComponentsInChildren<Component>().Where(c => c != null);
         //        foreach(var comp in comps)
         //        {
         //            if(comp.GetType() != dboneType)
         //                continue;
         //            var ms = MonoScript.FromMonoBehaviour(comp as MonoBehaviour);
-                    
+
         //            var serialComp = new SerializedObject(comp);
         //            var compScript = serialComp.FindProperty("m_Script");
         //            var dboneScript = new SerializedObject(ms).FindProperty("m_Script");
@@ -3394,7 +3394,7 @@ namespace Pumkin.AvatarTools
                 else
                     RestoreCameraClearFlags();
             }
-            EditorGUI.EndDisabledGroup();            
+            EditorGUI.EndDisabledGroup();
 
             if(_thumbnails_useCameraBackground_expand || needsRefresh)
             {
@@ -3570,7 +3570,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// This will hide or show all avatars except avatarToKeep
-        /// </summary>        
+        /// </summary>
         public void HideAllOtherAvatars(bool hidden, GameObject avatarToKeep)
         {
             if(hidden && !avatarToKeep)
@@ -3667,7 +3667,7 @@ namespace Pumkin.AvatarTools
         }
         /// <summary>
         /// Sets overlay image to texture
-        /// </summary>        
+        /// </summary>
         public void SetOverlayToImageFromTexture(Texture2D newTexture)
         {
             var img = GetCameraOverlayRawImage();
@@ -3722,7 +3722,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Sets camera background clear flags to skybox and changes skybox to material
-        /// </summary>        
+        /// </summary>
         public void SetCameraBackgroundToSkybox(Material skyboxMaterial)
         {
             if(!_selectedCamera)
@@ -3734,7 +3734,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Changes camera clear flags to solid color and sets background color
-        /// </summary>        
+        /// </summary>
         public void SetCameraBackgroundToColor(Color color)
         {
             if(!_selectedCamera)
@@ -3748,7 +3748,7 @@ namespace Pumkin.AvatarTools
 #if UNITY_2018
         /// <summary>
         /// Doesn't work
-        /// </summary>        
+        /// </summary>
         public void SetupRig(GameObject avatar)
         {
             GameObject pref = PrefabUtility.GetCorrespondingObjectFromOriginalSource(avatar);
@@ -3810,7 +3810,7 @@ namespace Pumkin.AvatarTools
 
                     //if(!anim.isHuman && ava.isValid)
                     //{
-                    //    anim.avatar = ava;                    
+                    //    anim.avatar = ava;
                     //}
                     //else
                     //{
@@ -3827,7 +3827,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Quickly sets viewpoint to eye height if avatar is humanoid
-        /// </summary>        
+        /// </summary>
         /// <param name="zDepth">Z Depth value of viewpoint</param>
         public void QuickSetViewpoint(GameObject avatar, float zDepth)
         {
@@ -3845,7 +3845,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Tries to get the VRCCam, returns Camera.main if not found
-        /// </summary>        
+        /// </summary>
         private static Camera GetVRCCamOrMainCam()
         {
             var obj = GameObject.Find("VRCCam");
@@ -3894,7 +3894,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Sets the avatar scale and moves the viewpoint to compensate
-        /// </summary>        
+        /// </summary>
         private void SetAvatarScale(VRC_AvatarDescriptor desc, float newScale)
         {
             if(_editingScale)
@@ -3920,7 +3920,7 @@ namespace Pumkin.AvatarTools
         /// <summary>
         /// Function for all the actions in the tool menu. Use this instead of calling
         /// button functions directly.
-        /// </summary>        
+        /// </summary>
         void DoAction(GameObject avatar, ToolMenuActions action)
         {
             if(!SelectedAvatar) //Shouldn't be possible with disable group
@@ -3929,7 +3929,7 @@ namespace Pumkin.AvatarTools
                 return;
             }
 
-            //Record Undo            
+            //Record Undo
             Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Tools menu: " + action.ToString());
             if(SelectedAvatar.gameObject.scene.name == null) //In case it's a prefab instance, which it probably is
                 PrefabUtility.RecordPrefabInstancePropertyModifications(SelectedAvatar);
@@ -4071,10 +4071,10 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Sets the enabled state on all dynamic bones on the avatar and returns affected bones
-        /// </summary>        
+        /// </summary>
         /// <param name="enabled">Enabled state for dynamic bones</param>
         /// <param name="dBonesToIgnore">Dynamic Bones to ignore</param>
-        /// <returns>Dynamic Bones that were disabled before we did anything</returns>        
+        /// <returns>Dynamic Bones that were disabled before we did anything</returns>
 #if PUMKIN_DBONES || PUMKIN_OLD_DBONES
         static void SetDynamicBonesEnabledState(GameObject avatar, bool enabled, List<DynamicBone> dBonesToIgnore = null)
         {
@@ -4093,7 +4093,7 @@ namespace Pumkin.AvatarTools
 #endif
         /// <summary>
         /// Toggles the enbaled state of all Dynamic Bones on the avatar and returns affected bones
-        /// </summary>        
+        /// </summary>
         /// <param name="enabledState">Bool to use as toggle state</param>
         /// <param name="dBonesToIgnore">Dynamic Bones to ignore</param>
         /// <returns>Dynamic Bones that have been enabled or disabled. Used to ignore bones that were disabled before we toggled off</returns>
@@ -4143,7 +4143,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Refreshes the VRC SDK window
-        /// </summary>        
+        /// </summary>
         private void RefreshSDK()
         {
             VRCSdkControlPanel.window?.Reset();
@@ -4151,7 +4151,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Reverts avatar scale to prefab values and moves the viewpoint to compensate for the change if avatar a descriptor is present
-        /// </summary>        
+        /// </summary>
         private void RevertScale(GameObject avatar)
         {
             if(!avatar)
@@ -4169,9 +4169,9 @@ namespace Pumkin.AvatarTools
         }
 
         /// <summary>
-        /// Begin scaling Avatar. 
+        /// Begin scaling Avatar.
         /// Used to uniformily scale an avatar as well as it's viewpoint position
-        /// </summary>        
+        /// </summary>
         private void BeginScalingAvatar(GameObject avatar)
         {
             if(DrawingHandlesGUI || !avatar)
@@ -4228,7 +4228,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Ends scaling the avatar
-        /// </summary>        
+        /// </summary>
         /// <param name="cancelled">If canceled returnt to old scale and viewpoint</param>
         private void EndScalingAvatar(GameObject avatar, bool cancelled)
         {
@@ -4284,9 +4284,9 @@ namespace Pumkin.AvatarTools
         }
 
         /// <summary>
-        /// Begin Editing Viewposition. 
+        /// Begin Editing Viewposition.
         /// Used to move the viewpoint using unit's transform gizmo
-        /// </summary>        
+        /// </summary>
         private void BeginEdittingViewpoint(GameObject avatar)
         {
             if(_editingView || _editingScale || !avatar)
@@ -4318,7 +4318,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Ends editing Viewposition
-        /// </summary>        
+        /// </summary>
         /// <param name="cancelled">If cancelled revert viewposition to old value, if not leave it</param>
         private void EndEditingViewpoint(GameObject avatar, bool cancelled)
         {
@@ -4357,7 +4357,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Sets the descriptor's viewpoint to a vector and rounds it's value to 3 decimals
-        /// </summary>        
+        /// </summary>
         void SetViewpoint(VRC_AvatarDescriptor desc, Vector3 position)
         {
             if(!desc)
@@ -4371,7 +4371,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Fill viseme tree on avatar descriptor or assign jaw flap bone if missing
-        /// </summary>        
+        /// </summary>
         private void FillVisemes(GameObject avatar)
         {
             string log = Strings.Log.tryFillVisemes + " - ";
@@ -4473,7 +4473,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Sets the Probe Anchor of all Skinned Mesh Renderers to transform by path
-        /// </summary>        
+        /// </summary>
         private void SetSkinnedMeshRendererAnchor(GameObject avatar, string anchorPath)
         {
             Transform anchor = avatar.transform.Find(anchorPath);
@@ -4496,7 +4496,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Sets the Probe Anchor of all Mesh Renderers to transform by path
-        /// </summary>   
+        /// </summary>
         private void SetMeshRendererAnchor(GameObject avatar, string anchorPath)
         {
             Transform anchor = avatar.transform.Find(anchorPath);
@@ -4523,7 +4523,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Copies Components and Values from one object to another.
-        /// </summary>       
+        /// </summary>
         void CopyComponents(GameObject objFrom, GameObject objTo)
         {
             string log = "";
@@ -4662,8 +4662,8 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Copies all VRC_IKFollowers on an object and it's children.
-        /// </summary>            
-        /// <param name="createGameObjects">Whether to create missing objects</param>            
+        /// </summary>
+        /// <param name="createGameObjects">Whether to create missing objects</param>
         private void CopyAllIKFollowers(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
         {
             if(from == null || to == null)
@@ -4699,8 +4699,8 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Copies all audio sources on object and it's children.
-        /// </summary>            
-        /// <param name="createGameObjects">Whether to create missing objects</param>            
+        /// </summary>
+        /// <param name="createGameObjects">Whether to create missing objects</param>
         void CopyAllAudioSources(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
         {
             if(from == null || to == null)
@@ -4808,7 +4808,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Copies all lights in object and it's children to another object.
-        /// </summary>        
+        /// </summary>
         /// <param name="createGameObjects">Whether to create missing game objects</param>
         void CopyAllLights(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
         {
@@ -4856,7 +4856,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Copies all MeshRenderers in object and it's children to another object.
-        /// </summary>        
+        /// </summary>
         /// <param name="createGameObjects">Whether to create missing game objects</param>
         void CopyAllMeshRenderers(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
         {
@@ -4927,10 +4927,10 @@ namespace Pumkin.AvatarTools
             if(dTo == null)
                 dTo = Undo.AddComponent<VRC_AvatarDescriptor>(to);
 
-            var pTo = to.GetComponent<PipelineManager>();
+            var pTo = to.GetComponent<PipelineManager>() ?? to.AddComponent<PipelineManager>();
 
             var sDescTo = new SerializedObject(dTo);
-            var sDescFrom = new SerializedObject(dFrom);            
+            var sDescFrom = new SerializedObject(dFrom);
 
             if(bCopier_descriptor_copyPipelineId)
             {
@@ -4953,11 +4953,11 @@ namespace Pumkin.AvatarTools
                 {
                     //Shared
                     "Name", "Animations", "ScaleIPD", "lipSync", "VisemeSkinnedMesh", "MouthOpenBlendShapeName",
-                    "VisemeBlendShapes", "portraitCameraPositionOffset", "portraitCameraRotationOffset", "lipSyncJawBone",                    
+                    "VisemeBlendShapes", "portraitCameraPositionOffset", "portraitCameraRotationOffset", "lipSyncJawBone",
                     //SDK3
                     "enableEyeLook", "customizeAnimationLayers", "baseAnimationLayers",
                     "specialAnimationLayers", "lipSyncJawClosed", "lipSyncJawOpen", "AnimationPreset", "autoFootsteps", "autoLocomotion"
-                });                
+                });
             }
 
             if(bCopier_descriptor_copyEyeLookSettings)
@@ -4966,7 +4966,7 @@ namespace Pumkin.AvatarTools
             }
 
             if(bCopier_descriptor_copyAnimationOverrides) //SDK2 Only
-            {                
+            {
                 propNames.AddRange(new string[]
                 {
                     "CustomSittingAnims", "CustomStandingAnims",
@@ -4979,7 +4979,7 @@ namespace Pumkin.AvatarTools
                 {
                     "customExpressions", "expressionsMenu", "expressionParameters"
                 });
-            }            
+            }
 
             foreach(var s in propNames)
             {
@@ -5008,7 +5008,7 @@ namespace Pumkin.AvatarTools
             {
                 sDescTo.FindProperty("VisemeSkinnedMesh"),
                 eyes != null ? eyes.FindPropertyRelative("eyelidsSkinnedMesh") : null,
-            };            
+            };
             Helpers.MakeReferencesLocal<SkinnedMeshRenderer>(to.transform, rendererLocalize);
 
             sDescTo.ApplyModifiedProperties();
@@ -5019,7 +5019,7 @@ namespace Pumkin.AvatarTools
             if(!avatar)
                 return;
             var anim = avatar.GetComponent<Animator>();
-            
+
             if(!anim)
                 return;
             if(!anim.isHuman)
@@ -5030,7 +5030,7 @@ namespace Pumkin.AvatarTools
 
             var desc = avatar.GetComponent<VRC_AvatarDescriptor>();
             var sDesc = new SerializedObject(desc);
-            
+
             var leftEye = sDesc.FindProperty("customEyeLookSettings.leftEye");
             var rightEye = sDesc.FindProperty("customEyeLookSettings.rightEye");
 
@@ -5042,7 +5042,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Copies all DynamicBoneColliders from object and it's children to another object.
-        /// </summary>        
+        /// </summary>
         /// <param name="removeOldColliders">Whether to remove all DynamicBoneColliders from target before copying</param>
         void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
         {
@@ -5221,7 +5221,7 @@ namespace Pumkin.AvatarTools
                         ComponentUtility.CopyComponent(dbFrom);
                         ComponentUtility.PasteComponentValues(newDynBone);
 
-                        newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_Root.transform, newDynBone.transform.root, false);                        
+                        newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_Root.transform, newDynBone.transform.root, false);
 
                         if(!newDynBone.m_Root)
                         {
@@ -5403,7 +5403,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Copies all transform settings in children in object and children
-        /// </summary>        
+        /// </summary>
         /// <param name="useIgnoreList">Whether or not to use copier ignore list</param>
         void CopyAllTransforms(GameObject from, GameObject to, bool useIgnoreList)
         {
@@ -5446,7 +5446,7 @@ namespace Pumkin.AvatarTools
         /// <summary>
         /// Copies settings of all SkinnedMeshRenderers in object and children.
         /// Does NOT copy mesh, bounds and root bone settings because that breaks everything.
-        /// </summary>        
+        /// </summary>
         void CopyAllSkinnedMeshRenderersSettings(GameObject from, GameObject to, bool useIgnoreList)
         {
             if((from == null || to == null) || (!(bCopier_skinMeshRender_copyBlendShapeValues || bCopier_skinMeshRender_copyMaterials || bCopier_skinMeshRender_copySettings)))
@@ -5518,7 +5518,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Copies all TrailRenderers in object and it's children.
-        /// </summary>        
+        /// </summary>
         /// <param name="createGameObjects">Whether to create missing GameObjects</param>
         void CopyAllTrailRenderers(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
         {
@@ -5556,7 +5556,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Copies all RigidBodies in object and in its children.
-        /// </summary>        
+        /// </summary>
         void CopyAllRigidBodies(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
         {
             if(from == null || to == null)
@@ -5593,7 +5593,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Copies all ParticleSystems in object and its children
-        /// </summary>        
+        /// </summary>
         /// <param name="createGameObjects">Whether to create game objects if missing</param>
         void CopyAllParticleSystems(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
         {
@@ -5864,7 +5864,7 @@ namespace Pumkin.AvatarTools
 
         //        if(transTo != null)
         //        {
-        //            var clothTo = transTo.GetComponent<Cloth>();                                                                             
+        //            var clothTo = transTo.GetComponent<Cloth>();
 
         //            if(bCopier_cloth_replaceOld || clothTo == null)
         //            {
@@ -5882,7 +5882,7 @@ namespace Pumkin.AvatarTools
         //                    var newColTrans = Helpers.FindTransformInAnotherHierarchy(fromCollider.transform, to.transform, createGameObjects);
         //                    var newCol = newColTrans.GetComponent<CapsuleCollider>();
         //                    if(newColTrans && !capsuleColTo.Contains(newCol))
-        //                        capsuleColTo.Add(newCol);                            
+        //                        capsuleColTo.Add(newCol);
         //                }
         //                clothTo.capsuleColliders = capsuleColTo.ToArray();
 
@@ -5893,7 +5893,7 @@ namespace Pumkin.AvatarTools
         //                {
         //                    var newColTransFirst = Helpers.FindTransformInAnotherHierarchy(fromCollider.first.transform, to.transform, createGameObjects);
         //                    var newColTransSecond = Helpers.FindTransformInAnotherHierarchy(fromCollider.second.transform, to.transform, createGameObjects);
-                            
+
         //                    var newColFirst = newColTransFirst.GetComponent<SphereCollider>();
         //                    var newColSecond = newColTransFirst.GetComponent<SphereCollider>();
 
@@ -6140,11 +6140,11 @@ namespace Pumkin.AvatarTools
 
 #endregion
 
-#region Destroy Functions    
+#region Destroy Functions
 
         /// <summary>
         /// Destroys ParticleSystem in object
-        /// </summary>        
+        /// </summary>
         /// <param name="destroyInChildrenToo">Whether to destroy particle systems in children as well</param>
         private void DestroyParticleSystems(GameObject from, bool destroyInChildrenToo = true)
         {
@@ -6168,7 +6168,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Destroys GameObjects in object and all children, if it has no children and if it's not a bone
-        /// </summary>        
+        /// </summary>
         void DestroyEmptyGameObjects(GameObject from)
         {
             var obj = from.GetComponentsInChildren<Transform>(true);
@@ -6225,7 +6225,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Destroy all components of type in object and it's children
-        /// </summary>        
+        /// </summary>
         void DestroyAllComponentsOfType(GameObject obj, Type type, bool ignoreRoot, bool useIgnoreList)
         {
             string log = "";
@@ -6263,11 +6263,11 @@ namespace Pumkin.AvatarTools
                     }
                 }
             }
-        }        
+        }
 
 #endregion
 
-#region Utility Functions        
+#region Utility Functions
 
         /// <summary>
         /// Not actually resets everything but backgrounnd and overlay stuff
@@ -6350,7 +6350,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Refreshes the cached selected preset index of a PumkinPreset type
-        /// </summary>        
+        /// </summary>
         public static void RefreshPresetIndex<T>() where T : PumkinPreset
         {
             Type t = typeof(T);
@@ -6365,7 +6365,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Refreshes preset index by string. Used to refresh the index based on the cached string
-        /// </summary>                
+        /// </summary>
         public static void RefreshPresetIndexByString<T>(string selectedPresetString) where T : PumkinPreset
         {
             int count = PumkinsPresetManager.GetPresetCountOfType<T>();
@@ -6400,7 +6400,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Refreshes the cached selected preset string by index
-        /// </summary>        
+        /// </summary>
         public static void RefreshPresetStringByIndex<T>(int index) where T : PumkinPreset
         {
             string presetString = PumkinsPresetManager.GetPresetName<T>(index);
@@ -6420,7 +6420,7 @@ namespace Pumkin.AvatarTools
 
 #endregion
 
-#region Helper Functions        
+#region Helper Functions
 
         /// <summary>
         /// Sets selected camera clear flags back to _thumbsCameraBgClearFlagsOld
@@ -6433,7 +6433,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Used to set up CameraBackground and CameraOverlay dummies
-        /// </summary>        
+        /// </summary>
         /// <param name="clipPlaneIsNear">Whether to set the clipping plane to be near or far</param>
         public void SetupCameraRawImageAndCanvas(GameObject dummyGameObject, ref RawImage rawImage, bool clipPlaneIsNear)
         {
@@ -6461,7 +6461,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Resets all BlendShape weights to 0 on all SkinnedMeshRenderers or to prefab values
-        /// </summary>        
+        /// </summary>
         /// <param name="revertToPrefab">Revert weights to prefab instead of 0</param>
         public static void ResetBlendshapes(GameObject objTo, bool revertToPrefab)
         {
@@ -6474,8 +6474,8 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Reset all BlendShape weights to 0 on SkinnedMeshRenderer or to prefab values
-        /// </summary>        
-        /// <param name="revertToPrefab">Revert weights to prefab instead of 0</param>        
+        /// </summary>
+        /// <param name="revertToPrefab">Revert weights to prefab instead of 0</param>
         public static void ResetRendererBlendshapes(SkinnedMeshRenderer render, bool revertToPrefab)
         {
             GameObject pref = null;
@@ -6531,7 +6531,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Resets avatar pose to prefab values
-        /// </summary>        
+        /// </summary>
         public static bool ResetPose(GameObject avatar)
         {
             if(!avatar)
@@ -6572,7 +6572,7 @@ namespace Pumkin.AvatarTools
         /// </summary>
         /// <param name="parent">Parent object to look in</param>
         /// <param name="child">Child object to look for in parent?</param>
-        /// <param name="createIfMissing">Create GameObject if not found</param>        
+        /// <param name="createIfMissing">Create GameObject if not found</param>
         GameObject GetSameChild(GameObject parent, GameObject child, bool createIfMissing = false)
         {
             if(parent == null || child == null)
@@ -6612,7 +6612,7 @@ namespace Pumkin.AvatarTools
         }
 
         /// <summary>
-        /// Saves serialized variables to PlayerPrefs. 
+        /// Saves serialized variables to PlayerPrefs.
         /// Used to keep same settings when restarting unity or going into play mode
         /// </summary>
         void SavePrefs()
@@ -6623,7 +6623,7 @@ namespace Pumkin.AvatarTools
         }
 
         /// <summary>
-        /// Loads serialized variables from PlayerPrefs. 
+        /// Loads serialized variables from PlayerPrefs.
         /// Used to keep same settings when restarting unity or going into play mode
         /// </summary>
         void LoadPrefs()
@@ -6648,7 +6648,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Logs a message to console with a red PumkinsAvatarTools: prefix. Only if verbose logging is enabled.
-        /// </summary>        
+        /// </summary>
         /// <param name="logFormat">Same as string.format()</param>
         public static void LogVerbose(string message, LogType logType = LogType.Log, params string[] logFormat)
         {
@@ -6681,7 +6681,7 @@ namespace Pumkin.AvatarTools
 
         /// <summary>
         /// Logs a message to console with a blue PumkinsAvatarTools: prefix.
-        /// </summary>        
+        /// </summary>
         /// <param name="logFormat">Same as string.format</param>
         public static void Log(string message, LogType logType = LogType.Log, params string[] logFormat)
         {
