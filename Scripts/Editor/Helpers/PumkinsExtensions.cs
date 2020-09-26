@@ -50,7 +50,7 @@ namespace Pumkin.Extensions
 
                                 tNew.gameObject.tag = trans.gameObject.tag;
                                 tNew.gameObject.layer = trans.gameObject.layer;
-                                tNew.gameObject.SetActive(trans.gameObject.activeInHierarchy);
+                                tNew.gameObject.SetActive(trans.gameObject.activeSelf);
 
                             }
                             else
@@ -66,7 +66,7 @@ namespace Pumkin.Extensions
                 }
             }
             return t;
-        }        
+        }
 
         public static bool IsSameTexture(this Texture2D first, Texture2D second)
         {
@@ -104,7 +104,7 @@ namespace Pumkin.Extensions
         /// <summary>
         /// Returns new array starting at startIndex and ending at the end of the array.
         /// </summary>
-        /// <param name="startIndex"/>Index to start at. Inclusive</param>        
+        /// <param name="startIndex"/>Index to start at. Inclusive</param>
         public static T[] SubArray<T>(this T[] array, int startIndex)
         {
             if(array.Length == 0)
@@ -120,9 +120,9 @@ namespace Pumkin.Extensions
 
         /// <summary>
         /// Returns a new array starting at startIndex.
-        /// </summary>        
+        /// </summary>
         /// <param name="startIndex">Index to start at. Inclusive</param>
-        /// <param name="count">Number of elements to include. If bigger than array size, returns elements until the end</param>        
+        /// <param name="count">Number of elements to include. If bigger than array size, returns elements until the end</param>
         public static T[] SubArray<T>(this T[] array, int startIndex, int count)
         {
             if(array.Length == 0)
@@ -166,8 +166,8 @@ namespace Pumkin.Extensions
                     return mi.Invoke(o, args);
                 }
             }
-            catch { }            
+            catch { }
             return null;
-        }        
-    }    
+        }
+    }
 }
