@@ -9,7 +9,7 @@ An editor script that adds tools to help you setup avatars faster and easier. It
 To install these tools grab the `.unitypackage` from [releases](https://github.com/rurre/PumkinsAvatarTools/releases/latest) then simply import it into your unity project.
 **Make sure to delete any older versions of Pumkin Tools from your project before importing**
 
-Also make sure that you are using the [correct version of Unity](https://docs.vrchat.com/docs/current-unity-version) and the [latest version of the VRChat SDK2](https://docs.vrchat.com/docs/setting-up-the-sdk)
+Also make sure that you are using the [correct version of Unity](https://docs.vrchat.com/docs/current-unity-version) and the [latest version of VRChat SDK2 or SDK3](https://docs.vrchat.com/docs/setting-up-the-sdk)
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/16716633/81964925-fc580180-961f-11ea-887c-72ca63d26632.png"></img>
