@@ -22,12 +22,12 @@ namespace Pumkin.DataStructures
         public enum Tab { Common, All }    //All needs to be last
         static readonly Dictionary<Tab, string[]> Tabs = new Dictionary<Tab, string[]>()
         {
-            { 
-                Tab.Common, 
+            {
+                Tab.Common,
                 new string[] //Initially lowercase to avoid having to cast them every time
-                {                    
+                {
                     "dynamicbone",
-                    "dynamicbonecollider",                    
+                    "dynamicbonecollider",
                     "vrc_avatardescriptor",
                     "vrcavatardescriptor",
                     "skinnedmeshrenderer",
@@ -47,10 +47,10 @@ namespace Pumkin.DataStructures
 
         public static Tab GetComponentTab(string typeName)
         {
-            foreach(var tab in Tabs)            
+            foreach(var tab in Tabs)
                 if(tab.Value.Contains(typeName))
                     return tab.Key;
-            
+
             return Tab.All;
         }
 
@@ -66,7 +66,7 @@ namespace Pumkin.DataStructures
                 return true;
             return false;
         }
-    }    
+    }
 
     public class ExtensionPair
     {
@@ -82,26 +82,26 @@ namespace Pumkin.DataStructures
         public ExtensionPair(string name, string[] extensions)
         {
             this.name = name;
-            this.extensions = extensions;            
+            this.extensions = extensions;
         }
     }
 
     public static class ExtensionStrings
-    {        
+    {
         static Dictionary<Type, ExtensionPair> Extensions { get; set; } = new Dictionary<Type, ExtensionPair>()
         {
             { typeof(PumkinsTranslation), new ExtensionPair("Translation", new string[] { "asset", "preset" }) },
             { typeof(Texture2D), new ExtensionPair("Image", new string[] { "jpg", "png", "jpeg", "tga", "bmp"}) },
-            //{ typeof(Texture), new string[] { "jpg", "png", "jpeg", "tga", "bmp"} },            
-            //{ typeof(AudioClip), new string[] { "wav"} },            
+            //{ typeof(Texture), new string[] { "jpg", "png", "jpeg", "tga", "bmp"} },
+            //{ typeof(AudioClip), new string[] { "wav"} },
         };
 
         public static string[] GetFilterString(Type type)
-        {            
-            bool found = Extensions.TryGetValue(type, out var pairs);            
+        {
+            bool found = Extensions.TryGetValue(type, out var pairs);
             string[] s = { $"{pairs.name}", $"{String.Join(",", pairs.extensions)}"};
             return s;
-        }        
+        }
     }
 
     public static class Colors
@@ -254,7 +254,7 @@ namespace Pumkin.DataStructures
             {
                 fixedHeight = 19f,
             };
-            LightTextField.normal.textColor = Color.white;            
+            LightTextField.normal.textColor = Color.white;
         }
     }
 
@@ -335,7 +335,7 @@ namespace Pumkin.DataStructures
             GithubIcon = Resources.Load("icons/github-logo") as Texture2D ?? Star;
             KofiIcon = Resources.Load("icons/kofi-logo") as Texture2D ?? Star;
         }
-    }    
+    }
 
     /// <summary>
     /// Serializable Transform class
@@ -393,7 +393,7 @@ namespace Pumkin.DataStructures
             localRotation = t.localRotation;
 
             eulerAngles = t.eulerAngles;
-            
+
             localEulerAngles = t.localEulerAngles;
         }
 
@@ -510,7 +510,7 @@ namespace Pumkin.DataStructures
             var blendshapes = new List<PumkinsBlendshape>();
             for(int i = 0; i < render.sharedMesh.blendShapeCount; i++)
                 blendshapes.Add(new PumkinsBlendshape(render.sharedMesh.GetBlendShapeName(i), render.GetBlendShapeWeight(i)));
-            
+
             return new PumkinsRendererBlendshapesHolder(renderPath, blendshapes);
         }
     }
@@ -520,14 +520,14 @@ namespace Pumkin.DataStructures
     {
         [SerializeField] public string name;
         [SerializeField] public float weight;
-        [SerializeField] public List<string> otherNames;        
+        [SerializeField] public List<string> otherNames;
 
-        [SerializeField][HideInInspector] public bool otherNamesExpandedInUI = false; //oof, probably also not a good idea to have this ui related bool here as well                                                                                    
+        [SerializeField][HideInInspector] public bool otherNamesExpandedInUI = false; //oof, probably also not a good idea to have this ui related bool here as well
 
         public PumkinsBlendshape(string name, float weight = 0, List<string> otherNames = null)
         {
             this.name = name;
-            this.weight = weight;            
+            this.weight = weight;
             if(otherNames != null)
                 this.otherNames = otherNames;
             else
@@ -744,5 +744,5 @@ namespace Pumkin.DataStructures
             string path = PumkinsAvatarTools.MainFolderPath + "/thry_module_manifest.json";
             File.WriteAllText(path, json);
         }
-    }    
+    }
 }

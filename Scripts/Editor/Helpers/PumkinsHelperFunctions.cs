@@ -13,19 +13,21 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Animations;
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
 using VRC.Core;
 using VRC.SDKBase;
+#endif
 
 namespace Pumkin.HelperFunctions
 {
     public static class Helpers
-    {        
-        #region GUI
+    {
+#region GUI
 
         /// <summary>
-        /// Completely arbitrarely try to guess the width of a text string. 
+        /// Completely arbitrarely try to guess the width of a text string.
         /// TODO: replace with something that actually works
-        /// </summary>        
+        /// </summary>
         public static float CalculateTextWidth(string text, GUIStyle style = null)
         {
             if(style == null)
@@ -46,7 +48,7 @@ namespace Pumkin.HelperFunctions
 
         /// <summary>
         /// Draws a expandable menu with a toggle checkbox and label
-        /// </summary>                
+        /// </summary>
         /// <returns>Returns true if toggleBool was changed</returns>
         public static bool DrawDropdownWithToggle(ref bool expandBool, ref bool toggleBool, string label, Texture2D icon = null)
         {
@@ -289,9 +291,10 @@ namespace Pumkin.HelperFunctions
             }
         }
 
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
         /// <summary>
         /// Destroys the avatar descriptor and pipeline manager components if they're present on the avatar
-        /// </summary>        
+        /// </summary>
         public static void DestroyAvatarDescriptorAndPipeline(GameObject avatar)
         {
             if(!avatar)
@@ -303,10 +306,11 @@ namespace Pumkin.HelperFunctions
             DestroyAppropriate(desc);
             DestroyAppropriate(pipe);
         }
+#endif
 
         /// <summary>
         /// Destroys an object. If in edit mode DestroyImmediate is used, if in play mode Destroy is used
-        /// </summary>        
+        /// </summary>
         public static void DestroyAppropriate(UnityEngine.Object obj, bool allowDestroyingAssets = false)
         {
             if(obj is null)
@@ -329,7 +333,7 @@ namespace Pumkin.HelperFunctions
 
             EditorGUI.indentLevel += indentLevel;
 
-            bool[] rendererShapeChanged = new bool[rendererHolders.Count];  //record changes in holder to apply to renderer later                        
+            bool[] rendererShapeChanged = new bool[rendererHolders.Count];  //record changes in holder to apply to renderer later
 
             for(int i = 0; i < rendererHolders.Count; i++)
             {
@@ -447,8 +451,8 @@ namespace Pumkin.HelperFunctions
 
         /// <summary>
         /// Draws sliders meant for renderers and blendshapes, with add and remove buttons for either.
-        /// </summary>        
-        /// <param name="avatar">Avatar to references and apply blendshape changes to. If null changes will just be kept on the preset and not applied</param>        
+        /// </summary>
+        /// <param name="avatar">Avatar to references and apply blendshape changes to. If null changes will just be kept on the preset and not applied</param>
         public static void DrawBlendshapeSlidersWithDeleteAndAdd(ref List<PumkinsRendererBlendshapesHolder> rendererHolders, GameObject avatar, int indentLevel = 0, float labelWidthOverride = 0)
         {
             EditorGUI.indentLevel += indentLevel;
@@ -647,7 +651,7 @@ namespace Pumkin.HelperFunctions
             }
         }
 
-        #endregion
+#endregion
 
         public static Texture2D GetImageTextureFromPath(string imagePath)
         {
@@ -677,7 +681,7 @@ namespace Pumkin.HelperFunctions
 
             if(!File.Exists(filePath))
                 return default;
-                  
+
             T result;
             byte[] data = File.ReadAllBytes(filePath);
             try
@@ -696,21 +700,44 @@ namespace Pumkin.HelperFunctions
         {
             using(MemoryStream ms = new MemoryStream(param))
             {
-                IFormatter br = new BinaryFormatter();                
+                IFormatter br = new BinaryFormatter();
                 return (T)br.Deserialize(ms);
             }
         }
 
-        public static Transform GetAvatarArmature(GameObject selection)
+        public static Transform GetAvatarArmature(GameObject avatar)
         {
-            if(!selection)
+            if(!avatar)
+                return null;
+            return GetAvatarArmature(avatar.transform);
+        }
+
+        public static Transform GetAvatarArmature(Transform avatarRoot)
+        {
+            if(!avatarRoot)
                 return null;
 
-            var trans = selection.GetComponentsInChildren<Transform>()
-                .Where(t => t.name.ToLower().StartsWith("armature"))
-                .FirstOrDefault();
+            Transform armature = null;
+            if((armature = avatarRoot.transform.Find("Armature")) == null)
+            {
+                //Get the GUID of the avatar, which should also identify the mesh data
+                AssetDatabase.TryGetGUIDAndLocalFileIdentifier(avatarRoot.GetComponent<Animator>(), out string guid, out long _);
+                var renders = avatarRoot.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+                foreach(var ren in renders)
+                {
+                    AssetDatabase.TryGetGUIDAndLocalFileIdentifier(ren.sharedMesh, out string meshGuid, out long _);
+                    if(guid != meshGuid)    //Find the correct SkinnedMeshRenderer by comparing this renderer's mesh to the one our animator is using
+                        continue;
 
-            return trans; //Might add more checks if armature isn't named armature later
+                    if(ren.rootBone != ren.transform.root) //Get the parent of the root bone, which should be the armature if root is hips
+                        armature = ren.rootBone.parent;
+                    else
+                        armature = ren.rootBone;
+                    break;
+                }
+            }
+
+            return armature;
         }
 
         public static Texture2D OpenImageGetTexture(ref string startPath)
@@ -764,13 +791,13 @@ namespace Pumkin.HelperFunctions
 
             //var j1Body = j1.connectedBody;
             //var j1BodyTrans = j1Body.transform;
-            
+
             //var j2BodyTrans = FindTransformInAnotherHierarchy(j1.transform, j2.transform.root, false);
             //var j2Body = j2BodyTrans.GetComponent<Rigidbody>();
 
             //if(!j1BodyTrans || !j2BodyTrans)
             //    return false;
-            
+
             //return true;
         }
 
@@ -892,13 +919,13 @@ namespace Pumkin.HelperFunctions
                 }
                 return false;
             }
-        }        
+        }
 
         /// <summary>
         /// Get path of transform in hierarchy (ex. Armature/Hips/Chest/Neck/Head/Hair01)
         /// </summary>
         /// <param name="trans">Transform to get path of</param>
-        /// <param name="skipRoot">Whether to skip the root transform in the hierarchy. We want to 99% of the time.</param>        
+        /// <param name="skipRoot">Whether to skip the root transform in the hierarchy. We want to 99% of the time.</param>
         public static string GetGameObjectPath(Transform trans, bool skipRoot = true)
         {
             if(trans != null)
@@ -910,7 +937,7 @@ namespace Pumkin.HelperFunctions
         /// Get path of GameObject's transform in hierarchy (ex. Armature/Hips/Chest/Neck/Head/Hair01)
         /// </summary>
         /// <param name="obj">GameObject to get path of</param>
-        /// <param name="skipRoot">Whether to skip the root transform in the hierarchy. We want to 99% of the time.</param>        
+        /// <param name="skipRoot">Whether to skip the root transform in the hierarchy. We want to 99% of the time.</param>
         public static string GetGameObjectPath(GameObject obj, bool skipRoot = true)
         {
             if(!obj)
@@ -933,7 +960,7 @@ namespace Pumkin.HelperFunctions
 
         /// <summary>
         /// Get name of object from path. Really just returns the text after last / or \
-        /// </summary>        
+        /// </summary>
         public static string GetNameFromPath(string path)
         {
             if(string.IsNullOrEmpty(path))
@@ -958,7 +985,7 @@ namespace Pumkin.HelperFunctions
 
         /// <summary>
         /// Checks if string is null or whitespaces only. This is missing from some unity versions apparently.
-        /// </summary>                
+        /// </summary>
         public static bool StringIsNullOrWhiteSpace(string value)
         {
             if (value != null)
@@ -976,13 +1003,13 @@ namespace Pumkin.HelperFunctions
 
         /// <summary>
         /// Get path without object name.
-        /// </summary>        
+        /// </summary>
         /// <returns>Returns all text before last / or \. A paths ending like this (Armature/Hips/) will return Armature/ </returns>
         public static string GetPathNoName(string path)
         {
             if(StringIsNullOrWhiteSpace(path))
                 return path;
-            
+
             string reverse = new string(path.ToArray().Reverse().ToArray());
             char[] slashes = new char[] { '/', '\\' };
             int firstSlash = reverse.IndexOfAny(slashes);
@@ -994,11 +1021,11 @@ namespace Pumkin.HelperFunctions
                 else
                     return "";
             }
-            
-            if (firstSlash == -1)            
+
+            if (firstSlash == -1)
                 return "";
-            
-            
+
+
             reverse = reverse.Substring(firstSlash);
             string s = new string(reverse.ToArray().Reverse().ToArray());
             return s;
@@ -1011,11 +1038,11 @@ namespace Pumkin.HelperFunctions
             //{
             //    if((path[i] == '\\' || path[i] == '/'))
             //    {
-            //        if(i + 1 < path.Length - 1 )                    
+            //        if(i + 1 < path.Length - 1 )
             //            if(path[i + 1] != '\r')
             //                if(path[i + 1] != '\n')
             //                    return path.Substring(0, i) + '/';
-                    
+
             //    }
             //}
             //return path;
@@ -1023,7 +1050,7 @@ namespace Pumkin.HelperFunctions
 
         /// <summary>
         /// Returns path as a string array split by / or \
-        /// </summary>        
+        /// </summary>
         public static string[] GetPathAsArray(string path)
         {
             if(string.IsNullOrEmpty(path))
@@ -1034,7 +1061,7 @@ namespace Pumkin.HelperFunctions
 
         /// <summary>
         /// Looks for transform in another transform's child hierarchy. Can create if missing.
-        /// </summary>                
+        /// </summary>
         /// <returns>Found or created transform</returns>
         public static Transform FindTransformInAnotherHierarchy(Transform trans, Transform otherHierarchyTrans, bool createIfMissing)
         {
@@ -1048,11 +1075,11 @@ namespace Pumkin.HelperFunctions
             var childTrans = otherHierarchyTrans.Find(childPath, createIfMissing, trans);
 
             return childTrans;
-        }       
+        }
 
         /// <summary>
         /// Returns true if GameObject has no children or components
-        /// </summary>                
+        /// </summary>
         public static bool GameObjectIsEmpty(GameObject obj)
         {
             if(obj.GetComponentsInChildren<Component>().Length > obj.GetComponentsInChildren<Transform>().Length)
@@ -1121,7 +1148,7 @@ namespace Pumkin.HelperFunctions
 
         /// <summary>
         /// Sets the camera near clipping plane to 0.01 and far clipping plane to 1000 to prevent near clipping
-        /// </summary>        
+        /// </summary>
         public static void FixCameraClippingPlanes(Camera cam)
         {
             if(!cam)
@@ -1130,7 +1157,7 @@ namespace Pumkin.HelperFunctions
             cam.farClipPlane = 1000;
             cam.nearClipPlane = 0.01f;
         }
-        
+
         public static GameObject FindGameObjectEvenIfDisabled(string name)
         {
             string lowerName = name.ToLower();
@@ -1157,7 +1184,7 @@ namespace Pumkin.HelperFunctions
 
                 lineArr[i] = newGUID[copyIndex];
                 copyIndex++;
-            }            
+            }
             return new string(lineArr);
         }
 
@@ -1181,9 +1208,9 @@ namespace Pumkin.HelperFunctions
                     return PumkinsAvatarTools.DEFAULT_VIEWPOINT;
                 }
             }
-            else            
+            else
                 PumkinsAvatarTools.Log(Strings.Log.cantSetViewpointNonHumanoid);
-            
+
             return RoundVectorValues(view, 3);
         }
 
@@ -1192,8 +1219,8 @@ namespace Pumkin.HelperFunctions
             string path = AssetDatabase.GetAssetPath(obj);
             if(string.IsNullOrEmpty(path))
                 return false;
-            
-            if(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path) != null)            
+
+            if(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path) != null)
                 return true;
             return false;
         }
@@ -1221,17 +1248,17 @@ namespace Pumkin.HelperFunctions
 
         /// <summary>
         /// Checks whether constraint has any valid sources
-        /// </summary>        
+        /// </summary>
         /// <returns>Returns false if no valid source transforms in constraint</returns>
         internal static bool ConstraintHasValidSources(IConstraint constraint)
         {
-            var src = new List<ConstraintSource>(); 
+            var src = new List<ConstraintSource>();
             constraint.GetSources(src);
 
-            foreach(var c in src)            
+            foreach(var c in src)
                 if(c.sourceTransform)
                     return true;
-            
+
             return false;
         }
 
@@ -1292,7 +1319,7 @@ namespace Pumkin.HelperFunctions
 
             if(assetPath[assetPath.Length - 1] == '/')
                 assetPath = assetPath.Substring(0, assetPath.Length - 1);
-            
+
             UnityEngine.Object obj = AssetDatabase.LoadAssetAtPath(assetPath, typeof(UnityEngine.Object));
             SelectAndPing(obj);
         }
@@ -1304,15 +1331,15 @@ namespace Pumkin.HelperFunctions
                 PumkinsAvatarTools.LogVerbose("localRoot is null");
                 return;
             }
-            else if(properties == null || properties.Length == 0)            
-                return;            
+            else if(properties == null || properties.Length == 0)
+                return;
 
             var sRoot = new SerializedObject(localRoot.gameObject);
 
             foreach(var prop in properties)
-            {                
-                if(prop == null || prop.propertyType != SerializedPropertyType.ObjectReference)                                    
-                    continue;                
+            {
+                if(prop == null || prop.propertyType != SerializedPropertyType.ObjectReference)
+                    continue;
 
                 Component newComp = null;
 
@@ -1350,10 +1377,161 @@ namespace Pumkin.HelperFunctions
                     }
 
                     newComp = newTrans.GetComponent<T>();
-                }                
+                }
                 prop.objectReferenceValue = newComp;
             }
             sRoot.ApplyModifiedProperties();
         }
-    }    
+
+        public static void ResetBoundingBoxes(GameObject avatar)
+        {
+            if(!avatar)
+                return;
+
+            var renders = avatar.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+
+            //Revert bounding box to prefab
+            foreach(var render in renders)
+            {
+                var pref = PrefabUtility.GetCorrespondingObjectFromOriginalSource(render);
+                if(!pref)
+                    continue;
+
+                render.localBounds = pref.localBounds;
+            }
+        }
+
+        public static void DrawDebugBounds(Bounds b, float lifetime = 5)
+        {
+            // bottom
+            var p1 = new Vector3(b.min.x, b.min.y, b.min.z);
+            var p2 = new Vector3(b.max.x, b.min.y, b.min.z);
+            var p3 = new Vector3(b.max.x, b.min.y, b.max.z);
+            var p4 = new Vector3(b.min.x, b.min.y, b.max.z);
+
+            Debug.DrawLine(p1, p2, Color.blue, lifetime);
+            Debug.DrawLine(p2, p3, Color.red, lifetime);
+            Debug.DrawLine(p3, p4, Color.yellow, lifetime);
+            Debug.DrawLine(p4, p1, Color.magenta, lifetime);
+
+            // top
+            var p5 = new Vector3(b.min.x, b.max.y, b.min.z);
+            var p6 = new Vector3(b.max.x, b.max.y, b.min.z);
+            var p7 = new Vector3(b.max.x, b.max.y, b.max.z);
+            var p8 = new Vector3(b.min.x, b.max.y, b.max.z);
+
+            Debug.DrawLine(p5, p6, Color.blue, lifetime);
+            Debug.DrawLine(p6, p7, Color.red, lifetime);
+            Debug.DrawLine(p7, p8, Color.yellow, lifetime);
+            Debug.DrawLine(p8, p5, Color.magenta, lifetime);
+
+            // sides
+            Debug.DrawLine(p1, p5, Color.white, lifetime);
+            Debug.DrawLine(p2, p6, Color.gray, lifetime);
+            Debug.DrawLine(p3, p7, Color.green, lifetime);
+            Debug.DrawLine(p4, p8, Color.cyan, lifetime);
+        }
+
+        public static void DrawDebugTrianglesFromMesh(Mesh mesh, Transform reference = null)
+        {
+            bool firstCall = true;
+            Vector3 last = Vector3.zero;
+            foreach(var vert in mesh.vertices)
+            {
+                if(firstCall)
+                {
+                    firstCall = false;
+                    last = vert;
+                    continue;
+                }
+                Debug.DrawLine(last, vert, Color.white, 5);
+                last = vert;
+            }
+        }
+
+        /// <summary>
+        /// Gets an axis aligned bound box around an array of game objects
+        /// </summary>
+        /// <param name="objs"></param>
+        /// <returns></returns>
+        public static Bounds GetBounds(GameObject[] objs)
+        {
+            if(objs == null || objs.Length == 0)
+            {
+                return new Bounds(Vector3.zero, Vector3.zero);
+            }
+
+            float minX = Mathf.Infinity;
+            float maxX = -Mathf.Infinity;
+            float minY = Mathf.Infinity;
+            float maxY = -Mathf.Infinity;
+            float minZ = Mathf.Infinity;
+            float maxZ = -Mathf.Infinity;
+
+            Vector3[] points = new Vector3[8];
+
+            foreach(GameObject go in objs)
+            {
+                GetBoundsPointsNoAlloc(go, points);
+                foreach(Vector3 v in points)
+                {
+                    if(v.x < minX) minX = v.x;
+                    if(v.x > maxX) maxX = v.x;
+                    if(v.y < minY) minY = v.y;
+                    if(v.y > maxY) maxY = v.y;
+                    if(v.z < minZ) minZ = v.z;
+                    if(v.z > maxZ) maxZ = v.z;
+                }
+            }
+
+            float sizeX = maxX - minX;
+            float sizeY = maxY - minY;
+            float sizeZ = maxZ - minZ;
+
+            Vector3 center = new Vector3(minX + sizeX / 2.0f, minY + sizeY / 2.0f, minZ + sizeZ / 2.0f);
+
+            return new Bounds(center, new Vector3(sizeX, sizeY, sizeZ));
+        }
+
+        /// <summary>
+        /// Pass in a game object and a Vector3[8], and the corners of the mesh.bounds in world space are returned in the passed array
+        /// </summary>
+        /// <param name="go"></param>
+        /// <param name="points"></param>
+        public static void GetBoundsPointsNoAlloc(GameObject go, Vector3[] points)
+        {
+            if(points == null || points.Length < 8)
+            {
+                Debug.Log("Bad Array");
+                return;
+            }
+            MeshFilter mf = go.GetComponent<MeshFilter>();
+            SkinnedMeshRenderer smr = go.GetComponent<SkinnedMeshRenderer>();
+            Mesh mesh;
+            if(mf)
+                mesh = mf.sharedMesh;
+            else if(smr)
+                mesh = smr.sharedMesh;
+            else
+            {
+                for(int i = 0; i < points.Length; i++)
+                    points[i] = go.transform.position;
+                return;
+            }
+
+            Transform tr = go.transform;
+
+            Vector3 v3Center = mesh.bounds.center;
+            Vector3 v3ext = mesh.bounds.extents;
+
+            points[0] = tr.TransformPoint(new Vector3(v3Center.x - v3ext.x, v3Center.y + v3ext.y, v3Center.z - v3ext.z));  // Front top left corner
+            points[1] = tr.TransformPoint(new Vector3(v3Center.x + v3ext.x, v3Center.y + v3ext.y, v3Center.z - v3ext.z));  // Front top right corner
+            points[2] = tr.TransformPoint(new Vector3(v3Center.x - v3ext.x, v3Center.y - v3ext.y, v3Center.z - v3ext.z));  // Front bottom left corner
+            points[3] = tr.TransformPoint(new Vector3(v3Center.x + v3ext.x, v3Center.y - v3ext.y, v3Center.z - v3ext.z));  // Front bottom right corner
+            points[4] = tr.TransformPoint(new Vector3(v3Center.x - v3ext.x, v3Center.y + v3ext.y, v3Center.z + v3ext.z));  // Back top left corner
+            points[5] = tr.TransformPoint(new Vector3(v3Center.x + v3ext.x, v3Center.y + v3ext.y, v3Center.z + v3ext.z));  // Back top right corner
+            points[6] = tr.TransformPoint(new Vector3(v3Center.x - v3ext.x, v3Center.y - v3ext.y, v3Center.z + v3ext.z));  // Back bottom left corner
+            points[7] = tr.TransformPoint(new Vector3(v3Center.x + v3ext.x, v3Center.y - v3ext.y, v3Center.z + v3ext.z));  // Back bottom right corner
+        }
+    }
 }

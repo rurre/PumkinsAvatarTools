@@ -6,22 +6,29 @@ using Pumkin.PoseEditor;
 using System;
 using UnityEditor;
 using UnityEngine;
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
 using VRC.SDKBase;
+#endif
 
 namespace Pumkin.Presets
 {
     [Serializable]
     public class PumkinsCameraPreset : PumkinPreset
     {
+#if  VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
         public enum CameraOffsetMode { Viewpoint, AvatarRoot, Transform }
+        public CameraOffsetMode offsetMode = CameraOffsetMode.Viewpoint;
+#else
+        public enum CameraOffsetMode { AvatarRoot = 1, Transform }
+        public CameraOffsetMode offsetMode = CameraOffsetMode.AvatarRoot;
+#endif
         public enum CameraBackgroundOverrideType { Color, Skybox, Image }
 
-        public CameraOffsetMode offsetMode = CameraOffsetMode.Viewpoint;
         public Vector3 positionOffset = Vector3.zero;
         public Vector3 rotationAnglesOffset = Vector3.zero;
         public string transformPath = "";
 
-        public bool useOverlay = false;        
+        public bool useOverlay = false;
         public string overlayImagePath = "";
         public Color overlayImageTint = Color.white;
 
@@ -38,13 +45,13 @@ namespace Pumkin.Presets
 
         /// <summary>
         /// Applies preset to selected camera
-        /// </summary>        
+        /// </summary>
         public override bool ApplyPreset(GameObject avatar)
         {
             Camera cam = PumkinsAvatarTools.SelectedCamera;
             if(!cam || !avatar)
                 return false;
-            
+
             Undo.RegisterFullObjectHierarchyUndo(cam.gameObject, "Apply Camera Preset");
 
             Helpers.FixCameraClippingPlanes(cam);
@@ -52,6 +59,7 @@ namespace Pumkin.Presets
             Transform dummy = null;
             try
             {
+#if  VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
                 if(offsetMode == CameraOffsetMode.Viewpoint)
                 {
                     dummy = new GameObject("Dummy").transform;
@@ -67,12 +75,13 @@ namespace Pumkin.Presets
                         PumkinsAvatarTools.Log(Strings.Log.descriptorIsMissingCantGetViewpoint);
                     }
                 }
-                else
+#endif
+                if(offsetMode > 0)
                 {
                     Transform t = avatar.transform.Find(transformPath);
                     dummy = new GameObject("Dummy").transform;
                     if(t)
-                    {                        
+                    {
                         Transform oldCamParent = cam.transform.parent;
                         cam.transform.parent = dummy;
                         cam.transform.localPosition = positionOffset;
@@ -99,7 +108,7 @@ namespace Pumkin.Presets
             if(useOverlay)
             {
                 PumkinsAvatarTools.Instance.SetOverlayToImageFromPath(overlayImagePath);
-            }            
+            }
 
             PumkinsAvatarTools.Instance.bThumbnails_use_camera_background = useBackground;
             if(useBackground)
@@ -107,7 +116,7 @@ namespace Pumkin.Presets
                 PumkinsAvatarTools.Instance.cameraBackgroundType = backgroundType;
                 switch(backgroundType)
                 {
-                    case CameraBackgroundOverrideType.Color:                        
+                    case CameraBackgroundOverrideType.Color:
                         PumkinsAvatarTools.Instance.SetCameraBackgroundToColor(backgroundColor);
                         break;
                     case CameraBackgroundOverrideType.Image:
@@ -117,19 +126,19 @@ namespace Pumkin.Presets
                     case CameraBackgroundOverrideType.Skybox:
                         PumkinsAvatarTools.Instance.SetCameraBackgroundToSkybox(backgroundMaterial);
                         break;
-                    default:                        
+                    default:
                         break;
                 }
-            }            
+            }
 
             PumkinsAvatarTools.Instance.RefreshBackgroundOverrideType();
 
             return true;
-        }       
+        }
 
         /// <summary>
         /// Creates new preset based on camera and reference, applies all settings from this object then saves it to assets
-        /// </summary>        
+        /// </summary>
         public bool SavePreset(GameObject referenceObject, Camera camera, bool overwriteExisting)
         {
             PumkinsCameraPreset p = ScriptableObjectUtility.CreateAndSaveAsset<PumkinsCameraPreset>(name, PumkinsAvatarTools.MainFolderPath + "/Resources/Presets/Cameras/", overwriteExisting) as PumkinsCameraPreset;
@@ -143,9 +152,10 @@ namespace Pumkin.Presets
                 CalculateOffsets(referenceObject.transform.root, camera);
             else if(p.offsetMode == CameraOffsetMode.Transform)
                 CalculateOffsets(referenceObject.transform, camera);
+#if  VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
             else
                 CalculateOffsets(PumkinsAvatarTools.SelectedAvatar.GetComponent<VRC_AvatarDescriptor>(), camera);
-            
+#endif
             p.positionOffset = positionOffset;
             p.rotationAnglesOffset = rotationAnglesOffset;
             p.transformPath = transformPath;
@@ -182,7 +192,7 @@ namespace Pumkin.Presets
             EditorUtility.SetDirty(p);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-                        
+
             PumkinsPresetManager.LoadPresets<PumkinsCameraPreset>();
             return true;
         }
@@ -224,23 +234,25 @@ namespace Pumkin.Presets
         }
 
         /// <summary>
-        /// Returns position and rotation offsets from viewpoint to camera
-        /// </summary>        
-        public void CalculateOffsets(VRC_AvatarDescriptor desc, Camera cam)
+        /// Gets camera offsets from transform and returns a SerialTransform
+        /// </summary>
+        /// <returns>SerialTransform only holds values, it doesn't reference a real transform</returns>
+        public static SerialTransform GetOffsetsFromTransform(Transform transform, Camera cam)
         {
-            if(!desc || !cam)
-                return;            
+            if(!cam || !transform)
+                return null;
 
-            SerialTransform offsets = GetOffsetsFromViewpoint(desc, cam);
-            if(offsets)
+            Transform oldCamParent = cam.transform.parent;
+            cam.transform.parent = transform;
+            SerialTransform offsets = new SerialTransform()
             {
-                offsetMode = CameraOffsetMode.Viewpoint;
-                positionOffset = offsets.localPosition;
-                rotationAnglesOffset = offsets.localEulerAngles;
-            }
+                localPosition = cam.transform.localPosition,
+                localRotation = cam.transform.localRotation,
+                localEulerAngles = cam.transform.localEulerAngles,
+            };
+            cam.transform.parent = oldCamParent;
+            return offsets;
         }
-
-        //Static Functions
 
         /// <summary>
         /// Sets camera position and rotation focusing focusTransform with position and rotation offsets
@@ -258,7 +270,7 @@ namespace Pumkin.Presets
             Transform dummy = new GameObject("dummy").transform;
             try
             {
-                dummy.SetPositionAndRotation(focusTransform.position, focusTransform.rotation);                
+                dummy.SetPositionAndRotation(focusTransform.position, focusTransform.rotation);
 
                 cam.transform.parent = dummy;
                 cam.transform.localPosition = pos;
@@ -283,16 +295,36 @@ namespace Pumkin.Presets
         }
 
         /// <summary>
-        /// Sets camera position and rotation based on position and rotation offsets from transform
+        /// Returns the name of the preset
         /// </summary>
-        public static void ApplyTransformWithViewpointFocus(GameObject avatar, Camera cam, SerialTransform trans)
+        public override string ToString()
         {
-            ApplyPositionAndRotationWithViewpointFocus(avatar, cam, trans.position, trans.localEulerAngles, true);
-        }        
+            return name;
+        }
+
+#if  VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+        /// <summary>
+        /// Returns position and rotation offsets from viewpoint to camera
+        /// </summary>
+        public void CalculateOffsets(VRC_AvatarDescriptor desc, Camera cam)
+        {
+            if(!desc || !cam)
+                return;
+
+            SerialTransform offsets = GetOffsetsFromViewpoint(desc, cam);
+            if(offsets)
+            {
+                offsetMode = CameraOffsetMode.Viewpoint;
+                positionOffset = offsets.localPosition;
+                rotationAnglesOffset = offsets.localEulerAngles;
+            }
+        }
+
+        //Static Functions
 
         /// <summary>
         /// Sets camera position and rotation focusing viewpoint with position and rotation offsets
-        /// </summary>        
+        /// </summary>
         /// <param name="scaleDistanceWithAvatarScale">Not working yet</param>
         public static void ApplyPositionAndRotationWithViewpointFocus(GameObject avatar, Camera cam, Vector3 position, Vector3 rotationAngles, bool moveSceneCameraAsWell)
         {
@@ -304,7 +336,7 @@ namespace Pumkin.Presets
             {
                 dummy = new GameObject("Dummy").transform;
                 var desc = avatar.GetComponent<VRC_AvatarDescriptor>();
-                dummy.localPosition = desc.ViewPosition + desc.gameObject.transform.position;                
+                dummy.localPosition = desc.ViewPosition + desc.gameObject.transform.position;
 
                 cam.transform.localPosition = position + dummy.transform.position;
                 cam.transform.localEulerAngles = rotationAngles + dummy.transform.eulerAngles;
@@ -325,16 +357,16 @@ namespace Pumkin.Presets
 
         /// <summary>
         /// Gets camera offsets from viewpoint and returns a SerialTransform
-        /// </summary>        
+        /// </summary>
         /// <returns>SerialTransform only holds values, it doesn't reference a real transform</returns>
         public static SerialTransform GetOffsetsFromViewpoint(VRC_AvatarDescriptor desc, Camera cam)
         {
             SerialTransform offsets = new SerialTransform();
-            Transform dummy = null;            
+            Transform dummy = null;
             try
             {
                 dummy = new GameObject("Dummy").transform;
-                dummy.localPosition = desc.ViewPosition + desc.gameObject.transform.position;                
+                dummy.localPosition = desc.ViewPosition + desc.gameObject.transform.position;
 
                 offsets.localPosition = cam.transform.localPosition - dummy.localPosition;
                 offsets.localEulerAngles = cam.transform.localEulerAngles - dummy.localEulerAngles;
@@ -352,46 +384,26 @@ namespace Pumkin.Presets
         }
 
         /// <summary>
-        /// Gets camera offsets from transform and returns a SerialTransform
-        /// </summary>        
-        /// <returns>SerialTransform only holds values, it doesn't reference a real transform</returns>
-        public static SerialTransform GetOffsetsFromTransform(Transform transform, Camera cam)
-        {
-            if(!cam || !transform)
-                return null;
-
-            Transform oldCamParent = cam.transform.parent;
-            cam.transform.parent = transform;
-            SerialTransform offsets = new SerialTransform()
-            {
-                localPosition = cam.transform.localPosition,
-                localRotation = cam.transform.localRotation,
-                localEulerAngles = cam.transform.localEulerAngles,
-            };
-            cam.transform.parent = oldCamParent;
-            return offsets;
-        }
-
-        /// <summary>
         /// Gets camera offset from viewpoint and returns a SerialTransform
-        /// </summary>        
+        /// </summary>
         /// <returns>SerialTransform only holds values, it doesn't reference a real transform</returns>
         public static SerialTransform GetCameraOffsetFromViewpoint(GameObject avatar, Camera cam)
-        {            
+        {
             VRC_AvatarDescriptor desc = avatar.GetComponent<VRC_AvatarDescriptor>();
             SerialTransform offsets = null;
 
-            if(desc)            
+            if(desc)
                 offsets = GetOffsetsFromViewpoint(desc, cam);
             return offsets;
         }
 
         /// <summary>
-        /// Returns the name of the preset
-        /// </summary>        
-        public override string ToString()
+        /// Sets camera position and rotation based on position and rotation offsets from transform
+        /// </summary>
+        public static void ApplyTransformWithViewpointFocus(GameObject avatar, Camera cam, SerialTransform trans)
         {
-            return name;
+            ApplyPositionAndRotationWithViewpointFocus(avatar, cam, trans.position, trans.localEulerAngles, true);
         }
+#endif
     }
 }

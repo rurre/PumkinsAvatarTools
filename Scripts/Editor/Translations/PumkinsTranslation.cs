@@ -27,7 +27,7 @@ namespace Pumkin.Translations
                     var objArr = FindObjectsOfType<PumkinsTranslation>();
                     var obj = objArr.FirstOrDefault(o => o.ToString() == "English - Default") as PumkinsTranslation;
                     if(obj)
-                        _default = obj;                    
+                        _default = obj;
                 }
                 return _default;
             }
@@ -65,7 +65,7 @@ namespace Pumkin.Translations
 
         public override bool Equals(object obj)
         {
-            return obj is PumkinsTranslation translation &&                   
+            return obj is PumkinsTranslation translation &&
                    languageName == translation.languageName &&
                    author == translation.author;
         }
@@ -112,7 +112,7 @@ namespace Pumkin.Translations
         public string offsetMode = "Offset Mode";
         public string camera = "Camera";
         public string editCameraPreset = "Edit Camera Preset";
-        public string createCameraPreset = "Create Camera Preset";        
+        public string createCameraPreset = "Create Camera Preset";
     }
 
     [Serializable]
@@ -192,6 +192,7 @@ namespace Pumkin.Translations
         public string hierarchyPath = "Hierarchy Path";
         public string anchorPath = "Anchor Path";
         public string fillEyeBones = "Fill Eye Bones";
+        //public string resetBoundingBoxes = "Reset Bounding Boxes";
     }
 
     [Serializable]
@@ -244,6 +245,7 @@ namespace Pumkin.Translations
         public string joints = "Joints";
         public string other = "Other";
         public string other_ikFollowers = "IK Followers";
+        public string other_vrmSpringBones = "VRM Spring Bones";
         public string aimConstraints = "Aim Constraints";
 
         public string ignoreList = "Ignore List";
@@ -410,7 +412,7 @@ namespace Pumkin.Translations
     public class SettingsStrings
     {
         public string uwu = "uwu";
-        public string searchForBones = "Search for DynamicBones";        
+        public string searchForBones = "Search for DynamicBones";
         public string language = "Language";
         public string refresh = "Refresh";
         public string importLanguage = "Import Language";

@@ -11,8 +11,8 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "0.9.1b";
-        public const double toolsVersion = 0.91;
+        public const string TOOLS_VERSION_STRING = "0.9.2b";
+        public const double toolsVersion = 0.92;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -202,6 +202,7 @@ namespace Pumkin.DataStructures
             public static string hierarchyPath = "_Hierarchy Path";
             public static string anchorPath = "_Anchor Path";
             public static string fillEyeBones = "_Fill Eye Bones";
+            public static string resetBoundingBoxes = "_Reset Bounding Boxes";
 
             static Tools()
             {
@@ -235,6 +236,7 @@ namespace Pumkin.DataStructures
                 hierarchyPath = Translation.tools.hierarchyPath;
                 anchorPath = Translation.tools.anchorPath;
                 fillEyeBones = Translation.tools.fillEyeBones;
+                //resetBoundingBoxes = Translation.tools.resetBoundingBoxes;
             }
         }
         public static class AvatarInfo
@@ -412,6 +414,7 @@ namespace Pumkin.DataStructures
             public static string other = "_Other";
             public static string other_ikFollowers = "_IK Followers";
             public static string other_emptyScripts = "_Empty Scripts";
+            public static string other_vrmSpringBones = "_VRM Spring Bones";
             public static string aimConstraints = "_Aim Constraints";
             public static string lookAtConstraints = "_LookAt Constraints";
             public static string parentConstraints = "_Parent Constraints";
@@ -499,6 +502,7 @@ namespace Pumkin.DataStructures
                 rotationConstraints = Translation.copier.rotationConstraints;
                 scaleConstraints = Translation.copier.scaleConstraints;
                 onlyIfHasValidSources = Translation.copier.onlyIfHasValidSources;
+                other_vrmSpringBones = Translation.copier.other_vrmSpringBones;
 
                 joints_fixed = Translation.copier.joints_fixed;
                 joints_hinge = Translation.copier.joints_hinge;
@@ -674,7 +678,7 @@ namespace Pumkin.DataStructures
             public static string version = "_Version";
             public static string redundantStrings = "_Now with 100% more redundant strings";
             public static string addMoreStuff = "_I'll add more stuff to this eventually";
-            public static string pokeOnDiscord = "_Poke me on Discord at Pumkin#2020";
+            public static string pokeOnDiscord = "_Poke me on Discord at Pumkin#9524";
 
             static Credits()
             {
