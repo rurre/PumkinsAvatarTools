@@ -405,7 +405,7 @@ namespace Pumkin.Translations
         public string version = "Version";
         public string redundantStrings = "Now with 100% more redundant strings";
         public string addMoreStuff = "I'll add more stuff to this eventually";
-        public string pokeOnDiscord = "Poke me on Discord at Pumkin#2020";
+        public string pokeOnDiscord = "Poke me on Discord at Pumkin#9523";
     }
 
     [Serializable]

@@ -3,7 +3,7 @@ using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
 using UnityEditor;
 using UnityEngine;
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
 using VRC.SDKBase;
 #endif
 

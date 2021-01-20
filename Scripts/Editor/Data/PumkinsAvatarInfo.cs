@@ -1,22 +1,19 @@
 ﻿using Pumkin.DataStructures;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
-#if VRC_SDK_EXISTS
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
 using VRC.SDKBase;
-using VRCSDK2.Validation.Performance;
-using VRCSDK2.Validation.Performance.Stats;
+using VRC.SDKBase.Validation.Performance;
+using VRC.SDKBase.Validation.Performance.Stats;
 #endif
 
 namespace Pumkin.AvatarTools
 {
     public class PumkinsAvatarInfo //Need to improve this class sometime when I overhaul the performance stats
     {
-#if VRC_SDK_EXISTS
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
         AvatarPerformanceStats perfStats = new AvatarPerformanceStats();
 #endif
         public string Name { get; private set; }
@@ -270,7 +267,7 @@ namespace Pumkin.AvatarTools
 
             ShaderCount = shaderHash.Count;
 
-#if VRC_SDK_EXISTS
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
             var ikf = o.GetComponentsInChildren<VRC_IKFollower>(true);
             foreach(var ik in ikf)
             {
@@ -298,7 +295,7 @@ namespace Pumkin.AvatarTools
                 bool useDefault = false;
                 try
                 {
-#if VRC_SDK_EXISTS
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
                     CachedInfo =
                     string.Format(Strings.AvatarInfo.name, Name) + "\n" +
                     string.Format(Strings.AvatarInfo.line) + "\n" +

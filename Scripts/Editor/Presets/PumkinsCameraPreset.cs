@@ -6,7 +6,7 @@ using Pumkin.PoseEditor;
 using System;
 using UnityEditor;
 using UnityEngine;
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
 using VRC.SDKBase;
 #endif
 
@@ -15,7 +15,7 @@ namespace Pumkin.Presets
     [Serializable]
     public class PumkinsCameraPreset : PumkinPreset
     {
-#if  VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+#if  VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
         public enum CameraOffsetMode { Viewpoint, AvatarRoot, Transform }
         public CameraOffsetMode offsetMode = CameraOffsetMode.Viewpoint;
 #else
@@ -59,7 +59,7 @@ namespace Pumkin.Presets
             Transform dummy = null;
             try
             {
-#if  VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+#if  VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
                 if(offsetMode == CameraOffsetMode.Viewpoint)
                 {
                     dummy = new GameObject("Dummy").transform;
@@ -152,7 +152,7 @@ namespace Pumkin.Presets
                 CalculateOffsets(referenceObject.transform.root, camera);
             else if(p.offsetMode == CameraOffsetMode.Transform)
                 CalculateOffsets(referenceObject.transform, camera);
-#if  VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+#if  VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
             else
                 CalculateOffsets(PumkinsAvatarTools.SelectedAvatar.GetComponent<VRC_AvatarDescriptor>(), camera);
 #endif
@@ -302,7 +302,7 @@ namespace Pumkin.Presets
             return name;
         }
 
-#if  VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+#if  VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
         /// <summary>
         /// Returns position and rotation offsets from viewpoint to camera
         /// </summary>

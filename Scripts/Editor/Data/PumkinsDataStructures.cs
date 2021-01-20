@@ -9,12 +9,6 @@ using Pumkin.AvatarTools;
 using System.IO;
 using Pumkin.Translations;
 
-#if VRC_SDK_VRCSDK2
-using VRCSDK2;
-using VRCSDK2.Validation.Performance;
-using VRCSDK2.Validation.Performance.Stats;
-#endif
-
 namespace Pumkin.DataStructures
 {
     public static class CopierTabs
