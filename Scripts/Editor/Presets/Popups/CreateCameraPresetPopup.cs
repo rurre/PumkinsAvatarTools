@@ -9,7 +9,7 @@ using VRC.SDKBase;
 
 namespace Pumkin.Presets
 {
-    public class CreateCamerePresetPopup : CreatePresetPopupBase
+    public class CreateCameraPresetPopup : CreatePresetPopupBase
     {
         static Transform referenceTransform;
 
@@ -17,9 +17,9 @@ namespace Pumkin.Presets
         {
             AssignOrCreatePreset<PumkinsCameraPreset>(newPreset);
 
-            if(!_window || _window.GetType() != typeof(CreateCamerePresetPopup))
+            if(!_window || _window.GetType() != typeof(CreateCameraPresetPopup))
             {
-                _window = CreateInstance<CreateCamerePresetPopup>();
+                _window = CreateInstance<CreateCameraPresetPopup>();
                 _window.autoRepaintOnSceneChange = true;
 
                 if(minWindowSize.magnitude > Vector2.zero.magnitude)
@@ -153,7 +153,7 @@ namespace Pumkin.Presets
                             {
                                 if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
                                 {
-#if VRC_SDK_EXISTS
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
                                     if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Viewpoint && (Avatar.GetComponent<VRC_AvatarDescriptor>() == null))
                                     {
                                         PumkinsAvatarTools.Log(Strings.Log.descriptorIsMissingCantGetViewpoint, LogType.Warning);
@@ -197,7 +197,7 @@ namespace Pumkin.Presets
             PumkinsCameraPreset p = (PumkinsCameraPreset)preset;
             if(!p)
                 return;
-#if VRC_SDK_EXISTS
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
             if(p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Viewpoint)
                 return;
 #endif
@@ -218,7 +218,7 @@ namespace Pumkin.Presets
                     p.CalculateOffsets(avatar.transform.root, camera);
                 else if(p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform && referenceTransform)
                     p.CalculateOffsets(referenceTransform, camera);
-#if VRC_SDK_EXISTS
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
                 else
                     p.CalculateOffsets(PumkinsAvatarTools.SelectedAvatar.GetComponent<VRC_AvatarDescriptor>(), camera);
 #endif

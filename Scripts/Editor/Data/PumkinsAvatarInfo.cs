@@ -87,7 +87,7 @@ namespace Pumkin.AvatarTools
             if(o == null)
                 return;
 
-#if VRC_SDK_EXISTS
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
             try
             {
                 AvatarPerformance.CalculatePerformanceStats(o.name, o, perfStats);

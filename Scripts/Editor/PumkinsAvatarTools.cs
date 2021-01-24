@@ -3353,7 +3353,7 @@ namespace Pumkin.AvatarTools
                         pr[pSelectedPresetIndex.intValue].ApplyPreset(SelectedAvatar);
 
                         if(typeof(T) == typeof(PumkinsCameraPreset))
-                            CreateCamerePresetPopup.ShowWindow(pr[pSelectedPresetIndex.intValue] as PumkinsCameraPreset);
+                            CreateCameraPresetPopup.ShowWindow(pr[pSelectedPresetIndex.intValue] as PumkinsCameraPreset);
                         else if(typeof(T) == typeof(PumkinsPosePreset))
                             CreatePosePresetPopup.ShowWindow(pr[pSelectedPresetIndex.intValue] as PumkinsPosePreset);
                         else if(typeof(T) == typeof(PumkinsBlendshapePreset))
@@ -3415,7 +3415,7 @@ namespace Pumkin.AvatarTools
                 if(GUILayout.Button(Strings.Buttons.createNewPreset, Styles.BigButton))
                 {
                     if(typeof(T) == typeof(PumkinsCameraPreset))
-                        CreateCamerePresetPopup.ShowWindow();
+                        CreateCameraPresetPopup.ShowWindow();
                     else if(typeof(T) == typeof(PumkinsPosePreset))
                         CreatePosePresetPopup.ShowWindow();
                     else if(typeof(T) == typeof(PumkinsBlendshapePreset))
