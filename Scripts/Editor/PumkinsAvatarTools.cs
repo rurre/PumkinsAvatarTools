@@ -653,7 +653,36 @@ namespace Pumkin.AvatarTools
         {
             get
             {
-                return _scaleRulerPrefab = Resources.Load<GameObject>("ScaleRuler/lineup_prefab");
+                if(!_scaleRulerPrefab)
+                {
+                    _scaleRulerPrefab = Resources.Load<GameObject>("ScaleRuler/lineup_prefab");
+
+                    // Ensure the prafab is setup correctly
+                    GameObject asset = null;
+                    var prefabMeshFilter = _scaleRulerPrefab.GetComponent<MeshFilter>();
+                    if(prefabMeshFilter && !prefabMeshFilter.sharedMesh)
+                    {
+                        asset = Resources.Load<GameObject>("ScaleRuler/lineup_wall");
+                        var assetMeshFilter = asset?.GetComponent<MeshFilter>();
+                        if(assetMeshFilter)
+                            prefabMeshFilter.sharedMesh = assetMeshFilter.sharedMesh;
+                    }
+
+                    var prefabMeshRenderer = _scaleRulerPrefab.GetComponent<MeshRenderer>();
+                    var prefabMats = prefabMeshRenderer.sharedMaterials;
+                    if(prefabMeshRenderer)
+                    {
+                        if(!asset)
+                            asset = Resources.Load<GameObject>("ScaleRuler/lineup_wall");
+
+                        var assetMeshRenderer = asset?.GetComponent<MeshRenderer>();
+                        if(assetMeshRenderer)
+                            for(int i = 0; i < prefabMeshRenderer.sharedMaterials.Length; i++)
+                                prefabMeshRenderer.sharedMaterials = assetMeshRenderer.sharedMaterials;
+                    }
+                }
+
+                return _scaleRulerPrefab;
             }
         }
 
@@ -1066,7 +1095,7 @@ namespace Pumkin.AvatarTools
             _eventsAdded = false;
 
             if(SerializedScript != null)
-                SerializedScript.ApplyModifiedProperties();
+                SerializedScript.ApplyModifiedPropertiesWithoutUndo();
 #if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
             EndEditingViewpoint(null, true);
 #endif
@@ -1392,7 +1421,7 @@ namespace Pumkin.AvatarTools
 
             if(GUI.changed)
             {
-                SerializedScript.ApplyModifiedProperties();
+                SerializedScript.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(this);
             }
         }
@@ -1464,8 +1493,7 @@ namespace Pumkin.AvatarTools
                     GUILayout.Label(Strings.Tools.editViewpoint);
                     if(GUILayout.Button(Strings.Buttons.moveToEyes, GUILayout.MinWidth(80)))
                     {
-                        Helpers.GetViewpointAtEyeLevel(SelectedAvatar.GetComponent<Animator>());
-                        EndEditingViewpoint(SelectedAvatar, true);
+                        _viewPosTemp = Helpers.GetViewpointAtEyeLevel(SelectedAvatar.GetComponent<Animator>());
                     }
                     GUILayout.BeginHorizontal();
                     {
@@ -1524,7 +1552,7 @@ namespace Pumkin.AvatarTools
                     if(SerializedScaleTemp != null)
                     {
                         EditorGUILayout.PropertyField(SerializedScaleTemp, GUIContent.none);
-                        if(SerializedScript.ApplyModifiedProperties())
+                        if(SerializedScript.ApplyModifiedPropertiesWithoutUndo())
                             propertyChanged = true;
                     }
                     else
@@ -4300,8 +4328,8 @@ namespace Pumkin.AvatarTools
                 _tempAvatarDescriptorWasAdded = false;
             }
 
-            _viewPosTemp = _viewPosOld + SelectedAvatar.transform.position;
             _viewPosOld = _tempAvatarDescriptor.ViewPosition;
+            _viewPosTemp = _viewPosOld + SelectedAvatar.transform.position;
 #endif
             _avatarScaleOld = avatar.transform.localScale;
             _avatarScaleTemp = _avatarScaleOld.z;
@@ -4313,7 +4341,10 @@ namespace Pumkin.AvatarTools
                 if(g)
                     _scaleViewpointDummy = g.transform;
                 else
+                {
                     _scaleViewpointDummy = new GameObject(VIEWPOINT_DUMMY_NAME).transform;
+                    _scaleViewpointDummy.gameObject.hideFlags = HideFlags.HideAndDontSave;
+                }
             }
 
             _scaleViewpointDummy.position = _viewPosTemp;
@@ -4402,6 +4433,9 @@ namespace Pumkin.AvatarTools
                     Helpers.DestroyAppropriate(_scaleViewpointDummy.gameObject);
                 if(_scaleRuler)
                     Helpers.DestroyAppropriate(_scaleRuler);
+
+                if(SerializedScript != null)
+                    SerializedScript.ApplyModifiedPropertiesWithoutUndo();
             }
         }
 

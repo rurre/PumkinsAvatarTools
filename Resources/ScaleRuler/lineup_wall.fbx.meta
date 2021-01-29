@@ -14,7 +14,17 @@ ModelImporter:
     2300000: //RootNode
     3300000: //RootNode
     4300000: Lineup
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Text
+    second: {fileID: 2100002, guid: 3033be7a355f0204ca3dbabc72952ca3, type: 3}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Wall
+    second: {fileID: 2100000, guid: f530f58a5bf9f2447b3c9cb71e0c5913, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
