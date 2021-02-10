@@ -19,12 +19,12 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Text
-    second: {fileID: 2100002, guid: 3033be7a355f0204ca3dbabc72952ca3, type: 3}
+    second: {fileID: 2100000, guid: 4e1daee4f0b80124e96cf4b02742a339, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Wall
-    second: {fileID: 2100000, guid: f530f58a5bf9f2447b3c9cb71e0c5913, type: 2}
+    second: {fileID: 2100000, guid: c7fd17d2024a30c4a9d74a402cbf1fd7, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

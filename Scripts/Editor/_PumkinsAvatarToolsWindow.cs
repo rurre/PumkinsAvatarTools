@@ -9,8 +9,8 @@ namespace Pumkin.AvatarTools
 {
     [System.Serializable]
     public class _PumkinsAvatarToolsWindow : EditorWindow
-    {   
-        [SerializeField, HideInInspector] static PumkinsAvatarTools _tools;        
+    {
+        [SerializeField, HideInInspector] static PumkinsAvatarTools _tools;
 
         static EditorWindow _toolsWindow;
 
@@ -29,7 +29,7 @@ namespace Pumkin.AvatarTools
             {
                 _tools = value;
             }
-        }        
+        }
 
         [DidReloadScripts]
         static void OnScriptsReloaded()
@@ -55,8 +55,8 @@ namespace Pumkin.AvatarTools
         {
             EditorPrefs.DeleteKey("PumkinToolsWindow");
 
-            if(_tools)            
-                _tools.ResetEverything();                
+            if(_tools)
+                _tools.ResetEverything();
 
             if(_toolsWindow)
                 DestroyImmediate(_toolsWindow);
@@ -87,8 +87,8 @@ namespace Pumkin.AvatarTools
                 return;
 
             //This check is needed otherwise we can't rename any objects in the hierarchy
-            //Works for now, but we need to check if changing language will affect it            
-            if(EditorWindow.focusedWindow.titleContent.text != "Hierarchy") //UnityEditor.SceneHierarchyWindow            
+            //Works for now, but we need to check if changing language will affect it
+            if(EditorWindow.focusedWindow.titleContent.text != "Hierarchy") //UnityEditor.SceneHierarchyWindow
                 window.Repaint();
         }
 
@@ -120,7 +120,7 @@ namespace Pumkin.AvatarTools
         {
             if(_DependencyChecker.MainToolsOK)
             {
-                if(ToolsWindow)                   
+                if(ToolsWindow)
                     ToolsWindow.OnGUI();
             }
             else
@@ -145,7 +145,7 @@ namespace Pumkin.AvatarTools
                 EditorGUIUtility.SetIconSize(new Vector2(25, 25));
                 if(GUILayout.Button(new GUIContent("Join Discord Server", Icons.DiscordIcon ?? null)))
                     Application.OpenURL(Strings.LINK_DISCORD);
-            }           
+            }
         }
     }
 }

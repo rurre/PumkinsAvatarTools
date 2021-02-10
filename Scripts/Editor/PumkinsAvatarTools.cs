@@ -656,33 +656,13 @@ namespace Pumkin.AvatarTools
                 if(!_scaleRulerPrefab)
                 {
                     _scaleRulerPrefab = Resources.Load<GameObject>("ScaleRuler/lineup_prefab");
-
-                    // Ensure the prafab is setup correctly
-                    GameObject asset = null;
-                    var prefabMeshFilter = _scaleRulerPrefab.GetComponent<MeshFilter>();
-                    if(prefabMeshFilter && !prefabMeshFilter.sharedMesh)
-                    {
-                        asset = Resources.Load<GameObject>("ScaleRuler/lineup_wall");
-                        var assetMeshFilter = asset?.GetComponent<MeshFilter>();
-                        if(assetMeshFilter)
-                            prefabMeshFilter.sharedMesh = assetMeshFilter.sharedMesh;
-                    }
-
-                    var prefabMeshRenderer = _scaleRulerPrefab.GetComponent<MeshRenderer>();
-                    var prefabMats = prefabMeshRenderer.sharedMaterials;
-                    if(prefabMeshRenderer)
-                    {
-                        if(!asset)
-                            asset = Resources.Load<GameObject>("ScaleRuler/lineup_wall");
-
-                        var assetMeshRenderer = asset?.GetComponent<MeshRenderer>();
-                        if(assetMeshRenderer)
-                            for(int i = 0; i < prefabMeshRenderer.sharedMaterials.Length; i++)
-                                prefabMeshRenderer.sharedMaterials = assetMeshRenderer.sharedMaterials;
-                    }
+                    var smr = _scaleRulerPrefab.GetComponent<SkinnedMeshRenderer>();
+                    if(smr && !smr.sharedMaterials[0])
+                        smr.sharedMaterials[0] = Resources.Load<Material>("ScaleRuler/lineup_wall_white");
+                    if(smr && !smr.sharedMaterials[1])
+                        smr.sharedMaterials[1] = Resources.Load<Material>("ScaleRuler/lineup_wall_black");
                 }
-
-                return _scaleRulerPrefab;
+				return _scaleRulerPrefab;
             }
         }
 
@@ -2882,17 +2862,18 @@ namespace Pumkin.AvatarTools
 #if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
                         GUILayout.BeginHorizontal();
                         {
-                            float oldWidth = EditorGUIUtility.labelWidth;
-                            EditorGUIUtility.labelWidth = Helpers.CalculateTextWidth(Strings.Tools.autoViewpoint);
-                            _tools_quickSetup_setViewpoint = GUILayout.Toggle(_tools_quickSetup_setViewpoint, Strings.Tools.autoViewpoint);
+                            Vector2 size = EditorStyles.toggle.CalcSize(new GUIContent(Strings.Tools.autoViewpoint));
+                            _tools_quickSetup_setViewpoint = GUILayout.Toggle(_tools_quickSetup_setViewpoint, Strings.Tools.autoViewpoint, GUILayout.MaxWidth(size.x));
 
-                            EditorGUIUtility.labelWidth = Helpers.CalculateTextWidth(Strings.Tools.viewpointZDepth);
+                            size = EditorStyles.numberField.CalcSize(new GUIContent(Strings.Tools.viewpointZDepth));
                             EditorGUI.BeginDisabledGroup(!_tools_quickSetup_setViewpoint);
                             {
+                                float old = EditorGUIUtility.labelWidth;
+                                EditorGUIUtility.labelWidth = size.x * 1.1f;
                                 _tools_quickSetup_viewpointZDepth = EditorGUILayout.FloatField(Strings.Tools.viewpointZDepth, _tools_quickSetup_viewpointZDepth);
+                                EditorGUIUtility.labelWidth = old;
                             }
                             EditorGUI.EndDisabledGroup();
-                            EditorGUIUtility.labelWidth = oldWidth;
                         }
                         GUILayout.EndHorizontal();
 
@@ -6428,6 +6409,12 @@ namespace Pumkin.AvatarTools
         /// </summary>
         void DestroyMissingScripts(GameObject avatar)
         {
+            if(EditorApplication.isPlaying)
+            {
+                Log("Can't remove missing scripts in play mode, it causes crashes", LogType.Warning);
+                return;
+            }
+
             var ts = avatar.GetComponentsInChildren<Transform>(true);
             foreach(var t in ts)
             {

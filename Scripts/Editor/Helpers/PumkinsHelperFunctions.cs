@@ -24,19 +24,6 @@ namespace Pumkin.HelperFunctions
     {
 #region GUI
 
-        /// <summary>
-        /// Completely arbitrarely try to guess the width of a text string.
-        /// TODO: replace with something that actually works
-        /// </summary>
-        public static float CalculateTextWidth(string text, GUIStyle style = null)
-        {
-            if(style == null)
-                style = new GUIStyle("label");
-
-            float arbitrary = text.Length > 10 ? 0.9f : 1;
-            return text.Length * arbitrary * style.font.fontSize;
-        }
-
         public static void DrawGUILine(float height = 1f, bool spacedOut = true)
         {
             if(spacedOut)
@@ -63,9 +50,10 @@ namespace Pumkin.HelperFunctions
 
             EditorGUILayout.BeginHorizontal();
             {
+                Vector2 size = EditorStyles.toggle.CalcSize(new GUIContent(label));
                 expandBool = GUILayout.Toggle(expandBool, content, Styles.Foldout, GUILayout.ExpandHeight(true), GUILayout.MaxWidth(iconWidth), GUILayout.MaxHeight(10));
                 EditorGUI.BeginChangeCheck();
-                toggleBool = GUILayout.Toggle(toggleBool, label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(20), GUILayout.MaxWidth(Helpers.CalculateTextWidth(label)));
+                toggleBool = GUILayout.Toggle(toggleBool, label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(20), GUILayout.MaxWidth(size.x));
                 if(EditorGUI.EndChangeCheck())
                     toggleChanged = true;
                 expandBool = GUILayout.Toggle(expandBool, GUIContent.none, GUIStyle.none, GUILayout.MinHeight(20f));
