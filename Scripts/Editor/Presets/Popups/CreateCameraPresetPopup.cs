@@ -3,11 +3,13 @@ using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
 using UnityEditor;
 using UnityEngine;
+#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
 using VRC.SDKBase;
+#endif
 
 namespace Pumkin.Presets
 {
-    public class CreateCamerePresetPopup : CreatePresetPopupBase
+    public class CreateCameraPresetPopup : CreatePresetPopupBase
     {
         static Transform referenceTransform;
 
@@ -15,9 +17,9 @@ namespace Pumkin.Presets
         {
             AssignOrCreatePreset<PumkinsCameraPreset>(newPreset);
 
-            if(!_window || _window.GetType() != typeof(CreateCamerePresetPopup))
-            {                
-                _window = CreateInstance<CreateCamerePresetPopup>();
+            if(!_window || _window.GetType() != typeof(CreateCameraPresetPopup))
+            {
+                _window = CreateInstance<CreateCameraPresetPopup>();
                 _window.autoRepaintOnSceneChange = true;
 
                 if(minWindowSize.magnitude > Vector2.zero.magnitude)
@@ -49,39 +51,11 @@ namespace Pumkin.Presets
             RefreshReferenceTransform();
         }
 
-        private static void RefreshReferenceTransform()
-        {
-            PumkinsCameraPreset p = (PumkinsCameraPreset)preset;
-            if(!p || p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Viewpoint)
-                return;
-
-            GameObject avatar = PumkinsAvatarTools.SelectedAvatar;
-            if(!string.IsNullOrEmpty(p.transformPath) && avatar)
-                referenceTransform = avatar.transform.Find(p.transformPath);
-        }
-
         private void OnDestroy()
         {
             PumkinsAvatarTools.RestoreCameraRT(PumkinsAvatarTools.SelectedCamera);
             if(editingExistingPreset)
                 GetNewOffsetsAndApplyToPreset();
-        }
-
-        private static void GetNewOffsetsAndApplyToPreset()
-        {
-            PumkinsCameraPreset p = (PumkinsCameraPreset)preset;
-            Camera camera = PumkinsAvatarTools.SelectedCamera;
-            GameObject avatar = PumkinsAvatarTools.SelectedAvatar;
-            if(avatar && camera && p)
-            {
-                if(p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.AvatarRoot)
-                    p.CalculateOffsets(avatar.transform.root, camera);
-                else if(p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform && referenceTransform)
-                    p.CalculateOffsets(referenceTransform, camera);
-                else
-                    p.CalculateOffsets(PumkinsAvatarTools.SelectedAvatar.GetComponent<VRCSDK2.VRC_AvatarDescriptor>(), camera);
-            }
-            preset = p;
         }
 
         private new void OnDisable()
@@ -179,11 +153,14 @@ namespace Pumkin.Presets
                             {
                                 if(GUILayout.Button(Strings.Buttons.savePreset, Styles.BigButton))
                                 {
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
                                     if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Viewpoint && (Avatar.GetComponent<VRC_AvatarDescriptor>() == null))
                                     {
                                         PumkinsAvatarTools.Log(Strings.Log.descriptorIsMissingCantGetViewpoint, LogType.Warning);
                                     }
-                                    else if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform)
+                                    else
+#endif
+                                    if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform)
                                     {
                                         EditorApplication.delayCall += () =>
                                         {
@@ -213,6 +190,40 @@ namespace Pumkin.Presets
                 if(this)
                     Close();
             }
+        }
+
+        private static void RefreshReferenceTransform()
+        {
+            PumkinsCameraPreset p = (PumkinsCameraPreset)preset;
+            if(!p)
+                return;
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
+            if(p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Viewpoint)
+                return;
+#endif
+
+            GameObject avatar = PumkinsAvatarTools.SelectedAvatar;
+            if(!string.IsNullOrEmpty(p.transformPath) && avatar)
+                referenceTransform = avatar.transform.Find(p.transformPath);
+        }
+
+        private static void GetNewOffsetsAndApplyToPreset()
+        {
+            PumkinsCameraPreset p = (PumkinsCameraPreset)preset;
+            Camera camera = PumkinsAvatarTools.SelectedCamera;
+            GameObject avatar = PumkinsAvatarTools.SelectedAvatar;
+            if(avatar && camera && p)
+            {
+                if(p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.AvatarRoot)
+                    p.CalculateOffsets(avatar.transform.root, camera);
+                else if(p.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Transform && referenceTransform)
+                    p.CalculateOffsets(referenceTransform, camera);
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
+                else
+                    p.CalculateOffsets(PumkinsAvatarTools.SelectedAvatar.GetComponent<VRC_AvatarDescriptor>(), camera);
+#endif
+            }
+            preset = p;
         }
     }
 }

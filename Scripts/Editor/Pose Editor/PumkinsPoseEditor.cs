@@ -13,10 +13,7 @@ namespace Pumkin.PoseEditor
 {
     public class PumkinsPoseEditor : EditorWindow
     {
-        public enum PoseChangeType { Reset, Normal, PoseEditor };
-
-        //static double deltaTime = 0;
-        //static double lastTime = 0;        
+        public enum PoseChangeType { Reset, Normal, PoseEditor }
 
         static List<PumkinsPosePreset> _defaultPoses;
         public static List<PumkinsPosePreset> DefaultPoses
@@ -40,7 +37,6 @@ namespace Pumkin.PoseEditor
                             }),
                         PumkinsPosePreset.CreatePreset("Idle", new float[]
                             {
-
                             }),
                     };
                 }
@@ -54,28 +50,31 @@ namespace Pumkin.PoseEditor
         public static event PoseChangedHandler PoseChanged;
 
         //Main
-        static bool windowIsFocused = false;
+        //static bool windowIsFocused = false;
         static HumanPose avatarPose;
         static HumanPoseHandler avatarPoseHandler;
-        Vector2 scroll = Vector2.zero;       
+        Vector2 scroll = Vector2.zero;
 
         //Toolbar and sliders
         float sliderRange = 2f;
         int toolbarSelection = 0;
 
-        //Pose from animation                
+        //Pose from animation
         AnimationClip animClip;
         float animTimeCurrent = 0;
-        //bool playAnimation = false;        
+        bool playAnimation = false;
+        public float animationSpeed = 0.03f;
         bool allowMotion = false;
 
-        static Animator _avatarAnimator;        
+        static Animator _avatarAnimator;
 
         static bool _drawSkeleton = false;
 
         static bool _openedSettings = false;
 
         static List<PoseEditorBone> bones = new List<PoseEditorBone>();
+
+        EditorApplication.CallbackFunction updateCallback;
 
         public static Animator AvatarAnimator
         {
@@ -119,17 +118,16 @@ namespace Pumkin.PoseEditor
 
         private void Awake()
         {
-            
         }
 
         private void OnFocus()
         {
-            windowIsFocused = true;
+            //windowIsFocused = true;
         }
 
         private void OnLostFocus()
         {
-            windowIsFocused = false;
+            //windowIsFocused = false;
         }
 
         private void OnEnable()
@@ -143,20 +141,26 @@ namespace Pumkin.PoseEditor
             PoseChanged += HandlePoseChange;
 
             SceneView.onSceneGUIDelegate += DrawHandlesGUI;
-        }        
+
+            if(updateCallback == null)
+                updateCallback = new EditorApplication.CallbackFunction(OnUpdate);
+
+            EditorApplication.update += updateCallback;
+        }
 
         private void OnDisable()
         {
             PumkinsAvatarTools.AvatarSelectionChanged -= HandleAvatarSelectionChanged;
             PoseChanged -= HandlePoseChange;
 
+            playAnimation = false;
+
             SceneView.onSceneGUIDelegate -= DrawHandlesGUI;
+            EditorApplication.update -= updateCallback;
         }
 
         public void OnGUI()
-        {            
-            //deltaTime = Time.time - lastTime;
-            //lastTime = Time.time;
+        {
             EditorGUILayout.BeginHorizontal();
             {
                 EditorGUILayout.LabelField(Strings.PoseEditor.title, Styles.Label_mainTitle);
@@ -175,7 +179,7 @@ namespace Pumkin.PoseEditor
             }
 
             //if(GUILayout.Button("Dump muscle names"))
-            //{            
+            //{
             //    string s = "";
             //    foreach(string m in HumanTrait.MuscleName)
             //    {
@@ -207,7 +211,7 @@ namespace Pumkin.PoseEditor
         }
 
         static void HandleAvatarSelectionChanged(GameObject newAvatar)
-        {            
+        {
             ReloadPoseVariables(newAvatar);
         }
 
@@ -223,13 +227,13 @@ namespace Pumkin.PoseEditor
                     ReloadPoseVariables(PumkinsAvatarTools.SelectedAvatar);
                     break;
             }
-        }        
+        }
 
         void DrawHandlesGUI(SceneView sceneView)
         {
-            if(DrawSkeleton && bones.Count > 0)            
-                PumkinsPoseEditorUtils.DrawBones(bones);            
-        }       
+            if(DrawSkeleton && bones.Count > 0)
+                PumkinsPoseEditorUtils.DrawBones(bones);
+        }
 
         private void DrawSettingsGUI()
         {
@@ -287,9 +291,9 @@ namespace Pumkin.PoseEditor
                     for(int i = 0; i < muscleRanges.Count; i++)
                     {
                         Vector2Int range = muscleRanges[i];
-                        for(int j = range.x; j < range.y; j++)                        
+                        for(int j = range.x; j < range.y; j++)
                             avatarPose.muscles[j] = EditorGUILayout.Slider(new GUIContent(HumanTrait.MuscleName[j]), avatarPose.muscles[j], -sliderRange, sliderRange);
-                        
+
                         if(i != muscleRanges.Count - 1)
                             EditorGUILayout.Space();
                     }
@@ -304,10 +308,9 @@ namespace Pumkin.PoseEditor
                             avatarPose.bodyPosition.y = 1;
                         }
 
-
                         Undo.RegisterCompleteObjectUndo(PumkinsAvatarTools.SelectedAvatar, "Pose Editor: Set pose from sliders");
                         avatarPoseHandler.SetHumanPose(ref avatarPose);
-                    }                    
+                    }
                 }
 
                 Helpers.DrawGUILine();
@@ -317,7 +320,7 @@ namespace Pumkin.PoseEditor
 
                 EditorGUILayout.Space();
 
-                PumkinsAvatarTools.Instance.posePresetTryFixSinking = GUILayout.Toggle(PumkinsAvatarTools.Instance.posePresetTryFixSinking, Strings.Thumbnails.tryFixPoseSinking);                
+                PumkinsAvatarTools.Instance.posePresetTryFixSinking = GUILayout.Toggle(PumkinsAvatarTools.Instance.posePresetTryFixSinking, Strings.Thumbnails.tryFixPoseSinking);
 
                 PumkinsAvatarTools.Instance.DrawPresetGUI<PumkinsPosePreset>();
             }
@@ -326,16 +329,16 @@ namespace Pumkin.PoseEditor
 
         private void DrawPoseFromAnimationGUI()
         {
-            bool applyAnimation = false;            
+            bool applyAnimation = false;
             EditorGUI.BeginChangeCheck();
             {
                 animClip = EditorGUILayout.ObjectField(Strings.PoseEditor.poseFromAnimation, animClip, typeof(AnimationClip), false) as AnimationClip;
             }
             if(EditorGUI.EndChangeCheck())
-            {                
+            {
                 animTimeCurrent = 0;
                 applyAnimation = true;
-                //playAnimation = false;
+                playAnimation = false;
             }
 
             if(animClip)
@@ -344,31 +347,45 @@ namespace Pumkin.PoseEditor
                 {
                     animTimeCurrent = EditorGUILayout.Slider(Strings.PoseEditor.animationTime, animTimeCurrent, 0, animClip.length);
                 }
-                if(EditorGUI.EndChangeCheck() || applyAnimation) //|| playAnimation)
-                {                       
-                    //Save transform position and rotation to prevent root motion
-                    SerialTransform currentTrans = PumkinsAvatarTools.SelectedAvatar.transform;
-
-                    animClip.SampleAnimation(PumkinsAvatarTools.SelectedAvatar, animTimeCurrent);
-
-                    if(currentTrans) //Restore position and rotation of avatar
-                        PumkinsAvatarTools.SelectedAvatar.transform.SetPositionAndRotation(currentTrans.position, currentTrans.rotation);                    
-
-                   ReloadPoseVariables(PumkinsAvatarTools.SelectedAvatar);
+                if(EditorGUI.EndChangeCheck() || applyAnimation)
+                {
+                    ApplyAnimation();
                 }
 
                 allowMotion = GUILayout.Toggle(allowMotion, Strings.PoseEditor.allowMotion);
-                                
-                //if(GUILayout.Button(playAnimation ? "Pause" : "Play"))
-                //    playAnimation = !playAnimation;
 
-                //if(playAnimation)
-                //{
-                //    animTimeCurrent = animTimeCurrent + (float)deltaTime;
-                //    animTimeCurrent = Helpers.WrapToRange(animTimeCurrent, 0, animClip.length);                    
-                //}
+                if(GUILayout.Button(playAnimation ? "Pause" : "Play"))
+                    playAnimation = !playAnimation;
             }
             Helpers.DrawGUILine();
+        }
+
+        private void ApplyAnimation()
+        {
+            //Save transform position and rotation to prevent root motion
+            SerialTransform currentTrans = PumkinsAvatarTools.SelectedAvatar.transform;
+
+            animClip.SampleAnimation(PumkinsAvatarTools.SelectedAvatar, animTimeCurrent);
+
+            if(currentTrans) //Restore position and rotation of avatar
+                PumkinsAvatarTools.SelectedAvatar.transform.SetPositionAndRotation(currentTrans.position, currentTrans.rotation);
+
+            ReloadPoseVariables(PumkinsAvatarTools.SelectedAvatar);
+        }
+
+        void OnUpdate()
+        {
+            if(playAnimation)
+            {
+                if(!animClip || animClip.length == 0)
+                {
+                    playAnimation = false;
+                    return;
+                }
+
+                animTimeCurrent = Helpers.WrapToRange(animTimeCurrent + Time.deltaTime, 0, animClip.length);
+                ApplyAnimation();
+            }
         }
 
         private static void ReloadPoseVariables(GameObject newAvatar)
@@ -385,10 +402,10 @@ namespace Pumkin.PoseEditor
             if(newAvatar && AvatarAnimator && AvatarAnimator.isHuman)
             {
                 avatarPose = new HumanPose();
-                
+
                 SerialTransform st = newAvatar.transform;
                 newAvatar.transform.position = Vector3.zero;    //Move avatar to 0,0,0 before getting human pose to prevent offsetting when applying
-                
+
                 avatarPoseHandler = new HumanPoseHandler(AvatarAnimator.avatar, AvatarAnimator.transform);
                 avatarPoseHandler.GetHumanPose(ref avatarPose);
 
@@ -436,7 +453,7 @@ namespace Pumkin.PoseEditor
 
         /// <summary>
         /// Sets hardcoded TPose.
-        /// </summary>        
+        /// </summary>
         public static void SetTPoseHardcoded(GameObject avatar)
         {
             Undo.RegisterFullObjectHierarchyUndo(avatar, "Set TPose");

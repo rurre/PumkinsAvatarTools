@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using Pumkin.Presets;
+using System.Reflection;
 
 namespace Pumkin.Translations
 {
@@ -27,7 +28,7 @@ namespace Pumkin.Translations
                     var objArr = FindObjectsOfType<PumkinsTranslation>();
                     var obj = objArr.FirstOrDefault(o => o.ToString() == "English - Default") as PumkinsTranslation;
                     if(obj)
-                        _default = obj;                    
+                        _default = obj;
                 }
                 return _default;
             }
@@ -40,6 +41,55 @@ namespace Pumkin.Translations
 
             _default = CreateInstance<PumkinsTranslation>();
             return _default;
+        }
+
+        internal void FixEmptyFields()
+        {
+            var infos = new Dictionary<Type, FieldInfo[]>
+            {
+                { main.GetType(),       main.GetType().GetFields()       },
+                { buttons.GetType(),    buttons.GetType().GetFields()    },
+                { tools.GetType(),      tools.GetType().GetFields()      },
+                { copier.GetType(),     copier.GetType().GetFields()     },
+                { avatarInfo.GetType(), avatarInfo.GetType().GetFields() },
+                { thumbnails.GetType(), thumbnails.GetType().GetFields() },
+                { misc.GetType(),       misc.GetType().GetFields()       },
+                { log.GetType(),        log.GetType().GetFields()        },
+                { warnings.GetType(),   warnings.GetType().GetFields()   },
+                { credits.GetType(),    credits.GetType().GetFields()    },
+                { poseEditor.GetType(), poseEditor.GetType().GetFields() },
+                { preset.GetType(),     preset.GetType().GetFields()     },
+            };
+
+            PumkinsTranslation def = Default;
+
+            FieldInfo[] thisFields = GetType().GetFields();
+
+            foreach(var kv in infos)
+            {
+                Type targetType = kv.Key;
+                FieldInfo[] targetFields = kv.Value;
+
+                FieldInfo ownerObjectField = thisFields.FirstOrDefault(f => f.FieldType == targetType);
+                if(ownerObjectField == null)
+                    continue;
+
+                object ownerObject = ownerObjectField.GetValue(this);
+                object defaultObject = ownerObjectField.GetValue(def);
+
+                if(ownerObject == null || defaultObject == null)
+                    continue;
+
+                for(int i = 0; i < targetFields.Length; i++)
+                {
+                    FieldInfo field = targetFields[i];
+                    if(field.FieldType != typeof(string))
+                        continue;
+
+                    if(string.IsNullOrWhiteSpace(field.GetValue(ownerObject) as string))
+                        field.SetValue(ownerObject, field.GetValue(defaultObject));
+                }
+            }
         }
 
         public MainStrings main = new MainStrings();
@@ -65,7 +115,7 @@ namespace Pumkin.Translations
 
         public override bool Equals(object obj)
         {
-            return obj is PumkinsTranslation translation &&                   
+            return obj is PumkinsTranslation translation &&
                    languageName == translation.languageName &&
                    author == translation.author;
         }
@@ -90,7 +140,7 @@ namespace Pumkin.Translations
             hashCode = hashCode * -1521134295 + EqualityComparer<PresetStrings>.Default.GetHashCode(preset);
             return hashCode;
         }
-    };
+    }
 
     [Serializable]
     public class PresetStrings
@@ -112,7 +162,7 @@ namespace Pumkin.Translations
         public string offsetMode = "Offset Mode";
         public string camera = "Camera";
         public string editCameraPreset = "Edit Camera Preset";
-        public string createCameraPreset = "Create Camera Preset";        
+        public string createCameraPreset = "Create Camera Preset";
     }
 
     [Serializable]
@@ -130,7 +180,7 @@ namespace Pumkin.Translations
         public string avatar = "Avatar";
         public string useSceneSelection = "Use Scene Selection";
         public string experimental = "Experimental";
-    };
+    }
 
     [Serializable]
     public class ButtonStrings
@@ -164,7 +214,8 @@ namespace Pumkin.Translations
         public string openFolder = "Open Folder";
         public string selectFolder = "Select Folder";
         public string ok = "Ok";
-    };
+        public string moveToEyes = "Move to Eyes";
+    }
 
     [Serializable]
     public class ToolStrings
@@ -190,7 +241,9 @@ namespace Pumkin.Translations
         public string fixDynamicBoneScripts = "Fix Missing DynamicBone Scripts in Prefab";
         public string hierarchyPath = "Hierarchy Path";
         public string anchorPath = "Anchor Path";
-    };
+        public string fillEyeBones = "Fill Eye Bones";
+        public string setImportSettings = "Set Import Settings";
+    }
 
     [Serializable]
     public class CopierStrings
@@ -222,6 +275,9 @@ namespace Pumkin.Translations
         public string descriptor_pipelineId = "Pipeline Id";
         public string descriptor_animationOverrides = "Animation Overrides";
         public string descriptor_copyViewpoint = "Viewpoint";
+        public string descriptor_playableLayers = "Playable Layers";
+        public string descriptor_eyeLookSettings = "Eye Look Settings";
+        public string descriptor_expressions = "Expressions";
         public string skinMeshRender = "Skinned Mesh Renderers";
         public string skinMeshRender_materials = "Materials";
         public string skinMeshRender_blendShapeValues = "BlendShape Values";
@@ -239,6 +295,7 @@ namespace Pumkin.Translations
         public string joints = "Joints";
         public string other = "Other";
         public string other_ikFollowers = "IK Followers";
+        public string other_vrmSpringBones = "VRM Spring Bones";
         public string aimConstraints = "Aim Constraints";
 
         public string ignoreList = "Ignore List";
@@ -260,7 +317,7 @@ namespace Pumkin.Translations
         public string joints_character = "Character Joint";
         public string joints_configurable = "Configurable Joint";
         public string joints_removeOld = "Remove Old Joints";
-    };
+    }
 
     [Serializable]
     public class AvatarInfoStrings
@@ -283,7 +340,7 @@ namespace Pumkin.Translations
         public string overallPerformance = "Overall Performance: {0}";
         public string selectAvatarFirst = "Select an Avatar first";
         public string ikFollowers = "IK Followers: {0} ({1})";
-    };
+    }
 
     [Serializable]
     public class ThumbnailStrings
@@ -317,7 +374,7 @@ namespace Pumkin.Translations
         public string overlayImagePath = "Overlay Image Path";
         public string imagePath = "Image Path";
         public string backgroundColor = "Background Color";
-    };
+    }
 
     [Serializable]
     public class LogStrings
@@ -372,7 +429,7 @@ namespace Pumkin.Translations
         public string exitPrefabModeFirst = "Please exit prefab mode before doing this";
         public string transformNotFound = "Transform at '{0}' not found";
         public string cantApplyPreset = "Can't apply preset";
-    };
+    }
 
     [Serializable]
     public class WarningStrings
@@ -390,7 +447,7 @@ namespace Pumkin.Translations
         public string armatureScalesDontMatch = "Armature scales for selected avatars don't match!\nThis can cause issues";
         public string noDBonesOrMissingScriptDefine = "No DynamicBones found or missing script define";
         public string languageAlreadyExistsOverwrite = "Language preset already exists. Overwrite?";
-    };
+    }
 
     [Serializable]
     public class CreditsStrings
@@ -398,14 +455,14 @@ namespace Pumkin.Translations
         public string version = "Version";
         public string redundantStrings = "Now with 100% more redundant strings";
         public string addMoreStuff = "I'll add more stuff to this eventually";
-        public string pokeOnDiscord = "Poke me on Discord at Pumkin#2020";
-    };
+        public string pokeOnDiscord = "Poke me on Discord at Pumkin#9523";
+    }
 
     [Serializable]
     public class SettingsStrings
     {
         public string uwu = "uwu";
-        public string searchForBones = "Search for DynamicBones";        
+        public string searchForBones = "Search for DynamicBones";
         public string language = "Language";
         public string refresh = "Refresh";
         public string importLanguage = "Import Language";
@@ -413,7 +470,7 @@ namespace Pumkin.Translations
         public string sceneViewOverlayWindowsAtBottom = "Draw scene view overlays at the bottom";
         public string misc = "Misc";
         public string showExperimentalMenu = "Show experimental menu";
-    };
+    }
 
     [Serializable]
     public class PoseEditorStrings

@@ -11,10 +11,10 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "0.8.2b - Work In Progress";
-        public const double toolsVersion = 0.81;
+        public const string TOOLS_VERSION_STRING = "0.9.4b - Work in Progress";
+        public const double toolsVersion = 0.94;
 
-        public const string POSE_EDITOR_VERSION_NUMBER = "0.1.2b - Work in Progress";
+        public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
         public const string LINK_DONATION = "https://ko-fi.com/notpumkin";
         public const string LINK_DISCORD = "https://discord.gg/7vyekJv";
@@ -102,7 +102,7 @@ namespace Pumkin.DataStructures
                 useSceneSelection = Translation.main.useSceneSelection;
                 experimental = Translation.main.experimental;
             }
-        };
+        }
         public static class Buttons
         {
             public static string selectFromScene = "_Select from Scene";
@@ -134,6 +134,7 @@ namespace Pumkin.DataStructures
             public static string openFolder = "_Open Folder";
             public static string selectFolder = "_Select Folder";
             public static string ok = "_Ok";
+            public static string moveToEyes = "_Move to Eyes";
 
             static Buttons()
             {
@@ -174,8 +175,9 @@ namespace Pumkin.DataStructures
                 openFolder = Translation.buttons.openFolder;
                 selectFolder = Translation.buttons.selectFolder;
                 ok = Translation.buttons.ok;
+                moveToEyes = Translation.buttons.moveToEyes;
             }
-        };
+        }
         public static class Tools
         {
             public static string fillVisemes = "_Fill Visemes";
@@ -199,6 +201,9 @@ namespace Pumkin.DataStructures
             public static string fixDynamicBoneScripts = "_Fix Missing DynamicBone Scripts in Prefab";
             public static string hierarchyPath = "_Hierarchy Path";
             public static string anchorPath = "_Anchor Path";
+            public static string fillEyeBones = "_Fill Eye Bones";
+            public static string resetBoundingBoxes = "_Reset Bounding Boxes";
+            public static string setImportSettings = "_Set Import Settings";
 
             static Tools()
             {
@@ -224,15 +229,18 @@ namespace Pumkin.DataStructures
                 setSkinnedMeshRendererAnchors = Translation.tools.setSkinnedMeshRendererAnchors;
                 revertScale = Translation.tools.revertScale;
                 editScaleMoveViewpoint = Translation.tools.editScaleMoveViewpoint;
-                refreshSDK = Translation.tools.refreshSDK;                
+                refreshSDK = Translation.tools.refreshSDK;
                 enableDynamicBones = Translation.tools.enableDynamicBones;
                 disableDynamicBones = Translation.tools.disableDynamicBones;
                 toggleDynamicBones = Translation.tools.toggleDynamicBones;
                 fixDynamicBoneScripts = Translation.tools.fixDynamicBoneScripts;
                 hierarchyPath = Translation.tools.hierarchyPath;
                 anchorPath = Translation.tools.anchorPath;
+                fillEyeBones = Translation.tools.fillEyeBones;
+                setImportSettings = Translation.tools.setImportSettings;
+
             }
-        };
+        }
         public static class AvatarInfo
         {
             public static string name = "_{0}";
@@ -243,7 +251,7 @@ namespace Pumkin.DataStructures
             public static string uniqueMaterials = "_Unique Materials: {0} ({1})";
             public static string ikFollowers = "_IK Followers: {0} ({1})";
             public static string overallPerformance = "_Overall Performance: {0}";
-#if PUMKIN_VRCSDK2
+
             public static string bones = "_Bones: {0} - {1}";
             public static string skinnedMeshRenderers = "_Skinned Mesh Renderers: {0} ({1}) - {2}";
             public static string meshRenderers = "_Mesh Renderers: {0} ({1}) - {2}";
@@ -253,19 +261,7 @@ namespace Pumkin.DataStructures
             public static string dynamicBoneColliders = "_Dynamic Bone Colliders: {0} ({1}) - {2}";
             public static string dynamicBoneColliderTransforms = "_Collider Affected Transforms: {0} ({1}) - {2}";
             public static string particleSystems = "_Particle Systems: {0} ({1}) - {2}";
-            public static string maxParticles = "_Max Particles: {0} ({1}) - {2}";            
-#else
-            public static string bones = "_Bones: {0}";
-            public static string skinnedMeshRenderers = "_Skinned Mesh Renderers: {0} ({1})";
-            public static string meshRenderers = "_Mesh Renderers: {0} ({1})";
-            public static string polygons = "_Polygons: {0} ({1})";
-            public static string usedMaterialSlots = "_Used Material Slots: {0} ({1})";            
-            public static string dynamicBoneTransforms = "_Dynamic Bone Transforms: {0} ({1})";
-            public static string dynamicBoneColliders = "_Dynamic Bone Colliders: {0} ({1})";
-            public static string dynamicBoneColliderTransforms = "_Collider Affected Transforms: {0} ({1})";
-            public static string particleSystems = "_Particle Systems: {0} ({1})";
-            public static string maxParticles = "_Max Particles: {0} ({1})";        
-#endif
+            public static string maxParticles = "_Max Particles: {0} ({1}) - {2}";
 
             static AvatarInfo()
             {
@@ -301,7 +297,7 @@ namespace Pumkin.DataStructures
         {
             public static string overlayCameraImage = "_Overlay Image";
             public static string overlayTexture = "_Overlay Texture";
-            public static string startUploadingFirst = "_Start uploading an Avatar, or get into Play mode";                        
+            public static string startUploadingFirst = "_Start uploading an Avatar, or get into Play mode";
             public static string backgroundType = "_Background Type";
             public static string backgroundType_None = "_None";
             public static string backgroundType_Material = "_Skybox";
@@ -324,7 +320,7 @@ namespace Pumkin.DataStructures
             public static string viewpoint = "_Viewpoint";
             public static string applyBodyPosition = "_Apply Body Position";
             public static string applyBodyRotation = "_Apply Body Rotation";
-            public static string lockSelectedCameraToSceneView = "_Lock Selected Camera to Scene View";                                    
+            public static string lockSelectedCameraToSceneView = "_Lock Selected Camera to Scene View";
             public static string overlayImagePath = "_Overlay Image Path";
             public static string imagePath = "_Image Path";
             public static string backgroundColor = "_Background Color";
@@ -341,7 +337,7 @@ namespace Pumkin.DataStructures
 
                 overlayCameraImage = Translation.thumbnails.overlayCameraImage;
                 overlayTexture = Translation.thumbnails.overlayTexture;
-                startUploadingFirst = Translation.thumbnails.startUploadingFirst;                
+                startUploadingFirst = Translation.thumbnails.startUploadingFirst;
                 backgroundType = Translation.thumbnails.backgroundType;
                 backgroundType_None = Translation.thumbnails.backgroundType_None;
                 backgroundType_Material = Translation.thumbnails.backgroundType_Material;
@@ -399,6 +395,9 @@ namespace Pumkin.DataStructures
             public static string descriptor_pipelineId = "_Pipeline Id";
             public static string descriptor_animationOverrides = "_Animation Overrides";
             public static string descriptor_copyViewpoint = "_Viewpoint";
+            public static string descriptor_playableLayers = "_Playable Layers";
+            public static string descriptor_eyeLookSettings = "_Eye Look Settings";
+            public static string descriptor_expressions = "_Expressions";
             public static string skinMeshRender = "_Skinned Mesh Renderers";
             public static string skinMeshRender_materials = "_Materials";
             public static string skinMeshRender_blendShapeValues = "_BlendShape Values";
@@ -415,8 +414,9 @@ namespace Pumkin.DataStructures
             public static string audioSources = "_Audio Sources";
             public static string joints = "_Joints";
             public static string other = "_Other";
-            public static string other_ikFollowers = "_IK Followers";            
+            public static string other_ikFollowers = "_IK Followers";
             public static string other_emptyScripts = "_Empty Scripts";
+            public static string other_vrmSpringBones = "_VRM Spring Bones";
             public static string aimConstraints = "_Aim Constraints";
             public static string lookAtConstraints = "_LookAt Constraints";
             public static string parentConstraints = "_Parent Constraints";
@@ -470,10 +470,15 @@ namespace Pumkin.DataStructures
                 colliders_sphere = Translation.copier.colliders_sphere;
                 colliders_mesh = Translation.copier.colliders_mesh;
                 colliders_removeOld = Translation.copier.colliders_removeOld;
+
                 descriptor = Translation.copier.descriptor;
                 descriptor_pipelineId = Translation.copier.descriptor_pipelineId;
                 descriptor_animationOverrides = Translation.copier.descriptor_animationOverrides;
                 descriptor_copyViewpoint = Translation.copier.descriptor_copyViewpoint;
+                descriptor_playableLayers = Translation.copier.descriptor_playableLayers;
+                descriptor_eyeLookSettings = Translation.copier.descriptor_eyeLookSettings;
+                descriptor_expressions = Translation.copier.descriptor_expressions;
+
                 skinMeshRender = Translation.copier.skinMeshRender;
                 skinMeshRender_materials = Translation.copier.skinMeshRender_materials;
                 skinMeshRender_blendShapeValues = Translation.copier.skinMeshRender_blendShapeValues;
@@ -499,21 +504,22 @@ namespace Pumkin.DataStructures
                 rotationConstraints = Translation.copier.rotationConstraints;
                 scaleConstraints = Translation.copier.scaleConstraints;
                 onlyIfHasValidSources = Translation.copier.onlyIfHasValidSources;
-                
+                other_vrmSpringBones = Translation.copier.other_vrmSpringBones;
+
                 joints_fixed = Translation.copier.joints_fixed;
                 joints_hinge = Translation.copier.joints_hinge;
                 joints_spring = Translation.copier.joints_spring;
                 joints_character = Translation.copier.joints_character;
                 joints_configurable = Translation.copier.joints_configurable;
-                joints_removeOld = Translation.copier.joints_removeOld;            
+                joints_removeOld = Translation.copier.joints_removeOld;
 
                 exclusions = Translation.copier.ignoreList;
                 includeChildren = Translation.copier.includeChildren;
-                size = Translation.copier.size;               
-                showCommon = Translation.copier.showCommon;               
-                showAll = Translation.copier.showAll;               
+                size = Translation.copier.size;
+                showCommon = Translation.copier.showCommon;
+                showAll = Translation.copier.showAll;
             }
-        };
+        }
         public static class Log
         {
             public static string done = "_Done";
@@ -529,7 +535,7 @@ namespace Pumkin.DataStructures
             public static string noSkinnedMeshFound = "_Failed: No skinned mesh found";
             public static string descriptorIsNull = "_Avatar Descriptor is null";
             public static string success = "_Success";
-            public static string meshHasNoVisemes = "_Failed. Mesh has no Visemes. Set to Default";            
+            public static string meshHasNoVisemes = "_Failed. Mesh has no Visemes. Set to Default";
             public static string failed = "_Failed";
             public static string failedIsNull = "_Failed: '{1}' is null";
             public static string nameIsEmpty = "_Name is Empty";
@@ -628,7 +634,7 @@ namespace Pumkin.DataStructures
                 transformNotFound = Translation.log.transformNotFound;
                 cantApplyPreset = Translation.log.cantApplyPreset;
             }
-        };
+        }
         public static class Warning
         {
             public static string warn = "_Warning";
@@ -668,13 +674,13 @@ namespace Pumkin.DataStructures
                 noDBonesOrMissingScriptDefine = Translation.warnings.noDBonesOrMissingScriptDefine;
                 languageAlreadyExistsOverwrite = Translation.warnings.languageAlreadyExistsOverwrite;
             }
-        };
+        }
         public static class Credits
         {
             public static string version = "_Version";
             public static string redundantStrings = "_Now with 100% more redundant strings";
             public static string addMoreStuff = "_I'll add more stuff to this eventually";
-            public static string pokeOnDiscord = "_Poke me on Discord at Pumkin#2020";
+            public static string pokeOnDiscord = "_Poke me on Discord at Pumkin#9524";
 
             static Credits()
             {
@@ -691,7 +697,7 @@ namespace Pumkin.DataStructures
                 addMoreStuff = Translation.credits.addMoreStuff;
                 pokeOnDiscord = Translation.credits.pokeOnDiscord;
             }
-        };
+        }
         public static class PoseEditor
         {
             public static string version = "_Version";
@@ -781,7 +787,7 @@ namespace Pumkin.DataStructures
             public static string offsetMode = "_Offset Mode";
             public static string camera = "_Camera";
             public static string editCameraPreset = "_Edit Camera Preset";
-            public static string createCameraPreset = "_Create Camera Preset";            
+            public static string createCameraPreset = "_Create Camera Preset";
 
             static Presets()
             {
@@ -810,13 +816,13 @@ namespace Pumkin.DataStructures
                 offsetMode = Translation.preset.offsetMode;
                 camera = Translation.preset.camera;
                 editCameraPreset = Translation.preset.editCameraPreset;
-                createCameraPreset = Translation.preset.createCameraPreset;                
+                createCameraPreset = Translation.preset.createCameraPreset;
             }
-        }        
+        }
         public static class Settings
         {
             public static string uwu = "_uwu";
-            public static string searchForBones = "_Search for DynamicBones";            
+            public static string searchForBones = "_Search for DynamicBones";
             public static string language = "_Language";
             public static string refresh = "_Refresh";
             public static string importLanguage = "_Import Language";
@@ -836,15 +842,15 @@ namespace Pumkin.DataStructures
                     return;
 
                 uwu = Translation.misc.uwu;
-                searchForBones = Translation.misc.searchForBones;                
+                searchForBones = Translation.misc.searchForBones;
                 language = Translation.misc.language;
                 refresh = Translation.misc.refresh;
                 importLanguage = Translation.misc.importLanguage;
                 enableVerboseLogging = Translation.misc.enableVerboseLogging;
                 sceneViewOverlayWindowsAtBottom = Translation.misc.sceneViewOverlayWindowsAtBottom;
                 misc = Translation.misc.misc;
-                showExperimentalMenu = Translation.misc.showExperimentalMenu;                
+                showExperimentalMenu = Translation.misc.showExperimentalMenu;
             }
         }
-    };
+    }
 }

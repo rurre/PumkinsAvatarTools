@@ -1,19 +1,19 @@
 ﻿using Pumkin.DataStructures;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
+
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
 using VRC.SDKBase;
-using VRCSDK2.Validation.Performance;
-using VRCSDK2.Validation.Performance.Stats;
+using VRC.SDKBase.Validation.Performance;
+using VRC.SDKBase.Validation.Performance.Stats;
+#endif
 
 namespace Pumkin.AvatarTools
 {
     public class PumkinsAvatarInfo //Need to improve this class sometime when I overhaul the performance stats
     {
-#if PUMKIN_VRCSDK2
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
         AvatarPerformanceStats perfStats = new AvatarPerformanceStats();
 #endif
         public string Name { get; private set; }
@@ -87,13 +87,14 @@ namespace Pumkin.AvatarTools
             if(o == null)
                 return;
 
-#if PUMKIN_VRCSDK2
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
             try
             {
                 AvatarPerformance.CalculatePerformanceStats(o.name, o, perfStats);
             }
             catch { }
 #endif
+
             Name = o.name;
 
             var shaderHash = new HashSet<Shader>();
@@ -266,6 +267,7 @@ namespace Pumkin.AvatarTools
 
             ShaderCount = shaderHash.Count;
 
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
             var ikf = o.GetComponentsInChildren<VRC_IKFollower>(true);
             foreach(var ik in ikf)
             {
@@ -274,6 +276,7 @@ namespace Pumkin.AvatarTools
                 if(ik.gameObject.activeInHierarchy)
                     IKFollowers += 1;
             }
+#endif
         }
 
         public static PumkinsAvatarInfo GetInfo(GameObject o, out string toString)
@@ -289,13 +292,10 @@ namespace Pumkin.AvatarTools
                 return CachedInfo;
             else
             {
-                if(this == null)
-                {
-                    return null;
-                }
+                bool useDefault = false;
                 try
                 {
-#if PUMKIN_VRCSDK2
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
                     CachedInfo =
                     string.Format(Strings.AvatarInfo.name, Name) + "\n" +
                     string.Format(Strings.AvatarInfo.line) + "\n" +
@@ -316,53 +316,41 @@ namespace Pumkin.AvatarTools
                     Strings.AvatarInfo.line + "\n" +
                     string.Format(Strings.AvatarInfo.overallPerformance, perfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.Overall));
 #else
-                    CachedInfo =
-                    string.Format(Strings.AvatarInfo.name, Name) + "\n" +
-                    string.Format(Strings.AvatarInfo.line) + "\n" +
-                    string.Format(Strings.AvatarInfo.gameObjects, GameObjects, GameObjects_Total) + "\n" +
-                    string.Format(Strings.AvatarInfo.bones, Bones, "?") + "\n\n" +
-                    string.Format(Strings.AvatarInfo.skinnedMeshRenderers, SkinnedMeshRenderers, SkinnedMeshRenderers_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.meshRenderers, MeshRenderers, MeshRenderers_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.polygons, Polygons, Polygons_Total, "?") + "\n\n" +
-                    string.Format(Strings.AvatarInfo.usedMaterialSlots, MaterialSlots, MaterialSlots_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.uniqueMaterials, UniqueMaterials, UniqueMaterials_Total) + "\n" +
-                    string.Format(Strings.AvatarInfo.shaders, ShaderCount) + "\n\n" +
-                    string.Format(Strings.AvatarInfo.dynamicBoneTransforms, DynamicBoneTransforms, DynamicBoneTransforms_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.dynamicBoneColliders, DynamicBoneColliders, DynamicBoneColliders_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.dynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, "?") + "\n\n" +
-                    string.Format(Strings.AvatarInfo.particleSystems, ParticleSystems, ParticleSystems_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, "?") + "\n\n" +
-                    string.Format(Strings.AvatarInfo.ikFollowers, IKFollowers, IKFollowers_Total) + "\n" +
-                    Strings.AvatarInfo.line + "\n" +
-                    string.Format(Strings.AvatarInfo.overallPerformance, "?");
+                    useDefault = true;
 #endif
                 }
                 catch
                 {
-                    CachedInfo =
-                    string.Format(Strings.AvatarInfo.name, Name) + "\n" +
-                    string.Format(Strings.AvatarInfo.line) + "\n" +
-                    string.Format(Strings.AvatarInfo.gameObjects, GameObjects, GameObjects_Total) + "\n" +
-                    string.Format(Strings.AvatarInfo.bones, Bones, "?") + "\n\n" +
-                    string.Format(Strings.AvatarInfo.skinnedMeshRenderers, SkinnedMeshRenderers, SkinnedMeshRenderers_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.meshRenderers, MeshRenderers, MeshRenderers_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.polygons, Polygons, Polygons_Total, "?") + "\n\n" +
-                    string.Format(Strings.AvatarInfo.usedMaterialSlots, MaterialSlots, MaterialSlots_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.uniqueMaterials, UniqueMaterials, UniqueMaterials_Total) + "\n" +
-                    string.Format(Strings.AvatarInfo.shaders, ShaderCount) + "\n\n" +
-                    string.Format(Strings.AvatarInfo.dynamicBoneTransforms, DynamicBoneTransforms, DynamicBoneTransforms_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.dynamicBoneColliders, DynamicBoneColliders, DynamicBoneColliders_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.dynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, "?") + "\n\n" +
-                    string.Format(Strings.AvatarInfo.particleSystems, ParticleSystems, ParticleSystems_Total, "?") + "\n" +
-                    string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, "?") + "\n" +
-                    Strings.AvatarInfo.line + "\n" +
-                    string.Format(Strings.AvatarInfo.overallPerformance, "?");
+                    useDefault = true;
                 }
+
+                if(useDefault)
+                {
+                    CachedInfo =
+                        string.Format(Strings.AvatarInfo.name, Name) + "\n" +
+                        string.Format(Strings.AvatarInfo.line) + "\n" +
+                        string.Format(Strings.AvatarInfo.gameObjects, GameObjects, GameObjects_Total) + "\n" +
+                        string.Format(Strings.AvatarInfo.bones, Bones, "?") + "\n\n" +
+                        string.Format(Strings.AvatarInfo.skinnedMeshRenderers, SkinnedMeshRenderers, SkinnedMeshRenderers_Total, "?") + "\n" +
+                        string.Format(Strings.AvatarInfo.meshRenderers, MeshRenderers, MeshRenderers_Total, "?") + "\n" +
+                        string.Format(Strings.AvatarInfo.polygons, Polygons, Polygons_Total, "?") + "\n\n" +
+                        string.Format(Strings.AvatarInfo.usedMaterialSlots, MaterialSlots, MaterialSlots_Total, "?") + "\n" +
+                        string.Format(Strings.AvatarInfo.uniqueMaterials, UniqueMaterials, UniqueMaterials_Total) + "\n" +
+                        string.Format(Strings.AvatarInfo.shaders, ShaderCount) + "\n\n" +
+                        string.Format(Strings.AvatarInfo.dynamicBoneTransforms, DynamicBoneTransforms, DynamicBoneTransforms_Total, "?") + "\n" +
+                        string.Format(Strings.AvatarInfo.dynamicBoneColliders, DynamicBoneColliders, DynamicBoneColliders_Total, "?") + "\n" +
+                        string.Format(Strings.AvatarInfo.dynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, "?") + "\n\n" +
+                        string.Format(Strings.AvatarInfo.particleSystems, ParticleSystems, ParticleSystems_Total, "?") + "\n" +
+                        string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, "?") + "\n" +
+                        Strings.AvatarInfo.line + "\n" +
+                        string.Format(Strings.AvatarInfo.overallPerformance, "?");
+                }
+
                 return CachedInfo;
             }
         }
 
         public static bool operator true(PumkinsAvatarInfo x) { return x != null; }
-        public static bool operator false(PumkinsAvatarInfo x) { return !(x == null); }
+        public static bool operator false(PumkinsAvatarInfo x) { return x != null; }
     }
 }

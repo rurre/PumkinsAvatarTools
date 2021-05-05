@@ -208,7 +208,7 @@ public static class PumkinsLanguageManager
 
     /// <summary>
     /// TODO: Replace with one that reads only the needed lines
-    /// </summary>    
+    /// </summary>
     static bool ReplaceTranslationGUIDTemp(string filePath, string lineIdentifier, string newGUID)
     {
         bool replaced = false;
@@ -232,8 +232,14 @@ public static class PumkinsLanguageManager
     {
         var files = Directory.GetFiles(Helpers.LocalAssetsPathToAbsolutePath(translationPathLocal));
         foreach(var path in files)
+        {
+            string localPath = Helpers.AbsolutePathToLocalAssetsPath(path);
             if(ReplaceTranslationGUIDTemp(path, "m_Script", translationScriptGUID))
-                AssetDatabase.ImportAsset(Helpers.AbsolutePathToLocalAssetsPath(path));
+                AssetDatabase.ImportAsset(localPath);
+
+            PumkinsTranslation translation = AssetDatabase.LoadAssetAtPath<PumkinsTranslation>(localPath);
+            translation?.FixEmptyFields();
+        }
     }
 }
 
