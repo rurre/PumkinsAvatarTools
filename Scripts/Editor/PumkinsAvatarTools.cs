@@ -4760,31 +4760,7 @@ namespace Pumkin.AvatarTools
             {
                 CopyAllIKFollowers(objFrom, objTo, bCopier_other_createGameObjects, true);
             }
-#endif
-            if(DynamicBonesExist)
-            {
-                if(bCopier_dynamicBones_copyColliders && CopierTabs.ComponentIsInSelectedTab("dynamicbonecollider", _copier_selectedTab))
-                {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                    if(bCopier_dynamicBones_removeOldColliders)
-                        DestroyAllComponentsOfType(objTo, typeof(DynamicBoneCollider), false, true);
-                    CopyAllDynamicBoneColliders(objFrom, objTo, bCopier_dynamicBones_createObjectsColliders, true);
-#endif
-                }
-                if(bCopier_dynamicBones_copy && CopierTabs.ComponentIsInSelectedTab("dynamicbone", _copier_selectedTab))
-                {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                    if(bCopier_dynamicBones_removeOldBones)
-                        DestroyAllComponentsOfType(objTo, typeof(DynamicBone), false, true);
-                    if(bCopier_dynamicBones_copySettings || bCopier_dynamicBones_createMissing)
-                        CopyAllDynamicBonesNew(objFrom, objTo, bCopier_dynamicBones_createMissing, true);
-#endif
-                }
-            }
-            else if(bCopier_dynamicBones_copy)
-            {
-                Log(Strings.Warning.noDBonesOrMissingScriptDefine, LogType.Error);
-            }
+#endif           
 
             if(bCopier_aimConstraint_copy && CopierTabs.ComponentIsInSelectedTab<AimConstraint>(_copier_selectedTab))
             {
@@ -4815,6 +4791,31 @@ namespace Pumkin.AvatarTools
                 if(bCopier_joints_removeOld)
                     DestroyAllComponentsOfType(objTo, typeof(Joint), false, true);
                 CopyAllJoints(objFrom, objTo, bCopier_joints_createObjects, true);
+            }
+
+            if(DynamicBonesExist)
+            {
+                if(bCopier_dynamicBones_copyColliders && CopierTabs.ComponentIsInSelectedTab("dynamicbonecollider", _copier_selectedTab))
+                {
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+                    if(bCopier_dynamicBones_removeOldColliders)
+                        DestroyAllComponentsOfType(objTo, typeof(DynamicBoneCollider), false, true);
+                    CopyAllDynamicBoneColliders(objFrom, objTo, bCopier_dynamicBones_createObjectsColliders, true);
+#endif
+                }
+                if(bCopier_dynamicBones_copy && CopierTabs.ComponentIsInSelectedTab("dynamicbone", _copier_selectedTab))
+                {
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+                    if(bCopier_dynamicBones_removeOldBones)
+                        DestroyAllComponentsOfType(objTo, typeof(DynamicBone), false, true);
+                    if(bCopier_dynamicBones_copySettings || bCopier_dynamicBones_createMissing)
+                        CopyAllDynamicBonesNew(objFrom, objTo, bCopier_dynamicBones_createMissing, true);
+#endif
+                }
+            }
+            else if(bCopier_dynamicBones_copy)
+            {
+                Log(Strings.Warning.noDBonesOrMissingScriptDefine, LogType.Error);
             }
 
             if(bCopier_transforms_copy && CopierTabs.ComponentIsInSelectedTab<Transform>(_copier_selectedTab))
