@@ -42,9 +42,9 @@ namespace Pumkin.AvatarTools
     [ExecuteInEditMode, CanEditMultipleObjects, Serializable]
     public class PumkinsAvatarTools : EditorWindow
     {
-#region Variables
+        #region Variables
 
-#region Tools
+        #region Tools
 
         [SerializeField] private static GameObject _selectedAvatar; // use property
 
@@ -133,9 +133,9 @@ namespace Pumkin.AvatarTools
         readonly static string VIEWPOINT_DUMMY_NAME = "_PumkinsViewpointDummy";
         readonly static string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";
 
-#endregion
+        #endregion
 
-#region Component Copier
+        #region Component Copier
 
         [SerializeField] private static GameObject _copierSelectedFrom;
 
@@ -271,9 +271,9 @@ namespace Pumkin.AvatarTools
         [SerializeField] bool bCopier_ignoreArray_includeChildren = false;
         [SerializeField] Vector2 _copierIgnoreArrayScroll = Vector2.zero;
 
-#endregion
+        #endregion
 
-#region Thumbnails
+        #region Thumbnails
 
         [SerializeField] public bool bThumbnails_use_camera_overlay = false;
         [SerializeField] public bool bThumbnails_use_camera_background = false;
@@ -373,19 +373,26 @@ namespace Pumkin.AvatarTools
 
         static List<PumkinsRendererBlendshapesHolder> _selectedAvatarRendererHolders;
 
-#endregion
+        #endregion
 
-#region Avatar Info
+        #region Fallback Preview
+
+        FallbackMaterialPreview FallbackPreview { get; set; } = new FallbackMaterialPreview();
+
+        #endregion
+
+        #region Avatar Info
 
         static PumkinsAvatarInfo avatarInfo = new PumkinsAvatarInfo();
         static string _avatarInfoSpace = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
         static string _avatarInfoString = Strings.AvatarInfo.selectAvatarFirst + _avatarInfoSpace; //Please don't hurt me for this
 
-#endregion
+        #endregion
 
-#region Misc
+        #region Misc
 
         //UI
+        [SerializeField] public bool _avatar_testing_expand = false;
         [SerializeField] public bool _tools_expand = true;
         [SerializeField] bool _tools_avatar_expand = true;
         [SerializeField] bool _tools_dynamicBones_expand = true;
@@ -1379,14 +1386,16 @@ namespace Pumkin.AvatarTools
                 DrawAvatarInfoMenuGUI();
 
                 EditorGUILayout.Space();
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+                DrawAvatarTestingMenuGUI();
 
+                EditorGUILayout.Space();
+#endif
                 DrawThumbnailsMenuGUI();
 
                 EditorGUILayout.Space();
 
                 DrawInfoMenuGUI();
-
-                //EditorGUILayout.Space();
 
                 //if(showExperimentalMenu)
                 //    DrawExperimentalMenuGUI();
@@ -3094,174 +3103,20 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        //static void FixDynamicBoneScripts(GameObject avatar)
-        //{
-        //    var dboneType = _DependencyChecker.GetTypeFromName("DynamicBone");
-        //    if(dboneType == null)
-        //    {
-        //        Debug.Log("Can't find dynamic bones in project");
-        //        return;
-        //    }
-
-        //    Component tempDBone = null;
-        //    try
-        //    {
-        //        var db = Resources.FindObjectsOfTypeAll(dboneType);
-        //        tempDBone = avatar.AddComponent(dboneType);
-        //        SerializedProperty tempScript = new SerializedObject(tempDBone).FindProperty("m_Script");
-
-        //        var comps = avatar.GetComponentsInChildren<Component>().Where(c => c != null);
-        //        foreach(var comp in comps)
-        //        {
-        //            if(comp.GetType() != dboneType)
-        //                continue;
-        //            var ms = MonoScript.FromMonoBehaviour(comp as MonoBehaviour);
-
-        //            var serialComp = new SerializedObject(comp);
-        //            var compScript = serialComp.FindProperty("m_Script");
-        //            var dboneScript = new SerializedObject(ms).FindProperty("m_Script");
-        //            var refs = dboneScript.FindPropertyRelative("m_DefaultReferences");
-        //            //boneScript.objectReferenceValue = tempScript.objectReferenceValue;
-        //            //boneScript.objectReferenceInstanceIDValue = tempScript.objectReferenceInstanceIDValue;
-        //            //compScript.FindPropertyRelative("m_PathID").longValue = dboneScript.FindPropertyRelative("m_PathID").longValue;
-        //            //compScript.FindPropertyRelative("m_FileID").longValue = dboneScript.FindPropertyRelative("m_FileID").longValue;
-        //            var en = dboneScript.Copy();
-        //            while(en.Next(true))
-        //                Debug.Log(en.name);
-        //            serialComp.ApplyModifiedProperties();
-        //        }
-        //    }
-        //    finally
-        //    {
-        //        Helpers.DestroyAppropriate(tempDBone);
-        //    }
-        //}
-
-        /// <summary>
-        /// Bad function. Does too many things at once and other bad stuff. Will fix once I get a better yaml serializer
-        /// </summary>
-        /// <param name="avatar"></param>
-        private static void FixDynamicBoneScriptsInPrefab(GameObject avatar)
+        public void DrawAvatarTestingMenuGUI()
         {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-            bool selectionIsInAssets = false;
-            var prefStage = PrefabStageUtility.GetCurrentPrefabStage();
-            var prefType = PrefabUtility.GetPrefabAssetType(avatar);
-
-            if(prefStage != null)
+            if(_avatar_testing_expand = GUILayout.Toggle(_avatar_testing_expand, Strings.Main.avatarTesting, Styles.Foldout_title))
             {
-                Log(Strings.Log.exitPrefabModeFirst, LogType.Warning);
+                EditorGUI.BeginDisabledGroup(!SelectedAvatar);
+                EditorGUILayout.Space();
+
+                if(GUILayout.Button(Strings.Buttons.toggleMaterialPreview))
+                    FallbackPreview.TogglePreview(SelectedAvatar);
+
+                EditorGUI.EndDisabledGroup();
             }
-            else if(prefType == PrefabAssetType.NotAPrefab)
-            {
-                Log(Strings.Log.avatarHasNoPrefab, LogType.Error);
-                return;
-            }
-            else
-            {
-                if(Helpers.IsAssetInAssets(avatar))
-                    selectionIsInAssets = true;
-                Log(Strings.Log.attemptingToFixDynamicBoneScripts, LogType.Log);
-            }
-
-            try
-            {
-                string prefPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(SelectedAvatar);
-
-                if(string.IsNullOrEmpty(prefPath))
-                    return;
-
-                var guids = AssetDatabase.FindAssets("DynamicBone");
-                string dboneGUID = null;
-                string dboneColliderGUID = null;
-                foreach(var guid in guids)
-                {
-                    var path = AssetDatabase.GUIDToAssetPath(guid);
-                    if(path.EndsWith("DynamicBone.cs"))
-                        dboneGUID = guid;
-                    else if(path.EndsWith("DynamicBoneCollider.cs"))
-                        dboneColliderGUID = guid;
-
-                    if(!string.IsNullOrEmpty(dboneGUID) && !string.IsNullOrEmpty(dboneColliderGUID))
-                        break;
-                }
-
-                if(string.IsNullOrEmpty(dboneGUID) && string.IsNullOrEmpty(dboneColliderGUID))
-                {
-                    Log("Can't find DynamicBones for some reason", LogType.Error);
-                    return;
-                }
-
-                var blocks = PumkinsYAMLTools.OpenFileGetBlocks(prefPath);
-                for(int i = 0; i < blocks.Length; i++)
-                {
-                    if(blocks[i].StartsWith("MonoBehaviour:")) //Check that it's a script
-                    {
-                        if(blocks[i].Contains("m_Colliders:")  //Check if it's the DBone component
-                        && blocks[i].Contains("m_Exclusions:")
-                        && blocks[i].Contains("m_Damping:"))
-                        {
-                            var lines = PumkinsYAMLTools.BlockToLines(blocks[i]);
-                            for(int j = 0; j < lines.Length; j++)
-                            {
-                                if(!lines[j].Contains("m_Script:"))
-                                    continue;
-
-                                lines[j] = Helpers.ReplaceGUIDInLine(lines[j], dboneGUID, out bool _);
-                                break;
-                            }
-                            blocks[i] = PumkinsYAMLTools.LinesToBlock(lines);
-                        }
-                        else if(blocks[i].Contains("m_Radius:") //Check if it's the DBoneCollider component
-                            && blocks[i].Contains("m_Height:")
-                            && blocks[i].Contains("m_Center:")
-                            && blocks[i].Contains("m_Direction:")
-                            && blocks[i].Contains("m_Bound:"))
-                        {
-                            var lines = PumkinsYAMLTools.BlockToLines(blocks[i]);
-                            for(int j = 0; j < lines.Length; j++)
-                            {
-                                if(!lines[j].Contains("m_Script:"))
-                                    continue;
-
-                                lines[j] = Helpers.ReplaceGUIDInLine(lines[j], dboneColliderGUID, out bool _);
-                                break;
-                            }
-                            blocks[i] = PumkinsYAMLTools.LinesToBlock(lines);
-                        }
-                    }
-                }
-
-                PumkinsYAMLTools.WriteBlocksToFile(prefPath, blocks);
-                AssetDatabase.ImportAsset(prefPath, ImportAssetOptions.ForceUpdate);
-
-                if(selectionIsInAssets)
-                {
-                    var prefObj = AssetDatabase.LoadAssetAtPath<GameObject>(prefPath);
-                    if(prefObj != null)
-                    {
-                        EditorGUIUtility.PingObject(prefObj);
-                        Selection.activeObject = null;
-                        EditorApplication.delayCall += () =>
-                        {
-                            EditorApplication.delayCall += () =>
-                            {
-                                Selection.activeObject = prefObj;
-                            };
-                        };
-                    }
-                }
-
-                Log(Strings.Log.done);
-            }
-            catch(Exception e)
-            {
-                Log(e.Message);
-            }
-#else
-        return;
-#endif
         }
+
 
         public bool DrawToggleButtonGUI(string text, ref bool toggleBool)
         {
@@ -3642,9 +3497,135 @@ namespace Pumkin.AvatarTools
             _mainScroll = new Vector2(0, 1000);
         }
 
-#endregion
+        #endregion
 
-#region Main Functions
+        #region Main Functions
+
+        /// <summary>
+        /// Bad function. Does too many things at once and other bad stuff. Will fix once I get a better yaml serializer
+        /// </summary>
+        /// <param name="avatar"></param>
+        private static void FixDynamicBoneScriptsInPrefab(GameObject avatar)
+        {
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+            bool selectionIsInAssets = false;
+            var prefStage = PrefabStageUtility.GetCurrentPrefabStage();
+            var prefType = PrefabUtility.GetPrefabAssetType(avatar);
+
+            if(prefStage != null)
+            {
+                Log(Strings.Log.exitPrefabModeFirst, LogType.Warning);
+            }
+            else if(prefType == PrefabAssetType.NotAPrefab)
+            {
+                Log(Strings.Log.avatarHasNoPrefab, LogType.Error);
+                return;
+            }
+            else
+            {
+                if(Helpers.IsAssetInAssets(avatar))
+                    selectionIsInAssets = true;
+                Log(Strings.Log.attemptingToFixDynamicBoneScripts, LogType.Log);
+            }
+
+            try
+            {
+                string prefPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(SelectedAvatar);
+
+                if(string.IsNullOrEmpty(prefPath))
+                    return;
+
+                var guids = AssetDatabase.FindAssets("DynamicBone");
+                string dboneGUID = null;
+                string dboneColliderGUID = null;
+                foreach(var guid in guids)
+                {
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    if(path.EndsWith("DynamicBone.cs"))
+                        dboneGUID = guid;
+                    else if(path.EndsWith("DynamicBoneCollider.cs"))
+                        dboneColliderGUID = guid;
+
+                    if(!string.IsNullOrEmpty(dboneGUID) && !string.IsNullOrEmpty(dboneColliderGUID))
+                        break;
+                }
+
+                if(string.IsNullOrEmpty(dboneGUID) && string.IsNullOrEmpty(dboneColliderGUID))
+                {
+                    Log("Can't find DynamicBones for some reason", LogType.Error);
+                    return;
+                }
+
+                var blocks = PumkinsYAMLTools.OpenFileGetBlocks(prefPath);
+                for(int i = 0; i < blocks.Length; i++)
+                {
+                    if(blocks[i].StartsWith("MonoBehaviour:")) //Check that it's a script
+                    {
+                        if(blocks[i].Contains("m_Colliders:")  //Check if it's the DBone component
+                        && blocks[i].Contains("m_Exclusions:")
+                        && blocks[i].Contains("m_Damping:"))
+                        {
+                            var lines = PumkinsYAMLTools.BlockToLines(blocks[i]);
+                            for(int j = 0; j < lines.Length; j++)
+                            {
+                                if(!lines[j].Contains("m_Script:"))
+                                    continue;
+
+                                lines[j] = Helpers.ReplaceGUIDInLine(lines[j], dboneGUID, out bool _);
+                                break;
+                            }
+                            blocks[i] = PumkinsYAMLTools.LinesToBlock(lines);
+                        }
+                        else if(blocks[i].Contains("m_Radius:") //Check if it's the DBoneCollider component
+                            && blocks[i].Contains("m_Height:")
+                            && blocks[i].Contains("m_Center:")
+                            && blocks[i].Contains("m_Direction:")
+                            && blocks[i].Contains("m_Bound:"))
+                        {
+                            var lines = PumkinsYAMLTools.BlockToLines(blocks[i]);
+                            for(int j = 0; j < lines.Length; j++)
+                            {
+                                if(!lines[j].Contains("m_Script:"))
+                                    continue;
+
+                                lines[j] = Helpers.ReplaceGUIDInLine(lines[j], dboneColliderGUID, out bool _);
+                                break;
+                            }
+                            blocks[i] = PumkinsYAMLTools.LinesToBlock(lines);
+                        }
+                    }
+                }
+
+                PumkinsYAMLTools.WriteBlocksToFile(prefPath, blocks);
+                AssetDatabase.ImportAsset(prefPath, ImportAssetOptions.ForceUpdate);
+
+                if(selectionIsInAssets)
+                {
+                    var prefObj = AssetDatabase.LoadAssetAtPath<GameObject>(prefPath);
+                    if(prefObj != null)
+                    {
+                        EditorGUIUtility.PingObject(prefObj);
+                        Selection.activeObject = null;
+                        EditorApplication.delayCall += () =>
+                        {
+                            EditorApplication.delayCall += () =>
+                            {
+                                Selection.activeObject = prefObj;
+                            };
+                        };
+                    }
+                }
+
+                Log(Strings.Log.done);
+            }
+            catch(Exception e)
+            {
+                Log(e.Message);
+            }
+#else
+        return;
+#endif
+        }
 
         /// <summary>
         /// Loads textures back into overlay and background objects if we have a path for them still stored. Useful for when we restart unity
@@ -4760,7 +4741,31 @@ namespace Pumkin.AvatarTools
             {
                 CopyAllIKFollowers(objFrom, objTo, bCopier_other_createGameObjects, true);
             }
-#endif           
+#endif
+            if(DynamicBonesExist)
+            {
+                if(bCopier_dynamicBones_copyColliders && CopierTabs.ComponentIsInSelectedTab("dynamicbonecollider", _copier_selectedTab))
+                {
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+                    if(bCopier_dynamicBones_removeOldColliders)
+                        DestroyAllComponentsOfType(objTo, typeof(DynamicBoneCollider), false, true);
+                    CopyAllDynamicBoneColliders(objFrom, objTo, bCopier_dynamicBones_createObjectsColliders, true);
+#endif
+                }
+                if(bCopier_dynamicBones_copy && CopierTabs.ComponentIsInSelectedTab("dynamicbone", _copier_selectedTab))
+                {
+#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
+                    if(bCopier_dynamicBones_removeOldBones)
+                        DestroyAllComponentsOfType(objTo, typeof(DynamicBone), false, true);
+                    if(bCopier_dynamicBones_copySettings || bCopier_dynamicBones_createMissing)
+                        CopyAllDynamicBonesNew(objFrom, objTo, bCopier_dynamicBones_createMissing, true);
+#endif
+                }
+            }
+            else if(bCopier_dynamicBones_copy)
+            {
+                Log(Strings.Warning.noDBonesOrMissingScriptDefine, LogType.Error);
+            }
 
             if(bCopier_aimConstraint_copy && CopierTabs.ComponentIsInSelectedTab<AimConstraint>(_copier_selectedTab))
             {
@@ -4791,31 +4796,6 @@ namespace Pumkin.AvatarTools
                 if(bCopier_joints_removeOld)
                     DestroyAllComponentsOfType(objTo, typeof(Joint), false, true);
                 CopyAllJoints(objFrom, objTo, bCopier_joints_createObjects, true);
-            }
-
-            if(DynamicBonesExist)
-            {
-                if(bCopier_dynamicBones_copyColliders && CopierTabs.ComponentIsInSelectedTab("dynamicbonecollider", _copier_selectedTab))
-                {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                    if(bCopier_dynamicBones_removeOldColliders)
-                        DestroyAllComponentsOfType(objTo, typeof(DynamicBoneCollider), false, true);
-                    CopyAllDynamicBoneColliders(objFrom, objTo, bCopier_dynamicBones_createObjectsColliders, true);
-#endif
-                }
-                if(bCopier_dynamicBones_copy && CopierTabs.ComponentIsInSelectedTab("dynamicbone", _copier_selectedTab))
-                {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                    if(bCopier_dynamicBones_removeOldBones)
-                        DestroyAllComponentsOfType(objTo, typeof(DynamicBone), false, true);
-                    if(bCopier_dynamicBones_copySettings || bCopier_dynamicBones_createMissing)
-                        CopyAllDynamicBonesNew(objFrom, objTo, bCopier_dynamicBones_createMissing, true);
-#endif
-                }
-            }
-            else if(bCopier_dynamicBones_copy)
-            {
-                Log(Strings.Warning.noDBonesOrMissingScriptDefine, LogType.Error);
             }
 
             if(bCopier_transforms_copy && CopierTabs.ComponentIsInSelectedTab<Transform>(_copier_selectedTab))
@@ -5703,12 +5683,17 @@ namespace Pumkin.AvatarTools
                         }
                         if(bCopier_skinMeshRender_copyBlendShapeValues && rFrom.sharedMesh)
                         {
+
                             for(int z = 0; z < rFrom.sharedMesh.blendShapeCount; z++)
                             {
-                                string shapeName = rFrom.sharedMesh.GetBlendShapeName(z);
-                                int shapeIndex = rTo.sharedMesh.GetBlendShapeIndex(shapeName);
-                                if(shapeIndex != -1)
-                                    rTo.SetBlendShapeWeight(shapeIndex, rFrom.GetBlendShapeWeight(shapeIndex));
+                                string toShapeName = rFrom.sharedMesh.GetBlendShapeName(z);
+                                int toShapeIndex = rTo.sharedMesh.GetBlendShapeIndex(toShapeName);
+                                if(toShapeIndex != -1)
+                                {
+                                    int fromShapeIndex = rFrom.sharedMesh.GetBlendShapeIndex(toShapeName);
+                                    if(fromShapeIndex != -1)
+                                        rTo.SetBlendShapeWeight(toShapeIndex, rFrom.GetBlendShapeWeight(fromShapeIndex));
+                                }
                             }
                         }
                         if(bCopier_skinMeshRender_copyMaterials)
