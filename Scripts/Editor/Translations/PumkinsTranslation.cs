@@ -180,6 +180,7 @@ namespace Pumkin.Translations
         public string avatar = "Avatar";
         public string useSceneSelection = "Use Scene Selection";
         public string experimental = "Experimental";
+        public string avatarTesting = "Avatar Testing";
     }
 
     [Serializable]
@@ -215,6 +216,7 @@ namespace Pumkin.Translations
         public string selectFolder = "Select Folder";
         public string ok = "Ok";
         public string moveToEyes = "Move to Eyes";
+        public string toggleMaterialPreview = "Toggle Material Preview";
     }
 
     [Serializable]

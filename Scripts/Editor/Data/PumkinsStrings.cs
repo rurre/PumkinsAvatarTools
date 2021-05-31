@@ -74,6 +74,7 @@ namespace Pumkin.DataStructures
             public static string removeAll = "_Remove All";
             public static string avatarInfo = "_Avatar Info";
             public static string thumbnails = "_Thumbnails";
+            public static string avatarTesting = "_Avatar Testing";
 
             public static string info = "_Info";
             public static string useSceneSelection = "_Use Scene Selection";
@@ -101,6 +102,7 @@ namespace Pumkin.DataStructures
                 thumbnails = Translation.main.thumbnails;
                 useSceneSelection = Translation.main.useSceneSelection;
                 experimental = Translation.main.experimental;
+                avatarTesting = Translation.main.avatarTesting;
             }
         }
         public static class Buttons
@@ -135,6 +137,7 @@ namespace Pumkin.DataStructures
             public static string selectFolder = "_Select Folder";
             public static string ok = "_Ok";
             public static string moveToEyes = "_Move to Eyes";
+            public static string toggleMaterialPreview = "_Toggle Material Preview";
 
             static Buttons()
             {
@@ -176,6 +179,7 @@ namespace Pumkin.DataStructures
                 selectFolder = Translation.buttons.selectFolder;
                 ok = Translation.buttons.ok;
                 moveToEyes = Translation.buttons.moveToEyes;
+                toggleMaterialPreview = Translation.buttons.toggleMaterialPreview;
             }
         }
         public static class Tools
