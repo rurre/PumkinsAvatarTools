@@ -505,12 +505,12 @@ namespace Pumkin.AvatarTools.Copiers
                         if(Settings.bCopier_skinMeshRender_copySettings)
                         {
                             var t = Helpers.FindTransformInAnotherHierarchy(rFrom.rootBone, rTo.transform.root, false);
-                            rTo.rootBone = t ?? rTo.rootBone;
+                            rTo.rootBone = t ? t : rTo.rootBone;
                             t = Helpers.FindTransformInAnotherHierarchy(rFrom.probeAnchor, rTo.transform.root, false);
 
                             rTo.allowOcclusionWhenDynamic = rFrom.allowOcclusionWhenDynamic;
                             rTo.quality = rFrom.quality;
-                            rTo.probeAnchor = t ?? rTo.probeAnchor;
+                            rTo.probeAnchor = t ? t : rTo.probeAnchor;
                             rTo.lightProbeUsage = rFrom.lightProbeUsage;
                             rTo.reflectionProbeUsage = rFrom.reflectionProbeUsage;
                             rTo.shadowCastingMode = rFrom.shadowCastingMode;
@@ -524,10 +524,14 @@ namespace Pumkin.AvatarTools.Copiers
                         {
                             for(int z = 0; z < rFrom.sharedMesh.blendShapeCount; z++)
                             {
-                                string shapeName = rFrom.sharedMesh.GetBlendShapeName(z);
-                                int shapeIndex = rTo.sharedMesh.GetBlendShapeIndex(shapeName);
-                                if(shapeIndex != -1)
-                                    rTo.SetBlendShapeWeight(shapeIndex, rFrom.GetBlendShapeWeight(shapeIndex));
+                                string toShapeName = rFrom.sharedMesh.GetBlendShapeName(z);
+                                int toShapeIndex = rTo.sharedMesh.GetBlendShapeIndex(toShapeName);
+                                if(toShapeIndex != -1)
+                                {
+                                    int fromShapeIndex = rFrom.sharedMesh.GetBlendShapeIndex(toShapeName);
+                                    if(fromShapeIndex != -1)
+                                        rTo.SetBlendShapeWeight(toShapeIndex, rFrom.GetBlendShapeWeight(fromShapeIndex));
+                                }
                             }
                         }
                         if(Settings.bCopier_skinMeshRender_copyMaterials)
@@ -1256,12 +1260,12 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 var rFrom = mFromArr[i];
                 var tTo = Helpers.FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
-
-                string log = string.Format(Strings.Log.copyAttempt, type, rFrom.gameObject.name, tTo.gameObject.name);
-
+                
                 if((!tTo) ||
                     (useIgnoreList && Helpers.ShouldIgnoreObject(rFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
+                
+                string log = string.Format(Strings.Log.copyAttempt, type, rFrom.gameObject.name, tTo.gameObject.name);
 
                 var rToObj = tTo.gameObject;
 
