@@ -302,7 +302,7 @@ namespace Pumkin.PoseEditor
                 {
                     if(PumkinsAvatarTools.SelectedAvatar)
                     {
-                        if(PumkinsAvatarTools.Instance.posePresetTryFixSinking && avatarPose.bodyPosition.y > 0 && avatarPose.bodyPosition.y <= 0.01f)
+                        if(PumkinsAvatarTools.Settings.posePresetTryFixSinking && avatarPose.bodyPosition.y > 0 && avatarPose.bodyPosition.y <= 0.01f)
                         {
                             PumkinsAvatarTools.Log(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, avatarPose.bodyPosition.y.ToString());
                             avatarPose.bodyPosition.y = 1;
@@ -315,12 +315,12 @@ namespace Pumkin.PoseEditor
 
                 Helpers.DrawGUILine();
 
-                PumkinsAvatarTools.Instance.posePresetApplyBodyPosition = GUILayout.Toggle(PumkinsAvatarTools.Instance.posePresetApplyBodyPosition, Strings.Thumbnails.applyBodyPosition);
-                PumkinsAvatarTools.Instance.posePresetApplyBodyRotation = GUILayout.Toggle(PumkinsAvatarTools.Instance.posePresetApplyBodyRotation, Strings.Thumbnails.applyBodyRotation);
+                PumkinsAvatarTools.Settings.posePresetApplyBodyPosition = GUILayout.Toggle(PumkinsAvatarTools.Settings.posePresetApplyBodyPosition, Strings.Thumbnails.applyBodyPosition);
+                PumkinsAvatarTools.Settings.posePresetApplyBodyRotation = GUILayout.Toggle(PumkinsAvatarTools.Settings.posePresetApplyBodyRotation, Strings.Thumbnails.applyBodyRotation);
 
                 EditorGUILayout.Space();
 
-                PumkinsAvatarTools.Instance.posePresetTryFixSinking = GUILayout.Toggle(PumkinsAvatarTools.Instance.posePresetTryFixSinking, Strings.Thumbnails.tryFixPoseSinking);
+                PumkinsAvatarTools.Settings.posePresetTryFixSinking = GUILayout.Toggle(PumkinsAvatarTools.Settings.posePresetTryFixSinking, Strings.Thumbnails.tryFixPoseSinking);
 
                 PumkinsAvatarTools.Instance.DrawPresetGUI<PumkinsPosePreset>();
             }

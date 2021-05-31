@@ -5,13 +5,11 @@ using Pumkin.DataStructures;
 using Pumkin.Translations;
 using System.Linq;
 using UnityEditor;
-using System;
 using Pumkin.AvatarTools;
 using System.IO;
 using UnityEditor.Presets;
 using Pumkin.HelperFunctions;
 using Pumkin.Dependencies;
-using Pumkin.YAML;
 
 public static class PumkinsLanguageManager
 {
@@ -208,7 +206,7 @@ public static class PumkinsLanguageManager
 
     /// <summary>
     /// TODO: Replace with one that reads only the needed lines
-    /// </summary>
+    /// </summary>    
     static bool ReplaceTranslationGUIDTemp(string filePath, string lineIdentifier, string newGUID)
     {
         bool replaced = false;

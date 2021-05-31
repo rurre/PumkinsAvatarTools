@@ -12,8 +12,8 @@ using UnityEngine;
 namespace Pumkin.Presets
 {
     public class PumkinsPosePreset : PumkinPreset
-    {        
-        public float[] muscles;       
+    {
+        public float[] muscles;
 
         public PosePresetMode presetMode = PosePresetMode.HumanPose;
 
@@ -28,7 +28,7 @@ namespace Pumkin.Presets
 
         /// <summary>
         /// Creates and returns a PosePreset based on transform rotations only
-        /// </summary>                
+        /// </summary>
         public static PumkinsPosePreset CreatePreset(string poseName, GameObject avatar, PosePresetMode mode)
         {
             PumkinsPosePreset pose = CreateInstance<PumkinsPosePreset>();
@@ -38,7 +38,7 @@ namespace Pumkin.Presets
 
         /// <summary>
         /// Creates and returns a PosePreset based on humanoid muscle values
-        /// </summary>        
+        /// </summary>
         public static PumkinsPosePreset CreatePreset(string poseName, Animator anim)
         {
             HumanPose hp = new HumanPose();
@@ -82,7 +82,7 @@ namespace Pumkin.Presets
 
                 for(int i = 0; i < trans.Length; i++)
                 {
-                    var t = trans[i];                    
+                    var t = trans[i];
                     string path = Helpers.GetGameObjectPath(t, true);
 
                     if(t && !string.IsNullOrEmpty(path))
@@ -124,7 +124,7 @@ namespace Pumkin.Presets
 
         public bool SetupPreset(string poseName, HumanPose p)
         {
-            name = poseName;            
+            name = poseName;
             presetMode = PosePresetMode.HumanPose;
             muscles = p.muscles;
             bodyPosition = p.bodyPosition;
@@ -147,7 +147,7 @@ namespace Pumkin.Presets
 
             name = poseName;
             presetMode = PosePresetMode.HumanPose;
-            this.muscles = muscles;            
+            this.muscles = muscles;
             return true;
         }
 
@@ -174,16 +174,16 @@ namespace Pumkin.Presets
                     Vector3 pos = avatar.transform.position;
                     Quaternion rot = avatar.transform.rotation;
 
-                    avatar.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);                    
+                    avatar.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
 
                     var humanPoseHandler = new HumanPoseHandler(anim.avatar, avatar.transform);
 
                     var humanPose = new HumanPose();
                     humanPoseHandler.GetHumanPose(ref humanPose);
-                                        
+
                     humanPose.muscles = muscles;
 
-                    if(PumkinsAvatarTools.Instance.posePresetTryFixSinking)
+                    if(PumkinsAvatarTools.Settings.posePresetTryFixSinking)
                     {
                         if(humanPose.bodyPosition.y < 1 && !Mathf.Approximately(humanPose.bodyPosition.y, 0))
                         {
@@ -192,13 +192,13 @@ namespace Pumkin.Presets
                         }
                     }
 
-                    if(PumkinsAvatarTools.Instance.posePresetApplyBodyPosition)
+                    if(PumkinsAvatarTools.Settings.posePresetApplyBodyPosition)
                         humanPose.bodyPosition = bodyPosition;
-                    if(PumkinsAvatarTools.Instance.posePresetApplyBodyRotation)
+                    if(PumkinsAvatarTools.Settings.posePresetApplyBodyRotation)
                         humanPose.bodyRotation = bodyRotation;
 
                     humanPoseHandler.SetHumanPose(ref humanPose);
-                    avatar.transform.SetPositionAndRotation(pos, rot);                    
+                    avatar.transform.SetPositionAndRotation(pos, rot);
 
                     PumkinsPoseEditor.OnPoseWasChanged(PumkinsPoseEditor.PoseChangeType.Reset);
                     return true;
@@ -237,6 +237,6 @@ namespace Pumkin.Presets
             };
 
             return hp;
-        }        
+        }
     }
 }
