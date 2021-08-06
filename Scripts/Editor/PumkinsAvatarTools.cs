@@ -38,7 +38,7 @@ namespace Pumkin.AvatarTools
     /// PumkinsAvatarTools by, well, Pumkin
     /// https://github.com/rurre/PumkinsAvatarTools
     /// </summary>
-    [ExecuteInEditMode, CanEditMultipleObjects, Serializable]
+    [ExecuteInEditMode, CanEditMultipleObjects]
     public class PumkinsAvatarTools : EditorWindow
     {
         #region Variables
@@ -51,11 +51,10 @@ namespace Pumkin.AvatarTools
         {
             get
             {
-                if(Instance._settings is null)
+                if(Instance._settings == null)
                     Instance._settings = CreateInstance<SettingsContainer>();
                 return Instance._settings;
             }
-            set => Instance._settings = value;
         }
 
 
@@ -133,12 +132,7 @@ namespace Pumkin.AvatarTools
         bool _copierShowArmatureScaleWarning = false;
 
         #endregion
-        //Ignore Array
-        [SerializeField] bool _copierIgnoreArray_expand = false;
-        [SerializeField] SerializedProperty _serializedIgnoreArrayProp;
-        [SerializeField] Transform[] _copierIgnoreArray = new Transform[0];
-        [SerializeField] bool bCopier_ignoreArray_includeChildren = false;
-        [SerializeField] Vector2 _copierIgnoreArrayScroll = Vector2.zero;
+
 
         #endregion
 
@@ -212,17 +206,6 @@ namespace Pumkin.AvatarTools
 
         #region Misc
 
-        //UI
-        [SerializeField] public bool _avatar_testing_expand = false;
-        [SerializeField] public bool _tools_expand = true;
-        [SerializeField] bool _tools_avatar_expand = true;
-        [SerializeField] bool _tools_dynamicBones_expand = true;
-        [SerializeField] bool _tools_removeAll_expand = false;
-
-        [SerializeField] public bool _avatarInfo_expand = false;
-        [SerializeField] public bool _thumbnails_expand = false;
-
-
         //Misc
         readonly float COPIER_SETTINGS_INDENT_SIZE = 38f;
 
@@ -240,8 +223,6 @@ namespace Pumkin.AvatarTools
 
         static bool _eventsAdded = false;
         static bool _loadedPrefs = false;
-
-#endregion
 
 #endregion
 
@@ -633,13 +614,13 @@ namespace Pumkin.AvatarTools
         {
             get
             {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                return true;
-#else
-                return false;
-#endif
+                if(_dynamicBonesExist == null)
+                    _dynamicBonesExist = PumkinsTypeCache.DynamicBone != null && PumkinsTypeCache.DynamicBoneCollider != null;
+                return (bool)_dynamicBonesExist;
             }
         }
+
+        private bool? _dynamicBonesExist;
 
 #endregion
 
@@ -781,7 +762,6 @@ namespace Pumkin.AvatarTools
                 _eventsAdded = true;
             }
 
-            Settings.SetupSettings();
             SerializedIgnoreArray = Settings.SerializedSettings.FindProperty("_copierIgnoreArray");
             SerializedScaleTemp = Settings.SerializedSettings.FindProperty("_avatarScaleTemp");
             SerializedHumanPoseMuscles = Settings.SerializedSettings.FindProperty("_tempHumanPoseMuscles");
@@ -859,13 +839,11 @@ namespace Pumkin.AvatarTools
             else if(mode == PlayModeStateChange.EnteredEditMode)
             {
                 LoadPrefs();
-
                 SelectedCamera = GetVRCCamOrMainCam();
             }
             else if(mode == PlayModeStateChange.EnteredPlayMode)
             {
                 _editingView = false;
-
                 LoadPrefs();
                 _emptyTexture = new Texture2D(2, 2);
                 cameraOverlayTexture = new Texture2D(2, 2);
@@ -1124,7 +1102,7 @@ namespace Pumkin.AvatarTools
                 DrawAvatarInfoMenuGUI();
 
                 EditorGUILayout.Space();
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3 && PUMKIN_DEV
                 DrawAvatarTestingMenuGUI();
 
                 EditorGUILayout.Space();
@@ -1326,11 +1304,11 @@ namespace Pumkin.AvatarTools
 #else
             EditorGUI.BeginChangeCheck();
             {
-                _avatarScaleTemp = Handles.ScaleSlider(_avatarScaleTemp, SelectedAvatar.transform.position, Vector3.up, Quaternion.identity, HandleUtility.GetHandleSize(SelectedAvatar.transform.position) * 2, 0.01f);
+                Settings._avatarScaleTemp = Handles.ScaleSlider(Settings._avatarScaleTemp, SelectedAvatar.transform.position, Vector3.up, Quaternion.identity, HandleUtility.GetHandleSize(SelectedAvatar.transform.position) * 2, 0.01f);
             }
             if(EditorGUI.EndChangeCheck() || propertyChanged)
             {
-                SetAvatarScale(_avatarScaleTemp);
+                SetAvatarScale(Settings._avatarScaleTemp);
             }
 #endif
         }
@@ -2828,12 +2806,6 @@ namespace Pumkin.AvatarTools
                         EditorGUILayout.EndHorizontal();
                     }
                     EditorGUI.EndDisabledGroup();
-                    Helpers.DrawGUILine();
-
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
-                    if(GUILayout.Button(Strings.Tools.refreshSDK, Styles.BigButton))
-                        RefreshSDK();
-#endif
                     EditorGUILayout.Space();
                 }
             }
@@ -2841,7 +2813,7 @@ namespace Pumkin.AvatarTools
 
         public void DrawAvatarTestingMenuGUI()
         {
-            if(_avatar_testing_expand = GUILayout.Toggle(_avatar_testing_expand, Strings.Main.avatarTesting, Styles.Foldout_title))
+            if(Settings._avatar_testing_expand = GUILayout.Toggle(Settings._avatar_testing_expand, Strings.Main.avatarTesting, Styles.Foldout_title))
             {
                 EditorGUI.BeginDisabledGroup(!SelectedAvatar);
                 EditorGUILayout.Space();
@@ -2856,7 +2828,6 @@ namespace Pumkin.AvatarTools
 
         public bool DrawToggleButtonGUI(string text, ref bool toggleBool)
         {
-            Vector2 size = EditorGUIUtility.GetIconSize();
             bool b = GUILayout.Button(new GUIContent(text, toggleBool ? Icons.ToggleOff : Icons.ToggleOn), Styles.ButtonWithToggle);
             if(b)
                 toggleBool = !toggleBool;
@@ -4390,22 +4361,24 @@ namespace Pumkin.AvatarTools
                 Log(log, LogType.Warning);
                 return;
             }
-
+            
 #if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
-            VRC_AvatarDescriptor desc;
-
-            if(Settings.bCopier_descriptor_copy && CopierTabs.ComponentIsInSelectedTab<VRC_AvatarDescriptor>(Settings._copier_selectedTab))
+            
+            if(Settings.bCopier_descriptor_copy &&
+               CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRC_AvatarDescriptor, Settings._copier_selectedTab))
             {
-                CopyAvatarDescriptor(objFrom, objTo, true);
-
+                LegacyCopier.CopyAvatarDescriptor(objFrom, objTo, true);
+    
                 if(Settings.bCopier_descriptor_copyAvatarScale)
                 {
-                    desc = objTo.GetComponentInChildren<VRC_AvatarDescriptor>();
-                    if(desc)
+                    VRC_AvatarDescriptor descriptor = objTo.GetComponentInChildren<VRC_AvatarDescriptor>();
+                    if(descriptor)
                     {
+                        
                         if(!(Settings.bCopier_descriptor_copy && Settings.bCopier_descriptor_copyViewpoint))
-                            SetAvatarScaleAndMoveViewpoint(desc, objFrom.transform.localScale.z);
-                        objTo.transform.localScale = new Vector3(objFrom.transform.localScale.x, objFrom.transform.localScale.y, objFrom.transform.localScale.z);
+                            SetAvatarScaleAndMoveViewpoint(descriptor, objFrom.transform.localScale.z);
+                        objTo.transform.localScale = new Vector3(objFrom.transform.localScale.x
+                            , objFrom.transform.localScale.y, objFrom.transform.localScale.z);
                     }
                     else
                     {
@@ -4414,7 +4387,7 @@ namespace Pumkin.AvatarTools
                 }
             }
 #else
-            if(bCopier_descriptor_copy && bCopier_descriptor_copyAvatarScale)
+            if(Settings.bCopier_descriptor_copy && Settings.bCopier_descriptor_copyAvatarScale)
                 objTo.transform.localScale = objFrom.transform.localScale;
 #endif
 
@@ -4456,30 +4429,24 @@ namespace Pumkin.AvatarTools
             {
                 LegacyCopier.CopyAllAudioSources(objFrom, objTo, Settings.bCopier_audioSources_createObjects, true);
             }
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
             if(Settings.bCopier_other_copy && CopierTabs.ComponentIsInSelectedTab("other", Settings._copier_selectedTab))
             {
                 LegacyCopier.CopyAllIKFollowers(objFrom, objTo, Settings.bCopier_other_createGameObjects, true);
             }
-#endif
             if(DynamicBonesExist)
             {
                 if(Settings.bCopier_dynamicBones_copyColliders && CopierTabs.ComponentIsInSelectedTab("dynamicbonecollider", Settings._copier_selectedTab))
                 {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
                     if(Settings.bCopier_dynamicBones_removeOldColliders)
-                        DestroyAllComponentsOfType(objTo, typeof(DynamicBoneCollider), false, true);
+                        DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBoneCollider, false, true);
                     LegacyCopier.CopyAllDynamicBoneColliders(objFrom, objTo, Settings.bCopier_dynamicBones_createObjectsColliders, true);
-#endif
                 }
                 if(Settings.bCopier_dynamicBones_copy && CopierTabs.ComponentIsInSelectedTab("dynamicbone", Settings._copier_selectedTab))
                 {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
                     if(Settings.bCopier_dynamicBones_removeOldBones)
-                        DestroyAllComponentsOfType(objTo, typeof(DynamicBone), false, true);
+                        DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBone, false, true);
                     if(Settings.bCopier_dynamicBones_copySettings || Settings.bCopier_dynamicBones_createMissing)
                         LegacyCopier.CopyAllDynamicBonesNew(objFrom, objTo, Settings.bCopier_dynamicBones_createMissing, true);
-#endif
                 }
             }
             else if(Settings.bCopier_dynamicBones_copy)
@@ -4525,117 +4492,13 @@ namespace Pumkin.AvatarTools
         }
 
 
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
-        void CopyAvatarDescriptor(GameObject from, GameObject to, bool useIgnoreList)
-        {
-            if(to == null || from == null)
-                return;
-
-            if(useIgnoreList && Helpers.ShouldIgnoreObject(from.transform, Settings._copierIgnoreArray))
-                return;
-
-            var dFrom = from.GetComponent<VRC_AvatarDescriptor>();
-            var pFrom = from.GetComponent<PipelineManager>();
-            var dTo = to.GetComponent<VRC_AvatarDescriptor>();
-
-            if(dFrom == null)
-                return;
-            if(dTo == null)
-                dTo = Undo.AddComponent<VRC_AvatarDescriptor>(to);
-
-            var pTo = to.GetComponent<PipelineManager>() ?? to.AddComponent<PipelineManager>();
-
-            var sDescTo = new SerializedObject(dTo);
-            var sDescFrom = new SerializedObject(dFrom);
-
-            if(Settings.bCopier_descriptor_copyPipelineId)
-            {
-                pTo.blueprintId = pFrom.blueprintId;
-                pTo.enabled = pFrom.enabled;
-                pTo.completedSDKPipeline = true;
-
-                EditorUtility.SetDirty(pTo);
-                EditorSceneManager.MarkSceneDirty(pTo.gameObject.scene);
-                EditorSceneManager.SaveScene(pTo.gameObject.scene);
-            }
-
-            var propNames = new List<string>();
-            if(Settings.bCopier_descriptor_copyViewpoint)
-                propNames.Add("ViewPosition");
-
-            if(Settings.bCopier_descriptor_copySettings)
-            {
-                propNames.AddRange(new string[]
-                {
-                    //Shared
-                    "Name", "Animations", "ScaleIPD", "lipSync", "VisemeSkinnedMesh", "MouthOpenBlendShapeName",
-                    "VisemeBlendShapes", "portraitCameraPositionOffset", "portraitCameraRotationOffset", "lipSyncJawBone",
-                    //SDK3
-                    "enableEyeLook", "customizeAnimationLayers", "baseAnimationLayers",
-                    "specialAnimationLayers", "lipSyncJawClosed", "lipSyncJawOpen", "AnimationPreset", "autoFootsteps", "autoLocomotion"
-                });
-            }
-
-            if(Settings.bCopier_descriptor_copyEyeLookSettings)
-            {
-                propNames.Add("customEyeLookSettings");
-            }
-
-            if(Settings.bCopier_descriptor_copyAnimationOverrides) //SDK2 Only
-            {
-                propNames.AddRange(new string[]
-                {
-                    "CustomSittingAnims", "CustomStandingAnims",
-                });
-            }
-
-            if(Settings.bCopier_descriptor_copyExpressions)
-            {
-                propNames.AddRange(new string[]
-                {
-                    "customExpressions", "expressionsMenu", "expressionParameters"
-                });
-            }
-
-            foreach(var s in propNames)
-            {
-                var prop = sDescFrom.FindProperty(s);
-                if(prop != null)
-                    sDescTo.CopyFromSerializedProperty(prop);
-            }
-
-            var eyes = sDescTo.FindProperty("customEyeLookSettings");
-
-            if(eyes != null)
-            {
-                SerializedProperty[] transLocalize =
-                {
-                    eyes.FindPropertyRelative("leftEye"),
-                    eyes.FindPropertyRelative("rightEye"),
-                    eyes.FindPropertyRelative("upperLeftEyelid"),
-                    eyes.FindPropertyRelative("upperRightEyelid"),
-                    eyes.FindPropertyRelative("lowerLeftEyelid"),
-                    eyes.FindPropertyRelative("lowerRightEyelid"),
-                };
-                Helpers.MakeReferencesLocal<Transform>(to.transform, transLocalize);
-            }
-
-            SerializedProperty[] rendererLocalize =
-            {
-                sDescTo.FindProperty("VisemeSkinnedMesh"),
-                eyes != null ? eyes.FindPropertyRelative("eyelidsSkinnedMesh") : null,
-            };
-            Helpers.MakeReferencesLocal<SkinnedMeshRenderer>(to.transform, rendererLocalize);
-
-            sDescTo.ApplyModifiedProperties();
-        }
-#endif
-
-#if VRC_SDK_VRCSDK3 && !UDON
         void FillEyeBones(GameObject avatar)
         {
-            if(!avatar)
+            Type descType = PumkinsTypeCache.VRC_AvatarDescriptor;
+            
+            if(!avatar || descType == null)
                 return;
+
             var anim = avatar.GetComponent<Animator>();
 
             if(!anim)
@@ -4646,7 +4509,7 @@ namespace Pumkin.AvatarTools
                 return;
             }
 
-            var desc = avatar.GetComponent<VRC_AvatarDescriptor>();
+            var desc = avatar.GetComponent(descType);
             var sDesc = new SerializedObject(desc);
 
             var leftEye = sDesc.FindProperty("customEyeLookSettings.leftEye");
@@ -4657,1112 +4520,7 @@ namespace Pumkin.AvatarTools
 
             sDesc.ApplyModifiedProperties();
         }
-#endif
-
-        /// <summary>
-        /// Copies all DynamicBoneColliders from object and it's children to another object.
-        /// </summary>
-        /// <param name="removeOldColliders">Whether to remove all DynamicBoneColliders from target before copying</param>
-        void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
-        {
-#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
-
-            Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
-            return;
-#else
-            if(from == null || to == null)
-                return;
-
-            var dbcFromArr = from.GetComponentsInChildren<DynamicBoneCollider>(true);
-            if(dbcFromArr == null || dbcFromArr.Length == 0)
-                return;
-
-            for(int i = 0; i < dbcFromArr.Length; i++)
-            {
-                var dbcFrom = dbcFromArr[i];
-                var tTo = Helpers.FindTransformInAnotherHierarchy(dbcFrom.transform, to.transform, createGameObjects);
-                if((!tTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(dbcFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
-                    continue;
-
-                var dbcToArr = tTo.GetComponentsInChildren<DynamicBoneCollider>(true);
-                if(tTo != null)
-                {
-                    bool found = false;
-                    for(int z = 0; z < dbcToArr.Length; z++)
-                    {
-                        var d = dbcToArr[z];
-                        if(d.m_Bound == dbcFrom.m_Bound && d.m_Center == dbcFrom.m_Center &&
-                            d.m_Direction == dbcFrom.m_Direction && d.m_Height == dbcFrom.m_Height && d.m_Radius == dbcFrom.m_Radius)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if(!found)
-                    {
-                        ComponentUtility.CopyComponent(dbcFrom);
-                        ComponentUtility.PasteComponentAsNew(tTo.gameObject);
-                    }
-                }
-            }
-#endif
-        }
-
-        /// <summary>
-        /// Temporary fixes to dbones using dirty dynamic types
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="createMissing"></param>
-        /// <param name="useIgnoreList"></param>
-        void CopyAllDynamicBonesNew(GameObject from, GameObject to, bool createMissing, bool useIgnoreList)
-        {
-#if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
-            Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
-            return;
-#else
-            if(!from || !to)
-                return;
-
-            var dBoneFromArr = from.GetComponentsInChildren<DynamicBone>(true);
-
-            //Handle collider issues
-            Type colliderListType = typeof(DynamicBone).GetField("m_Colliders").FieldType;
-            Type colliderType = colliderListType.GetGenericArguments().FirstOrDefault();
-
-            List<DynamicBone> newBones = new List<DynamicBone>();
-            foreach(var dbFrom in dBoneFromArr)
-            {
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(dbFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-                    continue;
-
-                var transTo = Helpers.FindTransformInAnotherHierarchy(dbFrom.transform, to.transform, bCopier_dynamicBones_createObjects);
-                if(!transTo)
-                    continue;
-
-                var dBoneToArr = transTo.GetComponents<DynamicBone>();
-
-                if(!dbFrom.m_Root)
-                {
-                    LogVerbose("DynamicBone {0} of {1} doesn't have a root assigned. Ignoring", LogType.Warning, dbFrom.transform.name, dbFrom.transform.root.name);
-                    continue;
-                }
-
-                bool foundSameDynBone = false;
-
-                foreach(var bone in dBoneToArr)
-                {
-                    if(!bone.m_Root || newBones.Contains(bone))
-                        continue;
-
-                    //Check if the roots are the same to decide if it's supposed to be the same dyn bone script
-                    if(bone.m_Root.name == dbFrom.m_Root.name)
-                    {
-                        //Check if exclusions are the same
-                        List<string> exToPaths = bone.m_Exclusions
-                            .Where(o => o != null)
-                            .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
-                            .ToList();
-
-                        List<string> exFromPaths = dbFrom.m_Exclusions
-                            .Where(o => o != null)
-                            .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
-                            .ToList();
-
-                        bool exclusionsDifferent = false;
-                        var exArr = exToPaths.Intersect(exFromPaths).ToArray();
-
-                        if(exArr != null && (exToPaths.Count != 0 && exFromPaths.Count != 0) && exArr.Length == 0)
-                            exclusionsDifferent = true;
-
-                        //Check if colliders are the same
-                        List<string> colToPaths = bone.m_Colliders
-                            .Where(c => c != null)
-                            .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
-                            .ToList();
-
-                        List<string> colFromPaths = bone.m_Colliders
-                            .Where(c => c != null)
-                            .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
-                            .ToList();
-
-                        bool collidersDifferent = false;
-                        var colArr = colToPaths.Intersect(colFromPaths).ToArray();
-
-                        if(colArr != null && (colToPaths.Count != 0 && colFromPaths.Count != 0) && colArr.Length == 0)
-                            collidersDifferent = true;
-
-                        //Found the same bone because root, exclusions and colliders are the same
-                        if(!exclusionsDifferent && !collidersDifferent)
-                        {
-                            foundSameDynBone = true;
-                            if(bCopier_dynamicBones_copySettings)
-                            {
-                                LogVerbose("{0} already has this DynamicBone, but we have to copy settings. Copying.", LogType.Log, bone.name);
-
-                                bone.m_Damping = dbFrom.m_Damping;
-                                bone.m_DampingDistrib = dbFrom.m_DampingDistrib;
-                                bone.m_DistanceToObject = dbFrom.m_DistanceToObject;
-                                bone.m_DistantDisable = dbFrom.m_DistantDisable;
-                                bone.m_Elasticity = dbFrom.m_Elasticity;
-                                bone.m_ElasticityDistrib = dbFrom.m_ElasticityDistrib;
-                                bone.m_EndLength = dbFrom.m_EndLength;
-                                bone.m_EndOffset = dbFrom.m_EndOffset;
-                                bone.m_Force = dbFrom.m_Force;
-                                bone.m_FreezeAxis = dbFrom.m_FreezeAxis;
-                                bone.m_Gravity = dbFrom.m_Gravity;
-                                bone.m_Inert = dbFrom.m_Inert;
-                                bone.m_InertDistrib = dbFrom.m_InertDistrib;
-                                bone.m_Radius = dbFrom.m_Radius;
-                                bone.m_RadiusDistrib = dbFrom.m_RadiusDistrib;
-                                bone.m_Stiffness = dbFrom.m_Stiffness;
-                                bone.m_StiffnessDistrib = dbFrom.m_StiffnessDistrib;
-
-                                bone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_ReferenceObject, bone.transform, false);
-                            }
-                            else
-                            {
-                                LogVerbose("{0} already has this DynamicBone but we aren't copying settings. Ignoring", LogType.Log, bone.name);
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                if(!foundSameDynBone)
-                {
-                    if(createMissing)
-                    {
-                        LogVerbose("{0} doesn't have this DynamicBone but we have to create one. Creating.", LogType.Log, dbFrom.name);
-
-                        var newDynBone = transTo.gameObject.AddComponent<DynamicBone>();
-                        ComponentUtility.CopyComponent(dbFrom);
-                        ComponentUtility.PasteComponentValues(newDynBone);
-
-                        newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_Root.transform, newDynBone.transform.root, false);
-
-                        if(!newDynBone.m_Root)
-                        {
-                            Log("_Couldn't set root {0} for new DynamicBone in {1}'s {2}. GameObject is missing. Removing.", LogType.Warning, dbFrom.m_Root.name ?? "null", newDynBone.transform.root.name, newDynBone.transform.name == newDynBone.transform.root.name ? "root" : newDynBone.transform.root.name);
-                            DestroyImmediate(newDynBone);
-                            continue;
-                        }
-
-                        if(dbFrom.m_ReferenceObject)
-                            newDynBone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_ReferenceObject, newDynBone.transform.root, false);
-
-                        dynamic newColliders = Activator.CreateInstance(colliderListType);
-
-                        for(int i = 0; i < newDynBone.m_Colliders.Count; i++)
-                        {
-                            var badRefCollider = newDynBone.m_Colliders[i];
-
-                            if(!badRefCollider)
-                                continue;
-
-                            dynamic fixedRefCollider = null;
-
-                            var t = Helpers.FindTransformInAnotherHierarchy(newDynBone.m_Colliders[i].transform, to.transform, false);
-
-                            if(t == null)
-                                continue;
-
-                            dynamic[] toColls = t.GetComponents(colliderType);
-                            foreach(var c in toColls)
-                            {
-                                if(c.m_Bound == badRefCollider.m_Bound && c.m_Center == badRefCollider.m_Center && c.m_Direction == badRefCollider.m_Direction &&
-                                   !newDynBone.m_Colliders.Contains(c))
-                                    fixedRefCollider = c;
-                            }
-
-                            if(fixedRefCollider != null)
-                            {
-                                LogVerbose("Fixed reference for {0} in {1}", LogType.Log, fixedRefCollider.name, newDynBone.name);
-                                newColliders.Add(fixedRefCollider);
-                            }
-                        }
-
-                        newDynBone.m_Colliders = newColliders;
-
-                        var newExclusions = new HashSet<Transform>();
-
-                        foreach(var ex in newDynBone.m_Exclusions)
-                        {
-                            if(!ex)
-                                continue;
-
-                            var t = Helpers.FindTransformInAnotherHierarchy(ex.transform, to.transform, false);
-                            if(t)
-                                newExclusions.Add(t);
-                        }
-
-                        newDynBone.m_Exclusions = newExclusions.ToList();
-                        newBones.Add(newDynBone);
-
-                        Log(Strings.Log.copiedDynamicBone, LogType.Log, dbFrom.transform.root.name, dbFrom.transform.name == dbFrom.transform.root.name ? "root" : dbFrom.transform.name, transTo.root.name);
-                    }
-                    else
-                    {
-                        LogVerbose("{0} doesn't have has this DynamicBone and we aren't creating a new one. Ignoring.", LogType.Log, dbFrom.name);
-                    }
-                }
-            }
-#endif
-        }
-
-        /// <summary>
-        /// Copies Box, Capsule, Sphere and Mesh colliders from one object to another and all of it's children at once.
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        void CopyAllColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
-        {
-            if(from == null || to == null)
-                return;
-            if(!(bCopier_colliders_copyBox || bCopier_colliders_copyCapsule || bCopier_colliders_copyMesh || bCopier_colliders_copySphere))
-                return;
-
-            var cFromArr = from.GetComponentsInChildren<Collider>(true);
-
-            for(int i = 0; i < cFromArr.Length; i++)
-            {
-                string log = Strings.Log.copyAttempt;
-                var type = cFromArr[i].GetType();
-
-                var cc = cFromArr[i];
-                var cFromPath = Helpers.GetGameObjectPath(cc.gameObject);
-
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(cc.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-                    continue;
-
-                if(cFromPath != null)
-                {
-                    var tTo = to.transform.root.Find(cFromPath, createGameObjects, cc.transform);
-
-                    if(!tTo)
-                        continue;
-
-                    GameObject cToObj = tTo.gameObject;
-
-                    var cToArr = cToObj.GetComponents<Collider>();
-                    bool found = false;
-
-                    for(int z = 0; z < cToArr.Length; z++)
-                    {
-                        if(Helpers.CollidersAreIdentical(cToArr[z], cFromArr[i]))
-                        {
-                            found = true;
-                            Log(log + " - " + Strings.Log.failedAlreadyHas, LogType.Warning, cToObj.name, type.ToString());
-                            break;
-                        }
-                    }
-                    if(!found)
-                    {
-                        ComponentUtility.CopyComponent(cFromArr[i]);
-                        ComponentUtility.PasteComponentAsNew(cToObj);
-
-                        Log(log + " - " + Strings.Log.success, LogType.Log, type.ToString(), cFromArr[i].gameObject.name, cToObj.name);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Copies character, configurable, fixed hinge and spring joints from one object to another and all of it's children at once.
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        void CopyAllJoints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
-        {
-            if(from == null || to == null)
-                return;
-            if(!(bCopier_joints_character || bCopier_joints_configurable || bCopier_joints_fixed || bCopier_joints_hinge || bCopier_joints_spring))
-                return;
-
-            var jointFromArr = from.GetComponentsInChildren<Joint>(true);
-
-            for(int i = 0; i < jointFromArr.Length; i++)
-            {
-                var jointFrom = jointFromArr[i];
-                var jointTransFrom = jointFrom.transform;
-
-                Type jointType = jointFrom.GetType();
-                if((!bCopier_joints_character && jointType == typeof(CharacterJoint)) ||
-                    (!bCopier_joints_configurable && jointType == typeof(ConfigurableJoint)) ||
-                    (!bCopier_joints_fixed && jointType == typeof(FixedJoint)) ||
-                    (!bCopier_joints_spring && jointType == typeof(SpringJoint)) ||
-                    (!bCopier_joints_hinge && jointType == typeof(CharacterJoint)))
-                {
-                    Log(Strings.Log.notSelectedInCopierIgnoring, LogType.Log, jointTransFrom.gameObject.name, jointType.Name);
-                    continue;
-                }
-
-                var jointTransTo = Helpers.FindTransformInAnotherHierarchy(jointTransFrom, to.transform, createGameObjects);
-
-                if(!jointTransTo)
-                    continue;
-
-                Log(Strings.Log.copyAttempt, LogType.Log, jointType.Name, jointTransFrom.gameObject.name, jointTransTo.gameObject.name);
-                Joint jointTo = jointTransTo.gameObject.AddComponent(jointFrom.GetType()) as Joint;
-
-                ComponentUtility.CopyComponent(jointFrom);
-                ComponentUtility.PasteComponentValues(jointTo);
-
-                Transform targetTrans = null;
-                Rigidbody targetBody = null;
-                if(jointTo.connectedBody != null)
-                    targetTrans = Helpers.FindTransformInAnotherHierarchy(jointFrom.connectedBody.transform, to.transform, createGameObjects);
-                if(targetTrans != null)
-                    targetBody = targetTrans.GetComponent<Rigidbody>();
-
-                jointTo.connectedBody = targetBody;
-            }
-        }
-
-        /// <summary>
-        /// Copies all transform settings in children in object and children
-        /// </summary>
-        /// <param name="useIgnoreList">Whether or not to use copier ignore list</param>
-        void CopyAllTransforms(GameObject from, GameObject to, bool useIgnoreList)
-        {
-            if(from == null || to == null || !(bCopier_transforms_copyPosition || bCopier_transforms_copyRotation || bCopier_transforms_copyScale))
-                return;
-
-            string type = typeof(Transform).Name;
-
-            var tFromArr = from.GetComponentsInChildren<Transform>(true);
-
-            for(int i = 0; i < tFromArr.Length; i++)
-            {
-                Transform tFrom = tFromArr[i];
-
-                if(tFrom == tFrom.root || tFrom == tFrom.root.Find(tFrom.name) ||
-                    (useIgnoreList && Helpers.ShouldIgnoreObject(tFrom, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
-                    continue;
-
-                string log = String.Format(Strings.Log.copyAttempt + " - ", tFrom.gameObject.name, from.name, to.name);
-
-                Transform tTo = Helpers.FindTransformInAnotherHierarchy(tFrom, to.transform, false);
-                if(tTo)
-                {
-                    if(bCopier_transforms_copyPosition)
-                        tTo.localPosition = tFrom.localPosition;
-                    if(bCopier_transforms_copyScale)
-                        tTo.localScale = tFrom.localScale;
-                    if(bCopier_transforms_copyRotation)
-                    {
-                        tTo.localEulerAngles = tFrom.localEulerAngles;
-                        tTo.localRotation = tFrom.localRotation;
-                    }
-                    Log(log + Strings.Log.success, LogType.Log);
-                }
-                else
-                    Log(log + Strings.Log.failedHasNoIgnoring, LogType.Warning, from.name, tFrom.gameObject.name);
-            }
-        }
-
-        /// <summary>
-        /// Copies settings of all SkinnedMeshRenderers in object and children.
-        /// Does NOT copy mesh, bounds and root bone settings because that breaks everything.
-        /// </summary>
-        void CopyAllSkinnedMeshRenderersSettings(GameObject from, GameObject to, bool useIgnoreList)
-        {
-            if((from == null || to == null) || (!(bCopier_skinMeshRender_copyBlendShapeValues || bCopier_skinMeshRender_copyMaterials || bCopier_skinMeshRender_copySettings)))
-                return;
-
-            string log = String.Format(Strings.Log.copyAttempt + " - ", Strings.Copier.skinMeshRender, from.name, to.name);
-
-            var rFromArr = from.GetComponentsInChildren<SkinnedMeshRenderer>(true);
-
-            for(int i = 0; i < rFromArr.Length; i++)
-            {
-                var rFrom = rFromArr[i];
-                var rFromPath = Helpers.GetGameObjectPath(rFrom.gameObject);
-
-                if(rFromPath != null)
-                {
-                    var tTo = to.transform.root.Find(rFromPath);
-
-                    if((!tTo) ||
-                        (useIgnoreList && Helpers.ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren)))
-                        continue;
-
-                    GameObject rToObj = tTo.gameObject;
-
-                    var rTo = rToObj.GetComponent<SkinnedMeshRenderer>();
-
-                    if(rTo != null)
-                    {
-                        if(bCopier_skinMeshRender_copySettings)
-                        {
-                            var t = Helpers.FindTransformInAnotherHierarchy(rFrom.rootBone, rTo.transform.root, false);
-                            rTo.rootBone = t ?? rTo.rootBone;
-                            t = Helpers.FindTransformInAnotherHierarchy(rFrom.probeAnchor, rTo.transform.root, false);
-
-                            rTo.allowOcclusionWhenDynamic = rFrom.allowOcclusionWhenDynamic;
-                            rTo.quality = rFrom.quality;
-                            rTo.probeAnchor = t ?? rTo.probeAnchor;
-                            rTo.lightProbeUsage = rFrom.lightProbeUsage;
-                            rTo.reflectionProbeUsage = rFrom.reflectionProbeUsage;
-                            rTo.shadowCastingMode = rFrom.shadowCastingMode;
-                            rTo.receiveShadows = rFrom.receiveShadows;
-                            rTo.motionVectorGenerationMode = rFrom.motionVectorGenerationMode;
-                            rTo.skinnedMotionVectors = rFrom.skinnedMotionVectors;
-                            rTo.allowOcclusionWhenDynamic = rFrom.allowOcclusionWhenDynamic;
-                            rTo.enabled = rFrom.enabled;
-                        }
-                        if(bCopier_skinMeshRender_copyBlendShapeValues && rFrom.sharedMesh)
-                        {
-
-                            for(int z = 0; z < rFrom.sharedMesh.blendShapeCount; z++)
-                            {
-                                string toShapeName = rFrom.sharedMesh.GetBlendShapeName(z);
-                                int toShapeIndex = rTo.sharedMesh.GetBlendShapeIndex(toShapeName);
-                                if(toShapeIndex != -1)
-                                {
-                                    int fromShapeIndex = rFrom.sharedMesh.GetBlendShapeIndex(toShapeName);
-                                    if(fromShapeIndex != -1)
-                                        rTo.SetBlendShapeWeight(toShapeIndex, rFrom.GetBlendShapeWeight(fromShapeIndex));
-                                }
-                            }
-                        }
-                        if(bCopier_skinMeshRender_copyMaterials)
-                            rTo.sharedMaterials = rFrom.sharedMaterials;
-
-                        Log(log + Strings.Log.success);
-                    }
-                    else
-                    {
-                        Log(log + Strings.Log.failedDoesntHave, LogType.Warning, rTo.gameObject.name, rFrom.GetType().ToString());
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Copies all TrailRenderers in object and it's children.
-        /// </summary>
-        /// <param name="createGameObjects">Whether to create missing GameObjects</param>
-        void CopyAllTrailRenderers(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
-        {
-            if(from == null || to == null)
-                return;
-
-            var rFromArr = from.GetComponentsInChildren<TrailRenderer>(true);
-
-            for(int i = 0; i < rFromArr.Length; i++)
-            {
-                var rFrom = rFromArr[i];
-                var tTo = Helpers.FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
-
-                if(!tTo)
-                    continue;
-
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-                    continue;
-
-                var rToObj = tTo.gameObject;
-                var rTo = rToObj.GetComponent<TrailRenderer>();
-
-                if(rTo == null && bCopier_trailRenderers_createMissing)
-                {
-                    rTo = rToObj.AddComponent<TrailRenderer>();
-                }
-
-                if((rTo != null && bCopier_trailRenderers_copySettings) || bCopier_trailRenderers_createMissing)
-                {
-                    ComponentUtility.CopyComponent(rFrom);
-                    ComponentUtility.PasteComponentValues(rTo);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Copies all RigidBodies in object and in its children.
-        /// </summary>
-        void CopyAllRigidBodies(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
-        {
-            if(from == null || to == null)
-                return;
-
-            var rFromArr = from.GetComponentsInChildren<Rigidbody>(true);
-
-            for(int i = 0; i < rFromArr.Length; i++)
-            {
-                var rFrom = rFromArr[i];
-                var tTo = Helpers.FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
-
-                if(!tTo)
-                    continue;
-
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(rFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-                    continue;
-
-                var rToObj = tTo.gameObject;
-
-                var rTo = rToObj.GetComponent<Rigidbody>();
-
-                if(rTo == null && bCopier_rigidBodies_createMissing)
-                {
-                    rTo = rToObj.AddComponent<Rigidbody>();
-                }
-                if(rTo != null && (bCopier_rigidBodies_copySettings || bCopier_rigidBodies_createMissing))
-                {
-                    ComponentUtility.CopyComponent(rFrom);
-                    ComponentUtility.PasteComponentValues(rTo);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Copies all ParticleSystems in object and its children
-        /// </summary>
-        /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        void CopyAllParticleSystems(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
-        {
-            var partSysFromArr = from.GetComponentsInChildren<ParticleSystem>(true);
-
-            for(int i = 0; i < partSysFromArr.Length; i++)
-            {
-                var partSys = partSysFromArr[i];
-
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(partSys.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-                    continue;
-
-                var transTo = Helpers.FindTransformInAnotherHierarchy(partSys.transform, to.transform, createGameObjects);
-
-                if(transTo != null)
-                {
-                    var partSysTo = transTo.GetComponent<ParticleSystem>();
-                    if(bCopier_particleSystems_replace || partSysTo == null)
-                    {
-                        DestroyParticleSystems(transTo.gameObject, false);
-
-                        ComponentUtility.CopyComponent(partSys);
-                        ComponentUtility.PasteComponentAsNew(transTo.gameObject);
-
-                        Log(Strings.Log.successCopiedOverFromTo, LogType.Log, "ParticleSystem", CopierSelectedFrom.name, partSys.gameObject.name, SelectedAvatar.name, transTo.gameObject.name);
-                    }
-                    else
-                    {
-                        Log(Strings.Log.failedAlreadyHas, LogType.Log, partSys.gameObject.name, "ParticleSystem");
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Copies all Aim Constrains in object and it's children
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        /// <param name="useIgnoreList"></param>
-        void CopyAllAimConstraints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
-        {
-            var aimConFromArr = from.GetComponentsInChildren<AimConstraint>(true);
-            const string typeString = "AimConstraint";
-
-            for(int i = 0; i < aimConFromArr.Length; i++)
-            {
-                var aimCon = aimConFromArr[i];
-
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(aimCon.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-                    continue;
-
-                var transTo = Helpers.FindTransformInAnotherHierarchy(aimCon.transform, to.transform, createGameObjects);
-
-                if(transTo != null)
-                {
-                    var aimConTo = transTo.GetComponent<AimConstraint>();
-
-                    if(bCopier_aimConstraint_replaceOld || aimConTo == null)
-                    {
-                        Helpers.DestroyAppropriate(aimConTo);
-
-                        ComponentUtility.CopyComponent(aimCon);
-                        aimConTo = transTo.gameObject.AddComponent<AimConstraint>();
-                        ComponentUtility.PasteComponentValues(aimConTo);
-
-                        if(aimConTo.worldUpType == AimConstraint.WorldUpType.ObjectRotationUp || aimConTo.worldUpType == AimConstraint.WorldUpType.ObjectUp)
-                        {
-                            var upObj = aimConTo.worldUpObject;
-                            if(upObj && upObj.root == from.transform)
-                                aimConTo.worldUpObject = Helpers.FindTransformInAnotherHierarchy(upObj, to.transform, createGameObjects);
-                        }
-                        var sources = new List<ConstraintSource>();
-                        aimConTo.GetSources(sources);
-
-                        for(int z = 0; z < sources.Count; z++)
-                        {
-                            var t = sources[z];
-                            if(t.sourceTransform && t.sourceTransform.root == from.transform)
-                            {
-                                var cs = sources[z];
-                                cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, to.transform, createGameObjects);
-                                aimConTo.SetSource(z, cs);
-                            }
-                        }
-
-                        if(bCopier_aimConstraint_onlyIfHasValidSources && !Helpers.ConstraintHasValidSources(aimConTo))
-                        {
-                            Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, aimCon.gameObject.name);
-                            Helpers.DestroyAppropriate(aimConTo);
-                            return;
-                        }
-
-                        Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
-                                CopierSelectedFrom.name,
-                                aimCon.transform == aimCon.transform.root ? "root" : aimCon.gameObject.name,
-                                SelectedAvatar.name,
-                                transTo == transTo.root ? "root" : transTo.gameObject.name);
-                    }
-                    else
-                    {
-                        Log(Strings.Log.failedAlreadyHas, LogType.Log, aimCon.gameObject.name, typeString);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Copies all LookAt Constrains in object and it's children
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        /// <param name="useIgnoreList"></param>
-        void CopyAllLookAtConstraints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
-        {
-            var lookConFromArr = from.GetComponentsInChildren<LookAtConstraint>(true);
-            const string typeString = "LookAtConstraint";
-
-            for(int i = 0; i < lookConFromArr.Length; i++)
-            {
-                var lookCon = lookConFromArr[i];
-
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(lookCon.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-                    continue;
-
-                var transTo = Helpers.FindTransformInAnotherHierarchy(lookCon.transform, to.transform, createGameObjects);
-
-                if(transTo != null)
-                {
-                    var lookConTo = transTo.GetComponent<LookAtConstraint>();
-
-                    if(bCopier_lookAtConstraint_replaceOld || lookConTo == null)
-                    {
-                        Helpers.DestroyAppropriate(lookConTo);
-
-                        ComponentUtility.CopyComponent(lookCon);
-                        lookConTo = transTo.gameObject.AddComponent<LookAtConstraint>();
-                        ComponentUtility.PasteComponentValues(lookConTo);
-
-                        if(lookConTo.useUpObject)
-                        {
-                            var upObj = lookConTo.worldUpObject;
-                            if(upObj && upObj.root == from.transform)
-                                lookConTo.worldUpObject = Helpers.FindTransformInAnotherHierarchy(upObj, to.transform, createGameObjects);
-                        }
-
-                        var sources = new List<ConstraintSource>();
-                        lookConTo.GetSources(sources);
-
-                        for(int z = 0; z < sources.Count; z++)
-                        {
-                            var t = sources[z];
-                            if(t.sourceTransform && t.sourceTransform.root == from.transform)
-                            {
-                                var cs = sources[z];
-                                cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, to.transform, createGameObjects);
-                                lookConTo.SetSource(z, cs);
-                            }
-                        }
-
-                        if(bCopier_lookAtConstraint_onlyIfHasValidSources && !Helpers.ConstraintHasValidSources(lookConTo))
-                        {
-                            Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, lookCon.gameObject.name, typeString);
-                            Helpers.DestroyAppropriate(lookCon);
-                            return;
-                        }
-
-                        Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
-                                CopierSelectedFrom.name,
-                                lookCon.transform == lookCon.transform.root ? "root" : lookCon.gameObject.name,
-                                SelectedAvatar.name,
-                                transTo == transTo.root ? "root" : transTo.gameObject.name);
-                    }
-                    else
-                    {
-                        Log(Strings.Log.failedAlreadyHas, LogType.Log, lookCon.gameObject.name, typeString);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Copies all Parent Constrains in object and it's children
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        /// <param name="useIgnoreList"></param>
-        void CopyAllParentConstraints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
-        {
-            var parConFromArr = from.GetComponentsInChildren<ParentConstraint>(true);
-            const string typeString = "ParentConstraint";
-
-            for(int i = 0; i < parConFromArr.Length; i++)
-            {
-                var parCon = parConFromArr[i];
-
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(parCon.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-                    continue;
-
-                var transTo = Helpers.FindTransformInAnotherHierarchy(parCon.transform, to.transform, createGameObjects);
-
-                if(transTo != null)
-                {
-                    var parConTo = transTo.GetComponent<ParentConstraint>();
-
-                    if(bCopier_parentConstraint_replaceOld || parConTo == null)
-                    {
-                        Helpers.DestroyAppropriate(parConTo);
-
-                        ComponentUtility.CopyComponent(parCon);
-                        parConTo = transTo.gameObject.AddComponent<ParentConstraint>();
-                        ComponentUtility.PasteComponentValues(parConTo);
-
-                        var sources = new List<ConstraintSource>();
-                        parConTo.GetSources(sources);
-
-                        for(int z = 0; z < sources.Count; z++)
-                        {
-                            var t = sources[z];
-                            if(t.sourceTransform && t.sourceTransform.root == from.transform)
-                            {
-                                var cs = sources[z];
-                                cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, to.transform, createGameObjects);
-                                parConTo.SetSource(z, cs);
-                            }
-                        }
-
-                        if(bCopier_parentConstraint_onlyIfHasValidSources && !Helpers.ConstraintHasValidSources(parConTo))
-                        {
-                            Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, parCon.gameObject.name, typeString);
-                            Helpers.DestroyAppropriate(parCon);
-                            return;
-                        }
-
-                        Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
-                                CopierSelectedFrom.name,
-                                parCon.transform == parCon.transform.root ? "root" : parCon.gameObject.name,
-                                SelectedAvatar.name,
-                                transTo == transTo.root ? "root" : transTo.gameObject.name);
-                    }
-                    else
-                    {
-                        Log(Strings.Log.failedAlreadyHas, LogType.Log, parCon.gameObject.name, typeString);
-                    }
-                }
-            }
-        }
-
-        ///// <summary>
-        ///// Bad function //TODO:Rewrite with unity properties
-        ///// </summary>
-        //void CopyAllClothComponents(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
-        //{
-        //    var clothFromArr = from.GetComponentsInChildren<Cloth>(true);
-        //    const string typeString = "Cloth";
-
-        //    for(int i = 0; i < clothFromArr.Length; i++)
-        //    {
-        //        var clothFrom = clothFromArr[i];
-
-        //        if(useIgnoreList && Helpers.ShouldIgnoreObject(clothFrom.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-        //            continue;
-
-        //        var transTo = Helpers.FindTransformInAnotherHierarchy(clothFrom.transform, to.transform, createGameObjects);
-
-        //        if(transTo != null)
-        //        {
-        //            var clothTo = transTo.GetComponent<Cloth>();
-
-        //            if(bCopier_cloth_replaceOld || clothTo == null)
-        //            {
-        //                Helpers.DestroyAppropriate(clothTo);
-
-        //                ComponentUtility.CopyComponent(clothFrom);
-        //                clothTo = transTo.gameObject.AddComponent<Cloth>();
-        //                ComponentUtility.PasteComponentValues(clothTo);
-
-        //                var capsuleColFrom = clothFrom.capsuleColliders;
-        //                var capsuleColTo = new List<CapsuleCollider>();
-
-        //                foreach(var fromCollider in capsuleColFrom)
-        //                {
-        //                    var newColTrans = Helpers.FindTransformInAnotherHierarchy(fromCollider.transform, to.transform, createGameObjects);
-        //                    var newCol = newColTrans.GetComponent<CapsuleCollider>();
-        //                    if(newColTrans && !capsuleColTo.Contains(newCol))
-        //                        capsuleColTo.Add(newCol);
-        //                }
-        //                clothTo.capsuleColliders = capsuleColTo.ToArray();
-
-        //                var sphereColFrom = clothFrom.sphereColliders;
-        //                var sphereColTo = new List<ClothSphereColliderPair>();
-
-        //                foreach(var fromCollider in sphereColFrom)
-        //                {
-        //                    var newColTransFirst = Helpers.FindTransformInAnotherHierarchy(fromCollider.first.transform, to.transform, createGameObjects);
-        //                    var newColTransSecond = Helpers.FindTransformInAnotherHierarchy(fromCollider.second.transform, to.transform, createGameObjects);
-
-        //                    var newColFirst = newColTransFirst.GetComponent<SphereCollider>();
-        //                    var newColSecond = newColTransFirst.GetComponent<SphereCollider>();
-
-        //                    var allSphereColls = new List<SphereCollider>();
-        //                    foreach(var sc in sphereColTo)  //I forgot how to linq
-        //                    {
-        //                        allSphereColls.Add(sc.first);
-        //                        allSphereColls.Add(sc.second);
-        //                    }
-        //                    if(allSphereColls.Contains(newColSecond))
-        //                    {
-        //                        var cols = newColTransSecond.GetComponents<SphereCollider>();
-        //                        foreach(var c in cols)
-        //                        {
-        //                            if(!allSphereColls.Contains(c))
-        //                                newColSecond = c;
-        //                        }
-        //                    }
-
-        //                    var newPair = new ClothSphereColliderPair(newColFirst, newColSecond);
-
-        //                    if(newColTransFirst && !sphereColTo.Contains(newPair))
-        //                        sphereColTo.Add(newPair);
-        //                }
-        //                clothTo.sphereColliders = sphereColTo.ToArray();
-
-        //                Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
-        //                        CopierSelectedFrom.name,
-        //                        clothFrom.transform == clothFrom.transform.root ? "root" : clothFrom.gameObject.name,
-        //                        SelectedAvatar.name,
-        //                        transTo == transTo.root ? "root" : transTo.gameObject.name);
-        //            }
-        //            else
-        //            {
-        //                Log(Strings.Log.failedAlreadyHas, LogType.Log, clothFrom.gameObject.name, typeString);
-        //            }
-        //        }
-        //    }
-        //}
-
-        /// <summary>
-        /// Copies all Position Constrains in object and it's children
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        /// <param name="useIgnoreList"></param>
-        void CopyAllPositionConstraints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
-        {
-            var posConFromArr = from.GetComponentsInChildren<PositionConstraint>(true);
-            const string typeString = "PositionConstraint";
-
-            for(int i = 0; i < posConFromArr.Length; i++)
-            {
-                var posCon = posConFromArr[i];
-
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(posCon.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-                    continue;
-
-                var transTo = Helpers.FindTransformInAnotherHierarchy(posCon.transform, to.transform, createGameObjects);
-
-                if(transTo != null)
-                {
-                    var posConTo = transTo.GetComponent<PositionConstraint>();
-
-                    if(bCopier_positionConstraint_replaceOld || posConTo == null)
-                    {
-                        Helpers.DestroyAppropriate(posConTo);
-
-                        ComponentUtility.CopyComponent(posCon);
-                        posConTo = transTo.gameObject.AddComponent<PositionConstraint>();
-                        ComponentUtility.PasteComponentValues(posConTo);
-
-                        var sources = new List<ConstraintSource>();
-                        posConTo.GetSources(sources);
-
-                        for(int z = 0; z < sources.Count; z++)
-                        {
-                            var t = sources[z];
-                            if(t.sourceTransform && t.sourceTransform.root == from.transform)
-                            {
-                                var cs = sources[z];
-                                cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, to.transform, createGameObjects);
-                                posConTo.SetSource(z, cs);
-                            }
-                        }
-
-                        if(bCopier_positionConstraint_onlyIfHasValidSources && !Helpers.ConstraintHasValidSources(posConTo))
-                        {
-                            Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, posCon.gameObject.name, typeString);
-                            Helpers.DestroyAppropriate(posCon);
-                            return;
-                        }
-
-                        Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
-                                CopierSelectedFrom.name,
-                                posCon.transform == posCon.transform.root ? "root" : posCon.gameObject.name,
-                                SelectedAvatar.name,
-                                transTo == transTo.root ? "root" : transTo.gameObject.name);
-                    }
-                    else
-                    {
-                        Log(Strings.Log.failedAlreadyHas, LogType.Log, posCon.gameObject.name, typeString);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Copies all Rotation Constrains in object and it's children
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        /// <param name="useIgnoreList"></param>
-        void CopyAllRotationConstraints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
-        {
-            var rotConFromArr = from.GetComponentsInChildren<RotationConstraint>(true);
-            const string typeString = "RotationConstraint";
-
-            for(int i = 0; i < rotConFromArr.Length; i++)
-            {
-                var rotCon = rotConFromArr[i];
-
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(rotCon.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-                    continue;
-
-                var transTo = Helpers.FindTransformInAnotherHierarchy(rotCon.transform, to.transform, createGameObjects);
-
-                if(transTo != null)
-                {
-                    var rotConTo = transTo.GetComponent<RotationConstraint>();
-
-                    if(bCopier_rotationConstraint_replaceOld || rotConTo == null)
-                    {
-                        Helpers.DestroyAppropriate(rotConTo);
-
-                        ComponentUtility.CopyComponent(rotCon);
-                        rotConTo = transTo.gameObject.AddComponent<RotationConstraint>();
-                        ComponentUtility.PasteComponentValues(rotConTo);
-
-                        var sources = new List<ConstraintSource>();
-                        rotConTo.GetSources(sources);
-
-                        for(int z = 0; z < sources.Count; z++)
-                        {
-                            var t = sources[z];
-                            if(t.sourceTransform && t.sourceTransform.root == from.transform)
-                            {
-                                var cs = sources[z];
-                                cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, to.transform, createGameObjects);
-                                rotConTo.SetSource(z, cs);
-                            }
-                        }
-
-                        if(bCopier_rotationConstraint_onlyIfHasValidSources && !Helpers.ConstraintHasValidSources(rotConTo))
-                        {
-                            Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, rotCon.gameObject.name, typeString);
-                            Helpers.DestroyAppropriate(rotCon);
-                            return;
-                        }
-
-                        Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
-                                CopierSelectedFrom.name,
-                                rotCon.transform == rotCon.transform.root ? "root" : rotCon.gameObject.name,
-                                SelectedAvatar.name,
-                                transTo == transTo.root ? "root" : transTo.gameObject.name);
-                    }
-                    else
-                    {
-                        Log(Strings.Log.failedAlreadyHas, LogType.Log, rotCon.gameObject.name, typeString);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Copies all Scale Constrains in object and it's children
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        /// <param name="useIgnoreList"></param>
-        void CopyAllScaleConstraints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
-        {
-            var scaleConFromArr = from.GetComponentsInChildren<ScaleConstraint>(true);
-            const string typeString = "ScaleConstraint";
-
-            for(int i = 0; i < scaleConFromArr.Length; i++)
-            {
-                var scaleCon = scaleConFromArr[i];
-
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(scaleCon.transform, _copierIgnoreArray, bCopier_ignoreArray_includeChildren))
-                    continue;
-
-                var transTo = Helpers.FindTransformInAnotherHierarchy(scaleCon.transform, to.transform, createGameObjects);
-
-                if(transTo != null)
-                {
-                    var scaleConTo = transTo.GetComponent<ScaleConstraint>();
-
-                    if(bCopier_scaleConstraint_replaceOld || scaleConTo == null)
-                    {
-                        Helpers.DestroyAppropriate(scaleConTo);
-
-                        ComponentUtility.CopyComponent(scaleCon);
-                        scaleConTo = transTo.gameObject.AddComponent<ScaleConstraint>();
-                        ComponentUtility.PasteComponentValues(scaleConTo);
-
-                        var sources = new List<ConstraintSource>();
-                        scaleConTo.GetSources(sources);
-
-                        for(int z = 0; z < sources.Count; z++)
-                        {
-                            var t = sources[z];
-                            if(t.sourceTransform && t.sourceTransform.root == from.transform)
-                            {
-                                var cs = sources[z];
-                                cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, to.transform, createGameObjects);
-                                scaleConTo.SetSource(z, cs);
-                            }
-                        }
-
-                        if(bCopier_scaleConstraint_onlyIfHasValidSources && !Helpers.ConstraintHasValidSources(scaleConTo))
-                        {
-                            Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, scaleCon.gameObject.name, typeString);
-                            Helpers.DestroyAppropriate(scaleCon);
-                            return;
-                        }
-
-                        Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
-                                CopierSelectedFrom.name,
-                                scaleCon.transform == scaleCon.transform.root ? "root" : scaleCon.gameObject.name,
-                                SelectedAvatar.name,
-                                transTo == transTo.root ? "root" : transTo.gameObject.name);
-                    }
-                    else
-                    {
-                        Log(Strings.Log.failedAlreadyHas, LogType.Log, scaleCon.gameObject.name, typeString);
-                    }
-                }
-            }
-        }
-
-        #endregion
+#endregion
 
 #region Destroy Functions
 
@@ -5834,16 +4592,19 @@ namespace Pumkin.AvatarTools
                 }
             }
         }
+        
         /// <summary>
         /// Destroys all Missing Script components on avatar
         /// </summary>
         void DestroyMissingScripts(GameObject avatar)
         {
+            #if UNITY_2018
             if(EditorApplication.isPlaying)
             {
                 Log("Can't remove missing scripts in play mode, it causes crashes", LogType.Warning);
                 return;
             }
+            #endif
 
             var ts = avatar.GetComponentsInChildren<Transform>(true);
             foreach(var t in ts)

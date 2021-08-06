@@ -7,6 +7,7 @@ using Pumkin.DataStructures;
 using Pumkin.Extensions;
 using Pumkin.HelperFunctions;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -877,7 +878,6 @@ namespace Pumkin.AvatarTools.Copiers
             }
         }
 
-
         /// <summary>
         /// Copies all Position Constrains in object and it's children
         /// </summary>
@@ -1081,7 +1081,6 @@ namespace Pumkin.AvatarTools.Copiers
                 }
             }
         }
-
 
         /// <summary>
         /// Copies all audio sources on object and it's children.
@@ -1300,21 +1299,22 @@ namespace Pumkin.AvatarTools.Copiers
             }
         }
 
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
         /// <summary>
         /// Copies all VRC_IKFollowers on an object and it's children.
         /// </summary>
         /// <param name="createGameObjects">Whether to create missing objects</param>
         internal static void CopyAllIKFollowers(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
         {
-            if(from == null || to == null)
+            Type ikFollowerType = PumkinsTypeCache.VRC_IKFollower;
+            
+            if(from == null || to == null || ikFollowerType == null)
                 return;
 
-            var ikFromArr = from.GetComponentsInChildren<VRC_IKFollower>(true);
+            var ikFromArr = from.GetComponentsInChildren(ikFollowerType, true);
             if(ikFromArr == null || ikFromArr.Length == 0)
                 return;
 
-            string type = typeof(VRC_IKFollower).Name;
+            string type = ikFollowerType.Name;
 
             for(int i = 0; i < ikFromArr.Length; i++)
             {
@@ -1325,7 +1325,7 @@ namespace Pumkin.AvatarTools.Copiers
 
                 string log = String.Format(Strings.Log.copyAttempt, type, ikFrom.gameObject, tTo.gameObject);
 
-                if(!tTo.GetComponent<VRC_IKFollower>())
+                if(!tTo.GetComponent(ikFollowerType))
                 {
                     ComponentUtility.CopyComponent(ikFrom);
                     ComponentUtility.PasteComponentAsNew(tTo.gameObject);
@@ -1337,7 +1337,127 @@ namespace Pumkin.AvatarTools.Copiers
                 }
             }
         }
-#endif
 
+        internal static void CopyAvatarDescriptor(GameObject from, GameObject to, bool useIgnoreList)
+        {
+            Type descType = PumkinsTypeCache.VRC_AvatarDescriptor;
+            Type pipelineType = PumkinsTypeCache.PipelineManager;
+            
+            if(to == null || from == null || descType == null || pipelineType == null)
+                return;
+
+            if(useIgnoreList && Helpers.ShouldIgnoreObject(from.transform, Settings._copierIgnoreArray))
+                return;
+
+            var dFrom = from.GetComponent(descType);
+            var pFrom = from.GetComponent(pipelineType);
+            var dTo = to.GetComponent(descType);
+
+            if(dFrom == null)
+                return;
+            if(dTo == null)
+                dTo = Undo.AddComponent(to, descType);
+
+            var pTo = to.GetComponent(pipelineType) ?? to.AddComponent(pipelineType);
+
+            var sDescTo = new SerializedObject(dTo);
+            var sDescFrom = new SerializedObject(dFrom);
+
+            var sPipeTo = new SerializedObject(pTo);
+
+            var descPropNames = new List<string>();
+            if(Settings.bCopier_descriptor_copyViewpoint)
+                descPropNames.Add("ViewPosition");
+
+            
+            if(Settings.bCopier_descriptor_copyPipelineId)
+            {
+                var sPipeFrom = new SerializedObject(pFrom);
+                var pipePropNames = new List<string> { "blueprintId", "completedSDKPipeline" };
+
+                foreach(var s in pipePropNames)
+                {
+                    var prop = sPipeFrom.FindProperty(s);
+                    if(prop != null)
+                        sPipeTo.CopyFromSerializedProperty(prop);
+                }
+
+                sPipeTo.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            if(Settings.bCopier_descriptor_copySettings)
+            {
+                descPropNames.AddRange(new []
+                {
+                    //Shared
+                    "Name", "Animations", "ScaleIPD", "lipSync", "VisemeSkinnedMesh", "MouthOpenBlendShapeName",
+                    "VisemeBlendShapes", "portraitCameraPositionOffset", "portraitCameraRotationOffset", "lipSyncJawBone",
+                    //SDK3
+                    "enableEyeLook", "lipSyncJawClosed", "lipSyncJawOpen", "AnimationPreset", "autoFootsteps", "autoLocomotion"
+                });
+            }
+
+            if(Settings.bCopier_descriptor_copyPlayableLayers)
+            {
+                descPropNames.AddRange(new []
+                {
+                    "customizeAnimationLayers", "baseAnimationLayers",
+                    "specialAnimationLayers"
+                });
+            }
+
+            if(Settings.bCopier_descriptor_copyEyeLookSettings)
+            {
+                descPropNames.Add("customEyeLookSettings");
+            }
+
+            if(Settings.bCopier_descriptor_copyAnimationOverrides) //SDK2 Only
+            {
+                descPropNames.AddRange(new []
+                {
+                    "CustomSittingAnims", "CustomStandingAnims",
+                });
+            }
+
+            if(Settings.bCopier_descriptor_copyExpressions)
+            {
+                descPropNames.AddRange(new []
+                {
+                    "customExpressions", "expressionsMenu", "expressionParameters"
+                });
+            }
+
+            foreach(var s in descPropNames)
+            {
+                var prop = sDescFrom.FindProperty(s);
+                if(prop != null)
+                    sDescTo.CopyFromSerializedProperty(prop);
+            }
+
+            var eyes = sDescTo.FindProperty("customEyeLookSettings");
+
+            if(eyes != null)
+            {
+                SerializedProperty[] transLocalize =
+                {
+                    eyes.FindPropertyRelative("leftEye"),
+                    eyes.FindPropertyRelative("rightEye"),
+                    eyes.FindPropertyRelative("upperLeftEyelid"),
+                    eyes.FindPropertyRelative("upperRightEyelid"),
+                    eyes.FindPropertyRelative("lowerLeftEyelid"),
+                    eyes.FindPropertyRelative("lowerRightEyelid"),
+                };
+                Helpers.MakeReferencesLocal<Transform>(to.transform, transLocalize);
+            }
+
+            SerializedProperty[] rendererLocalize =
+            {
+                sDescTo.FindProperty("VisemeSkinnedMesh"),
+                eyes != null ? eyes.FindPropertyRelative("eyelidsSkinnedMesh") : null,
+            };
+            Helpers.MakeReferencesLocal<SkinnedMeshRenderer>(to.transform, rendererLocalize);
+
+            sDescTo.ApplyModifiedPropertiesWithoutUndo();
+        }
     }
 }

@@ -80,7 +80,14 @@ namespace Pumkin.AvatarTools.Callbacks
 
         public bool OnPreprocessAvatar(GameObject avatarGameObject)
         {
-            AvatarID = avatarGameObject.GetComponent<PipelineManager>().blueprintId;
+            try
+            {
+                AvatarID = avatarGameObject.GetComponent<PipelineManager>().blueprintId;
+            }
+            catch(Exception e)
+            {
+                PumkinsAvatarTools.Log("Failed to hide avatars: " + e.Message, LogType.Warning);
+            }
             return true;
         }
 
@@ -95,9 +102,9 @@ namespace Pumkin.AvatarTools.Callbacks
             SetOtherAvatarsActiveState(false);
         }
 
-        public static void SetOtherAvatarsActiveState(bool isActive)
+        static void SetOtherAvatarsActiveState(bool isActive)
         {
-            if(AvatarCache == null || UploadTarget == null)
+            if(AvatarCache is null || UploadTarget is null)
                 return;
 
             foreach(var av in AvatarCache)

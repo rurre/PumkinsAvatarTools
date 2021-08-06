@@ -1213,6 +1213,7 @@ namespace Pumkin.HelperFunctions
             return false;
         }
 
+        #if UNITY_2018
         public static bool DestroyMissingScriptsInGameObject(GameObject obj)
         {
             if(EditorApplication.isPlaying)
@@ -1239,6 +1240,13 @@ namespace Pumkin.HelperFunctions
             }
             return found;
         }
+        #elif UNITY_2019
+        public static bool DestroyMissingScriptsInGameObject(GameObject obj)
+        {
+            return GameObjectUtility.RemoveMonoBehavioursWithMissingScript(obj) > 0;
+        }
+        
+        #endif
 
         /// <summary>
         /// Checks whether constraint has any valid sources

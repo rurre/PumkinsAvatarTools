@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Linq;
+using UnityEngine;
 
 namespace Pumkin.AvatarTools.MaterialPreview
 {
@@ -38,12 +40,91 @@ namespace Pumkin.AvatarTools.MaterialPreview
             static Shader _fbParticle;
             static Shader _fbUnlitTransparent;
         }
+        
+        private static readonly string[] ShaderWhitelist = 
+        {
+            "Standard",
+            "Standard (Specular setup)",
+            "Effects/Rim",
+            "Effects/GlowAdditiveSimple",
+            "Legacy Shaders/Bumped Diffuse",
+            "Legacy Shaders/Bumped Specular",
+            "Legacy Shaders/Decal",
+            "Legacy Shaders/Diffuse",
+            "Legacy Shaders/Diffuse Detail",
+            "Legacy Shaders/Diffuse Fast",
+            "Legacy Shaders/Lightmapped/Diffuse",
+            "Legacy Shaders/Lightmapped/Specular",
+            "Legacy Shaders/Lightmapped/VertexLit",
+            "Legacy Shaders/Parallax Diffuse",
+            "Legacy Shaders/Parallax Specular",
+            "Legacy Shaders/Reflective/Bumped Diffuse",
+            "Legacy Shaders/Reflective/Bumped Specular",
+            "Legacy Shaders/Reflective/Bumped Unlit",
+            "Legacy Shaders/Reflective/Bumped VertexLit",
+            "Legacy Shaders/Reflective/Diffuse",
+            "Legacy Shaders/Reflective/Parallax Diffuse",
+            "Legacy Shaders/Reflective/Parallax Specular",
+            "Legacy Shaders/Reflective/Specular",
+            "Legacy Shaders/Reflective/VertexLit",
+            "Legacy Shaders/Self-Illum/Bumped Diffuse",
+            "Legacy Shaders/Self-Illum/Bumped Specular",
+            "Legacy Shaders/Self-Illum/Diffuse",
+            "Legacy Shaders/Self-Illum/Parallax Diffuse",
+            "Legacy Shaders/Self-Illum/Parallax Specular",
+            "Legacy Shaders/Self-Illum/Specular",
+            "Legacy Shaders/Self-Illum/VertexLit",
+            "Legacy Shaders/Specular",
+            "Legacy Shaders/Transparent/Bumped Diffuse",
+            "Legacy Shaders/Transparent/Bumped Specular",
+            "Legacy Shaders/Transparent/Cutout/Bumped Diffuse",
+            "Legacy Shaders/Transparent/Cutout/Bumped Specular",
+            "Legacy Shaders/Transparent/Cutout/Diffuse",
+            "Legacy Shaders/Transparent/Cutout/Soft Edge Unlit",
+            "Legacy Shaders/Transparent/Cutout/Specular",
+            "Legacy Shaders/Transparent/Cutout/VertexLit",
+            "Legacy Shaders/Transparent/Diffuse",
+            "Legacy Shaders/Transparent/Parallax Diffuse",
+            "Legacy Shaders/Transparent/Parallax Specular",
+            "Legacy Shaders/Transparent/Specular",
+            "Legacy Shaders/Transparent/VertexLit",
+            "Legacy Shaders/VertexLit",
+            "MatCap/Vertex/Textured Lit",
+            "Mobile/Bumped Diffuse",
+            "Mobile/Bumped Specular",
+            "Mobile/Bumped Specular (1 Directional Light)",
+            "Mobile/Diffuse",
+            "Mobile/Unlit (Supports Lightmap)",
+            "Mobile/Particles/Additive",
+            "Mobile/Particles/Alpha Blended",
+            "Mobile/Particles/Multiply",
+            "Mobile/Particles/VertexLit Blended",
+            "Particles/~Additive-Multiply",
+            "Particles/Additive",
+            "Particles/Additive (Soft)",
+            "Particles/Alpha Blended",
+            "Particles/Alpha Blended Premultiply",
+            "Particles/Anim Alpha Blended",
+            "Particles/Multiply",
+            "Particles/Multiply (Double)",
+            "Particles/VertexLit Blended",
+            "Sprites/Default",
+            "Sprites/Diffuse",
+            "Toon/Lit",
+            "Toon/Lit (Double)",
+            "Toon/Lit Cutout",
+            "Toon/Lit Cutout (Double)",
+            "Toon/Lit Outline",
+            "UI/Default",
+            "Unlit/FailShader",
+            "VRChat/UI/Default"
+        };
 
 
         static class MaterialProperties
         {
             public static readonly int SpecularColor = Shader.PropertyToID("_SpecColor");
-            public static readonly int Emission = Shader.PropertyToID("_Emission");
+            public static readonly int Emission = Shader.PropertyToID("_EmissionColor");
             public static readonly int Shininess = Shader.PropertyToID("_Shininess");
             public static readonly int Color = Shader.PropertyToID("_Color");
             public static readonly int MatCap = Shader.PropertyToID("_MatCap");
@@ -109,10 +190,13 @@ namespace Pumkin.AvatarTools.MaterialPreview
             return true;
         }
 
-        public static void SetupBlendMode(Material material)
+        static void SetupBlendMode(Material material)
         {
             if(material.HasProperty(MaterialProperties.Mode))
-                StandardShaderManager.SetupMaterialWithBlendMode(material, (StandardShaderManager.BlendMode)material.GetInt(MaterialProperties.Mode));
+            {
+                StandardShaderManager.BlendMode mode = (StandardShaderManager.BlendMode) material.GetInt(MaterialProperties.Mode); 
+                StandardShaderManager.SetupMaterialWithBlendMode(material, mode);
+            }
         }
 
         public static Material CreateFallbackMaterial(Material oldMat, Color rankColor)
@@ -120,20 +204,38 @@ namespace Pumkin.AvatarTools.MaterialPreview
             if(oldMat == null || oldMat.shader == null)
                 return CreateMatCapMaterial(rankColor);
 
-            bool isUnlit = oldMat.shader.name.Contains("Unlit");
-            bool isVertexLit = oldMat.shader.name.Contains("VertexLit");
-            bool isToon = oldMat.shader.name.Contains("Toon") || oldMat.HasProperty("_Ramp");
-            bool isTransparent = oldMat.shader.name.Contains("Transparent") || oldMat.IsKeywordEnabled("_ALPHABLEND_ON");
-            bool isCutout = oldMat.shader.name.Contains("Cutout") || oldMat.IsKeywordEnabled("_ALPHATEST_ON");
-            bool isFade = oldMat.shader.name.Contains("Fade");
-            bool isParticle = oldMat.shader.name.Contains("Particle");
-            bool isSprite = oldMat.shader.name.Contains("Sprite");
-            bool isMatcap = oldMat.shader.name.Contains("MatCap");
-            bool hasOutline = oldMat.IsKeywordEnabled("TINTED_OUTLINE") && oldMat.HasProperty("_outline_width") && oldMat.GetFloat(MaterialProperties.OutlineWidth) == 0f;
+            Material material = null;
+            if(ShaderWhitelist.Contains(oldMat.shader.name))
+            {
+                if(oldMat.shader.name == "Standard")
+                    material = CreateStandardFallback(oldMat);
+                else
+                    material = CreateWhitelistFallback(oldMat);
+            }
+
+            if(material != null)
+                return material;
+            return CreateUnknownFallbackMaterial(oldMat, rankColor);
+        }
+
+        private static Material CreateUnknownFallbackMaterial(Material oldMat, Color rankColor)
+        {
+            Material material;
+            string shaderName = oldMat.shader.name;
+            bool isUnlit = shaderName.Contains("Unlit");
+            bool isVertexLit = shaderName.Contains("VertexLit");
+            bool isToon = shaderName.Contains("Toon") || oldMat.HasProperty("_Ramp");
+            bool isTransparent = shaderName.Contains("Transparent") || oldMat.IsKeywordEnabled("_ALPHABLEND_ON");
+            bool isCutout = shaderName.Contains("Cutout") || oldMat.IsKeywordEnabled("_ALPHATEST_ON");
+            bool isFade = shaderName.Contains("Fade");
+            bool isParticle = shaderName.Contains("Particle");
+            bool isSprite = shaderName.Contains("Sprite");
+            bool isMatcap = shaderName.Contains("MatCap");
+            bool hasOutline = oldMat.IsKeywordEnabled("TINTED_OUTLINE") && oldMat.HasProperty("_outline_width") &&
+                              oldMat.GetFloat(MaterialProperties.OutlineWidth) == 0f;
 
             bool isMobileToonLitShader = oldMat.shader.name == "VRChat/Mobile/Toon Lit";
 
-            Material material;
             if(isSprite)
                 material = new Material(Shaders.SpriteDefault);
             else if(isParticle)
@@ -180,7 +282,6 @@ namespace Pumkin.AvatarTools.MaterialPreview
                     material = new Material(Shaders.UnlitTransparent);
                 else
                     material = new Material(Shaders.UnlitTexture);
-
             }
             else if(isVertexLit)
             {
@@ -188,14 +289,7 @@ namespace Pumkin.AvatarTools.MaterialPreview
             }
             else
             {
-                material = new Material(Shaders.Standard);
-                SetupBlendMode(material);
-                CopyMaterialProperty<float>("_Cutoff", oldMat, material);
-                CopyMaterialProperty<float>("_Glossiness", oldMat, material);
-                CopyMaterialProperty<float>("_Metallic", oldMat, material);
-                CopyMaterialProperty<Texture2D>("_BumpMap", oldMat, material);
-                CopyMaterialProperty<Color>("_EmissionColor", oldMat, material);
-                CopyMaterialProperty<Texture2D>("_EmissionMap", oldMat, material);
+                material = CreateStandardFallback(oldMat);
             }
 
             if(material.HasProperty(MaterialProperties.MainTex)
@@ -209,6 +303,44 @@ namespace Pumkin.AvatarTools.MaterialPreview
 
             CopyMaterialProperty<Color>("_Color", oldMat, material);
             material.name = oldMat.name;
+            return material;
+        }
+
+        private static Material CreateWhitelistFallback(Material oldMat)
+        {
+            Material material;
+            Shader shader = Shader.Find(oldMat.shader.name);
+            if(shader == null)
+                return null;
+
+            material = new Material(shader);
+            material.CopyPropertiesFromMaterial(oldMat);
+            material.name = oldMat.name;
+            return material;
+        }
+
+        private static Material CreateStandardFallback(Material oldMat)
+        {
+            Material material;
+            material = new Material(Shaders.Standard);
+            SetupBlendMode(material);
+            CopyMaterialProperty<float>("_Cutoff", oldMat, material);
+            CopyMaterialProperty<float>("_Glossiness", oldMat, material);
+            CopyMaterialProperty<float>("_Metallic", oldMat, material);
+            CopyMaterialProperty<Texture2D>("_BumpMap", oldMat, material);
+            CopyMaterialProperty<Color>("_EmissionColor", oldMat, material);
+            CopyMaterialProperty<Texture2D>("_EmissionMap", oldMat, material);
+            material.name = oldMat.name;
+            
+            if(material.HasProperty(MaterialProperties.MainTex)
+               && !CopyMaterialProperty<Texture2D>("_MainTex", oldMat, material)
+               && !TransferMaterialProperty<Texture2D>("_Diffuse", oldMat, "_MainTex", material)
+               && !TransferMaterialProperty<Texture2D>("_Texture", oldMat, "_MainTex", material))
+            {
+                // Good job
+            }
+
+            CopyMaterialProperty<Color>("_Color", oldMat, material);
             return material;
         }
 

@@ -60,6 +60,11 @@ namespace Pumkin.DataStructures
                 return true;
             return false;
         }
+
+        public static bool ComponentIsInSelectedTab(Type componentType, Tab selectedTab)
+        {
+            return componentType != null && ComponentIsInSelectedTab(componentType.Name.ToLower(), selectedTab);
+        }
     }
 
     public class ExtensionPair

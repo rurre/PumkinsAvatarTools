@@ -13,12 +13,17 @@ namespace Pumkin.AvatarTools
     [Serializable]
     internal class SettingsContainer : ScriptableObject
     {
-        internal SerializedObject SerializedSettings { get; set; }
-
-        internal void SetupSettings()
+        internal SerializedObject SerializedSettings
         {
-            SerializedSettings = new SerializedObject(this);
+            get
+            {
+                if(_serializedSettings == null)
+                    _serializedSettings = new SerializedObject(this);
+                return _serializedSettings;
+            }
         }
+
+        private SerializedObject _serializedSettings;
 
         [SerializeField] internal CopierTabs.Tab _copier_selectedTab = CopierTabs.Tab.Common;
         [SerializeField] internal bool _tools_quickSetup_settings_expand = false;
@@ -220,6 +225,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal SerializedProperty _serializedTempHumanPoseMuscles;
 
         //UI
+        [SerializeField] public bool _avatar_testing_expand = false;
         [SerializeField] internal bool _tools_expand = true;
         [SerializeField] internal bool _tools_avatar_expand = true;
         [SerializeField] internal bool _tools_dynamicBones_expand = true;
