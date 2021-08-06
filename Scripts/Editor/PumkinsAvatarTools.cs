@@ -748,17 +748,17 @@ namespace Pumkin.AvatarTools
             if(updateCallback == null)
                 updateCallback = new EditorApplication.CallbackFunction(OnUpdate);
 
-            SceneView.onSceneGUIDelegate += OnSceneGUI;
+            SceneView.duringSceneGui += OnSceneGUI;
             EditorApplication.update += updateCallback;
             if(!_eventsAdded) //Not sure if this is necessary anymore
             {
                 EditorApplication.playModeStateChanged += HandlePlayModeStateChange;
                 Selection.selectionChanged += HandleSelectionChanged;
                 EditorSceneManager.sceneOpened += HandleSceneChange;
-#if UNITY_2018
+
                 PrefabStage.prefabStageOpened += HandlePrefabStageOpened;
                 PrefabStage.prefabStageClosing += HandlePrefabStageClosed;
-#endif
+
                 _eventsAdded = true;
             }
 
@@ -795,15 +795,15 @@ namespace Pumkin.AvatarTools
         public void HandleOnDisable()
         {
             LogVerbose("Tools window: OnDisable()");
-            SceneView.onSceneGUIDelegate -= OnSceneGUI;
+            SceneView.duringSceneGui -= OnSceneGUI;
             EditorApplication.update -= updateCallback;
             Selection.selectionChanged -= HandleSelectionChanged;
             EditorApplication.playModeStateChanged -= HandlePlayModeStateChange;
             EditorSceneManager.sceneOpened -= HandleSceneChange;
-#if UNITY_2018
+
             PrefabStage.prefabStageOpened -= HandlePrefabStageOpened;
             PrefabStage.prefabStageClosing -= HandlePrefabStageClosed;
-#endif
+
             _eventsAdded = false;
 
             if(Settings.SerializedSettings != null)
@@ -869,7 +869,6 @@ namespace Pumkin.AvatarTools
             _PumkinsAvatarToolsWindow.RequestRepaint(this);
         }
 
-#if UNITY_2018
         void HandlePrefabStageOpened(PrefabStage stage)
         {
             if(SelectedAvatar)
@@ -886,7 +885,6 @@ namespace Pumkin.AvatarTools
                 oldSelectedAvatar = null;
             }
         }
-#endif
 
 #endregion
 
@@ -3490,85 +3488,6 @@ namespace Pumkin.AvatarTools
             SelectedCamera.clearFlags = CameraClearFlags.SolidColor;
         }
 
-#if UNITY_2018
-        /// <summary>
-        /// Doesn't work
-        /// </summary>
-        public void SetupRig(GameObject avatar)
-        {
-            GameObject pref = PrefabUtility.GetCorrespondingObjectFromOriginalSource(avatar);
-            string prefabPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(pref);
-            var prefType = PrefabUtility.GetPrefabAssetType(pref);
-            //Helpers.MakeHumanAvatar("Assets/Avatars/Stylish Energy Ukon/Models/original.fbx", false);
-
-            if(prefType == PrefabAssetType.Model)
-            {
-                //GameObject newAvatar = PrefabUtility.InstantiatePrefab(pref) as GameObject;
-                try
-                {
-                    ////Animator anim = newAvatar.GetComponent<Animator>();
-                    ////if(anim == null)
-                    ////{
-                    ////    anim = newAvatar.AddComponent<Animator>();
-                    ////    anim.applyRootMotion = true;
-                    ////    anim.updateMode = AnimatorUpdateMode.Normal;
-                    ////    anim.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
-                    ////}
-
-                    ////HumanBone[] humanBones = new HumanBone[HumanTrait.BoneName.Length];
-                    ////for(int i = 0; i < humanBones.Length; i++)
-                    ////{
-                    ////    humanBones[i] = HumanRig.GetHumanBone(HumanTrait.BoneName[i], newAvatar.transform);
-                    ////}
-
-                    ////List<SkeletonBone> skeletonBones = new List<SkeletonBone>();
-                    ////foreach(Transform t in newAvatar.GetComponentsInChildren<Transform>())
-                    ////{
-                    ////    skeletonBones.Add(new SkeletonBone()
-                    ////    {
-                    ////        name = t.name,
-                    ////        position = t.localPosition,
-                    ////        rotation = t.localRotation,
-                    ////        scale = t.localScale
-                    ////    });
-                    ////}
-
-                    ////HumanDescription h = new HumanDescription()
-                    ////{
-                    ////    human = humanBones,
-                    ////    skeleton = skeletonBones.ToArray(),
-                    ////    armStretch = 0.05f,
-                    ////    hasTranslationDoF = false,
-                    ////    feetSpacing = 0,
-                    ////    legStretch = 0.05f,
-                    ////    lowerArmTwist = 0.5f,
-                    ////    lowerLegTwist = 0.5f,
-                    ////    upperArmTwist = 0.5f,
-                    ////    upperLegTwist = 0.5f,
-                    ////};
-
-                    ////Avatar ava = AvatarBuilder.BuildHumanAvatar(newAvatar, h);
-
-                    ////string avPath = "Assets/_tempAvatar.asset";
-                    ////AssetDatabase.CreateAsset(ava, avPath);
-                    ////AssetDatabase.SaveAssets();
-
-                    //if(!anim.isHuman && ava.isValid)
-                    //{
-                    //    anim.avatar = ava;
-                    //}
-                    //else
-                    //{
-                    //    anim.avatar = AvatarBuilder.BuildGenericAvatar(newAvatar, "");
-                    //}
-                }
-                finally
-                {
-                    //DestroyImmediate(newAvatar);
-                }
-            }
-        }
-#endif
 
 #if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
         /// <summary>

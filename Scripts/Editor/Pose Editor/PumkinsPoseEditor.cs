@@ -135,15 +135,15 @@ namespace Pumkin.PoseEditor
             //Prevent duplicates when recompiling
             PumkinsAvatarTools.AvatarSelectionChanged -= HandleAvatarSelectionChanged;
             PoseChanged -= HandlePoseChange;
-            SceneView.onSceneGUIDelegate -= DrawHandlesGUI;
+            SceneView.duringSceneGui -= DrawHandlesGUI;
 
             PumkinsAvatarTools.AvatarSelectionChanged += HandleAvatarSelectionChanged;
             PoseChanged += HandlePoseChange;
 
-            SceneView.onSceneGUIDelegate += DrawHandlesGUI;
+            SceneView.duringSceneGui += DrawHandlesGUI;
 
             if(updateCallback == null)
-                updateCallback = new EditorApplication.CallbackFunction(OnUpdate);
+                updateCallback = OnUpdate;
 
             EditorApplication.update += updateCallback;
         }
@@ -155,7 +155,7 @@ namespace Pumkin.PoseEditor
 
             playAnimation = false;
 
-            SceneView.onSceneGUIDelegate -= DrawHandlesGUI;
+            SceneView.duringSceneGui -= DrawHandlesGUI;
             EditorApplication.update -= updateCallback;
         }
 
@@ -252,7 +252,7 @@ namespace Pumkin.PoseEditor
             DrawPoseFromAnimationGUI();
 
             //Draw the toolbar then get the muscle ranges based on it's selection
-            toolbarSelection = GUILayout.Toolbar(toolbarSelection, new string[] { "Body", "Head", "Arms", "Legs", "Fingers" });
+            toolbarSelection = GUILayout.Toolbar(toolbarSelection, new[] { "Body", "Head", "Arms", "Legs", "Fingers" });
 
             EditorGUILayout.Space();
 
@@ -404,12 +404,13 @@ namespace Pumkin.PoseEditor
                 avatarPose = new HumanPose();
 
                 SerialTransform st = newAvatar.transform;
-                newAvatar.transform.position = Vector3.zero;    //Move avatar to 0,0,0 before getting human pose to prevent offsetting when applying
+                Vector3 avatarPos;
 
                 avatarPoseHandler = new HumanPoseHandler(AvatarAnimator.avatar, AvatarAnimator.transform);
                 avatarPoseHandler.GetHumanPose(ref avatarPose);
 
-                newAvatar.transform.position = st.position;
+                avatarPos = st.position;
+                newAvatar.transform.position = avatarPos;
 
                 //Human bone transforms to compare against
                 HashSet<Transform> humanBoneTransforms = new HashSet<Transform>();
