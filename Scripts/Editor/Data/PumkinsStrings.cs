@@ -71,7 +71,7 @@ namespace Pumkin.DataStructures
             public static string avatar = "_Avatar";
             public static string tools = "_Tools";
             public static string copier = "_Copier";
-            public static string removeAll = "_Remove All";
+            public static string removeAll = "_Remove Components";
             public static string avatarInfo = "_Avatar Info";
             public static string thumbnails = "_Thumbnails";
             public static string avatarTesting = "_Avatar Testing";

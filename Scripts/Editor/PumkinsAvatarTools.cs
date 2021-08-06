@@ -1097,6 +1097,10 @@ namespace Pumkin.AvatarTools
 
                 EditorGUILayout.Space();
 
+                DrawRemoveComponentsMenuGUI();
+                
+                EditorGUILayout.Space();
+
                 DrawAvatarInfoMenuGUI();
 
                 EditorGUILayout.Space();
@@ -1363,7 +1367,7 @@ namespace Pumkin.AvatarTools
             if(showSceneSelectionCheckBox) SettingsContainer._useSceneSelectionAvatar = GUILayout.Toggle(SettingsContainer._useSceneSelectionAvatar, Strings.Main.useSceneSelection);
         }
 
-        private void DrawCopierMenuGUI()
+        void DrawCopierMenuGUI()
         {
             if(Settings._copier_expand = GUILayout.Toggle(Settings._copier_expand, Strings.Main.copier, Styles.Foldout_title))
             {
@@ -2197,7 +2201,7 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        public void DrawInfoMenuGUI()
+        void DrawInfoMenuGUI()
         {
             if(Settings._info_expand = GUILayout.Toggle(Settings._info_expand, Strings.Main.info, Styles.Foldout_title))
             {
@@ -2227,7 +2231,7 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        public void DrawThumbnailsMenuGUI()
+        void DrawThumbnailsMenuGUI()
         {
             if(Settings._thumbnails_expand = GUILayout.Toggle(Settings._thumbnails_expand, Strings.Main.thumbnails, Styles.Foldout_title))
             {
@@ -2279,7 +2283,7 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        public void DrawThumbanailBlendshapeGUI()
+        void DrawThumbanailBlendshapeGUI()
         {
             EditorGUILayout.LabelField(new GUIContent(Strings.Thumbnails.blendshapes));
             if(SelectedAvatar)
@@ -2289,7 +2293,7 @@ namespace Pumkin.AvatarTools
             EditorGUILayout.Space();
         }
 
-        public void DrawThumbnailPoseGUI()
+        void DrawThumbnailPoseGUI()
         {
             if(GUILayout.Button(Strings.Buttons.openPoseEditor, Styles.BigButton))
                 PumkinsPoseEditor.ShowWindow();
@@ -2304,7 +2308,7 @@ namespace Pumkin.AvatarTools
             Settings.posePresetTryFixSinking = GUILayout.Toggle(Settings.posePresetTryFixSinking, Strings.Thumbnails.tryFixPoseSinking);
         }
 
-        public void DrawThumbnailCameraGUI()
+        void DrawThumbnailCameraGUI()
         {
             //TODO: Make it so camera isn't being searched for every frame in the property
             SelectedCamera = EditorGUILayout.ObjectField(Strings.Thumbnails.selectedCamera, SelectedCamera, typeof(Camera), true) as Camera;
@@ -2496,7 +2500,7 @@ namespace Pumkin.AvatarTools
             EditorGUI.EndDisabledGroup();
         }
 
-        public void DrawAvatarInfoMenuGUI()
+        void DrawAvatarInfoMenuGUI()
         {
             if(Settings._avatarInfo_expand = GUILayout.Toggle(Settings._avatarInfo_expand, Strings.Main.avatarInfo, Styles.Foldout_title))
             {
@@ -2537,7 +2541,7 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        public void DrawToolsMenuGUI()
+        void DrawToolsMenuGUI()
         {
             if(Settings._tools_expand = GUILayout.Toggle(Settings._tools_expand, Strings.Main.tools, Styles.Foldout_title))
             {
@@ -2723,93 +2727,13 @@ namespace Pumkin.AvatarTools
                         }
                         EditorGUI.EndDisabledGroup();
                     }
-
-                    Helpers.DrawGUILine();
-
-                    //Remove all
-                    if(Settings._tools_removeAll_expand = GUILayout.Toggle(Settings._tools_removeAll_expand, Strings.Main.removeAll, Styles.Foldout))
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        {
-                            EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
-                            {
-                                EditorGUI.BeginDisabledGroup(!DynamicBonesExist);
-                                {
-                                    if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones, Icons.BoneIcon)))
-                                        DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBones);
-                                }
-                                EditorGUI.EndDisabledGroup();
-
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.particleSystems, Icons.ParticleSystem)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveParticleSystems);
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.lights, Icons.Light)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveLights);
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.joints, Icons.Joint)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveJoints);
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.animators_inChildren, Icons.Animator)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveAnimatorsInChildren);
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.colliders, Icons.ColliderBox)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveColliders);
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.other_ikFollowers, Icons.CsScript)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveIKFollowers);
-                                EditorGUILayout.Space();
-#else
-
-                                GUILayout.Space(32);
-#endif
-
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.aimConstraints, Icons.AimConstraint)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveAimConstraint);
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.lookAtConstraints, Icons.LookAtConstraint)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveLookAtConstraint);
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.parentConstraints, Icons.ParentConstraint)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveParentConstraint);
-                            }
-                            EditorGUILayout.EndVertical();
-
-                            EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
-                            {
-                                EditorGUI.BeginDisabledGroup(!DynamicBonesExist);
-                                {
-                                    if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones_colliders, Icons.BoneColliderIcon)))
-                                        DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBoneColliders);
-                                }
-                                EditorGUI.EndDisabledGroup();
-
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.trailRenderers, Icons.TrailRenderer)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveTrailRenderers);
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.audioSources, Icons.AudioSource)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveAudioSources);
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.rigidBodies, Icons.RigidBody)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveRigidBodies);
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.meshRenderers, Icons.MeshRenderer)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveMeshRenderers);
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.emptyGameObjects, Icons.Prefab)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveEmptyGameObjects);
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.other_emptyScripts, Icons.SerializableAsset)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveMissingScripts);
-
-                                EditorGUILayout.Space();
-
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.positionConstraints, Icons.PositionConstraint)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemovePositionConstraint);
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.rotationConstraints, Icons.RotationConstraint)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveRotationConstraint);
-                                if(GUILayout.Button(new GUIContent(Strings.Copier.scaleConstraints, Icons.ScaleConstraint)))
-                                    DoAction(SelectedAvatar, ToolMenuActions.RemoveScaleConstraint);
-                            }
-                            EditorGUILayout.EndVertical();
-                        }
-                        EditorGUILayout.EndHorizontal();
-                    }
                     EditorGUI.EndDisabledGroup();
                     EditorGUILayout.Space();
                 }
             }
         }
 
-        public void DrawAvatarTestingMenuGUI()
+        void DrawAvatarTestingMenuGUI()
         {
             if(Settings._avatar_testing_expand = GUILayout.Toggle(Settings._avatar_testing_expand, Strings.Main.avatarTesting, Styles.Foldout_title))
             {
@@ -2823,6 +2747,88 @@ namespace Pumkin.AvatarTools
             }
         }
 
+        void DrawRemoveComponentsMenuGUI()
+        {
+
+            if(Settings._tools_removeAll_expand = GUILayout.Toggle(Settings._tools_removeAll_expand, Strings.Main.removeAll, Styles.Foldout_title))
+            {
+                EditorGUILayout.BeginHorizontal();
+                {
+                    EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
+                    {
+                        EditorGUI.BeginDisabledGroup(!DynamicBonesExist);
+                        {
+                            if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones, Icons.BoneIcon)))
+                                DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBones);
+                        }
+                        EditorGUI.EndDisabledGroup();
+
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.particleSystems, Icons.ParticleSystem)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveParticleSystems);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.lights, Icons.Light)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveLights);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.joints, Icons.Joint)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveJoints);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.animators_inChildren, Icons.Animator)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveAnimatorsInChildren);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.colliders, Icons.ColliderBox)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveColliders);
+#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.other_ikFollowers, Icons.CsScript)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveIKFollowers);
+                        EditorGUILayout.Space();
+#else
+                        GUILayout.Space(32);
+#endif
+
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.aimConstraints, Icons.AimConstraint)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveAimConstraint);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.lookAtConstraints, Icons.LookAtConstraint)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveLookAtConstraint);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.parentConstraints, Icons.ParentConstraint)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveParentConstraint);
+                    }
+                    EditorGUILayout.EndVertical();
+
+                    EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Right Column
+                    {
+                        EditorGUI.BeginDisabledGroup(!DynamicBonesExist);
+                        {
+                            if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones_colliders, Icons.BoneColliderIcon)))
+                                DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBoneColliders);
+                        }
+                        EditorGUI.EndDisabledGroup();
+
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.trailRenderers, Icons.TrailRenderer)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveTrailRenderers);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.audioSources, Icons.AudioSource)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveAudioSources);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.rigidBodies, Icons.RigidBody)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveRigidBodies);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.meshRenderers, Icons.MeshRenderer)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveMeshRenderers);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.emptyGameObjects, Icons.Prefab)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveEmptyGameObjects);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.other_emptyScripts, Icons.SerializableAsset)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveMissingScripts);
+
+                        EditorGUILayout.Space();
+
+                        if(GUILayout.Button(
+                            new GUIContent(Strings.Copier.positionConstraints, Icons.PositionConstraint)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemovePositionConstraint);
+                        if(GUILayout.Button(
+                            new GUIContent(Strings.Copier.rotationConstraints, Icons.RotationConstraint)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveRotationConstraint);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.scaleConstraints, Icons.ScaleConstraint)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveScaleConstraint);
+                    }
+                    EditorGUILayout.EndVertical();
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+        }
+
 
         public bool DrawToggleButtonGUI(string text, ref bool toggleBool)
         {
@@ -2832,7 +2838,7 @@ namespace Pumkin.AvatarTools
             return b;
         }
 
-        public bool DrawToggleButtonGUI(string text, bool toggleBool)
+        bool DrawToggleButtonGUI(string text, bool toggleBool)
         {
             bool b = GUILayout.Button(new GUIContent(text, toggleBool ? Icons.ToggleOff : Icons.ToggleOn), Styles.ButtonWithToggle);
             return b;

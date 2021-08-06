@@ -172,7 +172,7 @@ namespace Pumkin.Translations
         public string windowName = "Pumkin Tools";
         public string version = "Version";
         public string tools = "Tools";
-        public string removeAll = "Remove All";
+        public string removeAll = "Remove Components";
         public string copier = "Copy Components";
         public string avatarInfo = "Avatar Info";
         public string thumbnails = "Thumbnails";
