@@ -169,5 +169,10 @@ namespace Pumkin.Extensions
             catch { }
             return null;
         }
+
+        public static bool IsNullOrEmpty<T>(this T[] array)
+        {
+            return array == null || array.Length == 0;
+        }
     }
 }

@@ -11,8 +11,8 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "0.9.3b";
-        public const double toolsVersion = 0.93;
+        public const string TOOLS_VERSION_STRING = "0.9.5b";
+        public const double toolsVersion = 0.95;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -71,9 +71,10 @@ namespace Pumkin.DataStructures
             public static string avatar = "_Avatar";
             public static string tools = "_Tools";
             public static string copier = "_Copier";
-            public static string removeAll = "_Remove All";
+            public static string removeAll = "_Remove Components";
             public static string avatarInfo = "_Avatar Info";
             public static string thumbnails = "_Thumbnails";
+            public static string avatarTesting = "_Avatar Testing";
 
             public static string info = "_Info";
             public static string useSceneSelection = "_Use Scene Selection";
@@ -101,6 +102,7 @@ namespace Pumkin.DataStructures
                 thumbnails = Translation.main.thumbnails;
                 useSceneSelection = Translation.main.useSceneSelection;
                 experimental = Translation.main.experimental;
+                avatarTesting = Translation.main.avatarTesting;
             }
         }
         public static class Buttons
@@ -135,6 +137,7 @@ namespace Pumkin.DataStructures
             public static string selectFolder = "_Select Folder";
             public static string ok = "_Ok";
             public static string moveToEyes = "_Move to Eyes";
+            public static string toggleMaterialPreview = "_Toggle Material Preview";
 
             static Buttons()
             {
@@ -176,6 +179,7 @@ namespace Pumkin.DataStructures
                 selectFolder = Translation.buttons.selectFolder;
                 ok = Translation.buttons.ok;
                 moveToEyes = Translation.buttons.moveToEyes;
+                toggleMaterialPreview = Translation.buttons.toggleMaterialPreview;
             }
         }
         public static class Tools
@@ -203,6 +207,7 @@ namespace Pumkin.DataStructures
             public static string anchorPath = "_Anchor Path";
             public static string fillEyeBones = "_Fill Eye Bones";
             public static string resetBoundingBoxes = "_Reset Bounding Boxes";
+            public static string setImportSettings = "_Set Import Settings";
 
             static Tools()
             {
@@ -236,7 +241,8 @@ namespace Pumkin.DataStructures
                 hierarchyPath = Translation.tools.hierarchyPath;
                 anchorPath = Translation.tools.anchorPath;
                 fillEyeBones = Translation.tools.fillEyeBones;
-                //resetBoundingBoxes = Translation.tools.resetBoundingBoxes;
+                setImportSettings = Translation.tools.setImportSettings;
+
             }
         }
         public static class AvatarInfo

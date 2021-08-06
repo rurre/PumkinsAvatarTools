@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using Pumkin.Presets;
+using System.Reflection;
 
 namespace Pumkin.Translations
 {
@@ -40,6 +41,55 @@ namespace Pumkin.Translations
 
             _default = CreateInstance<PumkinsTranslation>();
             return _default;
+        }
+
+        internal void FixEmptyFields()
+        {
+            var infos = new Dictionary<Type, FieldInfo[]>
+            {
+                { main.GetType(),       main.GetType().GetFields()       },
+                { buttons.GetType(),    buttons.GetType().GetFields()    },
+                { tools.GetType(),      tools.GetType().GetFields()      },
+                { copier.GetType(),     copier.GetType().GetFields()     },
+                { avatarInfo.GetType(), avatarInfo.GetType().GetFields() },
+                { thumbnails.GetType(), thumbnails.GetType().GetFields() },
+                { misc.GetType(),       misc.GetType().GetFields()       },
+                { log.GetType(),        log.GetType().GetFields()        },
+                { warnings.GetType(),   warnings.GetType().GetFields()   },
+                { credits.GetType(),    credits.GetType().GetFields()    },
+                { poseEditor.GetType(), poseEditor.GetType().GetFields() },
+                { preset.GetType(),     preset.GetType().GetFields()     },
+            };
+
+            PumkinsTranslation def = Default;
+
+            FieldInfo[] thisFields = GetType().GetFields();
+
+            foreach(var kv in infos)
+            {
+                Type targetType = kv.Key;
+                FieldInfo[] targetFields = kv.Value;
+
+                FieldInfo ownerObjectField = thisFields.FirstOrDefault(f => f.FieldType == targetType);
+                if(ownerObjectField == null)
+                    continue;
+
+                object ownerObject = ownerObjectField.GetValue(this);
+                object defaultObject = ownerObjectField.GetValue(def);
+
+                if(ownerObject == null || defaultObject == null)
+                    continue;
+
+                for(int i = 0; i < targetFields.Length; i++)
+                {
+                    FieldInfo field = targetFields[i];
+                    if(field.FieldType != typeof(string))
+                        continue;
+
+                    if(string.IsNullOrWhiteSpace(field.GetValue(ownerObject) as string))
+                        field.SetValue(ownerObject, field.GetValue(defaultObject));
+                }
+            }
         }
 
         public MainStrings main = new MainStrings();
@@ -122,7 +172,7 @@ namespace Pumkin.Translations
         public string windowName = "Pumkin Tools";
         public string version = "Version";
         public string tools = "Tools";
-        public string removeAll = "Remove All";
+        public string removeAll = "Remove Components";
         public string copier = "Copy Components";
         public string avatarInfo = "Avatar Info";
         public string thumbnails = "Thumbnails";
@@ -130,6 +180,7 @@ namespace Pumkin.Translations
         public string avatar = "Avatar";
         public string useSceneSelection = "Use Scene Selection";
         public string experimental = "Experimental";
+        public string avatarTesting = "Avatar Testing";
     }
 
     [Serializable]
@@ -165,6 +216,7 @@ namespace Pumkin.Translations
         public string selectFolder = "Select Folder";
         public string ok = "Ok";
         public string moveToEyes = "Move to Eyes";
+        public string toggleMaterialPreview = "Toggle Material Preview";
     }
 
     [Serializable]
@@ -192,7 +244,7 @@ namespace Pumkin.Translations
         public string hierarchyPath = "Hierarchy Path";
         public string anchorPath = "Anchor Path";
         public string fillEyeBones = "Fill Eye Bones";
-        //public string resetBoundingBoxes = "Reset Bounding Boxes";
+        public string setImportSettings = "Set Import Settings";
     }
 
     [Serializable]

@@ -13,7 +13,7 @@ namespace Pumkin.Presets
 {
     public abstract class PumkinPreset : ScriptableObject
     {
-        public new string name;        
+        public new string name;
         public abstract bool ApplyPreset(GameObject avatar);
         public override string ToString()
         {
@@ -27,7 +27,7 @@ namespace Pumkin.Presets
         public static readonly string resourceCamerasPath = resourcePresetsPath + "Cameras";
         public static readonly string resourcePosesPath = resourcePresetsPath + "Poses";
         public static readonly string resourceBlendshapesPath = resourcePresetsPath + "Blendshapes";
-        
+
         public static readonly string localPresetsPath = PumkinsAvatarTools.MainFolderPathLocal + "/resources/" + resourcePresetsPath;
         public static readonly string localCamerasPath = PumkinsAvatarTools.MainFolderPathLocal + "/resources/" + resourceCamerasPath;
         public static readonly string localPosesPath = PumkinsAvatarTools.MainFolderPathLocal + "/resources/" + resourcePosesPath;
@@ -79,11 +79,11 @@ namespace Pumkin.Presets
                 return _blendshapePresets;
             }
             private set { _blendshapePresets = value; }
-        }        
+        }
 
         /// <summary>
-        /// Destroys loose preset objects that live in memory and not in assets 
-        /// </summary>        
+        /// Destroys loose preset objects that live in memory and not in assets
+        /// </summary>
         public static void CleanupPresetsOfType<T>() where T : PumkinPreset
         {
             var tools = PumkinsAvatarTools.Instance;
@@ -102,9 +102,9 @@ namespace Pumkin.Presets
                 }
             }
 
-            if(typeof(T) == typeof(PumkinsCameraPreset) || t == tP)            
-                CameraPresets.RemoveAll(o => o == default(PumkinsCameraPreset) || !Helpers.IsAssetInAssets(o));            
-            if(typeof(T) == typeof(PumkinsPosePreset) || t == tP)            
+            if(typeof(T) == typeof(PumkinsCameraPreset) || t == tP)
+                CameraPresets.RemoveAll(o => o == default(PumkinsCameraPreset) || !Helpers.IsAssetInAssets(o));
+            if(typeof(T) == typeof(PumkinsPosePreset) || t == tP)
                 PosePresets.RemoveAll(o => o == default(PumkinsPosePreset) || !Helpers.IsAssetInAssets(o));
             if(typeof(T) == typeof(PumkinsBlendshapePreset) || t == tP)
                 BlendshapePresets.RemoveAll(o => o == default(PumkinsBlendshapePreset) || !Helpers.IsAssetInAssets(o));
@@ -118,10 +118,10 @@ namespace Pumkin.Presets
             Type pT = typeof(PumkinPreset);
             FixScriptReferences<T>();
             if(t == typeof(PumkinsCameraPreset) || t == pT)
-            {                
+            {
                 Resources.LoadAll<PumkinsCameraPreset>(resourceCamerasPath);
                 CameraPresets = Resources.FindObjectsOfTypeAll<PumkinsCameraPreset>().ToList();
-                CleanupPresetsOfType<PumkinsCameraPreset>();                
+                CleanupPresetsOfType<PumkinsCameraPreset>();
             }
             if(typeof(T) == typeof(PumkinsPosePreset) || t == pT)
             {
@@ -135,7 +135,7 @@ namespace Pumkin.Presets
                 BlendshapePresets = Resources.FindObjectsOfTypeAll<PumkinsBlendshapePreset>().ToList();
                 CleanupPresetsOfType<PumkinsBlendshapePreset>();
             }
-        }        
+        }
         public static int GetPresetIndex<T>(T preset) where T : PumkinPreset
         {
             int i = -1;
@@ -194,7 +194,7 @@ namespace Pumkin.Presets
                 preset = BlendshapePresets.Find(o => o.name.ToLower() == name.ToLower());
 
             return (T)preset;
-        }        
+        }
         public static int GetPresetCountOfType<T>() where T : PumkinPreset
         {
             if(typeof(T) == typeof(PumkinsCameraPreset))
@@ -207,7 +207,7 @@ namespace Pumkin.Presets
             return -1;
         }
         public static void SelectPresetInToolWindow<T>(T preset, bool openWindow = true) where T : PumkinPreset
-        {            
+        {
             int index = GetPresetIndex<T>(preset.name);
             if(index != -1)
             {
@@ -216,33 +216,33 @@ namespace Pumkin.Presets
                 if(openWindow)
                 {
                     _PumkinsAvatarToolsWindow.ShowWindow();
-                    PumkinsAvatarTools.Instance._info_expand = false;
-                    PumkinsAvatarTools.Instance._tools_expand = false;
-                    PumkinsAvatarTools.Instance._thumbnails_expand = true;
-                }                
+                    PumkinsAvatarTools.Settings._info_expand = false;
+                    PumkinsAvatarTools.Settings._tools_expand = false;
+                    PumkinsAvatarTools.Settings._thumbnails_expand = true;
+                }
 
                 if(typeof(T) == typeof(PumkinsCameraPreset))
                 {
-                    PumkinsAvatarTools.Instance._selectedCameraPresetString = preset.name;
-                    PumkinsAvatarTools.Instance._selectedCameraPresetIndex = index;
+                    PumkinsAvatarTools.Settings._selectedCameraPresetString = preset.name;
+                    PumkinsAvatarTools.Settings._selectedCameraPresetIndex = index;
                     toolbarOption = PumkinsAvatarTools.PresetToolbarOptions.Camera;
                 }
                 else if(typeof(T) == typeof(PumkinsPosePreset))
                 {
-                    PumkinsAvatarTools.Instance._selectedPosePresetString = preset.name;
-                    PumkinsAvatarTools.Instance._selectedPosePresetIndex = index;
+                    PumkinsAvatarTools.Settings._selectedPosePresetString = preset.name;
+                    PumkinsAvatarTools.Settings._selectedPosePresetIndex = index;
                     toolbarOption = PumkinsAvatarTools.PresetToolbarOptions.Pose;
                 }
                 else if(typeof(T) == typeof(PumkinsBlendshapePreset))
                 {
-                    PumkinsAvatarTools.Instance._selectedBlendshapePresetString = preset.name;
-                    PumkinsAvatarTools.Instance._selectedBlendshapePresetIndex = index;
+                    PumkinsAvatarTools.Settings._selectedBlendshapePresetString = preset.name;
+                    PumkinsAvatarTools.Settings._selectedBlendshapePresetIndex = index;
                     toolbarOption = PumkinsAvatarTools.PresetToolbarOptions.Blendshape;
                 }
 
                 if(openWindow)
                     PumkinsAvatarTools.Instance.SelectThumbnailPresetToolbarOption(toolbarOption);
-            }            
+            }
         }
 
         static void SetupGUID<T>() where T : PumkinPreset
@@ -289,15 +289,15 @@ namespace Pumkin.Presets
 
             Type t = typeof(T);
             Type pT = typeof(PumkinPreset);
-                  
-            var pathsGuids = new Dictionary<string, string>();            
-            if(t == typeof(PumkinsBlendshapePreset) || t == pT)                            
-                pathsGuids.Add(Helpers.LocalAssetsPathToAbsolutePath(localBlendshapesPath), blendshapePresetScriptGUID);            
-            if(t == typeof(PumkinsCameraPreset) || t == pT)                
-                pathsGuids.Add(Helpers.LocalAssetsPathToAbsolutePath(localCamerasPath), cameraPresetScriptGUID);            
+
+            var pathsGuids = new Dictionary<string, string>();
+            if(t == typeof(PumkinsBlendshapePreset) || t == pT)
+                pathsGuids.Add(Helpers.LocalAssetsPathToAbsolutePath(localBlendshapesPath), blendshapePresetScriptGUID);
+            if(t == typeof(PumkinsCameraPreset) || t == pT)
+                pathsGuids.Add(Helpers.LocalAssetsPathToAbsolutePath(localCamerasPath), cameraPresetScriptGUID);
             if(t == typeof(PumkinsPosePreset) || t == pT)
-                pathsGuids.Add(Helpers.LocalAssetsPathToAbsolutePath(localPosesPath), posePresetScriptGUID);            
-            
+                pathsGuids.Add(Helpers.LocalAssetsPathToAbsolutePath(localPosesPath), posePresetScriptGUID);
+
             foreach(var kv in pathsGuids)
             {
                 var path = kv.Key;
@@ -314,7 +314,7 @@ namespace Pumkin.Presets
                         AssetDatabase.ImportAsset(Helpers.AbsolutePathToLocalAssetsPath(file), ImportAssetOptions.ForceUpdate);
                 }
                 PumkinsAvatarTools.LogVerbose($"Fixed references for type {typeof(T).Name}");
-            }            
+            }
         }
 
         public static void FixAllPresetScriptReferences()
@@ -328,7 +328,7 @@ namespace Pumkin.Presets
 
         /// <summary>
         /// TODO: Replace with one that reads only the needed lines
-        /// </summary>    
+        /// </summary>
         static bool ReplacePresetGUIDTemp(string filePath, string newGUID)
         {
             filePath = Helpers.AbsolutePathToLocalAssetsPath(filePath);
@@ -342,7 +342,7 @@ namespace Pumkin.Presets
                 PumkinsAvatarTools.Log($"File {filePath} doesn't exist. Can't fix preset references", LogType.Warning);
                 return false;
             }
-            var lines = File.ReadAllLines(filePath);            
+            var lines = File.ReadAllLines(filePath);
             for(int i = 0; i < lines.Length; i++)
             {
                 var line = lines[i];
@@ -357,7 +357,7 @@ namespace Pumkin.Presets
                     return true;
                 }
                 break;
-            }            
+            }
             return false;
         }
     }

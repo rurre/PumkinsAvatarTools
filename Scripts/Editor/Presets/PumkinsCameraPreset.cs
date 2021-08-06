@@ -104,13 +104,13 @@ namespace Pumkin.Presets
                     Helpers.DestroyAppropriate(dummy.gameObject);
             }
 
-            PumkinsAvatarTools.Instance.bThumbnails_use_camera_overlay = useOverlay;
+            PumkinsAvatarTools.Settings.bThumbnails_use_camera_overlay = useOverlay;
             if(useOverlay)
             {
                 PumkinsAvatarTools.Instance.SetOverlayToImageFromPath(overlayImagePath);
             }
 
-            PumkinsAvatarTools.Instance.bThumbnails_use_camera_background = useBackground;
+            PumkinsAvatarTools.Settings.bThumbnails_use_camera_background = useBackground;
             if(useBackground)
             {
                 PumkinsAvatarTools.Instance.cameraBackgroundType = backgroundType;
@@ -120,7 +120,7 @@ namespace Pumkin.Presets
                         PumkinsAvatarTools.Instance.SetCameraBackgroundToColor(backgroundColor);
                         break;
                     case CameraBackgroundOverrideType.Image:
-                        PumkinsAvatarTools.Instance.cameraBackgroundImageTint = backgroundImageTint;
+                        PumkinsAvatarTools.Settings.cameraBackgroundImageTint = backgroundImageTint;
                         PumkinsAvatarTools.Instance.SetBackgroundToImageFromPath(backgroundImagePath);
                         break;
                     case CameraBackgroundOverrideType.Skybox:
@@ -160,15 +160,15 @@ namespace Pumkin.Presets
             p.rotationAnglesOffset = rotationAnglesOffset;
             p.transformPath = transformPath;
 
-            p.useOverlay = PumkinsAvatarTools.Instance.bThumbnails_use_camera_overlay;
+            p.useOverlay = PumkinsAvatarTools.Settings.bThumbnails_use_camera_overlay;
 
             if(p.useOverlay)
             {
-                p.overlayImagePath = PumkinsAvatarTools.Instance._overlayPath;
-                p.overlayImageTint = PumkinsAvatarTools.Instance.cameraOverlayImageTint;
+                p.overlayImagePath = PumkinsAvatarTools.Settings._overlayPath;
+                p.overlayImageTint = PumkinsAvatarTools.Settings.cameraOverlayImageTint;
             }
 
-            p.useBackground = PumkinsAvatarTools.Instance.bThumbnails_use_camera_background;
+            p.useBackground = PumkinsAvatarTools.Settings.bThumbnails_use_camera_background;
             p.backgroundType = PumkinsAvatarTools.Instance.cameraBackgroundType;
 
             if(p.useBackground)
@@ -176,11 +176,11 @@ namespace Pumkin.Presets
                 switch(p.backgroundType)
                 {
                     case CameraBackgroundOverrideType.Color:
-                        p.backgroundColor = PumkinsAvatarTools.Instance._thumbsCamBgColor;
+                        p.backgroundColor = PumkinsAvatarTools.Settings._thumbsCamBgColor;
                         break;
                     case CameraBackgroundOverrideType.Image:
-                        p.backgroundImagePath = PumkinsAvatarTools.Instance._backgroundPath;
-                        p.backgroundImageTint = PumkinsAvatarTools.Instance.cameraBackgroundImageTint;
+                        p.backgroundImagePath = PumkinsAvatarTools.Settings._backgroundPath;
+                        p.backgroundImageTint = PumkinsAvatarTools.Settings.cameraBackgroundImageTint;
                         break;
                     case CameraBackgroundOverrideType.Skybox:
                         p.backgroundMaterial = RenderSettings.skybox;
@@ -261,7 +261,6 @@ namespace Pumkin.Presets
         /// <param name="cam">Camera to move</param>
         /// <param name="pos">Position offset</param>
         /// <param name="rotationAngles">Rotation offset</param>
-        /// <param name="scaleDistanceWithAvatarScale">Not working yet</param>
         public static void ApplyPositionAndRotationWithTransformFocus(Transform focusTransform, Camera cam, Vector3 pos, Vector3 rotationAngles, bool moveSceneCameraAsWell)
         {
             if(!cam || !focusTransform)

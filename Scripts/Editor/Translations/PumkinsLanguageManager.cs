@@ -5,13 +5,11 @@ using Pumkin.DataStructures;
 using Pumkin.Translations;
 using System.Linq;
 using UnityEditor;
-using System;
 using Pumkin.AvatarTools;
 using System.IO;
 using UnityEditor.Presets;
 using Pumkin.HelperFunctions;
 using Pumkin.Dependencies;
-using Pumkin.YAML;
 
 public static class PumkinsLanguageManager
 {
@@ -232,8 +230,14 @@ public static class PumkinsLanguageManager
     {
         var files = Directory.GetFiles(Helpers.LocalAssetsPathToAbsolutePath(translationPathLocal));
         foreach(var path in files)
+        {
+            string localPath = Helpers.AbsolutePathToLocalAssetsPath(path);
             if(ReplaceTranslationGUIDTemp(path, "m_Script", translationScriptGUID))
-                AssetDatabase.ImportAsset(Helpers.AbsolutePathToLocalAssetsPath(path));
+                AssetDatabase.ImportAsset(localPath);
+
+            PumkinsTranslation translation = AssetDatabase.LoadAssetAtPath<PumkinsTranslation>(localPath);
+            translation?.FixEmptyFields();
+        }
     }
 }
 
