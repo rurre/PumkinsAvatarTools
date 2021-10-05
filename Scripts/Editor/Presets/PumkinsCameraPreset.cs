@@ -222,7 +222,7 @@ namespace Pumkin.Presets
 
                 positionOffset = cam.transform.localPosition;
                 rotationAnglesOffset = cam.transform.localEulerAngles;
-                transformPath = Helpers.GetGameObjectPath(target);
+                transformPath = Helpers.GetTransformPath(target, target.root);
 
                 cam.transform.parent = oldParent;
             }

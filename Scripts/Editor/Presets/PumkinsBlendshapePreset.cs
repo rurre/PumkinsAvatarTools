@@ -79,7 +79,7 @@ namespace Pumkin.Presets
             for(int i = 0; i < renders.Length; i++)
             {
                 var r = renders[i];
-                var rPath = Helpers.GetGameObjectPath(r.gameObject, true);
+                var rPath = Helpers.GetTransformPath(r.transform, avatar.transform);
                 List<PumkinsBlendshape> shapeList = new List<PumkinsBlendshape>(r.sharedMesh.blendShapeCount);                
                 
                 for(int j = 0; j < r.sharedMesh.blendShapeCount; j++)

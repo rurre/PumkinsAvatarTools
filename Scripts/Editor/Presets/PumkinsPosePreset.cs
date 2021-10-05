@@ -83,7 +83,7 @@ namespace Pumkin.Presets
                 for(int i = 0; i < trans.Length; i++)
                 {
                     var t = trans[i];
-                    string path = Helpers.GetGameObjectPath(t, true);
+                    string path = Helpers.GetTransformPath(t, avatar.transform, true);
 
                     if(t && !string.IsNullOrEmpty(path))
                     {

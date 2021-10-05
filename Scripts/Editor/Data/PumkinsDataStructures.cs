@@ -505,7 +505,7 @@ namespace Pumkin.DataStructures
             if(!render || render.sharedMesh == null)
                 return null;
 
-            string renderPath = Helpers.GetGameObjectPath(render.gameObject);
+            string renderPath = Helpers.GetTransformPath(render.transform, render.transform.root);
             var blendshapes = new List<PumkinsBlendshape>();
             for(int i = 0; i < render.sharedMesh.blendShapeCount; i++)
                 blendshapes.Add(new PumkinsBlendshape(render.sharedMesh.GetBlendShapeName(i), render.GetBlendShapeWeight(i)));
