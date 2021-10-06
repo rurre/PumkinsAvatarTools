@@ -69,7 +69,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// <summary>
         /// Copies all DynamicBoneColliders from object and it's children to another object.
         /// </summary>
-        internal static void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList, bool adjutScale)
         {
 #if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
 
@@ -109,6 +109,20 @@ namespace Pumkin.AvatarTools.Copiers
                     {
                         ComponentUtility.CopyComponent(dbcFrom);
                         ComponentUtility.PasteComponentAsNew(tTo.gameObject);
+
+                        if (adjustScale)
+                        {
+                            for(int z = 0; z < dbcToArr.Length; z++)
+                            {
+                                var d = dbcToArr[z];
+                                Vector3 scaleMu = GetScaleMultiplier(dbcFrom.transform, d.transform)
+                                d.m_Bound *= scaleMu
+                                d.m_Center *= scaleMu
+                                d.m_Direction *= scaleMu
+                                d.m_Height *= scaleMu
+                                d.m_Radius *= scaleMu
+                            }
+                        }
                     }
                 }
             }
@@ -122,7 +136,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// <param name="to"></param>
         /// <param name="createMissing"></param>
         /// <param name="useIgnoreList"></param>
-        internal static void CopyAllDynamicBonesNew(GameObject from, GameObject to, bool createMissing, bool useIgnoreList)
+        internal static void CopyAllDynamicBonesNew(GameObject from, GameObject to, bool createMissing, bool useIgnoreList, bool adjustScale)
         {
 #if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
             Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
@@ -227,6 +241,14 @@ namespace Pumkin.AvatarTools.Copiers
                                 bone.m_StiffnessDistrib = dbFrom.m_StiffnessDistrib;
 
                                 bone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_ReferenceObject, bone.transform, false);
+                            
+                                if (adjustScale)
+                                {
+                                    Vector3 scaleMul = GetScaleMultiplier(dbFrom.transform, bone.transform)
+                                    bone.m_Radius *= scaleMul
+                                    bone.m_EndLength *= scaleMul
+                                    bone.m_EndOffset *= scaleMul
+                                }
                             }
                             else
                             {
@@ -246,6 +268,14 @@ namespace Pumkin.AvatarTools.Copiers
                         var newDynBone = transTo.gameObject.AddComponent<DynamicBone>();
                         ComponentUtility.CopyComponent(dbFrom);
                         ComponentUtility.PasteComponentValues(newDynBone);
+
+                        if (adjustScale)
+                        {
+                            Vector3 scaleMul = GetScaleMultiplier(dbFrom.transform, bone.transform)
+                            bone.m_Radius *= scaleMul
+                            bone.m_EndLength *= scaleMul
+                            bone.m_EndOffset *= scaleMul
+                        }
 
                         newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_Root.transform, newDynBone.transform.root, false);
 

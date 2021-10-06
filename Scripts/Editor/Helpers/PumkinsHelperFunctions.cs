@@ -1056,6 +1056,14 @@ namespace Pumkin.HelperFunctions
         }
 
         /// <summary>
+        /// Calculates Scale Multiplier.
+        /// </summary>
+        public static Vector3 GetScaleMultiplier(Transform to, Transform from)
+        {
+            return to.lossyscale / from.lossyScale;
+        }
+
+        /// <summary>
         /// Returns true if GameObject has no children or components
         /// </summary>
         public static bool GameObjectIsEmpty(GameObject obj)

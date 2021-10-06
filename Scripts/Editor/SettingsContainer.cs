@@ -48,11 +48,13 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_dynamicBones_copySettings = false;
         [SerializeField] internal bool bCopier_dynamicBones_createMissing = true;
         [SerializeField] internal bool bCopier_dynamicBones_createObjects = false;
+        [SerializeField] internal bool bCopier_dynamicBones_adjustScale = true;
 
         [SerializeField] internal bool bCopier_dynamicBones_copyColliders = true;
         [SerializeField] internal bool bCopier_dynamicBones_removeOldColliders = false;
         [SerializeField] internal bool bCopier_dynamicBones_removeOldBones = false;
         [SerializeField] internal bool bCopier_dynamicBones_createObjectsColliders = true;
+        [SerializeField] internal bool bCopier_dynamicBones_adjustScaleColliders = true;
 
         [SerializeField] internal bool bCopier_descriptor_copy = true;
         [SerializeField] internal bool bCopier_descriptor_copySettings = true;
