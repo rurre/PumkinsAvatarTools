@@ -69,7 +69,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// <summary>
         /// Copies all DynamicBoneColliders from object and it's children to another object.
         /// </summary>
-        internal static void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList, bool adjutScale)
+        internal static void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList, bool adjustScale)
         {
 #if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
 
@@ -115,12 +115,10 @@ namespace Pumkin.AvatarTools.Copiers
                             for(int z = 0; z < dbcToArr.Length; z++)
                             {
                                 var d = dbcToArr[z];
-                                Vector3 scaleMu = GetScaleMultiplier(dbcFrom.transform, d.transform)
-                                d.m_Bound *= scaleMu
-                                d.m_Center *= scaleMu
-                                d.m_Direction *= scaleMu
-                                d.m_Height *= scaleMu
-                                d.m_Radius *= scaleMu
+                                float scaleMu = Helpers.GetScaleMultiplier(dbcFrom.transform, d.transform);
+                                d.m_Center *= scaleMu;
+                                d.m_Height *= scaleMu;
+                                d.m_Radius *= scaleMu;
                             }
                         }
                     }
@@ -244,10 +242,10 @@ namespace Pumkin.AvatarTools.Copiers
                             
                                 if (adjustScale)
                                 {
-                                    Vector3 scaleMul = GetScaleMultiplier(dbFrom.transform, bone.transform)
-                                    bone.m_Radius *= scaleMul
-                                    bone.m_EndLength *= scaleMul
-                                    bone.m_EndOffset *= scaleMul
+                                    float scaleMul = Helpers.GetScaleMultiplier(dbFrom.transform, bone.transform);
+                                    bone.m_Radius *= scaleMul;
+                                    bone.m_EndLength *= scaleMul;
+                                    bone.m_EndOffset *= scaleMul;
                                 }
                             }
                             else
@@ -271,10 +269,10 @@ namespace Pumkin.AvatarTools.Copiers
 
                         if (adjustScale)
                         {
-                            Vector3 scaleMul = GetScaleMultiplier(dbFrom.transform, bone.transform)
-                            bone.m_Radius *= scaleMul
-                            bone.m_EndLength *= scaleMul
-                            bone.m_EndOffset *= scaleMul
+                            float scaleMul = Helpers.GetScaleMultiplier(dbFrom.transform, newDynBone.transform);
+                            newDynBone.m_Radius *= scaleMul;
+                            newDynBone.m_EndLength *= scaleMul;
+                            newDynBone.m_EndOffset *= scaleMul;
                         }
 
                         newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_Root.transform, newDynBone.transform.root, false);

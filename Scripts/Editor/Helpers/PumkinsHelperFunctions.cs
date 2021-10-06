@@ -1058,9 +1058,9 @@ namespace Pumkin.HelperFunctions
         /// <summary>
         /// Calculates Scale Multiplier.
         /// </summary>
-        public static Vector3 GetScaleMultiplier(Transform to, Transform from)
+        public static float GetScaleMultiplier(Transform to, Transform from)
         {
-            return to.lossyscale / from.lossyScale;
+            return to.lossyScale.x / from.lossyScale.x;
         }
 
         /// <summary>

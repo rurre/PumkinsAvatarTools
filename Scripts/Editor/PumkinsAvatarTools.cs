@@ -1493,7 +1493,7 @@ namespace Pumkin.AvatarTools
                                     Settings.bCopier_dynamicBones_createMissing = GUILayout.Toggle(Settings.bCopier_dynamicBones_createMissing, Strings.Copier.dynamicBones_createMissing, Styles.CopierToggle);
                                     Settings.bCopier_dynamicBones_createObjects = GUILayout.Toggle(Settings.bCopier_dynamicBones_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
                                     Settings.bCopier_dynamicBones_removeOldBones = GUILayout.Toggle(Settings.bCopier_dynamicBones_removeOldBones, Strings.Copier.dynamicBones_removeOldBones, Styles.CopierToggle);
-                                    Settings.bCopier_dynamicBones_adjustScale = GUILayout.Toggle(Settings.bCopier_dynamicBones_adjustScale, Strings.Copier.bCopier_dynamicBones_adjustScale, Styles.CopierToggle);
+                                    Settings.bCopier_dynamicBones_adjustScale = GUILayout.Toggle(Settings.bCopier_dynamicBones_adjustScale, Strings.Copier.dynamicBones_adjustScale, Styles.CopierToggle);
                                 }
                             }
 
@@ -1539,7 +1539,7 @@ namespace Pumkin.AvatarTools
                                 {
                                     Settings.bCopier_dynamicBones_removeOldColliders = GUILayout.Toggle(Settings.bCopier_dynamicBones_removeOldColliders, Strings.Copier.dynamicBones_removeOldColliders, Styles.CopierToggle);
                                     Settings.bCopier_dynamicBones_createObjectsColliders = GUILayout.Toggle(Settings.bCopier_dynamicBones_createObjectsColliders, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                                    Settings.bCopier_dynamicBones_adjustScaleColliders = GUILayout.Toggle(Settings.bCopier_dynamicBones_adjustScaleColliders, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                    Settings.bCopier_dynamicBones_adjustScaleColliders = GUILayout.Toggle(Settings.bCopier_dynamicBones_adjustScaleColliders, Strings.Copier.dynamicBones_adjustScaleColliders, Styles.CopierToggle);
                                 }
                             }
 
