@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Pumkin.AvatarTools.MaterialPreview
 {
-    internal static class MaterialManager
+    internal static class PumkinsMaterialManager
     {
         public static Texture2D MatCapTex
             => _matcapTexture = _matcapTexture ?? Resources.Load<Texture2D>("FallbackShaders/FallbackMatcap");

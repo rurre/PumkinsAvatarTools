@@ -33,7 +33,10 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal float _tools_quickSetup_viewpointZDepth = 0.06f;
         [SerializeField] internal bool _tools_quickSetup_setSkinnedMeshRendererAnchor = true;
         [SerializeField] internal bool _tools_quickSetup_setMeshRendererAnchor = true;
+        
+        [SerializeField] internal bool _tools_quicksetup_setMeshRendererAnchor_usePath = false;
         [SerializeField] internal string _tools_quickSetup_setRenderAnchor_path = "Armature/Hips/Spine";
+        [SerializeField] internal HumanBodyBones _tools_quickSetup_setRenderAnchor_bone = HumanBodyBones.Spine;
 
         //Copier
         [SerializeField] internal bool bCopier_transforms_copy = true;
@@ -271,6 +274,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool _openedSettings = false;
         [SerializeField] internal Vector2 _mainToolsScrollbar = Vector2.zero;
         [SerializeField] internal bool verboseLoggingEnabled = false;
+        [SerializeField] internal bool showExperimental = false;
         [SerializeField] internal bool handlesUiWindowPositionAtBottom = false;
 
         [SerializeField] internal float _avatarScaleTemp;
@@ -280,18 +284,5 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal static GameObject _selectedAvatar; // use property
 
         [SerializeField] internal static bool _useSceneSelectionAvatar = false;
-
-        //Quick Setup
-
-        [SerializeField] internal bool _tools_quickSetup_settings_expand1532304821 = false;
-        [SerializeField] internal bool _tools_quickSetup_fillVisemes1651333017 = true;
-        [SerializeField] internal bool _tools_quickSetup_setViewpoint1589436264 = true;
-        [SerializeField] internal bool _tools_quickSetup_forceTPose1414079273 = false;
-
-        [SerializeField] internal float _tools_quickSetup_viewpointZDepth470726990 = 0.06f;
-
-        [SerializeField] internal bool _tools_quickSetup_setSkinnedMeshRendererAnchor2016602932 = true;
-        [SerializeField] internal bool _tools_quickSetup_setMeshRendererAnchor516592055 = true;
-        [SerializeField] internal string _tools_quickSetup_setRenderAnchor_path2112886897 = "Armature/Hips/Spine";
     }
 }

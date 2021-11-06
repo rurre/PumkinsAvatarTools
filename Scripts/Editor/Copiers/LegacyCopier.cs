@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Pumkin.AvatarTools.Destroyers;
 using Pumkin.DataStructures;
 using Pumkin.Extensions;
 using Pumkin.HelperFunctions;
@@ -150,7 +151,8 @@ namespace Pumkin.AvatarTools.Copiers
 
                 if(!dbFrom.m_Root)
                 {
-                    PumkinsAvatarTools.LogVerbose("DynamicBone {0} of {1} doesn't have a root assigned. Ignoring", LogType.Warning, dbFrom.transform.name, dbFrom.transform.root.name);
+                    PumkinsAvatarTools.LogVerbose("DynamicBone {0} of {1} doesn't have a root assigned. Ignoring", LogType.Warning, 
+                        dbFrom.transform.name, dbFrom.transform.root.name);
                     continue;
                 }
 
@@ -167,12 +169,12 @@ namespace Pumkin.AvatarTools.Copiers
                         //Check if exclusions are the same
                         List<string> exToPaths = bone.m_Exclusions
                             .Where(o => o != null)
-                            .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
+                            .Select(o => Helpers.GetTransformPath(o.transform, to.transform).ToLower())
                             .ToList();
 
                         List<string> exFromPaths = dbFrom.m_Exclusions
                             .Where(o => o != null)
-                            .Select(o => Helpers.GetGameObjectPath(o.gameObject).ToLower())
+                            .Select(o => Helpers.GetTransformPath(o.transform, from.transform).ToLower())
                             .ToList();
 
                         bool exclusionsDifferent = false;
@@ -184,12 +186,12 @@ namespace Pumkin.AvatarTools.Copiers
                         //Check if colliders are the same
                         List<string> colToPaths = bone.m_Colliders
                             .Where(c => c != null)
-                            .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
+                            .Select(c => Helpers.GetTransformPath(c.transform, to.transform).ToLower())
                             .ToList();
 
                         List<string> colFromPaths = bone.m_Colliders
                             .Where(c => c != null)
-                            .Select(c => Helpers.GetGameObjectPath(c.gameObject).ToLower())
+                            .Select(c => Helpers.GetTransformPath(c.transform, from.transform).ToLower())
                             .ToList();
 
                         bool collidersDifferent = false;
@@ -336,7 +338,7 @@ namespace Pumkin.AvatarTools.Copiers
                 var type = cFromArr[i].GetType();
 
                 var cc = cFromArr[i];
-                var cFromPath = Helpers.GetGameObjectPath(cc.gameObject);
+                var cFromPath = Helpers.GetTransformPath(cc.transform, from.transform);
 
                 if(useIgnoreList && Helpers.ShouldIgnoreObject(cc.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
@@ -487,7 +489,7 @@ namespace Pumkin.AvatarTools.Copiers
             for(int i = 0; i < rFromArr.Length; i++)
             {
                 var rFrom = rFromArr[i];
-                var rFromPath = Helpers.GetGameObjectPath(rFrom.gameObject);
+                var rFromPath = Helpers.GetTransformPath(rFrom.transform, from.transform);
 
                 if(rFromPath != null)
                 {
@@ -645,7 +647,7 @@ namespace Pumkin.AvatarTools.Copiers
                     var partSysTo = transTo.GetComponent<ParticleSystem>();
                     if(Settings.bCopier_particleSystems_replace || partSysTo == null)
                     {
-                        PumkinsAvatarTools.DestroyParticleSystems(transTo.gameObject, false);
+                        LegacyDestroyer.DestroyParticleSystems(transTo.gameObject, false);
 
                         ComponentUtility.CopyComponent(partSys);
                         ComponentUtility.PasteComponentAsNew(transTo.gameObject);

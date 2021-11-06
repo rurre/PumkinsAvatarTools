@@ -11,8 +11,8 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "0.9.5b";
-        public const double toolsVersion = 0.95;
+        public const string TOOLS_VERSION_STRING = "0.9.6b - Work in Progress";
+        public const double toolsVersion = 0.96;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -198,13 +198,13 @@ namespace Pumkin.DataStructures
             public static string viewpointZDepth = "_Z Depth";
             public static string revertScale = "_Revert Scale";
             public static string editScaleMoveViewpoint = "_Move Viewpoint";
-            public static string refreshSDK = "_Refresh SDK Window";
             public static string enableDynamicBones = "_Enable DynamicBones";
             public static string disableDynamicBones = "_Disable DynamicBones";
             public static string toggleDynamicBones = "_Toggle DynamicBones";
             public static string fixDynamicBoneScripts = "_Fix Missing DynamicBone Scripts in Prefab";
-            public static string hierarchyPath = "_Hierarchy Path";
             public static string anchorPath = "_Anchor Path";
+            public static string humanoidBone = "_Humanoid Bone";
+            public static string anchorUsePath = "_Use Hierarchy Path"; 
             public static string fillEyeBones = "_Fill Eye Bones";
             public static string resetBoundingBoxes = "_Reset Bounding Boxes";
             public static string setImportSettings = "_Set Import Settings";
@@ -233,13 +233,13 @@ namespace Pumkin.DataStructures
                 setSkinnedMeshRendererAnchors = Translation.tools.setSkinnedMeshRendererAnchors;
                 revertScale = Translation.tools.revertScale;
                 editScaleMoveViewpoint = Translation.tools.editScaleMoveViewpoint;
-                refreshSDK = Translation.tools.refreshSDK;
                 enableDynamicBones = Translation.tools.enableDynamicBones;
                 disableDynamicBones = Translation.tools.disableDynamicBones;
                 toggleDynamicBones = Translation.tools.toggleDynamicBones;
                 fixDynamicBoneScripts = Translation.tools.fixDynamicBoneScripts;
-                hierarchyPath = Translation.tools.hierarchyPath;
                 anchorPath = Translation.tools.anchorPath;
+                humanoidBone = Translation.tools.humanoidBone;
+                anchorUsePath = Translation.tools.anchorUsePath;
                 fillEyeBones = Translation.tools.fillEyeBones;
                 setImportSettings = Translation.tools.setImportSettings;
 
@@ -649,7 +649,6 @@ namespace Pumkin.DataStructures
             public static string invalidPreset = "_Can't apply preset {0}: Invalid Preset";
             public static string cantRevertRendererWithoutPrefab = "_Can't revert Skinned Mesh Renderer {0}, object has no Prefab";
             public static string cantLoadImageAtPath = "_Can't load image at {0}";
-            public static string doesntWorkInUnity2017 = "_Doesn't work in Unity 2017 :(";
             public static string armatureScaleNotOne = "_Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
             public static string armatureScalesDontMatch = "_Armature scales for selected avatars don't match!\nThis can cause issues";
             public static string noDBonesOrMissingScriptDefine = "_No DynamicBones found or missing script define";
@@ -672,7 +671,6 @@ namespace Pumkin.DataStructures
                 cameraNotFound = Translation.warnings.cameraNotFound;
                 invalidPreset = Translation.warnings.invalidPreset;
                 cantRevertRendererWithoutPrefab = Translation.warnings.cantRevertRendererWithoutPrefab;
-                doesntWorkInUnity2017 = Translation.warnings.doesntWorkInUnity2017;
                 armatureScaleNotOne = Translation.warnings.armatureScaleNotOne;
                 armatureScalesDontMatch = Translation.warnings.armatureScalesDontMatch;
                 noDBonesOrMissingScriptDefine = Translation.warnings.noDBonesOrMissingScriptDefine;

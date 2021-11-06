@@ -236,7 +236,6 @@ namespace Pumkin.Translations
         public string viewpointZDepth = "Z Depth";
         public string revertScale = "Revert Scale";
         public string editScaleMoveViewpoint = "Move Viewpoint";
-        public string refreshSDK = "Refresh SDK Window";
         public string disableDynamicBones = "Disable DynamicBones";
         public string enableDynamicBones = "Enable DynamicBones";
         public string toggleDynamicBones = "Toggle DynamicBones";
@@ -245,6 +244,8 @@ namespace Pumkin.Translations
         public string anchorPath = "Anchor Path";
         public string fillEyeBones = "Fill Eye Bones";
         public string setImportSettings = "Set Import Settings";
+        public string anchorUsePath = "Use Hierarchy Path";
+        public string humanoidBone = "Humanoid Bone";
     }
 
     [Serializable]
@@ -444,7 +445,6 @@ namespace Pumkin.Translations
         public string invalidPreset = "Can't apply preset {0}: Invalid Preset";
         public string cantRevertRendererWithoutPrefab = "Can't revert Skinned Mesh Renderer {0}, object has no Prefab";
         public string cantLoadImageAtPath = "Can't load image at {0}";
-        public string doesntWorkInUnity2017 = "Doesn't work in Unity 2017 :(";
         public string armatureScaleNotOne = "Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
         public string armatureScalesDontMatch = "Armature scales for selected avatars don't match!\nThis can cause issues";
         public string noDBonesOrMissingScriptDefine = "No DynamicBones found or missing script define";

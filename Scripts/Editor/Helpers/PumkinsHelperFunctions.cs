@@ -883,7 +883,7 @@ namespace Pumkin.HelperFunctions
             if(t == null)
                 return false;
 
-            string tPath = GetGameObjectPath(t.gameObject);
+            string tPath = GetTransformPath(t, t.root);
 
 			var pref = PrefabUtility.GetCorrespondingObjectFromSource(t.root.gameObject) as GameObject;
 
@@ -908,40 +908,30 @@ namespace Pumkin.HelperFunctions
                 return false;
             }
         }
+        
 
         /// <summary>
         /// Get path of transform in hierarchy (ex. Armature/Hips/Chest/Neck/Head/Hair01)
         /// </summary>
         /// <param name="trans">Transform to get path of</param>
+        /// <param name="root">Hierarchy root</param>
         /// <param name="skipRoot">Whether to skip the root transform in the hierarchy. We want to 99% of the time.</param>
-        public static string GetGameObjectPath(Transform trans, bool skipRoot = true)
+        public static string GetTransformPath(Transform trans, Transform root, bool skipRoot = true)
         {
-            if(trans != null)
-                return GetGameObjectPath(trans.gameObject, skipRoot);
-            return null;
-        }
-
-        /// <summary>
-        /// Get path of GameObject's transform in hierarchy (ex. Armature/Hips/Chest/Neck/Head/Hair01)
-        /// </summary>
-        /// <param name="obj">GameObject to get path of</param>
-        /// <param name="skipRoot">Whether to skip the root transform in the hierarchy. We want to 99% of the time.</param>
-        public static string GetGameObjectPath(GameObject obj, bool skipRoot = true)
-        {
-            if(!obj)
+            if(!trans)
                 return string.Empty;
 
             string path = string.Empty;
-            if(obj.transform != obj.transform.root)
+            if(trans != root)
             {
                 if(!skipRoot)
-                    path = obj.transform.root.name + "/";
-                path += (AnimationUtility.CalculateTransformPath(obj.transform, obj.transform.root));
+                    path = trans.name + "/";
+                path += AnimationUtility.CalculateTransformPath(trans, root);
             }
             else
             {
                 if(!skipRoot)
-                    path = obj.transform.root.name;
+                    path = root.name;
             }
             return path;
         }
@@ -1051,16 +1041,16 @@ namespace Pumkin.HelperFunctions
         /// Looks for transform in another transform's child hierarchy. Can create if missing.
         /// </summary>
         /// <returns>Found or created transform</returns>
-        public static Transform FindTransformInAnotherHierarchy(Transform trans, Transform otherHierarchyTrans, bool createIfMissing)
+        public static Transform FindTransformInAnotherHierarchy(Transform trans, Transform otherHierarchyRoot, bool createIfMissing)
         {
-            if(!trans || !otherHierarchyTrans)
+            if(!trans || !otherHierarchyRoot)
                 return null;
 
             if(trans == trans.root)
-                return otherHierarchyTrans.root;
+                return otherHierarchyRoot.root;
 
-            var childPath = GetGameObjectPath(trans);
-            var childTrans = otherHierarchyTrans.Find(childPath, createIfMissing, trans);
+            var childPath = GetTransformPath(trans, otherHierarchyRoot);
+            var childTrans = otherHierarchyRoot.Find(childPath, createIfMissing, trans);
 
             return childTrans;
         }
