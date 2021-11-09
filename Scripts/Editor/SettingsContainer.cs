@@ -38,6 +38,19 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal string _tools_quickSetup_setRenderAnchor_path = "Armature/Hips/Spine";
         [SerializeField] internal HumanBodyBones _tools_quickSetup_setRenderAnchor_bone = HumanBodyBones.Spine;
 
+        [SerializeField] internal bool _tools_avatar_resetpose_expand = false;
+        [SerializeField] internal bool _tools_avatar_resetPose_position = true;
+        [SerializeField] internal bool _tools_avatar_resetPose_rotation = true;
+        [SerializeField] internal bool _tools_avatar_resetPose_scale = false;
+        [SerializeField] internal bool _tools_avatar_resetPose_fullreset = false;
+        [SerializeField] internal ResetPoseType _tools_avatar_resetPose_type = ResetPoseType.Prefab;
+        internal enum ResetPoseType
+        {
+            Prefab,
+            AvatarDefinition,
+            TPose
+        }
+
         //Copier
         [SerializeField] internal bool bCopier_transforms_copy = true;
         [SerializeField] internal bool bCopier_transforms_copyPosition = false;
