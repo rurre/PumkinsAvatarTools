@@ -81,7 +81,7 @@ namespace Pumkin.AvatarTools
                         continue;
 
                     var newMat = cache.GetCachedCopy(oldMat, out bool _);
-                    var fallback = MaterialManager.CreateFallbackMaterial(newMat, Color.white);
+                    var fallback = PumkinsMaterialManager.CreateFallbackMaterial(newMat, Color.white);
 
                     var mat = materials.GetArrayElementAtIndex(i);
                     mat.objectReferenceValue = newMat;
