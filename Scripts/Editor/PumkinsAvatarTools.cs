@@ -2660,8 +2660,8 @@ namespace Pumkin.AvatarTools
 #endif
                                 if(GUILayout.Button(Strings.Tools.revertBlendshapes))
                                     DoAction(SelectedAvatar, ToolMenuActions.RevertBlendshapes);
-                                if(GUILayout.Button(Strings.Tools.resetPose))
-                                    DoAction(SelectedAvatar, ToolMenuActions.ResetPose);
+                                /*if(GUILayout.Button(Strings.Tools.resetPose))
+                                    DoAction(SelectedAvatar, ToolMenuActions.ResetPose);*/
                                 EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
                                 {
                                     if(GUILayout.Button(Strings.Tools.revertScale))
@@ -2689,18 +2689,52 @@ namespace Pumkin.AvatarTools
                                 if(GUILayout.Button(Strings.Tools.zeroBlendshapes))
                                     DoAction(SelectedAvatar, ToolMenuActions.ZeroBlendshapes);
 
-                                if(GUILayout.Button(Strings.Tools.resetToTPose))
-                                    DoAction(SelectedAvatar, ToolMenuActions.SetTPose);
-                                EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
+                                /*if(GUILayout.Button(Strings.Tools.resetToTPose))
+                                    DoAction(SelectedAvatar, ToolMenuActions.SetTPose);*/
+                                /*EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
                                 {
                                     if(GUILayout.Button(Strings.Tools.editScale))
                                         DoAction(SelectedAvatar, ToolMenuActions.EditScale);
                                 }
-                                EditorGUI.EndDisabledGroup();
+                                EditorGUI.EndDisabledGroup();*/
                             }
                             GUILayout.EndVertical();
                         }
                         GUILayout.EndHorizontal();
+
+                        EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
+                        {
+                            if (GUILayout.Button(Strings.Tools.editScale))
+                                DoAction(SelectedAvatar, ToolMenuActions.EditScale);
+                        }
+                        EditorGUI.EndDisabledGroup();
+
+                        using (new GUILayout.HorizontalScope())
+                        {
+                            if (GUILayout.Button(Strings.Tools.resetPose))
+                                DoAction(SelectedAvatar, ToolMenuActions.ResetPose);
+                            Settings._tools_avatar_resetpose_expand = GUILayout.Toggle(Settings._tools_avatar_resetpose_expand, EditorGUIUtility.IconContent("align_vertically_center"), "button", GUILayout.Width(20));
+                        }
+
+                        if (Settings._tools_avatar_resetpose_expand)
+                        {
+                            using (new GUILayout.VerticalScope("helpbox"))
+                            {
+                                Settings._tools_avatar_resetPose_type = (SettingsContainer.ResetPoseType) EditorGUILayout.EnumPopup("Reset To",Settings._tools_avatar_resetPose_type);
+                                
+                                using (new EditorGUI.DisabledScope(Settings._tools_avatar_resetPose_type == SettingsContainer.ResetPoseType.TPose))
+                                {
+                                    Settings._tools_avatar_resetPose_position = EditorGUILayout.Toggle("Position", Settings._tools_avatar_resetPose_position);
+                                    Settings._tools_avatar_resetPose_rotation = EditorGUILayout.Toggle("Rotation", Settings._tools_avatar_resetPose_rotation);
+                                    Settings._tools_avatar_resetPose_scale = EditorGUILayout.Toggle("Scale", Settings._tools_avatar_resetPose_scale);
+                                }
+
+                                using (new EditorGUI.DisabledScope(Settings._tools_avatar_resetPose_type != SettingsContainer.ResetPoseType.AvatarDefinition))
+                                    Settings._tools_avatar_resetPose_fullreset = EditorGUILayout.Toggle(new GUIContent("Full Reset","Reset all the objects included in the Avatar definition."), Settings._tools_avatar_resetPose_fullreset);
+
+                            }
+                        }
+
 
                         Helpers.DrawGUILine();
 
@@ -3686,9 +3720,23 @@ namespace Pumkin.AvatarTools
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, false);
 #endif
                     break;
-                case ToolMenuActions.ResetPose:
+                /*case ToolMenuActions.ResetPose:
                     ResetPose(SelectedAvatar);
-                    break;
+                    break;*/
+                case ToolMenuActions.ResetPose:
+                    switch (Settings._tools_avatar_resetPose_type)
+                    {
+                        case SettingsContainer.ResetPoseType.Prefab:
+                            ResetPose(SelectedAvatar);
+                            break;
+                        case SettingsContainer.ResetPoseType.AvatarDefinition:
+                            ResetToAvatarDefinition(SelectedAvatar, Settings._tools_avatar_resetPose_fullreset, Settings._tools_avatar_resetPose_position, Settings._tools_avatar_resetPose_rotation, Settings._tools_avatar_resetPose_scale);
+                            break;
+                        case SettingsContainer.ResetPoseType.TPose:
+                            PumkinsPoseEditor.SetTPoseHardcoded(SelectedAvatar);
+                            break;
+                    }
+                    break; 
                 case ToolMenuActions.RevertBlendshapes:
                     if(EditorApplication.isPlaying)
                         ResetBlendshapes(SelectedAvatar, false);
@@ -4444,6 +4492,7 @@ namespace Pumkin.AvatarTools
                 }
                 if(Settings.bCopier_dynamicBones_copy && CopierTabs.ComponentIsInSelectedTab("dynamicbone", Settings._copier_selectedTab))
                 {
+                    
                     if(Settings.bCopier_dynamicBones_removeOldBones)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBone, false, true);
                     if(Settings.bCopier_dynamicBones_copySettings || Settings.bCopier_dynamicBones_createMissing)
@@ -4803,6 +4852,8 @@ namespace Pumkin.AvatarTools
                 return false;
             }
 
+            //This technically currently Resets all Objects and not just pose.
+            //TODO: Use Humanoid Bones for Reset if only pose. Use This method if Full Reset.
             var trans = avatar.GetComponentsInChildren<Transform>(true);
 
             foreach(var t in trans)
@@ -4816,13 +4867,115 @@ namespace Pumkin.AvatarTools
                 if(!tPref)
                     continue;
 
-                t.localPosition = tPref.localPosition;
-                t.localRotation = tPref.localRotation;
-                t.localEulerAngles = tPref.localEulerAngles;
+                if (Settings._tools_avatar_resetPose_position)
+                    t.localPosition = tPref.localPosition;
+                if (Settings._tools_avatar_resetPose_rotation)
+                {
+                    t.localRotation = tPref.localRotation;
+                    t.localEulerAngles = tPref.localEulerAngles;
+                }
+
+                if (Settings._tools_avatar_resetPose_scale)
+                {
+                    t.localScale = tPref.localScale;
+                }
             }
 
             PumkinsPoseEditor.OnPoseWasChanged(PumkinsPoseEditor.PoseChangeType.Reset);
             return true;
+        }
+
+        /// <summary>
+        /// Resets target pose to avatar definition
+        /// </summary>
+        /// <param name="avatar">Target avatar to reset</param>
+        /// <param name="fullReset">Should reset non-humanoid objects included in the definition?</param>
+        /// <param name="position">Reset the transform position of objects</param>
+        /// <param name="rotation">Reset the transform rotation of objects</param>
+        /// <param name="scale">Reset the transform scale of objects</param>
+        public static bool ResetToAvatarDefinition(GameObject avatar, bool fullReset = false, bool position = true, bool rotation = true, bool scale = true)
+        {
+            if (!avatar) return false;
+            Animator ani = avatar.GetComponent<Animator>();
+            if (!ani || !ani.avatar || !ani.avatar.isHuman)
+            {
+                Log(Strings.Log.cantSetPoseNonHumanoid, LogType.Warning, "Avatar Definition");
+                return false;
+            }
+
+            // All IDs if full reset. Only Human IDs if not.
+            // ID > Path
+            // ID > Element > Transform Data
+            Undo.RegisterFullObjectHierarchyUndo(avatar, "Reset To Avatar Definition");
+            SerializedObject sAvi = new SerializedObject(ani.avatar);
+            SerializedProperty humanIds = sAvi.FindProperty("m_Avatar.m_Human.data.m_Skeleton.data.m_ID");
+            SerializedProperty allIds = sAvi.FindProperty("m_Avatar.m_AvatarSkeleton.data.m_ID");
+            SerializedProperty defaultPose = sAvi.FindProperty("m_Avatar.m_DefaultPose.data.m_X");
+            SerializedProperty tos = sAvi.FindProperty("m_TOS");
+
+            Dictionary<long, int> idToElem = new Dictionary<long, int>();
+            Dictionary<int, TransformData> elemToTransform = new Dictionary<int, TransformData>();
+            Dictionary<long, string> IdToPath = new Dictionary<long, string>();
+
+            for (int i = 0; i < allIds.arraySize; i++)
+                idToElem.Add(allIds.GetArrayElementAtIndex(i).longValue, i);
+
+            for (int i = 0; i < defaultPose.arraySize; i++)
+                elemToTransform.Add(i, new TransformData(defaultPose.GetArrayElementAtIndex(i)));
+
+            for (int i = 0; i < tos.arraySize; i++)
+            {
+                SerializedProperty currProp = tos.GetArrayElementAtIndex(i);
+                IdToPath.Add(currProp.FindPropertyRelative("first").longValue, currProp.FindPropertyRelative("second").stringValue);
+            }
+
+            System.Action<Transform, TransformData> applyTransform = (transform, data) => {
+                if (transform)
+                {
+                    if (position)
+                        transform.localPosition = data.pos;
+                    if (rotation)
+                        transform.localRotation = data.rot;
+                    if (scale)
+                        transform.localScale = data.scale;
+                }
+            };
+
+            if (!fullReset)
+            {
+                for (int i = 0; i < humanIds.arraySize; i++)
+                {
+                    Transform myBone = ani.transform.Find(IdToPath[humanIds.GetArrayElementAtIndex(i).longValue]);
+                    TransformData data = elemToTransform[idToElem[humanIds.GetArrayElementAtIndex(i).longValue]];
+                    applyTransform(myBone, data);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < allIds.arraySize; i++)
+                {
+                    Transform myBone = ani.transform.Find(IdToPath[allIds.GetArrayElementAtIndex(i).longValue]);
+                    TransformData data = elemToTransform[idToElem[allIds.GetArrayElementAtIndex(i).longValue]];
+                    applyTransform(myBone, data);
+                }
+            }
+
+            return true;
+        }
+        private struct TransformData
+        {
+            public Vector3 pos;
+            public Quaternion rot;
+            public Vector3 scale;
+            public TransformData(SerializedProperty t)
+            {
+                SerializedProperty tProp = t.FindPropertyRelative("t");
+                SerializedProperty qProp = t.FindPropertyRelative("q");
+                SerializedProperty sProp = t.FindPropertyRelative("s");
+                pos = new Vector3(tProp.FindPropertyRelative("x").floatValue, tProp.FindPropertyRelative("y").floatValue, tProp.FindPropertyRelative("z").floatValue);
+                rot = new Quaternion(qProp.FindPropertyRelative("x").floatValue, qProp.FindPropertyRelative("y").floatValue, qProp.FindPropertyRelative("z").floatValue, qProp.FindPropertyRelative("w").floatValue);
+                scale = new Vector3(sProp.FindPropertyRelative("x").floatValue, sProp.FindPropertyRelative("y").floatValue, sProp.FindPropertyRelative("z").floatValue);
+            }
         }
 
         /// <summary>

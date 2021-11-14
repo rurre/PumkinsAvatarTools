@@ -1049,7 +1049,7 @@ namespace Pumkin.HelperFunctions
             if(trans == trans.root)
                 return otherHierarchyRoot.root;
 
-            var childPath = GetTransformPath(trans, otherHierarchyRoot);
+            var childPath = GetTransformPath(trans, trans.root);
             var childTrans = otherHierarchyRoot.Find(childPath, createIfMissing, trans);
 
             return childTrans;
