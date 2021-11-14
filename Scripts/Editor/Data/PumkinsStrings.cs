@@ -389,8 +389,8 @@ namespace Pumkin.DataStructures
             public static string dynamicBones_removeOldBones = "_Remove Old Dynamic Bones";
             public static string dynamicBones_removeOldColliders = "_Remove Old Colliders";
             public static string dynamicBones_createMissing = "_Create Missing Dynamic Bones";
-            public static string dynamicBones_adjustScale = "_  EXPERIMENTAL! adjust Scale";
-            public static string dynamicBones_adjustScaleColliders = "_EXPERIMENTAL! adjust Scale";
+            public static string dynamicBones_adjustScale = "_Adjust Scale";
+            public static string dynamicBones_adjustScaleColliders = "_Adjust Scale";
             public static string colliders = "_Colliders";
             public static string colliders_box = "_Box Colliders";
             public static string colliders_capsule = "_Capsule Colliders";
