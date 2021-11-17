@@ -389,11 +389,14 @@ namespace Pumkin.DataStructures
             public static string dynamicBones_removeOldBones = "_Remove Old Dynamic Bones";
             public static string dynamicBones_removeOldColliders = "_Remove Old Colliders";
             public static string dynamicBones_createMissing = "_Create Missing Dynamic Bones";
+            public static string dynamicBones_adjustScale = "_Adjust Scale";
+            public static string dynamicBones_adjustScaleColliders = "_Adjust Scale";
             public static string colliders = "_Colliders";
             public static string colliders_box = "_Box Colliders";
             public static string colliders_capsule = "_Capsule Colliders";
             public static string colliders_sphere = "_Sphere Colliders";
             public static string colliders_mesh = "_Mesh Colliders";
+            public static string colliders_adjustScale = "_Adjust Scale";
             public static string colliders_removeOld = "_Remove Old Colliders";
             public static string descriptor = "_Avatar Descriptor";
             public static string descriptor_pipelineId = "_Pipeline Id";
@@ -468,12 +471,15 @@ namespace Pumkin.DataStructures
                 dynamicBones_removeOldBones = Translation.copier.dynamicBones_removeOldBones;
                 dynamicBones_removeOldColliders = Translation.copier.dynamicBones_removeOldColliders;
                 dynamicBones_createMissing = Translation.copier.dynamicBones_createMissing;
+                dynamicBones_adjustScale = Translation.copier.dynamicBones_adjustScale;
+                dynamicBones_adjustScaleColliders = Translation.copier.dynamicBones_adjustScaleColliders;
                 colliders = Translation.copier.colliders;
                 colliders_box = Translation.copier.colliders_box;
                 colliders_capsule = Translation.copier.colliders_capsule;
                 colliders_sphere = Translation.copier.colliders_sphere;
                 colliders_mesh = Translation.copier.colliders_mesh;
                 colliders_removeOld = Translation.copier.colliders_removeOld;
+                colliders_adjustScale = Translation.copier.colliders_adjustScale;
 
                 descriptor = Translation.copier.descriptor;
                 descriptor_pipelineId = Translation.copier.descriptor_pipelineId;

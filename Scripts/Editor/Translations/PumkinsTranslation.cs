@@ -268,12 +268,15 @@ namespace Pumkin.Translations
         public string dynamicBones_removeOldBones = "Remove Old Dynamic Bones";
         public string dynamicBones_removeOldColliders = "Remove Old Colliders";
         public string dynamicBones_createMissing = "Copy Missing Dynamic Bones";
+        public string dynamicBones_adjustScale = "Adjust Scale";
+        public string dynamicBones_adjustScaleColliders = "Adjust Scale";
         public string colliders = "Colliders";
         public string colliders_box = "Box Colliders";
         public string colliders_capsule = "Capsule Colliders";
         public string colliders_sphere = "Sphere Colliders";
         public string colliders_mesh = "Mesh Colliders";
         public string colliders_removeOld = "Remove Old Colliders";
+        public string colliders_adjustScale = "Adjust Scale";
         public string descriptor = "Avatar Descriptor";
         public string descriptor_pipelineId = "Pipeline Id";
         public string descriptor_animationOverrides = "Animation Overrides";

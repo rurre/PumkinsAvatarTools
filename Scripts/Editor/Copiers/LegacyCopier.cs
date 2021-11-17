@@ -69,7 +69,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// <summary>
         /// Copies all DynamicBoneColliders from object and it's children to another object.
         /// </summary>
-        internal static void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList, bool adjustScale)
         {
 #if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
 
@@ -98,7 +98,7 @@ namespace Pumkin.AvatarTools.Copiers
                     {
                         var d = dbcToArr[z];
                         if(d.m_Bound == dbcFrom.m_Bound && d.m_Center == dbcFrom.m_Center &&
-                            d.m_Direction == dbcFrom.m_Direction && d.m_Height == dbcFrom.m_Height && d.m_Radius == dbcFrom.m_Radius)
+                           d.m_Direction == dbcFrom.m_Direction && d.m_Height == dbcFrom.m_Height && d.m_Radius == dbcFrom.m_Radius)
                         {
                             found = true;
                             break;
@@ -109,6 +109,16 @@ namespace Pumkin.AvatarTools.Copiers
                     {
                         ComponentUtility.CopyComponent(dbcFrom);
                         ComponentUtility.PasteComponentAsNew(tTo.gameObject);
+                        DynamicBoneCollider dbcTo = tTo.GetComponent<DynamicBoneCollider>();
+
+                        if (adjustScale)
+                        {
+                            float scaleMu = Helpers.GetScaleMultiplier(dbcFrom.transform, dbcTo.transform );
+                            dbcTo.m_Center *= scaleMu;
+                            dbcTo.m_Height *= scaleMu;
+                            dbcTo.m_Radius *= scaleMu;
+                            dbcTo.transform.localPosition *= scaleMu;
+                        }
                     }
                 }
             }
@@ -122,7 +132,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// <param name="to"></param>
         /// <param name="createMissing"></param>
         /// <param name="useIgnoreList"></param>
-        internal static void CopyAllDynamicBonesNew(GameObject from, GameObject to, bool createMissing, bool useIgnoreList)
+        internal static void CopyAllDynamicBonesNew(GameObject from, GameObject to, bool createMissing, bool useIgnoreList, bool adjustScale)
         {
 #if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
             Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
@@ -227,6 +237,14 @@ namespace Pumkin.AvatarTools.Copiers
                                 bone.m_StiffnessDistrib = dbFrom.m_StiffnessDistrib;
 
                                 bone.m_ReferenceObject = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_ReferenceObject, bone.transform, false);
+                            
+                                if (adjustScale)
+                                {
+                                    float scaleMul = Helpers.GetScaleMultiplier(dbFrom.transform, bone.transform);
+                                    bone.m_Radius *= scaleMul;
+                                    bone.m_EndLength *= scaleMul;
+                                    bone.m_EndOffset *= scaleMul;
+                                }
                             }
                             else
                             {
@@ -246,6 +264,14 @@ namespace Pumkin.AvatarTools.Copiers
                         var newDynBone = transTo.gameObject.AddComponent<DynamicBone>();
                         ComponentUtility.CopyComponent(dbFrom);
                         ComponentUtility.PasteComponentValues(newDynBone);
+
+                        if (adjustScale)
+                        {
+                            float scaleMul = Helpers.GetScaleMultiplier(dbFrom.transform, newDynBone.transform);
+                            newDynBone.m_Radius *= scaleMul;
+                            newDynBone.m_EndLength *= scaleMul;
+                            newDynBone.m_EndOffset *= scaleMul;
+                        }
 
                         newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_Root.transform, newDynBone.transform.root, false);
 
@@ -323,7 +349,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// </summary>
         /// <param name="from"></param>
         /// <param name="to"></param>
-        internal static void CopyAllColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyAllColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList, bool adjustScale)
         {
             if(from == null || to == null)
                 return;
@@ -369,6 +395,28 @@ namespace Pumkin.AvatarTools.Copiers
                         ComponentUtility.CopyComponent(cFromArr[i]);
                         ComponentUtility.PasteComponentAsNew(cToObj);
 
+                        if (adjustScale)
+                        {
+                            float mul = Helpers.GetScaleMultiplier(cFromArr[i].transform, cToObj.transform);
+                            if (cToObj.TryGetComponent(out SphereCollider sphere))
+                            {
+                                sphere.center *= mul;
+                                sphere.radius *= mul;
+                            }
+                            if (cToObj.TryGetComponent(out BoxCollider box))
+                            {
+                                box.center *= mul;
+                                box.size *= mul;
+                            }
+                            if (cToObj.TryGetComponent(out CapsuleCollider capsule))
+                            {
+                                capsule.center *= mul;
+                                capsule.radius *= mul;
+                                capsule.height *= mul;
+                            }
+                            cToObj.transform.localPosition *= mul;
+                        }
+                        
                         PumkinsAvatarTools.Log(log + " - " + Strings.Log.success, LogType.Log, type.ToString(), cFromArr[i].gameObject.name, cToObj.name);
                     }
                 }
