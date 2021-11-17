@@ -98,7 +98,7 @@ namespace Pumkin.AvatarTools.Copiers
                     {
                         var d = dbcToArr[z];
                         if(d.m_Bound == dbcFrom.m_Bound && d.m_Center == dbcFrom.m_Center &&
-                            d.m_Direction == dbcFrom.m_Direction && d.m_Height == dbcFrom.m_Height && d.m_Radius == dbcFrom.m_Radius)
+                           d.m_Direction == dbcFrom.m_Direction && d.m_Height == dbcFrom.m_Height && d.m_Radius == dbcFrom.m_Radius)
                         {
                             found = true;
                             break;
@@ -109,17 +109,15 @@ namespace Pumkin.AvatarTools.Copiers
                     {
                         ComponentUtility.CopyComponent(dbcFrom);
                         ComponentUtility.PasteComponentAsNew(tTo.gameObject);
+                        DynamicBoneCollider dbcTo = tTo.GetComponent<DynamicBoneCollider>();
 
                         if (adjustScale)
                         {
-                            for(int z = 0; z < dbcToArr.Length; z++)
-                            {
-                                var d = dbcToArr[z];
-                                float scaleMu = Helpers.GetScaleMultiplier(dbcFrom.transform, d.transform);
-                                d.m_Center *= scaleMu;
-                                d.m_Height *= scaleMu;
-                                d.m_Radius *= scaleMu;
-                            }
+                            float scaleMu = Helpers.GetScaleMultiplier(dbcFrom.transform, dbcTo.transform );
+                            dbcTo.m_Center *= scaleMu;
+                            dbcTo.m_Height *= scaleMu;
+                            dbcTo.m_Radius *= scaleMu;
+                            dbcTo.transform.localPosition *= scaleMu;
                         }
                     }
                 }
@@ -351,7 +349,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// </summary>
         /// <param name="from"></param>
         /// <param name="to"></param>
-        internal static void CopyAllColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyAllColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList, bool adjustScale)
         {
             if(from == null || to == null)
                 return;
@@ -397,6 +395,28 @@ namespace Pumkin.AvatarTools.Copiers
                         ComponentUtility.CopyComponent(cFromArr[i]);
                         ComponentUtility.PasteComponentAsNew(cToObj);
 
+                        if (adjustScale)
+                        {
+                            float mul = Helpers.GetScaleMultiplier(cFromArr[i].transform, cToObj.transform);
+                            if (cToObj.TryGetComponent(out SphereCollider sphere))
+                            {
+                                sphere.center *= mul;
+                                sphere.radius *= mul;
+                            }
+                            if (cToObj.TryGetComponent(out BoxCollider box))
+                            {
+                                box.center *= mul;
+                                box.size *= mul;
+                            }
+                            if (cToObj.TryGetComponent(out CapsuleCollider capsule))
+                            {
+                                capsule.center *= mul;
+                                capsule.radius *= mul;
+                                capsule.height *= mul;
+                            }
+                            cToObj.transform.localPosition *= mul;
+                        }
+                        
                         PumkinsAvatarTools.Log(log + " - " + Strings.Log.success, LogType.Log, type.ToString(), cFromArr[i].gameObject.name, cToObj.name);
                     }
                 }

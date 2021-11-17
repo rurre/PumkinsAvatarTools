@@ -89,6 +89,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_colliders_copySphere = true;
         [SerializeField] internal bool bCopier_colliders_copyMesh = false;
         [SerializeField] internal bool bCopier_colliders_createObjects = true;
+        [SerializeField] internal bool bCopier_colliders_adjustScale = true;
 
         [SerializeField] internal bool bCopier_skinMeshRender_copy = true;
         [SerializeField] internal bool bCopier_skinMeshRender_copySettings = true;

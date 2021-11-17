@@ -1795,6 +1795,7 @@ namespace Pumkin.AvatarTools
 
                                     EditorGUILayout.Space();
 
+                                    Settings.bCopier_colliders_removeOld = GUILayout.Toggle(Settings.bCopier_colliders_adjustScale, Strings.Copier.colliders_adjustScale, Styles.CopierToggle);
                                     Settings.bCopier_colliders_removeOld = GUILayout.Toggle(Settings.bCopier_colliders_removeOld, Strings.Copier.colliders_removeOld, Styles.CopierToggle);
                                     Settings.bCopier_colliders_createObjects = GUILayout.Toggle(Settings.bCopier_colliders_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
                                 }
@@ -4448,7 +4449,7 @@ namespace Pumkin.AvatarTools
             {
                 if(Settings.bCopier_colliders_removeOld)
                     LegacyDestroyer.DestroyAllComponentsOfType(objTo, typeof(Collider), false, true);
-                LegacyCopier.CopyAllColliders(objFrom, objTo, Settings.bCopier_colliders_createObjects, true);
+                LegacyCopier.CopyAllColliders(objFrom, objTo, Settings.bCopier_colliders_createObjects, true, Settings.bCopier_colliders_adjustScale);
             }
             if(Settings.bCopier_rigidBodies_copy && CopierTabs.ComponentIsInSelectedTab<Rigidbody>(Settings._copier_selectedTab))
             {
