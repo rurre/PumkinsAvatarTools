@@ -1795,7 +1795,7 @@ namespace Pumkin.AvatarTools
 
                                     EditorGUILayout.Space();
 
-                                    Settings.bCopier_colliders_removeOld = GUILayout.Toggle(Settings.bCopier_colliders_adjustScale, Strings.Copier.colliders_adjustScale, Styles.CopierToggle);
+                                    Settings.bCopier_colliders_adjustScale = GUILayout.Toggle(Settings.bCopier_colliders_adjustScale, Strings.Copier.colliders_adjustScale, Styles.CopierToggle);
                                     Settings.bCopier_colliders_removeOld = GUILayout.Toggle(Settings.bCopier_colliders_removeOld, Strings.Copier.colliders_removeOld, Styles.CopierToggle);
                                     Settings.bCopier_colliders_createObjects = GUILayout.Toggle(Settings.bCopier_colliders_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
                                 }
