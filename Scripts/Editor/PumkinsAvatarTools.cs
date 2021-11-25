@@ -121,8 +121,6 @@ namespace Pumkin.AvatarTools
             SetImportSettings,
         }
 
-        readonly static string DUMMY_NAME = "_Dummy";
-        readonly static string VIEWPOINT_DUMMY_NAME = "_PumkinsViewpointDummy";
         readonly static string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";
 
 #endregion
@@ -213,6 +211,8 @@ namespace Pumkin.AvatarTools
         SerializedObject _serializedScript;
         GameObject oldSelectedAvatar = null;
 
+        const string DUMMY_NAME = "_DUMMY";
+        const string VIEWPOINT_DUMMY_NAME = "_VIEWPOINT_DUMMY";
 
 
         static string _mainScriptPath = null;
@@ -1057,9 +1057,15 @@ namespace Pumkin.AvatarTools
 
             Settings.handlesUiWindowPositionAtBottom = GUILayout.Toggle(Settings.handlesUiWindowPositionAtBottom, Strings.Settings.sceneViewOverlayWindowsAtBottom);
 
-            //EditorGUILayout.Space();
-            //Settings.showExperimentalMenu = GUILayout.Toggle(Settings.showExperimentalMenu, Strings.Settings.showExperimentalMenu);
+            EditorGUILayout.Space();
             Settings.verboseLoggingEnabled = GUILayout.Toggle(Settings.verboseLoggingEnabled, Strings.Settings.enableVerboseLogging);
+            
+            EditorGUILayout.Space();
+            
+            Helpers.DrawGUILine();
+            EditorGUILayout.HelpBox(Strings.Settings.experimentalWarning, MessageType.Warning);
+            Settings.showExperimental = GUILayout.Toggle(Settings.showExperimental, Strings.Settings.showExperimental);           
+            
 
             EditorGUILayout.Space();
 #if PUMKIN_DEV
@@ -1106,9 +1112,13 @@ namespace Pumkin.AvatarTools
 
                 DrawAvatarInfoMenuGUI();
 
-                EditorGUILayout.Space();
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3 && PUMKIN_DEV
-                DrawAvatarTestingMenuGUI();
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+
+                if(Settings.showExperimental)
+                {
+                    EditorGUILayout.Space();
+                    DrawAvatarTestingMenuGUI();
+                }
 
                 EditorGUILayout.Space();
 #endif
@@ -1116,10 +1126,7 @@ namespace Pumkin.AvatarTools
 
                 EditorGUILayout.Space();
 
-                DrawInfoMenuGUI();
-
-                //if(showExperimentalMenu)
-                //    DrawExperimentalMenuGUI();
+                DrawInfoMenuGUI();                
 
                 Helpers.DrawGUILine();
             }

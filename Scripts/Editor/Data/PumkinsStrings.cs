@@ -837,7 +837,8 @@ namespace Pumkin.DataStructures
             public static string enableVerboseLogging = "_Enable verbose logging";
             public static string sceneViewOverlayWindowsAtBottom = "_Draw scene view overlays at the bottom";
             public static string misc = "_Misc";
-            public static string showExperimentalMenu = "_Show experimental menu";
+            public static string showExperimental = "_Show experimental features";
+            public static string experimentalWarning = "_These features are unfinished and will probably cause issues";
 
             static Settings()
             {
@@ -857,7 +858,8 @@ namespace Pumkin.DataStructures
                 enableVerboseLogging = Translation.misc.enableVerboseLogging;
                 sceneViewOverlayWindowsAtBottom = Translation.misc.sceneViewOverlayWindowsAtBottom;
                 misc = Translation.misc.misc;
-                showExperimentalMenu = Translation.misc.showExperimentalMenu;
+                showExperimental = Translation.misc.showExperimental;
+                experimentalWarning = Translation.misc.experimentalWarning;
             }
         }
     }

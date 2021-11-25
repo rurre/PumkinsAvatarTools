@@ -112,6 +112,44 @@ namespace Pumkin.Presets
             PumkinsAvatarTools.RefreshPresetIndex<T>();
         }
 
+        public static void ValidatedPresetNames<T>() where T : PumkinPreset
+        {
+            bool dirty = false;
+            if(typeof(T) == typeof(PumkinsCameraPreset))
+            {
+                foreach(var preset in CameraPresets)
+                    if(string.IsNullOrEmpty(preset.name))
+                    {
+                        preset.name = "Camera Preset";
+                        EditorUtility.SetDirty(preset);
+                        dirty = true;
+                    }
+            }
+            else if(typeof(T) == typeof(PumkinsPosePreset))
+            {
+                foreach(var preset in PosePresets)
+                    if(string.IsNullOrEmpty(preset.name))
+                    {
+                        preset.name = "Pose Preset";
+                        EditorUtility.SetDirty(preset);
+                        dirty = true;
+                    }
+            }
+            else if(typeof(T) == typeof(PumkinsBlendshapePreset))
+            {
+                foreach(var preset in BlendshapePresets)
+                    if(string.IsNullOrEmpty(preset.name))
+                    {
+                        preset.name = "Blendshape Preset";
+                        EditorUtility.SetDirty(preset);
+                        dirty = true;
+                    }
+            }
+            
+            if(dirty)
+                AssetDatabase.SaveAssets();
+        }
+
         public static void LoadPresets<T>() where T : PumkinPreset
         {
             Type t = typeof(T);
@@ -120,6 +158,7 @@ namespace Pumkin.Presets
             if(t == typeof(PumkinsCameraPreset) || t == pT)
             {
                 Resources.LoadAll<PumkinsCameraPreset>(resourceCamerasPath);
+                
                 CameraPresets = Resources.FindObjectsOfTypeAll<PumkinsCameraPreset>().ToList();
                 CleanupPresetsOfType<PumkinsCameraPreset>();
             }
@@ -135,6 +174,8 @@ namespace Pumkin.Presets
                 BlendshapePresets = Resources.FindObjectsOfTypeAll<PumkinsBlendshapePreset>().ToList();
                 CleanupPresetsOfType<PumkinsBlendshapePreset>();
             }
+
+            ValidatedPresetNames<T>();
         }
         public static int GetPresetIndex<T>(T preset) where T : PumkinPreset
         {

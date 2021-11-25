@@ -474,7 +474,8 @@ namespace Pumkin.Translations
         public string enableVerboseLogging = "Enable verbose logging";
         public string sceneViewOverlayWindowsAtBottom = "Draw scene view overlays at the bottom";
         public string misc = "Misc";
-        public string showExperimentalMenu = "Show experimental menu";
+        public string showExperimental = "Show experimental features";
+        public string experimentalWarning = "These features are unfinished and will probably cause issues";
     }
 
     [Serializable]
