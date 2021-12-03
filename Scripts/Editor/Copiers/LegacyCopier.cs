@@ -83,44 +83,42 @@ namespace Pumkin.AvatarTools.Copiers
             if(dbcFromArr == null || dbcFromArr.Length == 0)
                 return;
 
-            for(int i = 0; i < dbcFromArr.Length; i++)
+            for (int i = 0; i < dbcFromArr.Length; i++)
             {
                 var dbcFrom = dbcFromArr[i];
                 var tTo = Helpers.FindTransformInAnotherHierarchy(dbcFrom.transform, to.transform, createGameObjects);
-                if((!tTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(dbcFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                if ((!tTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(dbcFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
 
                 var dbcToArr = tTo.GetComponentsInChildren<DynamicBoneCollider>(true);
-                if(tTo != null)
+
+                bool found = false;
+                for (int z = 0; z < dbcToArr.Length; z++)
                 {
-                    bool found = false;
-                    for(int z = 0; z < dbcToArr.Length; z++)
+                    var d = dbcToArr[z];
+                    if (d.m_Bound == dbcFrom.m_Bound && d.m_Center == dbcFrom.m_Center &&
+                       d.m_Direction == dbcFrom.m_Direction && d.m_Height == dbcFrom.m_Height && d.m_Radius == dbcFrom.m_Radius)
                     {
-                        var d = dbcToArr[z];
-                        if(d.m_Bound == dbcFrom.m_Bound && d.m_Center == dbcFrom.m_Center &&
-                           d.m_Direction == dbcFrom.m_Direction && d.m_Height == dbcFrom.m_Height && d.m_Radius == dbcFrom.m_Radius)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if(!found)
-                    {
-                        ComponentUtility.CopyComponent(dbcFrom);
-                        ComponentUtility.PasteComponentAsNew(tTo.gameObject);
-                        DynamicBoneCollider dbcTo = tTo.GetComponent<DynamicBoneCollider>();
-
-                        if (adjustScale)
-                        {
-                            float scaleMu = Helpers.GetScaleMultiplier(dbcFrom.transform, dbcTo.transform );
-                            dbcTo.m_Center *= scaleMu;
-                            dbcTo.m_Height *= scaleMu;
-                            dbcTo.m_Radius *= scaleMu;
-                            dbcTo.transform.localPosition *= scaleMu;
-                        }
+                        found = true;
+                        break;
                     }
                 }
+
+                if (!found)
+                {
+                    ComponentUtility.CopyComponent(dbcFrom);
+                    DynamicBoneCollider dbcTo = tTo.gameObject.AddComponent<DynamicBoneCollider>();
+                    ComponentUtility.PasteComponentValues(dbcTo);
+
+                    if (adjustScale)
+                    {
+                        float scaleMu = Helpers.GetScaleMultiplier(dbcFrom.transform, dbcTo.transform);
+                        dbcTo.m_Center *= scaleMu;
+                        dbcTo.m_Height *= scaleMu;
+                        dbcTo.m_Radius *= scaleMu;
+                    }
+                }
+
             }
 #endif
         }
@@ -243,7 +241,6 @@ namespace Pumkin.AvatarTools.Copiers
                                     float scaleMul = Helpers.GetScaleMultiplier(dbFrom.transform, bone.transform);
                                     bone.m_Radius *= scaleMul;
                                     bone.m_EndLength *= scaleMul;
-                                    bone.m_EndOffset *= scaleMul;
                                 }
                             }
                             else
@@ -270,7 +267,6 @@ namespace Pumkin.AvatarTools.Copiers
                             float scaleMul = Helpers.GetScaleMultiplier(dbFrom.transform, newDynBone.transform);
                             newDynBone.m_Radius *= scaleMul;
                             newDynBone.m_EndLength *= scaleMul;
-                            newDynBone.m_EndOffset *= scaleMul;
                         }
 
                         newDynBone.m_Root = Helpers.FindTransformInAnotherHierarchy(dbFrom.m_Root.transform, newDynBone.transform.root, false);
@@ -397,24 +393,24 @@ namespace Pumkin.AvatarTools.Copiers
 
                         if (adjustScale)
                         {
+                            Collider c = cToObj.GetComponents<Collider>().Last();
                             float mul = Helpers.GetScaleMultiplier(cFromArr[i].transform, cToObj.transform);
-                            if (cToObj.TryGetComponent(out SphereCollider sphere))
+                            if (c is SphereCollider sphere)
                             {
                                 sphere.center *= mul;
                                 sphere.radius *= mul;
                             }
-                            if (cToObj.TryGetComponent(out BoxCollider box))
+                            if (c is BoxCollider box)
                             {
                                 box.center *= mul;
                                 box.size *= mul;
                             }
-                            if (cToObj.TryGetComponent(out CapsuleCollider capsule))
+                            if (c is CapsuleCollider capsule)
                             {
                                 capsule.center *= mul;
                                 capsule.radius *= mul;
                                 capsule.height *= mul;
                             }
-                            cToObj.transform.localPosition *= mul;
                         }
                         
                         PumkinsAvatarTools.Log(log + " - " + Strings.Log.success, LogType.Log, type.ToString(), cFromArr[i].gameObject.name, cToObj.name);
