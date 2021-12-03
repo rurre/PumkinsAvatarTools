@@ -121,8 +121,6 @@ namespace Pumkin.AvatarTools
             SetImportSettings,
         }
 
-        readonly static string DUMMY_NAME = "_Dummy";
-        readonly static string VIEWPOINT_DUMMY_NAME = "_PumkinsViewpointDummy";
         readonly static string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";
 
 #endregion
@@ -213,6 +211,8 @@ namespace Pumkin.AvatarTools
         SerializedObject _serializedScript;
         GameObject oldSelectedAvatar = null;
 
+        const string DUMMY_NAME = "_DUMMY";
+        const string VIEWPOINT_DUMMY_NAME = "_VIEWPOINT_DUMMY";
 
 
         static string _mainScriptPath = null;
@@ -1057,9 +1057,15 @@ namespace Pumkin.AvatarTools
 
             Settings.handlesUiWindowPositionAtBottom = GUILayout.Toggle(Settings.handlesUiWindowPositionAtBottom, Strings.Settings.sceneViewOverlayWindowsAtBottom);
 
-            //EditorGUILayout.Space();
-            //Settings.showExperimentalMenu = GUILayout.Toggle(Settings.showExperimentalMenu, Strings.Settings.showExperimentalMenu);
+            EditorGUILayout.Space();
             Settings.verboseLoggingEnabled = GUILayout.Toggle(Settings.verboseLoggingEnabled, Strings.Settings.enableVerboseLogging);
+            
+            EditorGUILayout.Space();
+            
+            Helpers.DrawGUILine();
+            EditorGUILayout.HelpBox(Strings.Settings.experimentalWarning, MessageType.Warning);
+            Settings.showExperimental = GUILayout.Toggle(Settings.showExperimental, Strings.Settings.showExperimental);           
+            
 
             EditorGUILayout.Space();
 #if PUMKIN_DEV
@@ -1106,9 +1112,13 @@ namespace Pumkin.AvatarTools
 
                 DrawAvatarInfoMenuGUI();
 
-                EditorGUILayout.Space();
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3 && PUMKIN_DEV
-                DrawAvatarTestingMenuGUI();
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+
+                if(Settings.showExperimental)
+                {
+                    EditorGUILayout.Space();
+                    DrawAvatarTestingMenuGUI();
+                }
 
                 EditorGUILayout.Space();
 #endif
@@ -1116,10 +1126,7 @@ namespace Pumkin.AvatarTools
 
                 EditorGUILayout.Space();
 
-                DrawInfoMenuGUI();
-
-                //if(showExperimentalMenu)
-                //    DrawExperimentalMenuGUI();
+                DrawInfoMenuGUI();                
 
                 Helpers.DrawGUILine();
             }
@@ -1493,6 +1500,7 @@ namespace Pumkin.AvatarTools
                                     Settings.bCopier_dynamicBones_createMissing = GUILayout.Toggle(Settings.bCopier_dynamicBones_createMissing, Strings.Copier.dynamicBones_createMissing, Styles.CopierToggle);
                                     Settings.bCopier_dynamicBones_createObjects = GUILayout.Toggle(Settings.bCopier_dynamicBones_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
                                     Settings.bCopier_dynamicBones_removeOldBones = GUILayout.Toggle(Settings.bCopier_dynamicBones_removeOldBones, Strings.Copier.dynamicBones_removeOldBones, Styles.CopierToggle);
+                                    Settings.bCopier_dynamicBones_adjustScale = GUILayout.Toggle(Settings.bCopier_dynamicBones_adjustScale, Strings.Copier.dynamicBones_adjustScale, Styles.CopierToggle);
                                 }
                             }
 
@@ -1538,6 +1546,7 @@ namespace Pumkin.AvatarTools
                                 {
                                     Settings.bCopier_dynamicBones_removeOldColliders = GUILayout.Toggle(Settings.bCopier_dynamicBones_removeOldColliders, Strings.Copier.dynamicBones_removeOldColliders, Styles.CopierToggle);
                                     Settings.bCopier_dynamicBones_createObjectsColliders = GUILayout.Toggle(Settings.bCopier_dynamicBones_createObjectsColliders, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                    Settings.bCopier_dynamicBones_adjustScaleColliders = GUILayout.Toggle(Settings.bCopier_dynamicBones_adjustScaleColliders, Strings.Copier.dynamicBones_adjustScaleColliders, Styles.CopierToggle);
                                 }
                             }
 
@@ -1793,6 +1802,7 @@ namespace Pumkin.AvatarTools
 
                                     EditorGUILayout.Space();
 
+                                    Settings.bCopier_colliders_adjustScale = GUILayout.Toggle(Settings.bCopier_colliders_adjustScale, Strings.Copier.colliders_adjustScale, Styles.CopierToggle);
                                     Settings.bCopier_colliders_removeOld = GUILayout.Toggle(Settings.bCopier_colliders_removeOld, Strings.Copier.colliders_removeOld, Styles.CopierToggle);
                                     Settings.bCopier_colliders_createObjects = GUILayout.Toggle(Settings.bCopier_colliders_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
                                 }
@@ -4446,7 +4456,7 @@ namespace Pumkin.AvatarTools
             {
                 if(Settings.bCopier_colliders_removeOld)
                     LegacyDestroyer.DestroyAllComponentsOfType(objTo, typeof(Collider), false, true);
-                LegacyCopier.CopyAllColliders(objFrom, objTo, Settings.bCopier_colliders_createObjects, true);
+                LegacyCopier.CopyAllColliders(objFrom, objTo, Settings.bCopier_colliders_createObjects, true, Settings.bCopier_colliders_adjustScale);
             }
             if(Settings.bCopier_rigidBodies_copy && CopierTabs.ComponentIsInSelectedTab<Rigidbody>(Settings._copier_selectedTab))
             {
@@ -4486,7 +4496,7 @@ namespace Pumkin.AvatarTools
                 {
                     if(Settings.bCopier_dynamicBones_removeOldColliders)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBoneCollider, false, true);
-                    LegacyCopier.CopyAllDynamicBoneColliders(objFrom, objTo, Settings.bCopier_dynamicBones_createObjectsColliders, true);
+                    LegacyCopier.CopyAllDynamicBoneColliders(objFrom, objTo, Settings.bCopier_dynamicBones_createObjectsColliders, true, Settings.bCopier_dynamicBones_adjustScaleColliders);
                 }
                 if(Settings.bCopier_dynamicBones_copy && CopierTabs.ComponentIsInSelectedTab("dynamicbone", Settings._copier_selectedTab))
                 {
@@ -4494,7 +4504,7 @@ namespace Pumkin.AvatarTools
                     if(Settings.bCopier_dynamicBones_removeOldBones)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBone, false, true);
                     if(Settings.bCopier_dynamicBones_copySettings || Settings.bCopier_dynamicBones_createMissing)
-                        LegacyCopier.CopyAllDynamicBonesNew(objFrom, objTo, Settings.bCopier_dynamicBones_createMissing, true);
+                        LegacyCopier.CopyAllDynamicBonesNew(objFrom, objTo, Settings.bCopier_dynamicBones_createMissing, true, Settings.bCopier_dynamicBones_adjustScale);
                 }
             }
             else if(Settings.bCopier_dynamicBones_copy)

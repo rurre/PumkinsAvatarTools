@@ -54,18 +54,20 @@ namespace Pumkin.AvatarTools
         //Copier
         [SerializeField] internal bool bCopier_transforms_copy = true;
         [SerializeField] internal bool bCopier_transforms_copyPosition = false;
-        [SerializeField] internal bool bCopier_transforms_copyRotation = false;
-        [SerializeField] internal bool bCopier_transforms_copyScale = false;
+        [SerializeField] internal bool bCopier_transforms_copyRotation = true;
+        [SerializeField] internal bool bCopier_transforms_copyScale = true;
 
         [SerializeField] internal bool bCopier_dynamicBones_copy = true;
         [SerializeField] internal bool bCopier_dynamicBones_copySettings = false;
         [SerializeField] internal bool bCopier_dynamicBones_createMissing = true;
         [SerializeField] internal bool bCopier_dynamicBones_createObjects = false;
+        [SerializeField] internal bool bCopier_dynamicBones_adjustScale = true;
 
         [SerializeField] internal bool bCopier_dynamicBones_copyColliders = true;
         [SerializeField] internal bool bCopier_dynamicBones_removeOldColliders = false;
         [SerializeField] internal bool bCopier_dynamicBones_removeOldBones = false;
         [SerializeField] internal bool bCopier_dynamicBones_createObjectsColliders = true;
+        [SerializeField] internal bool bCopier_dynamicBones_adjustScaleColliders = true;
 
         [SerializeField] internal bool bCopier_descriptor_copy = true;
         [SerializeField] internal bool bCopier_descriptor_copySettings = true;
@@ -87,6 +89,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_colliders_copySphere = true;
         [SerializeField] internal bool bCopier_colliders_copyMesh = false;
         [SerializeField] internal bool bCopier_colliders_createObjects = true;
+        [SerializeField] internal bool bCopier_colliders_adjustScale = true;
 
         [SerializeField] internal bool bCopier_skinMeshRender_copy = true;
         [SerializeField] internal bool bCopier_skinMeshRender_copySettings = true;
@@ -296,6 +299,6 @@ namespace Pumkin.AvatarTools
 
         [SerializeField] internal static GameObject _selectedAvatar; // use property
 
-        [SerializeField] internal static bool _useSceneSelectionAvatar = false;
+        [SerializeField] internal static bool _useSceneSelectionAvatar = false;        
     }
 }
