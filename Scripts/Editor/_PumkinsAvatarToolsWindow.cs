@@ -56,7 +56,7 @@ namespace Pumkin.AvatarTools
             EditorPrefs.DeleteKey("PumkinToolsWindow");
 
             if(_tools)
-                _tools.ResetEverything();
+                _tools.ResetBackgroundsAndOverlays();
 
             if(_toolsWindow)
                 DestroyImmediate(_toolsWindow);

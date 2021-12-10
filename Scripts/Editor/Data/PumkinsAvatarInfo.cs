@@ -9,7 +9,7 @@ using VRC.SDKBase.Validation.Performance;
 using VRC.SDKBase.Validation.Performance.Stats;
 #endif
 
-namespace Pumkin.AvatarTools
+namespace Pumkin.DataStructures
 {
     public class PumkinsAvatarInfo //Need to improve this class sometime when I overhaul the performance stats
     {
@@ -82,7 +82,7 @@ namespace Pumkin.AvatarTools
             IKFollowers = 0;
         }
 
-        public PumkinsAvatarInfo(GameObject o) : base()
+        public PumkinsAvatarInfo(GameObject o)
         {
             if(o == null)
                 return;

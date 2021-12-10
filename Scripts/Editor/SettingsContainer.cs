@@ -33,23 +33,41 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal float _tools_quickSetup_viewpointZDepth = 0.06f;
         [SerializeField] internal bool _tools_quickSetup_setSkinnedMeshRendererAnchor = true;
         [SerializeField] internal bool _tools_quickSetup_setMeshRendererAnchor = true;
+        
+        [SerializeField] internal bool _tools_quicksetup_setMeshRendererAnchor_usePath = false;
         [SerializeField] internal string _tools_quickSetup_setRenderAnchor_path = "Armature/Hips/Spine";
+        [SerializeField] internal HumanBodyBones _tools_quickSetup_setRenderAnchor_bone = HumanBodyBones.Spine;
+
+        [SerializeField] internal bool _tools_avatar_resetpose_expand = false;
+        [SerializeField] internal bool _tools_avatar_resetPose_position = true;
+        [SerializeField] internal bool _tools_avatar_resetPose_rotation = true;
+        [SerializeField] internal bool _tools_avatar_resetPose_scale = false;
+        [SerializeField] internal bool _tools_avatar_resetPose_fullreset = false;
+        [SerializeField] internal ResetPoseType _tools_avatar_resetPose_type = ResetPoseType.Prefab;
+        internal enum ResetPoseType
+        {
+            Prefab,
+            AvatarDefinition,
+            TPose
+        }
 
         //Copier
         [SerializeField] internal bool bCopier_transforms_copy = true;
         [SerializeField] internal bool bCopier_transforms_copyPosition = false;
-        [SerializeField] internal bool bCopier_transforms_copyRotation = false;
-        [SerializeField] internal bool bCopier_transforms_copyScale = false;
+        [SerializeField] internal bool bCopier_transforms_copyRotation = true;
+        [SerializeField] internal bool bCopier_transforms_copyScale = true;
 
         [SerializeField] internal bool bCopier_dynamicBones_copy = true;
         [SerializeField] internal bool bCopier_dynamicBones_copySettings = false;
         [SerializeField] internal bool bCopier_dynamicBones_createMissing = true;
         [SerializeField] internal bool bCopier_dynamicBones_createObjects = false;
+        [SerializeField] internal bool bCopier_dynamicBones_adjustScale = true;
 
         [SerializeField] internal bool bCopier_dynamicBones_copyColliders = true;
         [SerializeField] internal bool bCopier_dynamicBones_removeOldColliders = false;
         [SerializeField] internal bool bCopier_dynamicBones_removeOldBones = false;
         [SerializeField] internal bool bCopier_dynamicBones_createObjectsColliders = true;
+        [SerializeField] internal bool bCopier_dynamicBones_adjustScaleColliders = true;
 
         [SerializeField] internal bool bCopier_descriptor_copy = true;
         [SerializeField] internal bool bCopier_descriptor_copySettings = true;
@@ -71,6 +89,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_colliders_copySphere = true;
         [SerializeField] internal bool bCopier_colliders_copyMesh = false;
         [SerializeField] internal bool bCopier_colliders_createObjects = true;
+        [SerializeField] internal bool bCopier_colliders_adjustScale = true;
 
         [SerializeField] internal bool bCopier_skinMeshRender_copy = true;
         [SerializeField] internal bool bCopier_skinMeshRender_copySettings = true;
@@ -271,6 +290,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool _openedSettings = false;
         [SerializeField] internal Vector2 _mainToolsScrollbar = Vector2.zero;
         [SerializeField] internal bool verboseLoggingEnabled = false;
+        [SerializeField] internal bool showExperimental = false;
         [SerializeField] internal bool handlesUiWindowPositionAtBottom = false;
 
         [SerializeField] internal float _avatarScaleTemp;
@@ -279,19 +299,6 @@ namespace Pumkin.AvatarTools
 
         [SerializeField] internal static GameObject _selectedAvatar; // use property
 
-        [SerializeField] internal static bool _useSceneSelectionAvatar = false;
-
-        //Quick Setup
-
-        [SerializeField] internal bool _tools_quickSetup_settings_expand1532304821 = false;
-        [SerializeField] internal bool _tools_quickSetup_fillVisemes1651333017 = true;
-        [SerializeField] internal bool _tools_quickSetup_setViewpoint1589436264 = true;
-        [SerializeField] internal bool _tools_quickSetup_forceTPose1414079273 = false;
-
-        [SerializeField] internal float _tools_quickSetup_viewpointZDepth470726990 = 0.06f;
-
-        [SerializeField] internal bool _tools_quickSetup_setSkinnedMeshRendererAnchor2016602932 = true;
-        [SerializeField] internal bool _tools_quickSetup_setMeshRendererAnchor516592055 = true;
-        [SerializeField] internal string _tools_quickSetup_setRenderAnchor_path2112886897 = "Armature/Hips/Spine";
+        [SerializeField] internal static bool _useSceneSelectionAvatar = false;        
     }
 }

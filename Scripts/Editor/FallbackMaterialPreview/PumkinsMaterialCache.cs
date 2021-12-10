@@ -1,4 +1,5 @@
-﻿using Pumkin.Extensions;
+﻿#if PUMKIN_DEV
+using Pumkin.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +15,7 @@ namespace Pumkin.AvatarTools.MaterialPreview
     /// Creates a material cache in the Assets folder that allows you to associate a material with a cached copy of it.
     /// The cached copy has the GUID of the original material as it's name, which allows us to find the original again.
     /// </summary>
-    public class MaterialCache
+    public class PumkinsMaterialCache
     {
         public const string DEFAULT_CACHE_PATH = "_MaterialCache";
 
@@ -33,14 +34,14 @@ namespace Pumkin.AvatarTools.MaterialPreview
 
         Dictionary<Material, Material> cache = new Dictionary<Material, Material>();
 
-        private MaterialCache() { }
+        private PumkinsMaterialCache() { }
 
         /// <summary>
         /// Creates the cache
         /// </summary>
         /// <param name="cachePath">Path for the cache inside the assets folder. Shouldn not start with "Assets"</param>
         /// <param name="materials">Initial materials to cache</param>
-        public MaterialCache(string cachePath = null, params Material[] materials)
+        public PumkinsMaterialCache(string cachePath = null, params Material[] materials)
         {
             var invalid = Path.GetInvalidPathChars()
                 .Union(new char[] { '.' })
@@ -148,3 +149,4 @@ namespace Pumkin.AvatarTools.MaterialPreview
         }
     }
 }
+#endif

@@ -1,22 +1,20 @@
-﻿using Pumkin.AvatarTools.MaterialPreview;
+﻿#if PUMKIN_DEV
+using Pumkin.AvatarTools.MaterialPreview;
 using Pumkin.HelperFunctions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
 namespace Pumkin.AvatarTools
 {
-    public class FallbackMaterialPreview : IDisposable
+    public class PumkinsFallbackMaterialPreview : IDisposable
     {
-        MaterialCache cache = new MaterialCache();
+        PumkinsMaterialCache cache = new PumkinsMaterialCache();
 
         GameObject avatar;
 
-        internal FallbackMaterialPreview()
+        internal PumkinsFallbackMaterialPreview()
         {
             PumkinsAvatarTools.AvatarSelectionChanged += OnAvatarSelectionChanged;
         }
@@ -122,3 +120,4 @@ namespace Pumkin.AvatarTools
         }
     }
 }
+#endif

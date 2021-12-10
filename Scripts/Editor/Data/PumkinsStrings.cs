@@ -11,8 +11,8 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "0.9.5b";
-        public const double toolsVersion = 0.95;
+        public const string TOOLS_VERSION_STRING = "0.9.6b";
+        public const double toolsVersion = 0.96;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -198,13 +198,13 @@ namespace Pumkin.DataStructures
             public static string viewpointZDepth = "_Z Depth";
             public static string revertScale = "_Revert Scale";
             public static string editScaleMoveViewpoint = "_Move Viewpoint";
-            public static string refreshSDK = "_Refresh SDK Window";
             public static string enableDynamicBones = "_Enable DynamicBones";
             public static string disableDynamicBones = "_Disable DynamicBones";
             public static string toggleDynamicBones = "_Toggle DynamicBones";
             public static string fixDynamicBoneScripts = "_Fix Missing DynamicBone Scripts in Prefab";
-            public static string hierarchyPath = "_Hierarchy Path";
             public static string anchorPath = "_Anchor Path";
+            public static string humanoidBone = "_Humanoid Bone";
+            public static string anchorUsePath = "_Use Hierarchy Path"; 
             public static string fillEyeBones = "_Fill Eye Bones";
             public static string resetBoundingBoxes = "_Reset Bounding Boxes";
             public static string setImportSettings = "_Set Import Settings";
@@ -233,13 +233,13 @@ namespace Pumkin.DataStructures
                 setSkinnedMeshRendererAnchors = Translation.tools.setSkinnedMeshRendererAnchors;
                 revertScale = Translation.tools.revertScale;
                 editScaleMoveViewpoint = Translation.tools.editScaleMoveViewpoint;
-                refreshSDK = Translation.tools.refreshSDK;
                 enableDynamicBones = Translation.tools.enableDynamicBones;
                 disableDynamicBones = Translation.tools.disableDynamicBones;
                 toggleDynamicBones = Translation.tools.toggleDynamicBones;
                 fixDynamicBoneScripts = Translation.tools.fixDynamicBoneScripts;
-                hierarchyPath = Translation.tools.hierarchyPath;
                 anchorPath = Translation.tools.anchorPath;
+                humanoidBone = Translation.tools.humanoidBone;
+                anchorUsePath = Translation.tools.anchorUsePath;
                 fillEyeBones = Translation.tools.fillEyeBones;
                 setImportSettings = Translation.tools.setImportSettings;
 
@@ -389,11 +389,14 @@ namespace Pumkin.DataStructures
             public static string dynamicBones_removeOldBones = "_Remove Old Dynamic Bones";
             public static string dynamicBones_removeOldColliders = "_Remove Old Colliders";
             public static string dynamicBones_createMissing = "_Create Missing Dynamic Bones";
+            public static string dynamicBones_adjustScale = "_Adjust Scale";
+            public static string dynamicBones_adjustScaleColliders = "_Adjust Scale";
             public static string colliders = "_Colliders";
             public static string colliders_box = "_Box Colliders";
             public static string colliders_capsule = "_Capsule Colliders";
             public static string colliders_sphere = "_Sphere Colliders";
             public static string colliders_mesh = "_Mesh Colliders";
+            public static string colliders_adjustScale = "_Adjust Scale";
             public static string colliders_removeOld = "_Remove Old Colliders";
             public static string descriptor = "_Avatar Descriptor";
             public static string descriptor_pipelineId = "_Pipeline Id";
@@ -468,12 +471,15 @@ namespace Pumkin.DataStructures
                 dynamicBones_removeOldBones = Translation.copier.dynamicBones_removeOldBones;
                 dynamicBones_removeOldColliders = Translation.copier.dynamicBones_removeOldColliders;
                 dynamicBones_createMissing = Translation.copier.dynamicBones_createMissing;
+                dynamicBones_adjustScale = Translation.copier.dynamicBones_adjustScale;
+                dynamicBones_adjustScaleColliders = Translation.copier.dynamicBones_adjustScaleColliders;
                 colliders = Translation.copier.colliders;
                 colliders_box = Translation.copier.colliders_box;
                 colliders_capsule = Translation.copier.colliders_capsule;
                 colliders_sphere = Translation.copier.colliders_sphere;
                 colliders_mesh = Translation.copier.colliders_mesh;
                 colliders_removeOld = Translation.copier.colliders_removeOld;
+                colliders_adjustScale = Translation.copier.colliders_adjustScale;
 
                 descriptor = Translation.copier.descriptor;
                 descriptor_pipelineId = Translation.copier.descriptor_pipelineId;
@@ -649,7 +655,6 @@ namespace Pumkin.DataStructures
             public static string invalidPreset = "_Can't apply preset {0}: Invalid Preset";
             public static string cantRevertRendererWithoutPrefab = "_Can't revert Skinned Mesh Renderer {0}, object has no Prefab";
             public static string cantLoadImageAtPath = "_Can't load image at {0}";
-            public static string doesntWorkInUnity2017 = "_Doesn't work in Unity 2017 :(";
             public static string armatureScaleNotOne = "_Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
             public static string armatureScalesDontMatch = "_Armature scales for selected avatars don't match!\nThis can cause issues";
             public static string noDBonesOrMissingScriptDefine = "_No DynamicBones found or missing script define";
@@ -672,7 +677,6 @@ namespace Pumkin.DataStructures
                 cameraNotFound = Translation.warnings.cameraNotFound;
                 invalidPreset = Translation.warnings.invalidPreset;
                 cantRevertRendererWithoutPrefab = Translation.warnings.cantRevertRendererWithoutPrefab;
-                doesntWorkInUnity2017 = Translation.warnings.doesntWorkInUnity2017;
                 armatureScaleNotOne = Translation.warnings.armatureScaleNotOne;
                 armatureScalesDontMatch = Translation.warnings.armatureScalesDontMatch;
                 noDBonesOrMissingScriptDefine = Translation.warnings.noDBonesOrMissingScriptDefine;
@@ -833,7 +837,8 @@ namespace Pumkin.DataStructures
             public static string enableVerboseLogging = "_Enable verbose logging";
             public static string sceneViewOverlayWindowsAtBottom = "_Draw scene view overlays at the bottom";
             public static string misc = "_Misc";
-            public static string showExperimentalMenu = "_Show experimental menu";
+            public static string showExperimental = "_Show experimental features";
+            public static string experimentalWarning = "_These features are unfinished and will probably cause issues";
 
             static Settings()
             {
@@ -853,7 +858,8 @@ namespace Pumkin.DataStructures
                 enableVerboseLogging = Translation.misc.enableVerboseLogging;
                 sceneViewOverlayWindowsAtBottom = Translation.misc.sceneViewOverlayWindowsAtBottom;
                 misc = Translation.misc.misc;
-                showExperimentalMenu = Translation.misc.showExperimentalMenu;
+                showExperimental = Translation.misc.showExperimental;
+                experimentalWarning = Translation.misc.experimentalWarning;
             }
         }
     }

@@ -2,7 +2,7 @@
     "name": "Pumkin's Avatar Tools",
     "description": "A set of tools to help you setup avatars easier.\nIncludes a component copier and tools to make thumbnails.\nTo launch the tools go to Tools > Pumkin > Avatar Tools.",
     "classname": "Pumkin.AvatarTools.PumkinsAvatarTools",
-    "version": 0.95,
+    "version": 0.96,
     "requirement": {
         "type": "VRC_SDK_VERSION",
         "data": ">=0.0"
@@ -65,9 +65,10 @@
         "Scripts/Editor/Data/PumkinsDataStructures.cs",
         "Scripts/Editor/Data/PumkinsStrings.cs",
         "Scripts/Editor/Data/PumkinsTypeCache.cs",
-        "Scripts/Editor/FallbackMaterialPreview/FallbackMaterialPreview.cs",
-        "Scripts/Editor/FallbackMaterialPreview/MaterialCache.cs",
+        "Scripts/Editor/Destroyers/LegacyDestroyer.cs",
         "Scripts/Editor/FallbackMaterialPreview/MaterialPreviewHelpers.cs",
+        "Scripts/Editor/FallbackMaterialPreview/PumkinsFallbackMaterialPreview.cs",
+        "Scripts/Editor/FallbackMaterialPreview/PumkinsMaterialCache.cs",
         "Scripts/Editor/Helpers/AssetDatabaseHelpers.cs",
         "Scripts/Editor/Helpers/PumkinsExtensions.cs",
         "Scripts/Editor/Helpers/PumkinsHelperFunctions.cs",
@@ -86,6 +87,7 @@
         "Scripts/Editor/Presets/Popups/CreateCameraPresetPopup.cs",
         "Scripts/Editor/Presets/Popups/CreatePosePresetPopup.cs",
         "Scripts/Editor/Presets/Popups/CreatePresetPopupBase.cs",
+        "Scripts/Editor/Tools/PumkinTool.cs",
         "Scripts/Editor/Translations/PumkinsLanguageManager.cs",
         "Scripts/Editor/Translations/PumkinsTranslation.cs",
         "Scripts/Editor/Translations/PumkinsYAMLTools.cs"

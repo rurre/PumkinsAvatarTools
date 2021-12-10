@@ -883,7 +883,7 @@ namespace Pumkin.HelperFunctions
             if(t == null)
                 return false;
 
-            string tPath = GetGameObjectPath(t.gameObject);
+            string tPath = GetTransformPath(t, t.root);
 
 			var pref = PrefabUtility.GetCorrespondingObjectFromSource(t.root.gameObject) as GameObject;
 
@@ -908,40 +908,30 @@ namespace Pumkin.HelperFunctions
                 return false;
             }
         }
+        
 
         /// <summary>
         /// Get path of transform in hierarchy (ex. Armature/Hips/Chest/Neck/Head/Hair01)
         /// </summary>
         /// <param name="trans">Transform to get path of</param>
+        /// <param name="root">Hierarchy root</param>
         /// <param name="skipRoot">Whether to skip the root transform in the hierarchy. We want to 99% of the time.</param>
-        public static string GetGameObjectPath(Transform trans, bool skipRoot = true)
+        public static string GetTransformPath(Transform trans, Transform root, bool skipRoot = true)
         {
-            if(trans != null)
-                return GetGameObjectPath(trans.gameObject, skipRoot);
-            return null;
-        }
-
-        /// <summary>
-        /// Get path of GameObject's transform in hierarchy (ex. Armature/Hips/Chest/Neck/Head/Hair01)
-        /// </summary>
-        /// <param name="obj">GameObject to get path of</param>
-        /// <param name="skipRoot">Whether to skip the root transform in the hierarchy. We want to 99% of the time.</param>
-        public static string GetGameObjectPath(GameObject obj, bool skipRoot = true)
-        {
-            if(!obj)
+            if(!trans)
                 return string.Empty;
 
             string path = string.Empty;
-            if(obj.transform != obj.transform.root)
+            if(trans != root)
             {
                 if(!skipRoot)
-                    path = obj.transform.root.name + "/";
-                path += (AnimationUtility.CalculateTransformPath(obj.transform, obj.transform.root));
+                    path = trans.name + "/";
+                path += AnimationUtility.CalculateTransformPath(trans, root);
             }
             else
             {
                 if(!skipRoot)
-                    path = obj.transform.root.name;
+                    path = root.name;
             }
             return path;
         }
@@ -1051,18 +1041,26 @@ namespace Pumkin.HelperFunctions
         /// Looks for transform in another transform's child hierarchy. Can create if missing.
         /// </summary>
         /// <returns>Found or created transform</returns>
-        public static Transform FindTransformInAnotherHierarchy(Transform trans, Transform otherHierarchyTrans, bool createIfMissing)
+        public static Transform FindTransformInAnotherHierarchy(Transform trans, Transform otherHierarchyRoot, bool createIfMissing)
         {
-            if(!trans || !otherHierarchyTrans)
+            if(!trans || !otherHierarchyRoot)
                 return null;
 
             if(trans == trans.root)
-                return otherHierarchyTrans.root;
+                return otherHierarchyRoot.root;
 
-            var childPath = GetGameObjectPath(trans);
-            var childTrans = otherHierarchyTrans.Find(childPath, createIfMissing, trans);
+            var childPath = GetTransformPath(trans, trans.root);
+            var childTrans = otherHierarchyRoot.Find(childPath, createIfMissing, trans);
 
             return childTrans;
+        }
+
+        /// <summary>
+        /// Calculates Scale Multiplier.
+        /// </summary>
+        public static float GetScaleMultiplier(Transform from, Transform to)
+        {
+            return from.lossyScale.x / to.lossyScale.x;
         }
 
         /// <summary>
@@ -1326,9 +1324,16 @@ namespace Pumkin.HelperFunctions
             SelectAndPing(obj);
         }
 
-        public static void MakeReferencesLocal<T>(Transform localRoot, params SerializedProperty[] properties) where T : UnityEngine.Component
+        /// <summary>
+        /// Attempts to replace all object references with the same ones in a different hierarchy
+        /// </summary>
+        /// <param name="newHierarchyRoot"></param>
+        /// <param name="properties"></param>
+        /// <param name="setNullIfNotFound">Whether to set to null if not found. If false keep old reference</param>
+        /// <typeparam name="T"></typeparam>
+        public static void MakeReferencesLocal<T>(Transform newHierarchyRoot, bool setNullIfNotFound, params SerializedProperty[] properties) where T : UnityEngine.Component
         {
-            if(localRoot == null)
+            if(newHierarchyRoot == null)
             {
                 PumkinsAvatarTools.LogVerbose("localRoot is null");
                 return;
@@ -1336,7 +1341,7 @@ namespace Pumkin.HelperFunctions
             else if(properties == null || properties.Length == 0)
                 return;
 
-            var sRoot = new SerializedObject(localRoot.gameObject);
+            var sRoot = new SerializedObject(newHierarchyRoot.gameObject);
 
             foreach(var prop in properties)
             {
@@ -1348,39 +1353,39 @@ namespace Pumkin.HelperFunctions
                 var obj = prop.objectReferenceValue;
                 if(obj != null)
                 {
-                    Transform t = null;
+                    Transform trans = null;
                     if(obj as Component)
                     {
                         var o = obj as Component;
-                        t = o.transform;
+                        trans = o.transform;
                     }
                     else if(obj as GameObject)
                     {
                         var o = obj as GameObject;
-                        t = o.transform;
+                        trans = o.transform;
                     }
                     else if(obj as Transform)
                     {
                         var o = obj as Transform;
-                        t = o;
+                        trans = o;
                     }
                     else
                     {
-                        PumkinsAvatarTools.Log($"{prop.name} isn't a GameObject or a component.", LogType.Error);
+                        PumkinsAvatarTools.Log($"{prop.displayName} isn't a GameObject or a component.", LogType.Warning);
                         continue;
                     }
 
-                    var newTrans = FindTransformInAnotherHierarchy(t, localRoot, false);
+                    var newTrans = FindTransformInAnotherHierarchy(trans, newHierarchyRoot, false);
 
-                    if(!newTrans)
-                    {
-                        PumkinsAvatarTools.LogVerbose($"Couldn't find {prop} in {localRoot}'s hierarchy");
+                    if(newTrans)
+                        newComp = newTrans.GetComponent<T>();
+                    else if(setNullIfNotFound)
+                        PumkinsAvatarTools.Log($"Couldn't find object for <b>{prop.displayName}</b> in <b>{newHierarchyRoot.name}</b>'s hierarchy", LogType.Warning);
+                    else
                         continue;
-                    }
-
-                    newComp = newTrans.GetComponent<T>();
                 }
-                prop.objectReferenceValue = newComp;
+                if(newComp || setNullIfNotFound)
+                    prop.objectReferenceValue = newComp;
             }
             sRoot.ApplyModifiedProperties();
         }
