@@ -11,7 +11,7 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "0.9.6b - Work in Progress";
+        public const string TOOLS_VERSION_STRING = "0.9.6b";
         public const double toolsVersion = 0.96;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";

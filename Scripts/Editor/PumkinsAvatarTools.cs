@@ -191,9 +191,12 @@ namespace Pumkin.AvatarTools
 
         #region Fallback Preview
 
+        //TODO: Improve and revert #if
+        #if PUMKIN_DEV
         PumkinsFallbackMaterialPreview PumkinsFallbackPreview { get; set; } = new PumkinsFallbackMaterialPreview();
-
-        #endregion
+        #endif
+        
+#endregion
 
         #region Avatar Info
 
@@ -1062,10 +1065,12 @@ namespace Pumkin.AvatarTools
             
             EditorGUILayout.Space();
             
+            //TODO: Improve fallback and restore
+            #if PUMKIN_DEV
             Helpers.DrawGUILine();
             EditorGUILayout.HelpBox(Strings.Settings.experimentalWarning, MessageType.Warning);
             Settings.showExperimental = GUILayout.Toggle(Settings.showExperimental, Strings.Settings.showExperimental);           
-            
+            #endif
 
             EditorGUILayout.Space();
 #if PUMKIN_DEV
@@ -1206,7 +1211,7 @@ namespace Pumkin.AvatarTools
                     GUILayout.Label(Strings.Tools.editViewpoint);
                     if(GUILayout.Button(Strings.Buttons.moveToEyes, GUILayout.MinWidth(80)))
                     {
-                        _viewPosTemp = Helpers.GetViewpointAtEyeLevel(SelectedAvatar.GetComponent<Animator>());
+                        _viewPosTemp = Helpers.GetViewpointAtEyeLevel(SelectedAvatar.GetComponent<Animator>()) + SelectedAvatar.transform.position;
                     }
                     GUILayout.BeginHorizontal();
                     {
@@ -2818,6 +2823,8 @@ namespace Pumkin.AvatarTools
 
         void DrawAvatarTestingMenuGUI()
         {
+            //TODO: Improve and revert
+            #if PUMKIN_DEV
             if(Settings._avatar_testing_expand = GUILayout.Toggle(Settings._avatar_testing_expand, Strings.Main.avatarTesting, Styles.Foldout_title))
             {
                 EditorGUI.BeginDisabledGroup(!SelectedAvatar);
@@ -2828,6 +2835,7 @@ namespace Pumkin.AvatarTools
 
                 EditorGUI.EndDisabledGroup();
             }
+            #endif
         }
 
         void DrawRemoveComponentsMenuGUI()

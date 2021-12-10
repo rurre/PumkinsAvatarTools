@@ -1,4 +1,5 @@
-﻿using Pumkin.Extensions;
+﻿#if PUMKIN_DEV
+using Pumkin.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -148,3 +149,4 @@ namespace Pumkin.AvatarTools.MaterialPreview
         }
     }
 }
+#endif
