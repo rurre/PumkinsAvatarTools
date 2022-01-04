@@ -473,10 +473,7 @@ namespace Pumkin.PoseEditor
                 var humanPose = new HumanPose();
                 humanPoseHandler.GetHumanPose(ref humanPose);
 
-                //A long time ago CATS used to export avatars with a Armature scale of 100. This caused issues applying poses.
-                //For now we'll just hardcode search for "Armature".
-                //TODO: Find a better way to get the armature and check if it's scale could cause issues when tposing
-                Transform armature = avatar.transform.Find("Armature");
+                Transform armature = Helpers.GetAvatarArmature(avatar);
                 if(!(armature && armature.localScale == Vector3.one))
                 {
                     if(humanPose.bodyPosition.y < 1 && !Mathf.Approximately(humanPose.bodyPosition.y, 1))

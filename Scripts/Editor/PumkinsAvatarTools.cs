@@ -58,7 +58,11 @@ namespace Pumkin.AvatarTools
             }
         }
 
-
+        PumkinTool[] newTools = 
+        {
+            new RecalculateBoundsTool()
+        };
+        
         //Editing Viewpoint
         bool _editingView = false;
         Vector3 _viewPosOld;
@@ -2572,8 +2576,6 @@ namespace Pumkin.AvatarTools
                     {
                         if(GUILayout.Button(Strings.Buttons.quickSetupAvatar, Styles.BigButton))
                         {
-                            //if(settings._tools_quickSetup_autoRig)
-                            //    SetupRig(SelectedAvatar);
 #if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
                             if(Settings._tools_quickSetup_fillVisemes)
                                 DoAction(SelectedAvatar, ToolMenuActions.FillVisemes);
@@ -2590,6 +2592,10 @@ namespace Pumkin.AvatarTools
                             else
                                 SetRendererAnchor(SelectedAvatar, Settings._tools_quickSetup_setRenderAnchor_bone, 
                                     Settings._tools_quickSetup_setMeshRendererAnchor, Settings._tools_quickSetup_setSkinnedMeshRendererAnchor);
+
+                            foreach(var tool in newTools)
+                                if(tool.quickSetupActive)
+                                    tool.TryExecute(SelectedAvatar);
                         }
 
                         if(GUILayout.Button(Icons.Settings, Styles.BigIconButton))
@@ -2656,6 +2662,12 @@ namespace Pumkin.AvatarTools
                             Settings._tools_quickSetup_setMeshRendererAnchor = GUILayout.Toggle(Settings._tools_quickSetup_setMeshRendererAnchor, Strings.Tools.setMeshRendererAnchors);
                         }
                         EditorGUI.EndDisabledGroup();
+                        
+                        EditorGUILayout.Space();
+                        
+                        foreach(var tool in newTools)
+                            tool.DrawQuickSetupGUI();
+                                
                     }
 
                     Helpers.DrawGUILine();
@@ -2673,8 +2685,6 @@ namespace Pumkin.AvatarTools
 #endif
                                 if(GUILayout.Button(Strings.Tools.revertBlendshapes))
                                     DoAction(SelectedAvatar, ToolMenuActions.RevertBlendshapes);
-                                /*if(GUILayout.Button(Strings.Tools.resetPose))
-                                    DoAction(SelectedAvatar, ToolMenuActions.ResetPose);*/
                                 EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
                                 {
                                     if(GUILayout.Button(Strings.Tools.revertScale))
@@ -2701,15 +2711,6 @@ namespace Pumkin.AvatarTools
 
                                 if(GUILayout.Button(Strings.Tools.zeroBlendshapes))
                                     DoAction(SelectedAvatar, ToolMenuActions.ZeroBlendshapes);
-
-                                /*if(GUILayout.Button(Strings.Tools.resetToTPose))
-                                    DoAction(SelectedAvatar, ToolMenuActions.SetTPose);*/
-                                /*EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
-                                {
-                                    if(GUILayout.Button(Strings.Tools.editScale))
-                                        DoAction(SelectedAvatar, ToolMenuActions.EditScale);
-                                }
-                                EditorGUI.EndDisabledGroup();*/
                             }
                             GUILayout.EndVertical();
                         }
@@ -2781,6 +2782,11 @@ namespace Pumkin.AvatarTools
                             if(GUILayout.Button(Strings.Tools.setMeshRendererAnchors))
                                 SetRendererAnchor(SelectedAvatar, Settings._tools_quickSetup_setRenderAnchor_bone, true, false);
                         }
+
+                        EditorGUILayout.Space();
+                        
+                        foreach(var tool in newTools)
+                            tool.DrawGUI();
                     }
 
                     Helpers.DrawGUILine();
@@ -3736,9 +3742,6 @@ namespace Pumkin.AvatarTools
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, false);
 #endif
                     break;
-                /*case ToolMenuActions.ResetPose:
-                    ResetPose(SelectedAvatar);
-                    break;*/
                 case ToolMenuActions.ResetPose:
                     switch (Settings._tools_avatar_resetPose_type)
                     {
