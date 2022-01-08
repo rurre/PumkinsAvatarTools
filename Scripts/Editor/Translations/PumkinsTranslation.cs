@@ -262,6 +262,7 @@ namespace Pumkin.Translations
         public string transforms_position = "Position";
         public string transforms_rotation = "Rotation";
         public string transforms_scale = "Scale";
+        public string transforms_createMissing = "Create Missing";
         public string transforms_avatarScale = "Avatar Scale";
         public string dynamicBones = "Dynamic Bones";
         public string dynamicBones_colliders = "Dynamic Bone Colliders";
