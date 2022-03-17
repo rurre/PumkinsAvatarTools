@@ -56,6 +56,19 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_transforms_copyPosition = false;
         [SerializeField] internal bool bCopier_transforms_copyRotation = true;
         [SerializeField] internal bool bCopier_transforms_copyScale = true;
+        [SerializeField] internal bool bCopier_transforms_createMissing = true;
+
+        [SerializeField] internal bool bCopier_physBones_copy = true;
+        [SerializeField] internal bool bCopier_physBones_copySettings = false;
+        [SerializeField] internal bool bCopier_physBones_createMissing = true;
+        [SerializeField] internal bool bCopier_physBones_createObjects = false;
+        [SerializeField] internal bool bCopier_physBones_adjustScale = true;
+
+        [SerializeField] internal bool bCopier_physBones_copyColliders = true;
+        [SerializeField] internal bool bCopier_physBones_removeOldColliders = false;
+        [SerializeField] internal bool bCopier_physBones_removeOldBones = false;
+        [SerializeField] internal bool bCopier_physBones_createObjectsColliders = true;
+        [SerializeField] internal bool bCopier_physBones_adjustScaleColliders = true;
 
         [SerializeField] internal bool bCopier_dynamicBones_copy = true;
         [SerializeField] internal bool bCopier_dynamicBones_copySettings = false;
@@ -144,6 +157,18 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_other_copyIKFollowers = true;
         [SerializeField] internal bool bCopier_other_copyVRMSpringBones = true;
         [SerializeField] internal bool bCopier_other_createGameObjects = true;
+
+        [SerializeField] internal bool bCopier_contactReceiver_copy = true;
+        [SerializeField] internal bool bCopier_contactReceiver_removeOld = false;
+        [SerializeField] internal bool bCopier_contactReceiver_createMissing = true;
+        [SerializeField] internal bool bCopier_contactReceiver_createObjects = false;
+        [SerializeField] internal bool bCopier_contactReceiver_adjustScale = true;
+
+        [SerializeField] internal bool bCopier_contactSender_copy = true;
+        [SerializeField] internal bool bCopier_contactSender_removeOld = false;
+        [SerializeField] internal bool bCopier_contactSender_createMissing = true;
+        [SerializeField] internal bool bCopier_contactSender_createObjects = false;
+        [SerializeField] internal bool bCopier_contactSender_adjustScale = true;
 
         [SerializeField] internal bool bCopier_aimConstraint_copy = true;
         [SerializeField] internal bool bCopier_aimConstraint_replaceOld = true;
@@ -247,6 +272,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] public bool _avatar_testing_expand = false;
         [SerializeField] internal bool _tools_expand = true;
         [SerializeField] internal bool _tools_avatar_expand = true;
+        [SerializeField] internal bool _tools_physBones_expand = true;
         [SerializeField] internal bool _tools_dynamicBones_expand = true;
         [SerializeField] internal bool _tools_removeAll_expand = false;
 
@@ -261,6 +287,8 @@ namespace Pumkin.AvatarTools
 
         [SerializeField] internal bool _copier_expand = false;
         [SerializeField] internal bool _copier_expand_transforms = false;
+        [SerializeField] internal bool _copier_expand_physBones = false;
+        [SerializeField] internal bool _copier_expand_physBoneColliders = false;
         [SerializeField] internal bool _copier_expand_dynamicBones = false;
         [SerializeField] internal bool _copier_expand_dynamicBoneColliders = false;
         [SerializeField] internal bool _copier_expand_avatarDescriptor = false;
@@ -274,6 +302,8 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool _copier_expand_animators = false;
         [SerializeField] internal bool _copier_expand_audioSources = false;
         [SerializeField] internal bool _copier_expand_other = false;
+        [SerializeField] internal bool _copier_expand_contactReceiver = false;
+        [SerializeField] internal bool _copier_expand_contactSender = false;
         [SerializeField] internal bool _copier_expand_aimConstraints = false;
         [SerializeField] internal bool _copier_expand_lookAtConstraints = false;
         [SerializeField] internal bool _copier_expand_parentConstraints = false;

@@ -1,5 +1,9 @@
 ﻿using System;
 using Pumkin.HelperFunctions;
+#if PUMKIN_PBONES
+using VRC.SDK3.Dynamics.PhysBone.Components;
+using VRC.SDK3.Dynamics.Contact.Components;
+#endif
 
 namespace Pumkin.DataStructures
 {
@@ -26,7 +30,19 @@ namespace Pumkin.DataStructures
         public static readonly Type VRC_SpacialAudioSource = TypeHelpers.GetTypeAnywhere("VRC.SDKBase.VRC_SpatialAudioSource");
         public static readonly Type VRC_IKFollower = TypeHelpers.GetTypeAnywhere("VRC.SDKBase.VRC_IKFollower");
         public static readonly Type ONSPAudioSource = TypeHelpers.GetTypeAnywhere("ONSPAudioSource");
-        
+#if PUMKIN_PBONES
+        public static readonly Type ContactReceiver = typeof(VRCContactReceiver);
+        public static readonly Type ContactSender = typeof(VRCContactSender);
+
+        public static readonly Type PhysBone = typeof(VRCPhysBone);
+        public static readonly Type PhysBoneCollider = typeof(VRCPhysBoneCollider);
+#else
+        public static readonly Type ContactReceiver = null;
+        public static readonly Type ContactSender = null;
+
+        public static readonly Type PhysBone = null;
+        public static readonly Type PhysBoneCollider = null;
+#endif
         public static readonly Type DynamicBone = TypeHelpers.GetTypeAnywhere("DynamicBone");
         public static readonly Type DynamicBoneCollider = TypeHelpers.GetTypeAnywhere("DynamicBoneCollider");
     }

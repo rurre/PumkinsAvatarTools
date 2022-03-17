@@ -20,6 +20,8 @@ namespace Pumkin.DataStructures
                 Tab.Common,
                 new string[] //Initially lowercase to avoid having to cast them every time
                 {
+                    "physbone",
+                    "physbonecollider",
                     "dynamicbone",
                     "dynamicbonecollider",
                     "vrc_avatardescriptor",
@@ -271,6 +273,8 @@ namespace Pumkin.DataStructures
         public static Texture2D RigidBody { get; internal set; }
         public static Texture2D Prefab { get; internal set; }
         public static Texture2D TrailRenderer { get; internal set; }
+        public static Texture2D PhysBone { get; internal set; }
+        public static Texture2D PhysBoneCollider { get; internal set; }
         public static Texture2D BoneIcon { get; internal set; }
         public static Texture2D BoneColliderIcon { get; internal set; }
         public static Texture2D MeshRenderer { get; internal set; }
@@ -288,6 +292,8 @@ namespace Pumkin.DataStructures
         public static Texture2D GithubIcon { get; internal set; }
         public static Texture2D KofiIcon { get; internal set; }
         public static Texture2D Refresh { get; internal set; }
+        public static Texture2D ContactReceiver { get; internal set; }
+        public static Texture2D ContactSender { get; internal set; }
         public static Texture2D AimConstraint { get; internal set; }
         public static Texture2D LookAtConstraint { get; internal set; }
         public static Texture2D ParentConstraint { get; internal set; }
@@ -328,8 +334,12 @@ namespace Pumkin.DataStructures
 
             Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");
 
+            PhysBone = Resources.Load("icons/phys-bone-icon") as Texture2D ?? CsScript;
+            PhysBoneCollider = Resources.Load("icons/phys-bonecollider-icon") as Texture2D ?? DefaultAsset;
             BoneIcon = Resources.Load("icons/bone-icon") as Texture2D ?? CsScript;
             BoneColliderIcon = Resources.Load("icons/bonecollider-icon") as Texture2D ?? DefaultAsset;
+            ContactReceiver = Resources.Load("icons/receiver-icon") as Texture2D ?? CsScript; ;
+            ContactSender = Resources.Load("icons/sender-icon") as Texture2D ?? CsScript; ;
             DiscordIcon = Resources.Load("icons/discord-logo") as Texture2D ?? Star;
             GithubIcon = Resources.Load("icons/github-logo") as Texture2D ?? Star;
             KofiIcon = Resources.Load("icons/kofi-logo") as Texture2D ?? Star;
