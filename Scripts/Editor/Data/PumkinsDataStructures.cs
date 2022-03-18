@@ -32,6 +32,8 @@ namespace Pumkin.DataStructures
                     "audiosource",
                     "trailrenderer",
                     "light",
+                    "contactreceiver",
+                    "contactsender",
                 }
             }
         };

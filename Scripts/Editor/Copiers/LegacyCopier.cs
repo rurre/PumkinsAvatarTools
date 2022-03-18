@@ -220,9 +220,9 @@ namespace Pumkin.AvatarTools.Copiers
                 bool found = false;
                 for (int z = 0; z < pbcToArr.Length; z++)
                 {
-                    var d = pbcToArr[z];
-                    if(d.shapeType == pbcFrom.shapeType && d.radius == pbcFrom.radius &&
-                       d.height == pbcFrom.height && d.position == pbcFrom.position && d.rotation == pbcFrom.rotation)
+                    var p = pbcToArr[z];
+                    if(p.shapeType == pbcFrom.shapeType && p.radius == pbcFrom.radius &&
+                       p.height == pbcFrom.height && p.position == pbcFrom.position && p.rotation == pbcFrom.rotation)
                     {
                         found = true;
                         break;

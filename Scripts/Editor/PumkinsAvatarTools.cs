@@ -132,7 +132,6 @@ namespace Pumkin.AvatarTools
             RemoveAimConstraint,
             RemoveScaleConstraint,
             RemovePositionConstraint,
-            FixPhysBoneScripts,
             FixDynamicBoneScripts,
             FillEyeBones,
             ResetBoundingBoxes,
@@ -1743,6 +1742,96 @@ namespace Pumkin.AvatarTools
                         Helpers.DrawGUILine(1, false);
                     }
 
+                    if(CopierTabs.ComponentIsInSelectedTab("contactreceiver", Settings._copier_selectedTab))
+                    {
+                        //Contact Receivers menu
+                        if(!PhysBonesExist)
+                        {
+                            EditorGUI.BeginDisabledGroup(true);
+                            {
+                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_contactReceiver_copy, "Contact Receivers | SDK version 2022.03.04.12.28 or newer required", Icons.ContactReceiver);
+                                Settings.bCopier_contactReceiver_copy = false;
+                                Settings._copier_expand_contactReceiver = false;
+                            }
+                            EditorGUI.EndDisabledGroup();
+                        }
+                        else
+                        {
+#if PUMKIN_PBONES
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_contactReceiver, ref Settings.bCopier_contactReceiver_copy, Strings.Copier.contactReceiver, Icons.ContactReceiver);
+#endif
+                        }
+                        if(Settings._copier_expand_contactReceiver)
+                        {
+
+                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_contactReceiver_copy);
+                            EditorGUILayout.Space();
+
+                            using (var cHorizontalScope = new GUILayout.HorizontalScope())
+                            {
+                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+                                using (var cVerticalScope = new GUILayout.VerticalScope())
+                                {
+                                    Settings.bCopier_contactReceiver_createMissing = GUILayout.Toggle(Settings.bCopier_contactReceiver_createMissing, Strings.Copier.contactReceiver_createMissing, Styles.CopierToggle);
+                                    Settings.bCopier_contactReceiver_createObjects = GUILayout.Toggle(Settings.bCopier_contactReceiver_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                    Settings.bCopier_contactReceiver_removeOld = GUILayout.Toggle(Settings.bCopier_contactReceiver_removeOld, Strings.Copier.contactReceiver_removeOld, Styles.CopierToggle);
+                                    Settings.bCopier_contactReceiver_adjustScale = GUILayout.Toggle(Settings.bCopier_contactReceiver_adjustScale, Strings.Copier.contactReceiver_adjustScale, Styles.CopierToggle);
+                                }
+                            }
+
+                            EditorGUILayout.Space();
+                            EditorGUI.EndDisabledGroup();
+                        }
+
+                        Helpers.DrawGUILine(1, false);
+                    }
+
+                    if(CopierTabs.ComponentIsInSelectedTab("contactsender", Settings._copier_selectedTab))
+                    {
+                        //Contact Senders menu
+                        if(!PhysBonesExist)
+                        {
+                            EditorGUI.BeginDisabledGroup(true);
+                            {
+                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_contactSender_copy, "Contact Senders | SDK version 2022.03.04.12.28 or newer required", Icons.ContactReceiver);
+                                Settings.bCopier_contactSender_copy = false;
+                                Settings._copier_expand_contactSender = false;
+                            }
+                            EditorGUI.EndDisabledGroup();
+                        }
+                        else
+                        {
+#if PUMKIN_PBONES
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_contactSender, ref Settings.bCopier_contactSender_copy, Strings.Copier.contactSender, Icons.ContactSender);
+#endif
+                        }
+                        if(Settings._copier_expand_contactSender)
+                        {
+
+                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_contactSender_copy);
+                            EditorGUILayout.Space();
+
+                            using (var cHorizontalScope = new GUILayout.HorizontalScope())
+                            {
+                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+                                using (var cVerticalScope = new GUILayout.VerticalScope())
+                                {
+                                    Settings.bCopier_contactSender_createMissing = GUILayout.Toggle(Settings.bCopier_contactSender_createMissing, Strings.Copier.contactSender_createMissing, Styles.CopierToggle);
+                                    Settings.bCopier_contactSender_createObjects = GUILayout.Toggle(Settings.bCopier_contactSender_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                    Settings.bCopier_contactSender_removeOld = GUILayout.Toggle(Settings.bCopier_contactSender_removeOld, Strings.Copier.contactSender_removeOld, Styles.CopierToggle);
+                                    Settings.bCopier_contactSender_adjustScale = GUILayout.Toggle(Settings.bCopier_contactSender_adjustScale, Strings.Copier.contactSender_adjustScale, Styles.CopierToggle);
+                                }
+                            }
+
+                            EditorGUILayout.Space();
+                            EditorGUI.EndDisabledGroup();
+                        }
+
+                        Helpers.DrawGUILine(1, false);
+                    }
+
                     if(CopierTabs.ComponentIsInSelectedTab<ParticleSystem>(Settings._copier_selectedTab))
                     {
                         //Particles menu
@@ -2004,96 +2093,6 @@ namespace Pumkin.AvatarTools
                         Helpers.DrawGUILine(1, false);
                     }
 
-                    if(CopierTabs.ComponentIsInSelectedTab("contactreceivers", Settings._copier_selectedTab))
-                    {
-                        //Contact Receivers menu
-                        if(!PhysBonesExist)
-                        {
-                            EditorGUI.BeginDisabledGroup(true);
-                            {
-                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_physBones_copy, "Contact Receivers | SDK version 2022.03.04.12.28 or newer required", Icons.ContactReceiver);
-                                Settings.bCopier_contactReceiver_copy = false;
-                                Settings._copier_expand_contactReceiver = false;
-                            }
-                            EditorGUI.EndDisabledGroup();
-                        }
-                        else
-                        {
-#if PUMKIN_PBONES
-                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_contactReceiver, ref Settings.bCopier_contactReceiver_copy, Strings.Copier.contactReceiver, Icons.ContactReceiver);
-#endif
-                        }
-                        if(Settings._copier_expand_contactReceiver)
-                        {
-
-                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_contactReceiver_copy);
-                            EditorGUILayout.Space();
-
-                            using (var cHorizontalScope = new GUILayout.HorizontalScope())
-                            {
-                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                                using (var cVerticalScope = new GUILayout.VerticalScope())
-                                {
-                                    Settings.bCopier_contactReceiver_createMissing = GUILayout.Toggle(Settings.bCopier_contactReceiver_createMissing, Strings.Copier.contactReceiver_createMissing, Styles.CopierToggle);
-                                    Settings.bCopier_contactReceiver_createObjects = GUILayout.Toggle(Settings.bCopier_contactReceiver_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                                    Settings.bCopier_contactReceiver_removeOld = GUILayout.Toggle(Settings.bCopier_contactReceiver_removeOld, Strings.Copier.contactReceiver_removeOld, Styles.CopierToggle);
-                                    Settings.bCopier_contactReceiver_adjustScale = GUILayout.Toggle(Settings.bCopier_contactReceiver_adjustScale, Strings.Copier.contactReceiver_adjustScale, Styles.CopierToggle);
-                                }
-                            }
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
-
-                        Helpers.DrawGUILine(1, false);
-                    }
-
-                    if(CopierTabs.ComponentIsInSelectedTab("contactsenders", Settings._copier_selectedTab))
-                    {
-                        //Contact Senders menu
-                        if(!PhysBonesExist)
-                        {
-                            EditorGUI.BeginDisabledGroup(true);
-                            {
-                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_physBones_copy, "Contact Senders | SDK version 2022.03.04.12.28 or newer required", Icons.ContactReceiver);
-                                Settings.bCopier_contactSender_copy = false;
-                                Settings._copier_expand_contactSender = false;
-                            }
-                            EditorGUI.EndDisabledGroup();
-                        }
-                        else
-                        {
-#if PUMKIN_PBONES
-                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_contactSender, ref Settings.bCopier_contactSender_copy, Strings.Copier.contactSender, Icons.ContactSender);
-#endif
-                        }
-                        if(Settings._copier_expand_contactSender)
-                        {
-
-                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_contactSender_copy);
-                            EditorGUILayout.Space();
-
-                            using (var cHorizontalScope = new GUILayout.HorizontalScope())
-                            {
-                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                                using (var cVerticalScope = new GUILayout.VerticalScope())
-                                {
-                                    Settings.bCopier_contactSender_createMissing = GUILayout.Toggle(Settings.bCopier_contactSender_createMissing, Strings.Copier.contactSender_createMissing, Styles.CopierToggle);
-                                    Settings.bCopier_contactSender_createObjects = GUILayout.Toggle(Settings.bCopier_contactSender_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                                    Settings.bCopier_contactSender_removeOld = GUILayout.Toggle(Settings.bCopier_contactSender_removeOld, Strings.Copier.contactSender_removeOld, Styles.CopierToggle);
-                                    Settings.bCopier_contactSender_adjustScale = GUILayout.Toggle(Settings.bCopier_contactSender_adjustScale, Strings.Copier.contactSender_adjustScale, Styles.CopierToggle);
-                                }
-                            }
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
-                        }
-
-                        Helpers.DrawGUILine(1, false);
-                    }
-
                     if(CopierTabs.ComponentIsInSelectedTab<AimConstraint>(Settings._copier_selectedTab))
                     {
                         //Aim Constraints menu
@@ -2329,8 +2328,6 @@ namespace Pumkin.AvatarTools
                                 Settings.bCopier_rigidBodies_copy = false;
                                 Settings.bCopier_transforms_copy = false;
                                 Settings.bCopier_animators_copy = false;
-                                Settings.bCopier_contactReceiver_copy = false;
-                                Settings.bCopier_contactSender_copy = false;
                                 Settings.bCopier_aimConstraint_copy = false;
                                 Settings.bCopier_lookAtConstraint_copy = false;
                                 Settings.bCopier_parentConstraint_copy = false;
@@ -2350,6 +2347,8 @@ namespace Pumkin.AvatarTools
                             Settings.bCopier_particleSystems_copy = false;
                             Settings.bCopier_physBones_copy = false;
                             Settings.bCopier_physBones_copyColliders = false;
+                            Settings.bCopier_contactReceiver_copy = false;
+                            Settings.bCopier_contactSender_copy = false;
 
                             if(DynamicBonesExist)
                             {
@@ -2365,8 +2364,6 @@ namespace Pumkin.AvatarTools
                                 Settings.bCopier_rigidBodies_copy = true;
                                 Settings.bCopier_transforms_copy = true;
                                 Settings.bCopier_animators_copy = true;
-                                Settings.bCopier_contactReceiver_copy = true;
-                                Settings.bCopier_contactSender_copy = true;
                                 Settings.bCopier_aimConstraint_copy = true;
                                 Settings.bCopier_lookAtConstraint_copy = true;
                                 Settings.bCopier_parentConstraint_copy = true;
@@ -2386,6 +2383,8 @@ namespace Pumkin.AvatarTools
                             Settings.bCopier_particleSystems_copy = true;
                             Settings.bCopier_physBones_copy = true;
                             Settings.bCopier_physBones_copyColliders = true;
+                            Settings.bCopier_contactReceiver_copy = true;
+                            Settings.bCopier_contactSender_copy = true;
 
                             if(DynamicBonesExist)
                             {
@@ -3035,9 +3034,6 @@ namespace Pumkin.AvatarTools
                                 TogglePhysBonesEnabledState(SelectedAvatar, ref _nextTogglePBoneState, ref _pBonesThatWereAlreadyDisabled);
 
                             EditorGUILayout.Space();
-
-                            if(GUILayout.Button(Strings.Tools.fixPhysBoneScripts, Styles.BigButton))
-                                DoAction(SelectedAvatar, ToolMenuActions.FixPhysBoneScripts);
                         }
                         EditorGUI.EndDisabledGroup();
                     }
@@ -3118,7 +3114,12 @@ namespace Pumkin.AvatarTools
                                 DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBones);
                         }
                         EditorGUI.EndDisabledGroup();
-
+                        EditorGUI.BeginDisabledGroup(!PhysBonesExist);
+                        {
+                            if(GUILayout.Button(new GUIContent(Strings.Copier.contactReceiver, Icons.ContactReceiver)))
+                                DoAction(SelectedAvatar, ToolMenuActions.RemoveContactReceiver);
+                        }
+                        EditorGUI.EndDisabledGroup();
                         if(GUILayout.Button(new GUIContent(Strings.Copier.particleSystems, Icons.ParticleSystem)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveParticleSystems);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.lights, Icons.Light)))
@@ -3136,12 +3137,6 @@ namespace Pumkin.AvatarTools
 #else
                         GUILayout.Space(32);
 #endif
-                        EditorGUI.BeginDisabledGroup(!PhysBonesExist);
-                        {
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.contactReceiver, Icons.ContactReceiver)))
-                                DoAction(SelectedAvatar, ToolMenuActions.RemoveContactReceiver);
-                        }
-                        EditorGUI.EndDisabledGroup();
                         if(GUILayout.Button(new GUIContent(Strings.Copier.aimConstraints, Icons.AimConstraint)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveAimConstraint);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.lookAtConstraints, Icons.LookAtConstraint)))
@@ -3164,6 +3159,12 @@ namespace Pumkin.AvatarTools
                             if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones_colliders, Icons.BoneColliderIcon)))
                                 DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBoneColliders);
                         }
+                        EditorGUI.BeginDisabledGroup(!PhysBonesExist);
+                        {
+                            if(GUILayout.Button(new GUIContent(Strings.Copier.contactSender, Icons.ContactSender)))
+                                DoAction(SelectedAvatar, ToolMenuActions.RemoveContactSender);
+                        }
+                        EditorGUI.EndDisabledGroup();
                         EditorGUI.EndDisabledGroup();
                         if(GUILayout.Button(new GUIContent(Strings.Copier.trailRenderers, Icons.TrailRenderer)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveTrailRenderers);
@@ -3177,14 +3178,7 @@ namespace Pumkin.AvatarTools
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveEmptyGameObjects);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.other_emptyScripts, Icons.SerializableAsset)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveMissingScripts);
-
                         EditorGUILayout.Space();
-                        EditorGUI.BeginDisabledGroup(!PhysBonesExist);
-                        {
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.contactSender, Icons.ContactSender)))
-                                DoAction(SelectedAvatar, ToolMenuActions.RemoveContactSender);
-                        }
-                        EditorGUI.EndDisabledGroup();
                         if(GUILayout.Button(
                             new GUIContent(Strings.Copier.positionConstraints, Icons.PositionConstraint)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemovePositionConstraint);
@@ -4028,6 +4022,16 @@ namespace Pumkin.AvatarTools
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false, false);
 #endif
                     break;
+                case ToolMenuActions.RemoveContactReceiver:
+#if PUMKIN_PBONES
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(VRCContactReceiver), false, false);
+#endif
+                    break;
+                case ToolMenuActions.RemoveContactSender:
+#if PUMKIN_PBONES
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(VRCContactSender), false, false);
+#endif
+                    break;
                 case ToolMenuActions.ResetPose:
                     switch (Settings._tools_avatar_resetPose_type)
                     {
@@ -4107,16 +4111,6 @@ namespace Pumkin.AvatarTools
 #endif
                 case ToolMenuActions.RemoveMissingScripts:
                     LegacyDestroyer.DestroyMissingScripts(SelectedAvatar);
-                    break;
-                case ToolMenuActions.RemoveContactReceiver:
-#if PUMKIN_PBONES
-                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(VRCContactReceiver), false, false);
-#endif
-                    break;
-                case ToolMenuActions.RemoveContactSender:
-#if PUMKIN_PBONES
-                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(VRCContactSender), false, false);
-#endif
                     break;
                 case ToolMenuActions.RemoveAimConstraint:
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(AimConstraint), false, false);
@@ -4878,7 +4872,7 @@ namespace Pumkin.AvatarTools
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.ContactReceiver, false, true);
                     LegacyCopier.CopyAllContactReceivers(objFrom, objTo, Settings.bCopier_contactReceiver_createMissing, Settings.bCopier_contactReceiver_createObjects, Settings.bCopier_contactReceiver_adjustScale);
                 }
-                if(Settings.bCopier_contactSender_copy && CopierTabs.ComponentIsInSelectedTab("contactSender", Settings._copier_selectedTab))
+                if(Settings.bCopier_contactSender_copy && CopierTabs.ComponentIsInSelectedTab("contactsender", Settings._copier_selectedTab))
                 {
                     if(Settings.bCopier_contactSender_removeOld)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.ContactSender, false, true);
