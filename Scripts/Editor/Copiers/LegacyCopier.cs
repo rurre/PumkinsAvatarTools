@@ -94,14 +94,6 @@ namespace Pumkin.AvatarTools.Copiers
                 for (int z = 0; z < conRecToArr.Length; z++)
                 {
                     var rec = conRecToArr[z];
-                    //    if(rec.shapeType == conRecFrom.shapeType && rec.radius == conRecFrom.radius &&
-                    //      rec.height == conRecFrom.height && rec.position == conRecFrom.position && rec.rotation == conRecFrom.rotation &&
-                    //       rec.allowSelf == conRecFrom.allowSelf && rec.allowOthers == conRecFrom.allowOthers && rec.localOnly == conRecFrom.localOnly &&
-                    //       rec.collisionTags == conRecFrom.collisionTags && rec.receiverType == conRecFrom.receiverType && rec.parameter == conRecFrom.parameter && rec.value == conRecFrom.value)
-                    //    {
-                    //        found = true;
-                    //        break;
-                    //    }
                     if(rec.shapeType == conRecFrom.shapeType && rec.radius == conRecFrom.radius &&
                         rec.height == conRecFrom.height && rec.position == conRecFrom.position && rec.rotation == conRecFrom.rotation &&
                         rec.allowSelf == conRecFrom.allowSelf && rec.allowOthers == conRecFrom.allowOthers && rec.localOnly == conRecFrom.localOnly &&
