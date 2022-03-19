@@ -427,6 +427,7 @@ namespace Pumkin.DataStructures
             public static string descriptor_playableLayers = "_Playable Layers";
             public static string descriptor_eyeLookSettings = "_Eye Look Settings";
             public static string descriptor_expressions = "_Expressions";
+            public static string descriptor_colliders = "_Colliders";
             public static string skinMeshRender = "_Skinned Mesh Renderers";
             public static string skinMeshRender_materials = "_Materials";
             public static string skinMeshRender_blendShapeValues = "_BlendShape Values";
@@ -526,6 +527,7 @@ namespace Pumkin.DataStructures
                 descriptor_playableLayers = Translation.copier.descriptor_playableLayers;
                 descriptor_eyeLookSettings = Translation.copier.descriptor_eyeLookSettings;
                 descriptor_expressions = Translation.copier.descriptor_expressions;
+                descriptor_colliders = Translation.copier.descriptor_colliders;
 
                 skinMeshRender = Translation.copier.skinMeshRender;
                 skinMeshRender_materials = Translation.copier.skinMeshRender_materials;

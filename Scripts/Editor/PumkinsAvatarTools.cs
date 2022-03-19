@@ -1491,6 +1491,9 @@ namespace Pumkin.AvatarTools
                                     Settings.bCopier_descriptor_copyEyeLookSettings = GUILayout.Toggle(Settings.bCopier_descriptor_copyEyeLookSettings, Strings.Copier.descriptor_eyeLookSettings, Styles.CopierToggle);
                                     Settings.bCopier_descriptor_copyExpressions = GUILayout.Toggle(Settings.bCopier_descriptor_copyExpressions, Strings.Copier.descriptor_expressions, Styles.CopierToggle);
 #endif
+#if PUMKIN_PBONES
+                                    Settings.bCopier_descriptor_copyColliders = GUILayout.Toggle(Settings.bCopier_descriptor_copyColliders, Strings.Copier.descriptor_colliders, Styles.CopierToggle);
+#endif
                                     EditorGUILayout.Space();
 
 #if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
@@ -4155,10 +4158,10 @@ namespace Pumkin.AvatarTools
         private static void CleanupPhysBonesColliderArraySizes()
         {
 #if PUMKIN_PBONES
-            var dbones = SelectedAvatar.GetComponentsInChildren<VRCPhysBone>(true);
-            if(dbones != null && dbones.Length > 0)
+            var pbones = SelectedAvatar.GetComponentsInChildren<VRCPhysBone>(true);
+            if(pbones != null && pbones.Length > 0)
             {
-                SerializedObject so = new SerializedObject(dbones);
+                SerializedObject so = new SerializedObject(pbones);
                 if(so != null)
                 {
                     var prop = so.FindProperty("m_Colliders");

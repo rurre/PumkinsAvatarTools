@@ -296,6 +296,7 @@ namespace Pumkin.Translations
         public string descriptor_playableLayers = "Playable Layers";
         public string descriptor_eyeLookSettings = "Eye Look Settings";
         public string descriptor_expressions = "Expressions";
+        public string descriptor_colliders = "Colliders";
         public string skinMeshRender = "Skinned Mesh Renderers";
         public string skinMeshRender_materials = "Materials";
         public string skinMeshRender_blendShapeValues = "BlendShape Values";

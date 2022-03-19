@@ -1897,7 +1897,17 @@ namespace Pumkin.AvatarTools.Copiers
                 });
             }
 
-            foreach(var s in descPropNames)
+            if (Settings.bCopier_descriptor_copyColliders)
+            {
+                descPropNames.AddRange(new[]
+                {
+                    "collidersMirrored", "collider_head", "collider_torso",
+                    "collider_handR", "collider_footR", "collider_fingerIndexR", "collider_fingerMiddleR", "collider_fingerRingR", "collider_fingerLittleR",
+                    "collider_handL", "collider_footL", "collider_fingerIndexL", "collider_fingerMiddleL", "collider_fingerRingL", "collider_fingerLittleL"
+                });
+            }
+
+            foreach (var s in descPropNames)
             {
                 var prop = sDescFrom.FindProperty(s);
                 if(prop != null)

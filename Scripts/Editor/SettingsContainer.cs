@@ -93,6 +93,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_descriptor_copyEyeLookSettings = true;
         [SerializeField] internal bool bCopier_descriptor_copyPlayableLayers = true;
         [SerializeField] internal bool bCopier_descriptor_copyExpressions = true;
+        [SerializeField] internal bool bCopier_descriptor_copyColliders = true;
 
         [SerializeField] internal bool bCopier_colliders_copy = true;
         [SerializeField] internal bool bCopier_colliders_removeOld = false;
