@@ -11,8 +11,8 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "0.9.6b";
-        public const double toolsVersion = 0.96;
+        public const string TOOLS_VERSION_STRING = "0.9.7 Dynamics";
+        public const double toolsVersion = 0.97;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -198,6 +198,10 @@ namespace Pumkin.DataStructures
             public static string viewpointZDepth = "_Z Depth";
             public static string revertScale = "_Revert Scale";
             public static string editScaleMoveViewpoint = "_Move Viewpoint";
+            public static string enablePhysBones = "_Enable PhysBones";
+            public static string disablePhysBones = "_Disable PhysBones";
+            public static string togglePhysBones = "_Toggle PhysBones";
+            public static string fixPhysBoneScripts = "_Fix Missing PhysBone Scripts in Prefab";
             public static string enableDynamicBones = "_Enable DynamicBones";
             public static string disableDynamicBones = "_Disable DynamicBones";
             public static string toggleDynamicBones = "_Toggle DynamicBones";
@@ -233,6 +237,10 @@ namespace Pumkin.DataStructures
                 setSkinnedMeshRendererAnchors = Translation.tools.setSkinnedMeshRendererAnchors;
                 revertScale = Translation.tools.revertScale;
                 editScaleMoveViewpoint = Translation.tools.editScaleMoveViewpoint;
+                enablePhysBones = Translation.tools.enablePhysBones;
+                disablePhysBones = Translation.tools.disablePhysBones;
+                togglePhysBones = Translation.tools.togglePhysBones;
+                fixPhysBoneScripts = Translation.tools.fixPhysBoneScripts;
                 enableDynamicBones = Translation.tools.enableDynamicBones;
                 disableDynamicBones = Translation.tools.disableDynamicBones;
                 toggleDynamicBones = Translation.tools.toggleDynamicBones;
@@ -261,6 +269,9 @@ namespace Pumkin.DataStructures
             public static string meshRenderers = "_Mesh Renderers: {0} ({1}) - {2}";
             public static string polygons = "_Polygons: {0} ({1}) - {2}";
             public static string usedMaterialSlots = "_Used Material Slots: {0} ({1}) - {2}";
+            public static string physBoneTransforms = "_Phys Bone Transforms: {0} ({1}) - {2}";
+            public static string physBoneColliders = "_Phys Bone Colliders: {0} ({1}) - {2}";
+            public static string physBoneColliderTransforms = "_PhysCollider Affected Transforms: {0} ({1}) - {2}";
             public static string dynamicBoneTransforms = "_Dynamic Bone Transforms: {0} ({1}) - {2}";
             public static string dynamicBoneColliders = "_Dynamic Bone Colliders: {0} ({1}) - {2}";
             public static string dynamicBoneColliderTransforms = "_Collider Affected Transforms: {0} ({1}) - {2}";
@@ -287,6 +298,9 @@ namespace Pumkin.DataStructures
                 usedMaterialSlots = Translation.avatarInfo.usedMaterialSlots;
                 uniqueMaterials = Translation.avatarInfo.uniqueMaterials;
                 shaders = Translation.avatarInfo.shaders;
+                physBoneTransforms = Translation.avatarInfo.physBoneTransforms;
+                physBoneColliders = Translation.avatarInfo.physBoneColliders;
+                physBoneColliderTransforms = Translation.avatarInfo.physBoneColliderTransforms;
                 dynamicBoneTransforms = Translation.avatarInfo.dynamicBoneTransforms;
                 dynamicBoneColliders = Translation.avatarInfo.dynamicBoneColliders;
                 dynamicBoneColliderTransforms = Translation.avatarInfo.dynamicBoneColliderTransforms;
@@ -383,7 +397,15 @@ namespace Pumkin.DataStructures
             public static string transforms_position = "_Position";
             public static string transforms_rotation = "_Rotation";
             public static string transforms_scale = "_Scale";
+            public static string transforms_createMissing = "_Create Missing";
             public static string transforms_avatarScale = "_Avatar Scale";
+            public static string physBones = "_Phys Bones";
+            public static string physBones_colliders = "_Phys Bone Colliders";
+            public static string physBones_removeOldBones = "_Remove Old Phys Bones";
+            public static string physBones_removeOldColliders = "_Remove Old Phys Colliders";
+            public static string physBones_createMissing = "_Create Missing Phys Bones";
+            public static string physBones_adjustScale = "_Adjust Scale";
+            public static string physBones_adjustScaleColliders = "_Adjust Scale";
             public static string dynamicBones = "_Dynamic Bones";
             public static string dynamicBones_colliders = "_Dynamic Bone Colliders";
             public static string dynamicBones_removeOldBones = "_Remove Old Dynamic Bones";
@@ -405,6 +427,7 @@ namespace Pumkin.DataStructures
             public static string descriptor_playableLayers = "_Playable Layers";
             public static string descriptor_eyeLookSettings = "_Eye Look Settings";
             public static string descriptor_expressions = "_Expressions";
+            public static string descriptor_colliders = "_Colliders";
             public static string skinMeshRender = "_Skinned Mesh Renderers";
             public static string skinMeshRender_materials = "_Materials";
             public static string skinMeshRender_blendShapeValues = "_BlendShape Values";
@@ -424,6 +447,14 @@ namespace Pumkin.DataStructures
             public static string other_ikFollowers = "_IK Followers";
             public static string other_emptyScripts = "_Empty Scripts";
             public static string other_vrmSpringBones = "_VRM Spring Bones";
+            public static string contactReceiver = "_Contact Receivers";
+            public static string contactReceiver_removeOld = "_Remove Old Contact Receivers";
+            public static string contactReceiver_createMissing = "_Create Missing Contact Receivers";
+            public static string contactReceiver_adjustScale = "_Adjust Scale";
+            public static string contactSender = "_Contact Senders";
+            public static string contactSender_removeOld = "_Remove Old Contact Senders";
+            public static string contactSender_createMissing = "_Create Missing Contact Senders";
+            public static string contactSender_adjustScale = "_Adjust Scale";
             public static string aimConstraints = "_Aim Constraints";
             public static string lookAtConstraints = "_LookAt Constraints";
             public static string parentConstraints = "_Parent Constraints";
@@ -465,7 +496,15 @@ namespace Pumkin.DataStructures
                 transforms_position = Translation.copier.transforms_position;
                 transforms_rotation = Translation.copier.transforms_rotation;
                 transforms_scale = Translation.copier.transforms_scale;
+                transforms_createMissing = Translation.copier.transforms_createMissing;
                 transforms_avatarScale = Translation.copier.transforms_avatarScale;
+                physBones = Translation.copier.physBones;
+                physBones_colliders = Translation.copier.physBones_colliders;
+                physBones_removeOldBones = Translation.copier.physBones_removeOldBones;
+                physBones_removeOldColliders = Translation.copier.physBones_removeOldColliders;
+                physBones_createMissing = Translation.copier.physBones_createMissing;
+                physBones_adjustScale = Translation.copier.physBones_adjustScale;
+                physBones_adjustScaleColliders = Translation.copier.physBones_adjustScaleColliders;
                 dynamicBones = Translation.copier.dynamicBones;
                 dynamicBones_colliders = Translation.copier.dynamicBones_colliders;
                 dynamicBones_removeOldBones = Translation.copier.dynamicBones_removeOldBones;
@@ -488,6 +527,7 @@ namespace Pumkin.DataStructures
                 descriptor_playableLayers = Translation.copier.descriptor_playableLayers;
                 descriptor_eyeLookSettings = Translation.copier.descriptor_eyeLookSettings;
                 descriptor_expressions = Translation.copier.descriptor_expressions;
+                descriptor_colliders = Translation.copier.descriptor_colliders;
 
                 skinMeshRender = Translation.copier.skinMeshRender;
                 skinMeshRender_materials = Translation.copier.skinMeshRender_materials;
@@ -507,6 +547,14 @@ namespace Pumkin.DataStructures
                 other = Translation.copier.other;
                 other_ikFollowers = Translation.copier.other_ikFollowers;
                 other_emptyScripts = Translation.copier.other_emptyScripts;
+                contactReceiver = Translation.copier.contactReceiver;
+                contactReceiver_removeOld = Translation.copier.contactReceiver_removeOld;
+                contactReceiver_createMissing = Translation.copier.contactReceiver_createMissing;
+                contactReceiver_adjustScale = Translation.copier.contactReceiver_adjustScale;
+                contactSender = Translation.copier.contactSender;
+                contactSender_removeOld = Translation.copier.contactSender_removeOld;
+                contactSender_createMissing = Translation.copier.contactSender_createMissing;
+                contactSender_adjustScale = Translation.copier.contactSender_adjustScale;
                 aimConstraints = Translation.copier.aimConstraints;
                 lookAtConstraints = Translation.copier.lookAtConstraints;
                 parentConstraints = Translation.copier.parentConstraints;
@@ -573,10 +621,12 @@ namespace Pumkin.DataStructures
             public static string loadedImageAsOverlay = "_Loaded '{0}' as Overlay image";
             public static string descriptorIsMissingCantGetViewpoint = "_Avatar Descriptor is missing. Can't get Viewpoint position";
             public static string hasMissingScriptDestroying = "_{0} has a missing script. Destroying";
+            public static string copiedPhysBone = "_Copied PhysBone from {0}'s {1} to {2}'s {1}";
             public static string copiedDynamicBone = "_Copied DynamicBone from {0}'s {1} to {2}'s {1}";
             public static string invalidTranslation = "_Translation {0} is invalid";
             public static string constraintHasNoValidSources = "_{0}'s {1} has no valid sources. Destroying";
             public static string avatarHasNoPrefab = "_Selected Avatar has no prefab associated with it. Only prefabs can be fixed for now";
+            public static string attemptingToFixPhysBoneScripts = "_Attempting to fix PhysBone Scripts";
             public static string attemptingToFixDynamicBoneScripts = "_Attempting to fix DynamicBone Scripts";
             public static string notSelectedInCopierIgnoring = "_{0}'s {1} is not selected in the copier. Ignoring";
             public static string exitPrefabModeFirst = "_Please exit prefab mode before doing this";
@@ -634,10 +684,12 @@ namespace Pumkin.DataStructures
                 loadedImageAsOverlay = Translation.log.loadedImageAsOverlay;
                 descriptorIsMissingCantGetViewpoint = Translation.log.descriptorIsMissingCantGetViewpoint;
                 hasMissingScriptDestroying = Translation.log.hasMissingScriptDestroying;
+                copiedPhysBone = Translation.log.copiedPhysBone;
                 copiedDynamicBone = Translation.log.copiedDynamicBone;
                 invalidTranslation = Translation.log.invalidTranslation;
                 constraintHasNoValidSources = Translation.log.constraintHasNoValidSources;
                 avatarHasNoPrefab = Translation.log.avatarHasNoPrefab;
+                attemptingToFixPhysBoneScripts = Translation.log.attemptingToFixPhysBoneScripts;
                 attemptingToFixDynamicBoneScripts = Translation.log.attemptingToFixDynamicBoneScripts;
                 notSelectedInCopierIgnoring = Translation.log.notSelectedInCopierIgnoring;
                 exitPrefabModeFirst = Translation.log.exitPrefabModeFirst;
@@ -831,6 +883,7 @@ namespace Pumkin.DataStructures
         {
             public static string uwu = "_uwu";
             public static string searchForBones = "_Search for DynamicBones";
+            public static string searchForPhysBones = "_Search for PhysBones";
             public static string language = "_Language";
             public static string refresh = "_Refresh";
             public static string importLanguage = "_Import Language";

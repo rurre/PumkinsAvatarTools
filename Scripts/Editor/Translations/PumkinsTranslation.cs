@@ -236,6 +236,10 @@ namespace Pumkin.Translations
         public string viewpointZDepth = "Z Depth";
         public string revertScale = "Revert Scale";
         public string editScaleMoveViewpoint = "Move Viewpoint";
+        public string disablePhysBones = "Disable PhysBones";
+        public string enablePhysBones = "Enable PhysBones";
+        public string togglePhysBones = "Toggle PhysBones";
+        public string fixPhysBoneScripts = "Fix Missing PhysBone Scripts in Prefab";
         public string disableDynamicBones = "Disable DynamicBones";
         public string enableDynamicBones = "Enable DynamicBones";
         public string toggleDynamicBones = "Toggle DynamicBones";
@@ -262,7 +266,15 @@ namespace Pumkin.Translations
         public string transforms_position = "Position";
         public string transforms_rotation = "Rotation";
         public string transforms_scale = "Scale";
+        public string transforms_createMissing = "Create Missing";
         public string transforms_avatarScale = "Avatar Scale";
+        public string physBones = "Phys Bones";
+        public string physBones_colliders = "Phys Bone Colliders";
+        public string physBones_removeOldBones = "Remove Old Phys Bones";
+        public string physBones_removeOldColliders = "Remove Old Colliders";
+        public string physBones_createMissing = "Copy Missing Phys Bones";
+        public string physBones_adjustScale = "Adjust Scale";
+        public string physBones_adjustScaleColliders = "Adjust Scale";
         public string dynamicBones = "Dynamic Bones";
         public string dynamicBones_colliders = "Dynamic Bone Colliders";
         public string dynamicBones_removeOldBones = "Remove Old Dynamic Bones";
@@ -284,6 +296,7 @@ namespace Pumkin.Translations
         public string descriptor_playableLayers = "Playable Layers";
         public string descriptor_eyeLookSettings = "Eye Look Settings";
         public string descriptor_expressions = "Expressions";
+        public string descriptor_colliders = "Colliders";
         public string skinMeshRender = "Skinned Mesh Renderers";
         public string skinMeshRender_materials = "Materials";
         public string skinMeshRender_blendShapeValues = "BlendShape Values";
@@ -308,6 +321,14 @@ namespace Pumkin.Translations
         public string includeChildren = "Include Children";
         public string size = "Size";
         public string other_emptyScripts = "Empty Scripts";
+        public string contactReceiver = "Contact Receivers";
+        public string contactReceiver_removeOld = "Remove Old Contact Receivers";
+        public string contactReceiver_createMissing = "Create Missing Contact Receivers";
+        public string contactReceiver_adjustScale = "Adjust Scale";
+        public string contactSender = "Contact Senders";
+        public string contactSender_removeOld = "Remove Old Contact Senders";
+        public string contactSender_createMissing = "Create Missing Contact Senders";
+        public string contactSender_adjustScale = "Adjust Scale";
         public string lookAtConstraints = "LookAt Constraints";
         public string parentConstraints = "Parent Constraints";
         public string positionConstraints = "Position Constraints";
@@ -338,6 +359,9 @@ namespace Pumkin.Translations
         public string usedMaterialSlots = "Used Material Slots: {0} ({1}) - {2}";
         public string uniqueMaterials = "Unique Materials: {0} ({1})";
         public string shaders = "Shaders: {0}";
+        public string physBoneTransforms = "Phys Bone Transforms: {0} ({1}) - {2}";
+        public string physBoneColliders = "Phys Bone Colliders: {0} ({1}) - {2}";
+        public string physBoneColliderTransforms = "PhysCollider Affected Transforms: {0} ({1}) - {2}";
         public string dynamicBoneTransforms = "Dynamic Bone Transforms: {0} ({1}) - {2}";
         public string dynamicBoneColliders = "Dynamic Bone Colliders: {0} ({1}) - {2}";
         public string dynamicBoneColliderTransforms = "Collider Affected Transforms: {0} ({1}) - {2}";
@@ -426,10 +450,12 @@ namespace Pumkin.Translations
         public string loadedImageAsOverlay = "Loaded '{0}' as Overlay image";
         public string descriptorIsMissingCantGetViewpoint = "Avatar Descriptor is missing. Can't get Viewpoint position";
         public string hasMissingScriptDestroying = "{0} has a missing script. Destroying";
+        public string copiedPhysBone = "Copied PhysBone from {0}'s {1} to {2}'s {1}";
         public string copiedDynamicBone = "Copied DynamicBone from {0}'s {1} to {2}'s {1}";
         public string invalidTranslation = "Translation {0} is invalid";
         public string constraintHasNoValidSources = "{0}'s {1} has no valid sources. Destroying";
         public string avatarHasNoPrefab = "Selected Avatar has no prefab associated with it. Only prefabs can be fixed for now";
+        public string attemptingToFixPhysBoneScripts = "Attempting to fix PhysBone Scripts";
         public string attemptingToFixDynamicBoneScripts = "Attempting to fix DynamicBone Scripts";
         public string notSelectedInCopierIgnoring = "{0}'s {1} is not selected in the copier. Ignoring";
         public string exitPrefabModeFirst = "Please exit prefab mode before doing this";
@@ -467,6 +493,7 @@ namespace Pumkin.Translations
     public class SettingsStrings
     {
         public string uwu = "uwu";
+        public string searchForPhysBones = "Search for PhysBones";
         public string searchForBones = "Search for DynamicBones";
         public string language = "Language";
         public string refresh = "Refresh";

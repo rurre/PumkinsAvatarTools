@@ -11,17 +11,23 @@ namespace Pumkin.DependencyChecker
     [InitializeOnLoad, ExecuteInEditMode]
     public class _DependencyChecker
     {
+        const string HAS_PBONES = "PUMKIN_PBONES";
         const string HAS_DBONES = "PUMKIN_DBONES";
         const string HAS_OLD_DBONES = "PUMKIN_OLD_DBONES";
         const string HAS_SDK1 = "PUMKIN_VRCSDK1";
-        const string HAS_SDK2 = "PUMKIN_VRCSDK2";        
+        const string HAS_SDK2 = "PUMKIN_VRCSDK2";
 
-        public static string MainScriptPath { get; private set; }        
+        public static string MainScriptPath { get; private set; }
 
         public enum PumkinsDBonesVersion { NotFound, OldVersion, NewVersionWithBaseColliders }
+        public enum PumkinsPBones { NotFound, Found, }
         public enum PumkinsSDKVersion { NotFound, SDK2, SDK3 }
 
         public static PumkinsSDKVersion SDKVersion
+        {
+            get; private set;
+        }
+        public static PumkinsPBones PBones
         {
             get; private set;
         }
@@ -37,27 +43,38 @@ namespace Pumkin.DependencyChecker
             get { return _mainToolsOK; } private set { _mainToolsOK = value; }
         }
 
-        static _DependencyChecker() 
+        static _DependencyChecker()
         {
             CheckForDependencies();
-        }      
+        }
 
         public static void ResetDependencies()
         {
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Resetting tool preferences...");
-            ScriptDefinesManager.RemoveDefines(HAS_SDK1, HAS_SDK2, HAS_DBONES, HAS_OLD_DBONES);
+            ScriptDefinesManager.RemoveDefines(HAS_SDK1, HAS_SDK2, HAS_DBONES, HAS_OLD_DBONES, HAS_PBONES);
         }
 
         public static void CheckForDependencies()
-        {            
+        {
             SDKVersion = GetVRCSDKVersion();
+            PBones = GetPhysBones();
             DBonesVersion = GetDynamicBonesVersion();
             MainToolsOK = GetTypeFromName("Pumkin.AvatarTools.PumkinsAvatarTools") != null ? true : false;            
 
             var definesToAdd = new HashSet<string>();
-            var currentDefines = ScriptDefinesManager.GetDefinesAsArray();                
+            var currentDefines = ScriptDefinesManager.GetDefinesAsArray();
 
-            switch(DBonesVersion)
+            switch (PBones)
+            {
+                case PumkinsPBones.Found:
+                    definesToAdd.Add(HAS_PBONES);
+                    break;
+                case PumkinsPBones.NotFound:
+                default:
+                    break;
+            }
+
+            switch (DBonesVersion)
             {
                 case PumkinsDBonesVersion.NewVersionWithBaseColliders:
                 case PumkinsDBonesVersion.OldVersion:
@@ -67,7 +84,6 @@ namespace Pumkin.DependencyChecker
                 default:
                     break;
             }
-            
             ScriptDefinesManager.AddDefinesIfMissing(definesToAdd.ToArray());
         }
 
@@ -86,6 +102,29 @@ namespace Pumkin.DependencyChecker
         }
 
         /// <summary>
+        /// Check if we have PhysBones and Contacts
+        /// </summary>        
+        static PumkinsPBones GetPhysBones()
+        {
+            Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for PhysBones and Contacts in project...");
+
+            var pPaths = new List<string>(); 
+            pPaths.AddRange(Directory.GetFiles(Application.dataPath, "VRC.SDK3.Dynamics.PhysBone.dll", SearchOption.AllDirectories));
+            pPaths.AddRange(Directory.GetFiles(Application.dataPath, "VRC.SDK3.Dynamics.Contact.dll", SearchOption.AllDirectories));
+
+            if (pPaths.Count == 0) //No Physbones or Contacts in project
+            {
+                Debug.Log("<color=blue>PumkinsAvatarTools</color>: PhysBones and Contacts not found in project.");
+                return PumkinsPBones.NotFound;
+            }
+            else //PhysBones and  and Contacts Present
+            {
+                Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found PhysBones and Contacts in project!");
+                return PumkinsPBones.Found;
+            }
+        }
+
+        /// <summary>
         /// Check if we have DynamicBones and get their "version"
         /// </summary>        
         static PumkinsDBonesVersion GetDynamicBonesVersion()
@@ -98,7 +137,7 @@ namespace Pumkin.DependencyChecker
             dynPaths.AddRange(Directory.GetFiles(Application.dataPath, "DynamicBone.cs", SearchOption.AllDirectories));
             dynPaths.AddRange(Directory.GetFiles(Application.dataPath, "DynamicBoneCollider.cs"));            
 
-            if(dynPaths.Count == 0) //No bones in project
+            if(dynPaths.Count == 0) //No Dynamicbones in project
             {                
                 Debug.Log("<color=blue>PumkinsAvatarTools</color>: DynamicBones not found in project.");
                 return PumkinsDBonesVersion.NotFound;
