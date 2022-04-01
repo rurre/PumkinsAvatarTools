@@ -1119,7 +1119,7 @@ namespace Pumkin.AvatarTools
 
             GUILayout.FlexibleSpace();
 
-            if(GUILayout.Button(Strings.Settings.uwu, "label", GUILayout.ExpandWidth(false)))
+            if(GUILayout.Button(Strings.Settings.uwu, "IconButton", GUILayout.ExpandWidth(false)))
             {
                 if(Strings.Settings.uwu == "uwu")
                     Strings.Settings.uwu = "OwO";
@@ -1189,10 +1189,10 @@ namespace Pumkin.AvatarTools
 
                 //EditorGUI.BeginDisabledGroup(!DynamicBonesExist || !SelectedAvatar);
                 //{
-                //  if(GUILayout.Button(Strings.Tools.fixDynamicBoneScripts, Styles.BigButton))
-                //      DoAction(SelectedAvatar, ToolMenuActions.FixDynamicBoneScripts);
+                //    if(GUILayout.Button(Strings.Tools.fixDynamicBoneScripts, Styles.BigButton))
+                //        DoAction(SelectedAvatar, ToolMenuActions.FixDynamicBoneScripts);
                 //}
-                //EditorGUI.EndDisabledGroup();
+                EditorGUI.EndDisabledGroup();
             }
         }
 
@@ -1708,7 +1708,6 @@ namespace Pumkin.AvatarTools
                                     Settings.bCopier_skinMeshRender_copySettings = GUILayout.Toggle(Settings.bCopier_skinMeshRender_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
                                     Settings.bCopier_skinMeshRender_copyMaterials = GUILayout.Toggle(Settings.bCopier_skinMeshRender_copyMaterials, Strings.Copier.skinMeshRender_materials, Styles.CopierToggle);
                                     Settings.bCopier_skinMeshRender_copyBlendShapeValues = GUILayout.Toggle(Settings.bCopier_skinMeshRender_copyBlendShapeValues, Strings.Copier.skinMeshRender_blendShapeValues, Styles.CopierToggle);
-                                    Settings.bCopier_skinMeshRender_copyBounds = GUILayout.Toggle(Settings.bCopier_skinMeshRender_copyBounds, Strings.Copier.skinMeshRender_bounds, Styles.CopierToggle);
                                 }
                             }
 
@@ -2087,9 +2086,6 @@ namespace Pumkin.AvatarTools
                                     Settings.bCopier_transforms_copyRotation = GUILayout.Toggle(Settings.bCopier_transforms_copyRotation, Strings.Copier.transforms_rotation, Styles.CopierToggle);
                                     Settings.bCopier_transforms_copyScale = GUILayout.Toggle(Settings.bCopier_transforms_copyScale, Strings.Copier.transforms_scale, Styles.CopierToggle);
                                     Settings.bCopier_transforms_createMissing = GUILayout.Toggle(Settings.bCopier_transforms_createMissing, Strings.Copier.transforms_createMissing, Styles.CopierToggle);
-                                    EditorGUILayout.Space();
-                                    Settings.bCopier_transforms_copyActiveState = GUILayout.Toggle(Settings.bCopier_transforms_copyActiveState, Strings.Copier.transforms_copyActiveState, Styles.CopierToggle);
-                                    Settings.bCopier_transforms_copyLayerAndTag = GUILayout.Toggle(Settings.bCopier_transforms_copyLayerAndTag, Strings.Copier.transforms_copyLayerAndTag, Styles.CopierToggle);
                                 }
                             }
 
@@ -3071,6 +3067,9 @@ namespace Pumkin.AvatarTools
                                 ToggleDynamicBonesEnabledState(SelectedAvatar, ref _nextToggleDBoneState, ref _dBonesThatWereAlreadyDisabled);
 
                             EditorGUILayout.Space();
+
+                            if(GUILayout.Button(Strings.Tools.fixDynamicBoneScripts, Styles.BigButton))
+                                DoAction(SelectedAvatar, ToolMenuActions.FixDynamicBoneScripts);
                         }
                         EditorGUI.EndDisabledGroup();
                     }
@@ -4822,6 +4821,10 @@ namespace Pumkin.AvatarTools
             if(Settings.bCopier_descriptor_copy && Settings.bCopier_descriptor_copyAvatarScale)
                 objTo.transform.localScale = objFrom.transform.localScale;
 #endif
+            if(Settings.bCopier_transforms_copy && CopierTabs.ComponentIsInSelectedTab<Transform>(Settings._copier_selectedTab))
+            {
+                LegacyCopier.CopyAllTransforms(objFrom, objTo, true);
+            }
             if(Settings.bCopier_particleSystems_copy && CopierTabs.ComponentIsInSelectedTab<ParticleSystem>(Settings._copier_selectedTab))
             {
                 LegacyCopier.CopyAllParticleSystems(objFrom, objTo, Settings.bCopier_particleSystems_createObjects, true);
@@ -4840,9 +4843,17 @@ namespace Pumkin.AvatarTools
             {
                 LegacyCopier.CopyAllTrailRenderers(objFrom, objTo, Settings.bCopier_trailRenderers_createObjects, true);
             }
+            if(Settings.bCopier_meshRenderers_copy && CopierTabs.ComponentIsInSelectedTab<MeshRenderer>(Settings._copier_selectedTab))
+            {
+                LegacyCopier.CopyAllMeshRenderers(objFrom, objTo, Settings.bCopier_meshRenderers_createObjects, true);
+            }
             if(Settings.bCopier_lights_copy && CopierTabs.ComponentIsInSelectedTab<Light>(Settings._copier_selectedTab))
             {
                 LegacyCopier.CopyAllLights(objFrom, objTo, Settings.bCopier_lights_createObjects, true);
+            }
+            if(Settings.bCopier_skinMeshRender_copy && CopierTabs.ComponentIsInSelectedTab<SkinnedMeshRenderer>(Settings._copier_selectedTab))
+            {
+                LegacyCopier.CopyAllSkinnedMeshRenderersSettings(objFrom, objTo, true);
             }
             if(Settings.bCopier_animators_copy && CopierTabs.ComponentIsInSelectedTab<Animator>(Settings._copier_selectedTab))
             {
@@ -4883,8 +4894,8 @@ namespace Pumkin.AvatarTools
                     if(Settings.bCopier_physBones_copySettings || Settings.bCopier_physBones_createMissing)
                         LegacyCopier.CopyAllPhysBonesNew(objFrom, objTo, Settings.bCopier_physBones_createMissing, true, Settings.bCopier_physBones_adjustScale);
                 }
-            } 
-            if(DynamicBonesExist)
+            }
+                if(DynamicBonesExist)
             {
                 if(Settings.bCopier_dynamicBones_copyColliders && CopierTabs.ComponentIsInSelectedTab("dynamicbonecollider", Settings._copier_selectedTab))
                 {
@@ -4935,18 +4946,6 @@ namespace Pumkin.AvatarTools
                 if(Settings.bCopier_joints_removeOld)
                     LegacyDestroyer.DestroyAllComponentsOfType(objTo, typeof(Joint), false, true);
                 LegacyCopier.CopyAllJoints(objFrom, objTo, Settings.bCopier_joints_createObjects, true);
-            }
-            if(Settings.bCopier_transforms_copy && CopierTabs.ComponentIsInSelectedTab<Transform>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyAllTransforms(objFrom, objTo, true);
-            }
-            if(Settings.bCopier_meshRenderers_copy && CopierTabs.ComponentIsInSelectedTab<MeshRenderer>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyAllMeshRenderers(objFrom, objTo, Settings.bCopier_meshRenderers_createObjects, true);
-            }
-            if(Settings.bCopier_skinMeshRender_copy && CopierTabs.ComponentIsInSelectedTab<SkinnedMeshRenderer>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyAllSkinnedMeshRenderersSettings(objFrom, objTo, true);
             }
         }
 

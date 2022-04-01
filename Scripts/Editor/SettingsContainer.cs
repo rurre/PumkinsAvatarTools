@@ -57,8 +57,6 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_transforms_copyRotation = true;
         [SerializeField] internal bool bCopier_transforms_copyScale = true;
         [SerializeField] internal bool bCopier_transforms_createMissing = true;
-        [SerializeField] internal bool bCopier_transforms_copyActiveState = true;
-        [SerializeField] internal bool bCopier_transforms_copyLayerAndTag = true;
 
         [SerializeField] internal bool bCopier_physBones_copy = true;
         [SerializeField] internal bool bCopier_physBones_copySettings = false;
@@ -111,7 +109,6 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_skinMeshRender_copySettings = true;
         [SerializeField] internal bool bCopier_skinMeshRender_copyBlendShapeValues = true;
         [SerializeField] internal bool bCopier_skinMeshRender_copyMaterials = false;
-        [SerializeField] internal bool bCopier_skinMeshRender_copyBounds = false;
 
         [SerializeField] internal bool bCopier_particleSystems_copy = true;
         [SerializeField] internal bool bCopier_particleSystems_replace = false;
@@ -333,6 +330,6 @@ namespace Pumkin.AvatarTools
 
         [SerializeField] internal static GameObject _selectedAvatar; // use property
 
-        [SerializeField] internal static bool _useSceneSelectionAvatar = false;
+        [SerializeField] internal static bool _useSceneSelectionAvatar = false;        
     }
 }
