@@ -204,6 +204,8 @@ namespace Pumkin.AvatarTools.Copiers
             if(from == null || to == null)
                 return;
 
+            Transform copyToRootTransform = to.transform;
+
             var pbcFromArr = from.GetComponentsInChildren<VRCPhysBoneCollider>(true);
             if(pbcFromArr == null || pbcFromArr.Length == 0)
                 return;
@@ -220,9 +222,10 @@ namespace Pumkin.AvatarTools.Copiers
                 bool found = false;
                 for (int z = 0; z < pbcToArr.Length; z++)
                 {
-                    var p = pbcToArr[z];
-                    if(p.shapeType == pbcFrom.shapeType && p.radius == pbcFrom.radius &&
-                       p.height == pbcFrom.height && p.position == pbcFrom.position && p.rotation == pbcFrom.rotation)
+                    var pBoneCollider = pbcToArr[z];
+                    if(pBoneCollider.shapeType == pbcFrom.shapeType && pBoneCollider.radius == pbcFrom.radius &&
+                       pBoneCollider.height == pbcFrom.height && pBoneCollider.position == pbcFrom.position && pBoneCollider.rotation == pbcFrom.rotation 
+                       && pBoneCollider.insideBounds)
                     {
                         found = true;
                         break;
@@ -242,6 +245,10 @@ namespace Pumkin.AvatarTools.Copiers
                         pbcTo.height *= scaleMu;
                         pbcTo.position *= scaleMu;
                     }
+
+                    pbcTo.rootTransform = Helpers.FindTransformInAnotherHierarchy(pbcFrom.rootTransform, copyToRootTransform, false);
+                    if(pbcTo.rootTransform == null)
+                        Helpers.DestroyAppropriate(pbcTo);
                 }
             }
 #endif
@@ -359,7 +366,7 @@ namespace Pumkin.AvatarTools.Copiers
                                 bone.boneOpacity = dbFrom.boneOpacity;
                                 bone.limitOpacity = dbFrom.limitOpacity;
 
-                                bone.rootTransform = Helpers.FindTransformInAnotherHierarchy(dbFrom.rootTransform, bone.transform, false); ;
+                                bone.rootTransform = Helpers.FindTransformInAnotherHierarchy(dbFrom.rootTransform, bone.transform, false);
 
                                 if(adjustScale)
                                 {
@@ -881,8 +888,8 @@ namespace Pumkin.AvatarTools.Copiers
         /// <param name="useIgnoreList">Whether or not to use copier ignore list</param>
         internal static void CopyAllTransforms(GameObject from, GameObject to, bool useIgnoreList)
         {
-            if(from == null || to == null || !(Settings.bCopier_transforms_copyPosition
-                || Settings.bCopier_transforms_copyRotation || Settings.bCopier_transforms_copyScale))
+            if(from == null || to == null || !(Settings.bCopier_transforms_copyPosition || Settings.bCopier_transforms_copyRotation 
+                   || Settings.bCopier_transforms_copyScale || Settings.bCopier_transforms_copyLayerAndTag || Settings.bCopier_transforms_copyActiveState))
                 return;
 
             string type = typeof(Transform).Name;
@@ -921,6 +928,14 @@ namespace Pumkin.AvatarTools.Copiers
                     tTo.localEulerAngles = tFrom.localEulerAngles;
                     tTo.localRotation = tFrom.localRotation;
                 }
+                if(Settings.bCopier_transforms_copyLayerAndTag)
+                {
+                    tTo.gameObject.tag = tFrom.gameObject.tag;
+                    tTo.gameObject.layer = tFrom.gameObject.layer;
+                }
+                if(Settings.bCopier_transforms_copyActiveState)
+                    tTo.gameObject.SetActive(tFrom.gameObject.activeSelf);
+
                 PumkinsAvatarTools.Log(log + Strings.Log.success, LogType.Log);
             }
         }
@@ -933,7 +948,7 @@ namespace Pumkin.AvatarTools.Copiers
         {
             if((from == null || to == null)
                || (!(Settings.bCopier_skinMeshRender_copyBlendShapeValues
-               || Settings.bCopier_skinMeshRender_copyMaterials || Settings.bCopier_skinMeshRender_copySettings)))
+               || Settings.bCopier_skinMeshRender_copyMaterials || Settings.bCopier_skinMeshRender_copySettings || Settings.bCopier_skinMeshRender_copyBounds)))
                 return;
 
             string log = String.Format(Strings.Log.copyAttempt + " - ", Strings.Copier.skinMeshRender, from.name, to.name);
@@ -994,6 +1009,9 @@ namespace Pumkin.AvatarTools.Copiers
                         if(Settings.bCopier_skinMeshRender_copyMaterials)
                             rTo.sharedMaterials = rFrom.sharedMaterials;
 
+                        if(Settings.bCopier_skinMeshRender_copyBounds)
+                            rTo.localBounds = rFrom.localBounds;
+                        
                         PumkinsAvatarTools.Log(log + Strings.Log.success);
                     }
                     else

@@ -268,6 +268,8 @@ namespace Pumkin.Translations
         public string transforms_scale = "Scale";
         public string transforms_createMissing = "Create Missing";
         public string transforms_avatarScale = "Avatar Scale";
+        public string transforms_copyActiveState = "Active State";
+        public string transforms_copyLayerAndTag = "Layer and Tag";
         public string physBones = "Phys Bones";
         public string physBones_colliders = "Phys Bone Colliders";
         public string physBones_removeOldBones = "Remove Old Phys Bones";
@@ -300,6 +302,7 @@ namespace Pumkin.Translations
         public string skinMeshRender = "Skinned Mesh Renderers";
         public string skinMeshRender_materials = "Materials";
         public string skinMeshRender_blendShapeValues = "BlendShape Values";
+        public string skinMeshRender_bounds = "Bounds";
         public string particleSystems = "Particle Systems";
         public string rigidBodies = "Rigid Bodies";
         public string trailRenderers = "Trail Renderers";

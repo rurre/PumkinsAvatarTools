@@ -11,8 +11,8 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "0.9.7 Dynamics";
-        public const double toolsVersion = 0.97;
+        public const string TOOLS_VERSION_STRING = "1.0 Dynamics - Work in Progress";
+        public const double toolsVersion = 1.0;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -399,6 +399,8 @@ namespace Pumkin.DataStructures
             public static string transforms_scale = "_Scale";
             public static string transforms_createMissing = "_Create Missing";
             public static string transforms_avatarScale = "_Avatar Scale";
+            public static string transforms_copyActiveState = "_Active State";
+            public static string transforms_copyLayerAndTag = "_Layer and Tag";
             public static string physBones = "_Phys Bones";
             public static string physBones_colliders = "_Phys Bone Colliders";
             public static string physBones_removeOldBones = "_Remove Old Phys Bones";
@@ -431,6 +433,7 @@ namespace Pumkin.DataStructures
             public static string skinMeshRender = "_Skinned Mesh Renderers";
             public static string skinMeshRender_materials = "_Materials";
             public static string skinMeshRender_blendShapeValues = "_BlendShape Values";
+            public static string skinMeshRender_bounds = "_Bounds";
             public static string particleSystems = "_Particle Systems";
             public static string rigidBodies = "_Rigid Bodies";
             public static string trailRenderers = "_Trail Renderers";
@@ -498,6 +501,8 @@ namespace Pumkin.DataStructures
                 transforms_scale = Translation.copier.transforms_scale;
                 transforms_createMissing = Translation.copier.transforms_createMissing;
                 transforms_avatarScale = Translation.copier.transforms_avatarScale;
+                transforms_copyActiveState = Translation.copier.transforms_copyActiveState; 
+                transforms_copyLayerAndTag = Translation.copier.transforms_copyLayerAndTag;
                 physBones = Translation.copier.physBones;
                 physBones_colliders = Translation.copier.physBones_colliders;
                 physBones_removeOldBones = Translation.copier.physBones_removeOldBones;
@@ -532,6 +537,7 @@ namespace Pumkin.DataStructures
                 skinMeshRender = Translation.copier.skinMeshRender;
                 skinMeshRender_materials = Translation.copier.skinMeshRender_materials;
                 skinMeshRender_blendShapeValues = Translation.copier.skinMeshRender_blendShapeValues;
+                skinMeshRender_bounds = Translation.copier.skinMeshRender_bounds;
                 particleSystems = Translation.copier.particleSystems;
                 rigidBodies = Translation.copier.rigidBodies;
                 trailRenderers = Translation.copier.trailRenderers;
