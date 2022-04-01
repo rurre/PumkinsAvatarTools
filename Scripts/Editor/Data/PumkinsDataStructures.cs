@@ -136,6 +136,7 @@ namespace Pumkin.DataStructures
         public static GUIStyle Label_rightAligned { get; internal set; }
         public static GUIStyle Foldout { get; internal set; }
         public static GUIStyle HelpBox { get; internal set; }
+        public static GUIStyle HelpBox_Warning { get; internal set; }
         public static GUIStyle HelpBox_OneLine { get; internal set; }
         public static GUIStyle Box { get; internal set; }
         public static GUIStyle BigButton { get; internal set; }
@@ -165,6 +166,9 @@ namespace Pumkin.DataStructures
             HelpBox = new GUIStyle("HelpBox");
             Box = new GUIStyle("box");
             Button = new GUIStyle("button");
+
+            HelpBox_Warning = new GUIStyle("HelpBox");
+            HelpBox_Warning.normal.textColor = Color.yellow;
 
             Foldout_title = new GUIStyle("ToolbarDropDown")
             {
@@ -303,6 +307,8 @@ namespace Pumkin.DataStructures
         public static Texture2D RotationConstraint { get; internal set; }
         public static Texture2D ScaleConstraint { get; internal set; }
 
+        public static Texture2D LinkIcon { get; internal set; }
+
         static Icons()
         {
             Star = (Texture2D)EditorGUIUtility.IconContent("Favorite Icon").image;
@@ -345,6 +351,8 @@ namespace Pumkin.DataStructures
             DiscordIcon = Resources.Load("icons/discord-logo") as Texture2D ?? Star;
             GithubIcon = Resources.Load("icons/github-logo") as Texture2D ?? Star;
             KofiIcon = Resources.Load("icons/kofi-logo") as Texture2D ?? Star;
+
+            LinkIcon = Resources.Load("icons/link-icon") as Texture2D ?? Joint;
         }
     }
 
@@ -755,5 +763,12 @@ namespace Pumkin.DataStructures
             string path = PumkinsAvatarTools.MainFolderPath + "/thry_module_manifest.json";
             File.WriteAllText(path, json);
         }
+    }
+
+    class TexturePackerData
+    {
+        public enum PumkinsTextureChannel { RGBA, Red, Green, Blue, Alpha }
+        public static Shader PackerShader => Shader.Find("Hidden/Pumkin/TexturePacker");
+        public static Shader UnpackerShader => Shader.Find("Hidden/Pumkin/TextureUnpacker");
     }
 }
