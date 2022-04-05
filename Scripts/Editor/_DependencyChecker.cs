@@ -5,6 +5,7 @@ using System.IO;
 using System.Collections.Generic;
 using Pumkin.Dependencies;
 using System.Linq;
+using System.Reflection;
 
 namespace Pumkin.DependencyChecker
 {
@@ -13,6 +14,7 @@ namespace Pumkin.DependencyChecker
     {
         const string HAS_PBONES = "PUMKIN_PBONES";
         const string HAS_DBONES = "PUMKIN_DBONES";
+        const string HAS_FINALIK = "PUMKIN_FINALIK";
         const string HAS_OLD_DBONES = "PUMKIN_OLD_DBONES";
         const string HAS_SDK1 = "PUMKIN_VRCSDK1";
         const string HAS_SDK2 = "PUMKIN_VRCSDK2";
@@ -20,14 +22,9 @@ namespace Pumkin.DependencyChecker
         public static string MainScriptPath { get; private set; }
 
         public enum PumkinsDBonesVersion { NotFound, OldVersion, NewVersionWithBaseColliders }
-        public enum PumkinsPBones { NotFound, Found, }
         public enum PumkinsSDKVersion { NotFound, SDK2, SDK3 }
 
         public static PumkinsSDKVersion SDKVersion
-        {
-            get; private set;
-        }
-        public static PumkinsPBones PBones
         {
             get; private set;
         }
@@ -36,12 +33,16 @@ namespace Pumkin.DependencyChecker
             get; private set;
         }
 
+        public static bool FinalIKExists { get; private set; } = false;
+
         static bool _mainToolsOK = true;
 
         public static bool MainToolsOK
         {
             get { return _mainToolsOK; } private set { _mainToolsOK = value; }
         }
+        
+        public static bool PhysBonesExist { get; private set; } = false;
 
         static _DependencyChecker()
         {
@@ -51,28 +52,26 @@ namespace Pumkin.DependencyChecker
         public static void ResetDependencies()
         {
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Resetting tool preferences...");
-            ScriptDefinesManager.RemoveDefines(HAS_SDK1, HAS_SDK2, HAS_DBONES, HAS_OLD_DBONES, HAS_PBONES);
+            ScriptDefinesManager.RemoveDefines(HAS_SDK1, HAS_SDK2, HAS_DBONES, HAS_OLD_DBONES, HAS_PBONES, HAS_FINALIK);
         }
 
         public static void CheckForDependencies()
         {
             SDKVersion = GetVRCSDKVersion();
-            PBones = GetPhysBones();
+            PhysBonesExist = GetPhysBones();
             DBonesVersion = GetDynamicBonesVersion();
-            MainToolsOK = GetTypeFromName("Pumkin.AvatarTools.PumkinsAvatarTools") != null ? true : false;            
+            MainToolsOK = GetTypeFromName("Pumkin.AvatarTools.PumkinsAvatarTools") != null;
+
+            FinalIKExists = GetFinalIK();
 
             var definesToAdd = new HashSet<string>();
             var currentDefines = ScriptDefinesManager.GetDefinesAsArray();
 
-            switch (PBones)
-            {
-                case PumkinsPBones.Found:
-                    definesToAdd.Add(HAS_PBONES);
-                    break;
-                case PumkinsPBones.NotFound:
-                default:
-                    break;
-            }
+            if(PhysBonesExist)
+                definesToAdd.Add(HAS_PBONES);
+
+            if(FinalIKExists)
+                definesToAdd.Add(HAS_FINALIK);
 
             switch (DBonesVersion)
             {
@@ -85,6 +84,18 @@ namespace Pumkin.DependencyChecker
                     break;
             }
             ScriptDefinesManager.AddDefinesIfMissing(definesToAdd.ToArray());
+        }
+
+        static bool GetFinalIK()
+        {
+            Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for FinalIK in project...");
+            if(Directory.GetFiles(Application.dataPath, "VRIK.cs", SearchOption.AllDirectories).Length > 0)
+            {
+                Debug.Log("<color=blue>PumkinsAvatarTools</color>: FinalIK found in project.");
+                return true;
+            }
+            Debug.Log("<color=blue>PumkinsAvatarTools</color>: FinalIK not found in project.");
+            return false;
         }
 
         /// <summary>
@@ -104,7 +115,7 @@ namespace Pumkin.DependencyChecker
         /// <summary>
         /// Check if we have PhysBones and Contacts
         /// </summary>        
-        static PumkinsPBones GetPhysBones()
+        static bool GetPhysBones()
         {
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for PhysBones and Contacts in project...");
 
@@ -115,12 +126,12 @@ namespace Pumkin.DependencyChecker
             if (pPaths.Count == 0) //No Physbones or Contacts in project
             {
                 Debug.Log("<color=blue>PumkinsAvatarTools</color>: PhysBones and Contacts not found in project.");
-                return PumkinsPBones.NotFound;
+                return false;
             }
             else //PhysBones and  and Contacts Present
             {
                 Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found PhysBones and Contacts in project!");
-                return PumkinsPBones.Found;
+                return true;
             }
         }
 

@@ -73,7 +73,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_physBones_adjustScaleColliders = true;
 
         [SerializeField] internal bool bCopier_dynamicBones_copy = true;
-        [SerializeField] internal bool bCopier_dynamicBones_copySettings = false;
+        [SerializeField] internal bool bCopier_dynamicBones_copySettings = true;
         [SerializeField] internal bool bCopier_dynamicBones_createMissing = true;
         [SerializeField] internal bool bCopier_dynamicBones_createObjects = false;
         [SerializeField] internal bool bCopier_dynamicBones_adjustScale = true;
@@ -203,7 +203,20 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_scaleConstraint_createObjects = true;
         [SerializeField] internal bool bCopier_scaleConstraint_copy = true;
         [SerializeField] internal bool bCopier_scaleConstraint_onlyIfHasValidSources = true;
-
+        
+        [SerializeField] internal bool bCopier_cameras_copy = true;
+        [SerializeField] internal bool bCopier_cameras_createObjects = true;
+        
+        [SerializeField] internal bool bCopier_finalIK_copy = true;
+        [SerializeField] internal bool bCopier_finalIK_createObjects = true;
+        [SerializeField] internal bool bCopier_finalIK_copyCCDIK = true;
+        [SerializeField] internal bool bCopier_finalIK_copyLimbIK = true;
+        [SerializeField] internal bool bCopier_finalIK_copyRotationLimits = true;
+        [SerializeField] internal bool bCopier_finalIK_copyFabrik = true;
+        [SerializeField] internal bool bCopier_finalIK_copyAimIK = true;
+        [SerializeField] internal bool bCopier_finalIK_copyFBTBipedIK = true;
+        [SerializeField] internal bool bCopier_finalIK_copyVRIK = true;
+        
         //Ignore Array
         [SerializeField] internal bool _copierIgnoreArray_expand = false;
         [SerializeField] internal SerializedProperty _serializedIgnoreArrayProp;
@@ -213,8 +226,6 @@ namespace Pumkin.AvatarTools
 
 
         [SerializeField] internal static GameObject _copierSelectedFrom;
-
-        [SerializeField] internal CopierTabs.Tab _copier_selectedTab1976890452 = CopierTabs.Tab.Common;
 
 
         [SerializeField] internal bool bThumbnails_use_camera_overlay = false;
@@ -315,6 +326,8 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool _copier_expand_rotationConstraints = false;
         [SerializeField] internal bool _copier_expand_scaleConstraints = false;
         [SerializeField] internal bool _copier_expand_joints = false;
+        [SerializeField] internal bool _copier_expand_cameras = false;
+        [SerializeField] internal bool _copier_expand_finalIK = false;
 
         //Languages
         [SerializeField] internal string _selectedLanguageString = "English - Default";

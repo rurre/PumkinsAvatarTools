@@ -267,6 +267,8 @@ namespace Pumkin.DataStructures
 
     public struct Icons
     {
+        const string FinalIKIconsPath = "Assets/Plugins/RootMotion/FinalIK/Gizmos";
+        
         public static Texture2D Star { get; internal set; }
         public static Texture2D CsScript { get; internal set; }
         public static Texture2D Transform { get; internal set; }
@@ -308,6 +310,15 @@ namespace Pumkin.DataStructures
         public static Texture2D ScaleConstraint { get; internal set; }
 
         public static Texture2D LinkIcon { get; internal set; }
+        public static Texture2D Camera { get; internal set; }
+        
+        public static Texture2D FinalIK_CCDIK  { get; internal set; }
+        public static Texture2D FINALIK_LimbIK { get; internal set; }
+        public static Texture2D FinalIK_RotationLimits  { get; internal set; }
+        public static Texture2D FinalIK_FabrIK { get; internal set; }
+        public static Texture2D FINALIK_AimIK { get; internal set; }
+        public static Texture2D FinalIK_fbtBipedIK { get; internal set; }
+        public static Texture2D FinalIK_vrIK { get; internal set; }
 
         static Icons()
         {
@@ -339,8 +350,21 @@ namespace Pumkin.DataStructures
             PositionConstraint = (Texture2D)EditorGUIUtility.IconContent("PositionConstraint Icon").image;
             RotationConstraint = (Texture2D)EditorGUIUtility.IconContent("RotationConstraint Icon").image;
             ScaleConstraint = (Texture2D)EditorGUIUtility.IconContent("ScaleConstraint Icon").image;
+            Camera = (Texture2D)EditorGUIUtility.IconContent("Camera Icon").image;
 
             Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");
+
+            #if PUMKIN_FINALIK
+            
+            FinalIK_CCDIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/CCDIK Icon.png");
+            FINALIK_LimbIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/LimbIK Icon.png");
+            FinalIK_RotationLimits = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/RotationLimitAngle Icon.png");
+            FinalIK_FabrIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/FABRIK Icon.png");
+            FINALIK_AimIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/AimIK Icon.png");
+            FinalIK_fbtBipedIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/GrounderFBBIK Icon.png");
+            FinalIK_vrIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/GrounderFBBIK Icon.png");
+
+            #endif
 
             PhysBone = Resources.Load("icons/phys-bone-icon") as Texture2D ?? CsScript;
             PhysBoneCollider = Resources.Load("icons/phys-bonecollider-icon") as Texture2D ?? DefaultAsset;

@@ -471,6 +471,17 @@ namespace Pumkin.DataStructures
             public static string joints_character = "_Character Joint";
             public static string joints_configurable = "_Configurable Joint";
             public static string joints_removeOld = "_Remove Old Joints";
+            
+            public static string finalIK = "_FinalIK";
+            public static string finalIK_fabrIK = "_FabrIK";
+            public static string finalIK_aimIK = "_AimIK";
+            public static string finalIK_ccdIK = "_CCDIK";
+            public static string finalIK_rotationLimits = "_Rotation Limits";
+            public static string finalIK_limbIK = "_LimbIK";
+            public static string finalIK_fbtBipedIK = "_Full Body Biped IK";
+            public static string finalIK_VRIK = "_VRIK";
+            
+            public static string cameras = "_Cameras";
 
             public static string exclusions = "_Exclusions";
             public static string includeChildren = "_Include Children";
@@ -576,6 +587,17 @@ namespace Pumkin.DataStructures
                 joints_character = Translation.copier.joints_character;
                 joints_configurable = Translation.copier.joints_configurable;
                 joints_removeOld = Translation.copier.joints_removeOld;
+
+                finalIK = Translation.copier.finalIK;
+                finalIK_fabrIK = Translation.copier.finalIK_fabrIK;
+                finalIK_aimIK = Translation.copier.finalIK_aimIK;
+                finalIK_ccdIK = Translation.copier.finalIK_ccdIK;
+                finalIK_rotationLimits = Translation.copier.finalIK_rotationLimits;
+                finalIK_limbIK = Translation.copier.finalIK_limbIK;
+                finalIK_fbtBipedIK = Translation.copier.finalIK_fbtBipedIK;
+                finalIK_VRIK = Translation.copier.finalIK_VRIK;
+                
+                cameras = Translation.copier.cameras;
 
                 exclusions = Translation.copier.ignoreList;
                 includeChildren = Translation.copier.includeChildren;

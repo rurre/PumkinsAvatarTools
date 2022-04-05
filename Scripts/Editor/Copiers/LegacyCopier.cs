@@ -17,7 +17,7 @@ using UnityEngine.Animations;
 using VRC.Core;
 using VRC.SDKBase;
 #endif
-#if PUMKIN_PBONES
+#if (VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3) && PUMKIN_PBONES
 using VRC.SDK3.Dynamics.PhysBone.Components;
 using VRC.SDK3.Dynamics.Contact.Components;
 #endif
@@ -27,6 +27,10 @@ using VRC_SpatialAudioSource = VRC.SDK3.Avatars.Components.VRCSpatialAudioSource
 #elif VRC_SDK_VRCSDK2
 using VRC_AvatarDescriptor = VRCSDK2.VRC_AvatarDescriptor;
 using VRC_SpatialAudioSource = VRCSDK2.VRC_SpatialAudioSource;
+#endif
+
+#if PUMKIN_FINALIK
+using RootMotion.FinalIK;
 #endif
 
 namespace Pumkin.AvatarTools.Copiers
@@ -196,7 +200,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// </summary>
         internal static void CopyAllPhysBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList, bool adjustScale)
         {
-#if !PUMKIN_PBONES
+#if !PUMKIN_PBONES || !(VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3)
 
             Debug.Log("No PhysBones found in project. You shouldn't be able to use this. Help!");
             return;
@@ -263,7 +267,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// <param name="useIgnoreList"></param>
         internal static void CopyAllPhysBonesNew(GameObject from, GameObject to, bool createMissing, bool useIgnoreList, bool adjustScale)
         {
-#if !PUMKIN_PBONES
+#if !PUMKIN_PBONES || !(VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3)
             Debug.Log("No PhysBones found in project. You shouldn't be able to use this. Help!");
             return;
 #else
@@ -1979,6 +1983,39 @@ namespace Pumkin.AvatarTools.Copiers
                 {
                     to.tag = from.tag;
                     to.layer = from.layer;
+                }
+            }
+        }
+
+        internal static void CopyCameras(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        {
+            if(from == null || to == null)
+                return;
+
+            var cameraFromArr = from.GetComponentsInChildren<Camera>(true);
+            if(cameraFromArr == null || cameraFromArr.Length == 0)
+                return;
+
+            string type = typeof(Camera).Name;
+
+            for(int i = 0; i < cameraFromArr.Length; i++)
+            {
+                var camFrom = cameraFromArr[i];
+                var tTo = Helpers.FindTransformInAnotherHierarchy(camFrom.transform, to.transform, createGameObjects);
+                if((!tTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(camFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                    continue;
+
+                string log = String.Format(Strings.Log.copyAttempt, type, camFrom.gameObject, tTo.gameObject);
+
+                if(!tTo.GetComponent<Camera>())
+                {
+                    ComponentUtility.CopyComponent(camFrom);
+                    ComponentUtility.PasteComponentAsNew(tTo.gameObject);
+                    PumkinsAvatarTools.Log(Strings.Log.copyAttempt + " - " + Strings.Log.success, LogType.Log);
+                }
+                else
+                {
+                    PumkinsAvatarTools.Log(Strings.Log.copyAttempt + " - " + Strings.Log.failedAlreadyHas, LogType.Log);
                 }
             }
         }

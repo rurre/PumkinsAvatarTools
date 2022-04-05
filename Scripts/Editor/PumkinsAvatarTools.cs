@@ -36,6 +36,10 @@ using VRC_AvatarDescriptor = VRCSDK2.VRC_AvatarDescriptor;
 using VRC_SpatialAudioSource = VRCSDK2.VRC_SpatialAudioSource;
 #endif
 
+#if PUMKIN_FINALIK
+using RootMotion.FinalIK;
+#endif
+
 namespace Pumkin.AvatarTools
 {
     /// <summary>
@@ -136,6 +140,14 @@ namespace Pumkin.AvatarTools
             FillEyeBones,
             ResetBoundingBoxes,
             SetImportSettings,
+            RemoveCameras,
+            RemoveFinalIK_CCDIK,
+            RemoveFinalIK_LimbIK,
+            RemoveFinalIK_RotationLimits,
+            RemoveFinalIK_FabrIK,
+            RemoveFinalIK_AimIK,
+            RemoveFinalIK_FbtBipedIK,
+            RemoveFinalIK_VRIK
         }
 
         readonly static string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";
@@ -337,8 +349,13 @@ namespace Pumkin.AvatarTools
                         Settings.bCopier_positionConstraint_copy,
                         Settings.bCopier_rotationConstraint_copy,
                         Settings.bCopier_scaleConstraint_copy,
+                        Settings.bCopier_cameras_copy,
 
-                        (Settings.bCopier_other_copy && (Settings.bCopier_other_copyIKFollowers || Settings.bCopier_other_copyVRMSpringBones))
+                        (Settings.bCopier_other_copy && (Settings.bCopier_other_copyIKFollowers || Settings.bCopier_other_copyVRMSpringBones)),
+                        
+#if PUMKIN_FINALIK
+                        Settings.bCopier_finalIK_copy,
+#endif
                     };
                     if(allToggles.Any(b => b))
                         return true;
@@ -656,6 +673,18 @@ namespace Pumkin.AvatarTools
                 return (bool)_physBonesExist;
             }
         }
+
+		public bool FinalIKExists
+		{
+			get
+			{
+				if(_finalIKExists == null)
+					_finalIKExists = PumkinsTypeCache.AimIK != null && PumkinsTypeCache.FABRIK != null && PumkinsTypeCache.FullBodyBipedIK != null && PumkinsTypeCache.RotationLimit != null;
+				return (bool)_finalIKExists;
+			}
+		}
+
+		private bool? _finalIKExists;
 
         private bool? _physBonesExist;
 
@@ -2267,6 +2296,79 @@ namespace Pumkin.AvatarTools
 
                         Helpers.DrawGUILine(1, false);
                     }
+                    
+                    if(CopierTabs.ComponentIsInSelectedTab<Camera>(Settings._copier_selectedTab))
+                    {
+                        //Camera menu
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_cameras, ref Settings.bCopier_cameras_copy, Strings.Copier.cameras, Icons.Camera);
+                        if(Settings._copier_expand_cameras)
+                        {
+                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_cameras_copy);
+                            EditorGUILayout.Space();
+
+                            using(var cHorizontalScope = new GUILayout.HorizontalScope())
+                            {
+                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+                                using(var cVerticalScope = new GUILayout.VerticalScope())
+                                {
+                                    Settings.bCopier_cameras_createObjects = GUILayout.Toggle(Settings.bCopier_cameras_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                }
+                            }
+
+                            EditorGUILayout.Space();
+                            EditorGUI.EndDisabledGroup();
+                        }
+                        Helpers.DrawGUILine(1, false);
+                    }
+                    
+                    if(CopierTabs.ComponentIsInSelectedTab("finalik", Settings._copier_selectedTab))
+                    {
+						bool exists = FinalIKExists;
+						//Other menu
+						if(exists)
+						{							
+                        	Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_finalIK, ref Settings.bCopier_finalIK_copy, Strings.Copier.finalIK, Icons.Avatar);
+							if (Settings._copier_expand_finalIK)
+							{
+								EditorGUI.BeginDisabledGroup(!Settings.bCopier_finalIK_copy);
+								EditorGUILayout.Space();
+
+								using (var cHorizontalScope = new GUILayout.HorizontalScope())
+								{
+									GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+									using (var cVerticalScope = new GUILayout.VerticalScope())
+									{
+										Settings.bCopier_finalIK_copyFabrik = GUILayout.Toggle(Settings.bCopier_finalIK_copyFabrik, Strings.Copier.finalIK_fabrIK, Styles.CopierToggle);
+										Settings.bCopier_finalIK_copyAimIK = GUILayout.Toggle(Settings.bCopier_finalIK_copyAimIK, Strings.Copier.finalIK_aimIK, Styles.CopierToggle);
+										Settings.bCopier_finalIK_copyCCDIK = GUILayout.Toggle(Settings.bCopier_finalIK_copyCCDIK, Strings.Copier.finalIK_ccdIK, Styles.CopierToggle);
+										Settings.bCopier_finalIK_copyRotationLimits = GUILayout.Toggle(Settings.bCopier_finalIK_copyRotationLimits, Strings.Copier.finalIK_rotationLimits, Styles.CopierToggle);
+										Settings.bCopier_finalIK_copyLimbIK = GUILayout.Toggle(Settings.bCopier_finalIK_copyLimbIK, Strings.Copier.finalIK_limbIK, Styles.CopierToggle);
+										Settings.bCopier_finalIK_copyFBTBipedIK = GUILayout.Toggle(Settings.bCopier_finalIK_copyFBTBipedIK, Strings.Copier.finalIK_fbtBipedIK, Styles.CopierToggle);
+										Settings.bCopier_finalIK_copyVRIK = GUILayout.Toggle(Settings.bCopier_finalIK_copyVRIK, Strings.Copier.finalIK_VRIK, Styles.CopierToggle);
+
+										EditorGUILayout.Space();
+
+										Settings.bCopier_finalIK_createObjects = GUILayout.Toggle(
+											Settings.bCopier_finalIK_createObjects, Strings.Copier.copyGameObjects,
+											Styles.CopierToggle);
+									}
+								}
+
+								EditorGUILayout.Space();
+								EditorGUI.EndDisabledGroup();
+							}
+						}
+						else
+						{
+							EditorGUI.BeginDisabledGroup(true);
+							Helpers.DrawDropdownWithToggle(ref exists, ref exists, Strings.Copier.finalIK + $" ({Strings.Warning.notFound})", Icons.Avatar);
+							EditorGUI.EndDisabledGroup();
+						}                        
+						
+                        Helpers.DrawGUILine(1, false);
+                    }
 
                     if(CopierTabs.ComponentIsInSelectedTab("other", Settings._copier_selectedTab))
                     {
@@ -2343,6 +2445,8 @@ namespace Pumkin.AvatarTools
                                 Settings.bCopier_scaleConstraint_copy = false;
                                 Settings.bCopier_other_copy = false;
                                 Settings.bCopier_joints_copy = false;
+                                Settings.bCopier_cameras_copy = false;
+                                Settings.bCopier_finalIK_copy = false;
                             }
 
                             Settings.bCopier_descriptor_copy = false;
@@ -2379,6 +2483,9 @@ namespace Pumkin.AvatarTools
                                 Settings.bCopier_scaleConstraint_copy = true;
                                 Settings.bCopier_other_copy = true;
                                 Settings.bCopier_joints_copy = true;
+                                Settings.bCopier_cameras_copy = true;
+                                Settings.bCopier_finalIK_copy = true && FinalIKExists;
+
                             }
 
                             Settings.bCopier_descriptor_copy = true;
@@ -3134,6 +3241,8 @@ namespace Pumkin.AvatarTools
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveAnimatorsInChildren);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.colliders, Icons.ColliderBox)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveColliders);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.cameras, Icons.Camera)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveCameras);
 #if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
                         if(GUILayout.Button(new GUIContent(Strings.Copier.other_ikFollowers, Icons.CsScript)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveIKFollowers);
@@ -3141,12 +3250,27 @@ namespace Pumkin.AvatarTools
 #else
                         GUILayout.Space(32);
 #endif
+
                         if(GUILayout.Button(new GUIContent(Strings.Copier.aimConstraints, Icons.AimConstraint)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveAimConstraint);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.lookAtConstraints, Icons.LookAtConstraint)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveLookAtConstraint);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.parentConstraints, Icons.ParentConstraint)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveParentConstraint);
+                        
+                        #if PUMKIN_FINALIK
+                        
+                        EditorGUILayout.Space();
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_fabrIK, Icons.FinalIK_FabrIK)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_FabrIK);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_aimIK, Icons.FINALIK_AimIK)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_AimIK);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_fbtBipedIK, Icons.FinalIK_fbtBipedIK)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_FbtBipedIK);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_VRIK, Icons.FinalIK_vrIK)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_VRIK);
+                            
+                        #endif
                     }
                     EditorGUILayout.EndVertical();
 
@@ -3182,6 +3306,9 @@ namespace Pumkin.AvatarTools
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveEmptyGameObjects);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.other_emptyScripts, Icons.SerializableAsset)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveMissingScripts);
+                        
+                        GUILayout.Space(21);
+                        
                         EditorGUILayout.Space();
                         if(GUILayout.Button(
                             new GUIContent(Strings.Copier.positionConstraints, Icons.PositionConstraint)))
@@ -3191,6 +3318,16 @@ namespace Pumkin.AvatarTools
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveRotationConstraint);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.scaleConstraints, Icons.ScaleConstraint)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveScaleConstraint);
+                        
+                        #if PUMKIN_FINALIK
+                        EditorGUILayout.Space();
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_ccdIK, Icons.FinalIK_CCDIK)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_CCDIK);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_limbIK, Icons.FINALIK_LimbIK)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_LimbIK);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_rotationLimits, Icons.FinalIK_RotationLimits)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_RotationLimits);
+                        #endif
                     }
                     EditorGUILayout.EndVertical();
                 }
@@ -4134,6 +4271,9 @@ namespace Pumkin.AvatarTools
                 case ToolMenuActions.RemoveScaleConstraint:
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(ScaleConstraint), false, false);
                     break;
+                case ToolMenuActions.RemoveCameras:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(Camera), false, false);
+                    break;
                 case ToolMenuActions.FixDynamicBoneScripts:
                     FixDynamicBoneScriptsInPrefab(SelectedAvatar);
                     break;
@@ -4145,6 +4285,27 @@ namespace Pumkin.AvatarTools
                     FillEyeBones(SelectedAvatar);
                     break;
 #endif
+                case ToolMenuActions.RemoveFinalIK_CCDIK:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.CCDIK, false, false);
+                    break;
+                case ToolMenuActions.RemoveFinalIK_LimbIK:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.LimbIK, false, false);
+                    break;
+                case ToolMenuActions.RemoveFinalIK_RotationLimits:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.RotationLimit, false, false);
+                    break;
+                case ToolMenuActions.RemoveFinalIK_FabrIK:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.FABRIK, false, false);
+                    break;
+                case ToolMenuActions.RemoveFinalIK_AimIK:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.AimIK, false, false);
+                    break;
+                case ToolMenuActions.RemoveFinalIK_FbtBipedIK:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.FullBodyBipedIK, false, false);
+                    break;
+                case ToolMenuActions.RemoveFinalIK_VRIK:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.VRIK, false, false);
+                    break;
                 default:
                     break;
             }
@@ -4948,11 +5109,36 @@ namespace Pumkin.AvatarTools
             {
                 LegacyCopier.CopyAllSkinnedMeshRenderersSettings(objFrom, objTo, true);
             }
+            
+            if(Settings.bCopier_cameras_copy && CopierTabs.ComponentIsInSelectedTab<Camera>(Settings._copier_selectedTab))
+            {
+                LegacyCopier.CopyCameras(objFrom, objTo, Settings.bCopier_cameras_createObjects, true);
+            }
 
             if(Settings.bCopier_transforms_copy && Settings.bCopier_transforms_copyActiveState && CopierTabs.ComponentIsInSelectedTab<Transform>(Settings._copier_selectedTab))
             {
                 LegacyCopier.CopyTransformActiveStateTagsAndLayer(objFrom, objTo, true);
             }
+
+			#if PUMKIN_FINALIK
+            if(_DependencyChecker.FinalIKExists && Settings.bCopier_finalIK_copy && CopierTabs.ComponentIsInSelectedTab("finalik", Settings._copier_selectedTab))
+            {
+                if(Settings.bCopier_finalIK_copyCCDIK)
+                    GenericCopier.CopyComponent<CCDIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+                if(Settings.bCopier_finalIK_copyLimbIK)
+                    GenericCopier.CopyComponent<LimbIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+                if(Settings.bCopier_finalIK_copyRotationLimits)
+                    GenericCopier.CopyComponent<RotationLimit>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+                if(Settings.bCopier_finalIK_copyFabrik)
+                    GenericCopier.CopyComponent<FABRIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+                if(Settings.bCopier_finalIK_copyAimIK)
+                    GenericCopier.CopyComponent<AimIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+                if(Settings.bCopier_finalIK_copyFBTBipedIK)
+                    GenericCopier.CopyComponent<FullBodyBipedIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+                if(Settings.bCopier_finalIK_copyVRIK)
+                    GenericCopier.CopyComponent<VRIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+            }
+			#endif
         }
 
 

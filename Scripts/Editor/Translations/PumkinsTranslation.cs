@@ -347,6 +347,16 @@ namespace Pumkin.Translations
         public string joints_character = "Character Joint";
         public string joints_configurable = "Configurable Joint";
         public string joints_removeOld = "Remove Old Joints";
+        public string cameras = "Cameras";
+        
+        public string finalIK = "FinalIK";
+        public string finalIK_fabrIK = "FabrIK";
+        public string finalIK_aimIK = "AimIK";
+        public string finalIK_ccdIK = "CCDIK";
+        public string finalIK_rotationLimits = "Rotation Limits";
+        public string finalIK_limbIK = "LimbIK";
+        public string finalIK_fbtBipedIK = "Full Body Biped IK";
+        public string finalIK_VRIK = "VRIK";
     }
 
     [Serializable]

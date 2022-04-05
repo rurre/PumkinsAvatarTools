@@ -82,6 +82,7 @@
         "Scripts/Editor/_DependencyChecker.cs",
         "Scripts/Editor/_PumkinsAvatarToolsWindow.cs",
         "Scripts/Editor/Callbacks/AvatarUploadHider.cs",
+        "Scripts/Editor/Copiers/GenericCopier.cs",
         "Scripts/Editor/Copiers/LegacyCopier.cs",
         "Scripts/Editor/Data/PumkinsAvatarInfo.cs",
         "Scripts/Editor/Data/PumkinsDataStructures.cs",
