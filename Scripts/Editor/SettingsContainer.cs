@@ -61,8 +61,6 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_transforms_copyLayerAndTag = true;
 
         [SerializeField] internal bool bCopier_physBones_copy = true;
-        [SerializeField] internal bool bCopier_physBones_copySettings = false;
-        [SerializeField] internal bool bCopier_physBones_createMissing = true;
         [SerializeField] internal bool bCopier_physBones_createObjects = false;
         [SerializeField] internal bool bCopier_physBones_adjustScale = true;
 
@@ -164,13 +162,11 @@ namespace Pumkin.AvatarTools
 
         [SerializeField] internal bool bCopier_contactReceiver_copy = true;
         [SerializeField] internal bool bCopier_contactReceiver_removeOld = false;
-        [SerializeField] internal bool bCopier_contactReceiver_createMissing = true;
         [SerializeField] internal bool bCopier_contactReceiver_createObjects = false;
         [SerializeField] internal bool bCopier_contactReceiver_adjustScale = true;
 
         [SerializeField] internal bool bCopier_contactSender_copy = true;
         [SerializeField] internal bool bCopier_contactSender_removeOld = false;
-        [SerializeField] internal bool bCopier_contactSender_createMissing = true;
         [SerializeField] internal bool bCopier_contactSender_createObjects = false;
         [SerializeField] internal bool bCopier_contactSender_adjustScale = true;
 

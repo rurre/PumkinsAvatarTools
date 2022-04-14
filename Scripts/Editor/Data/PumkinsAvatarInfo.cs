@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
 #if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
 using UnityEditor;
 using VRC.SDKBase;
@@ -16,18 +15,14 @@ namespace Pumkin.DataStructures
 {
     public class PumkinsAvatarInfo //Need to improve this class sometime when I overhaul the performance stats
     {
-#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON && PUMKIN_PBONES
         AvatarPerformanceStats PerfStats
         {
             get
             {
                 if(_perfStats == null)
                 {
-                    #if PUMKIN_PBONES
                     _perfStats = new AvatarPerformanceStats(EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android);
-                    #else
-                    _perfStats = new AvatarPerformanceStats();
-                    #endif
                 }
 
                 return _perfStats;
@@ -118,15 +113,10 @@ namespace Pumkin.DataStructures
         {
             if(o == null)
                 return;
-
-#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON && PUMKIN_PBONES
             try
             {
-                #if PUMKIN_PBONES
                 AvatarPerformance.CalculatePerformanceStats(o.name, o, PerfStats, EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android);
-                #else
-                AvatarPerformance.CalculatePerformanceStats(o.name, o, PerfStats);
-                #endif
             }
             catch { }
 #endif
@@ -400,7 +390,7 @@ namespace Pumkin.DataStructures
                 bool useDefault = false;
                 try
                 {
-#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON && PUMKIN_PBONES
                     CachedInfo =
                     string.Format(Strings.AvatarInfo.name, Name) + "\n" +
                     string.Format(Strings.AvatarInfo.line) + "\n" +
@@ -412,11 +402,11 @@ namespace Pumkin.DataStructures
                     string.Format(Strings.AvatarInfo.usedMaterialSlots, MaterialSlots, MaterialSlots_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.MaterialCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.uniqueMaterials, UniqueMaterials, UniqueMaterials_Total) + "\n" +
                     string.Format(Strings.AvatarInfo.shaders, ShaderCount) + "\n\n" +
-#if PUMKIN_PBONES
+
                     string.Format(Strings.AvatarInfo.physBoneTransforms, PhysBoneTransforms, PhysBoneTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneComponentCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.physBoneColliders, PhysBoneColliders, PhysBoneColliders_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneColliderCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.physBoneColliderTransforms, PhysBoneColliderTransforms, PhysBoneColliderTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneCollisionCheckCount)) + "\n\n" +
-#endif
+
                     string.Format(Strings.AvatarInfo.dynamicBoneTransforms, DynamicBoneTransforms, DynamicBoneTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneSimulatedBoneCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.dynamicBoneColliders, DynamicBoneColliders, DynamicBoneColliders_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneColliderCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.dynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneCollisionCheckCount)) + "\n\n" +
@@ -456,7 +446,8 @@ namespace Pumkin.DataStructures
                         string.Format(Strings.AvatarInfo.particleSystems, ParticleSystems, ParticleSystems_Total, "?") + "\n" +
                         string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, "?") + "\n" +
                         Strings.AvatarInfo.line + "\n" +
-                        string.Format(Strings.AvatarInfo.overallPerformance, "?");
+                        string.Format(Strings.AvatarInfo.overallPerformance, "?") +
+                        "Not supported in this version of the VRChat SDK";
                 }
 
                 return CachedInfo;

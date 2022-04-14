@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Pumkin.DataStructures;
 using Pumkin.Extensions;
@@ -6,6 +7,7 @@ using Pumkin.HelperFunctions;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using VRC.SDK3.Dynamics.PhysBone.Components;
 #if PUMKIN_FINALIK
 using RootMotion.FinalIK;
 #endif
@@ -14,9 +16,19 @@ namespace Pumkin.AvatarTools.Copiers
 {
     public static class GenericCopier
     {
+        static readonly Dictionary<string, string[]> AdjustScaleTypeProps = new Dictionary<string, string[]>()
+        {
+            {"VRCPhysBone", new [] { "radius", "endpointPosition" }},
+            {"VRCPhysBoneCollider", new [] { "radius", "height", "position" }},
+            {"VRCContactReceiver", new [] { "radius", "height", "position" }},
+            {"VRCContactSender", new [] { "radius", "height", "position" }},
+            {"DynamicBone", new [] { "m_Radius", "m_EndLength" }},
+            {"DynamicBoneCollider", new [] { "m_Radius", "m_Height" }}
+        };
+        
         static SettingsContainer Settings => PumkinsAvatarTools.Settings;
         
-        public static void CopyComponent<T>(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList) where T : Component
+        public static void CopyComponent<T>(GameObject from, GameObject to, bool createGameObjects, bool adjustScale, bool fixReferences, bool useIgnoreList) where T : Component
         {
             if(from == null || to == null)
                 return;
@@ -25,7 +37,9 @@ namespace Pumkin.AvatarTools.Copiers
             if(typeFromArr == null || typeFromArr.Length == 0)
                 return;
 
-            string type = typeof(T).Name;
+            string typeName = typeof(T).Name;
+            
+            var addedComponents = new List<T>();
 
             foreach(var typeFrom in typeFromArr)
             {
@@ -33,22 +47,32 @@ namespace Pumkin.AvatarTools.Copiers
                 if((!tTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(typeFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
 
-                string log = String.Format(Strings.Log.copyAttempt, type, typeFrom.gameObject.name, tTo.gameObject.name);
+                string log = String.Format(Strings.Log.copyAttempt, typeName, typeFrom.gameObject.name, tTo.gameObject.name);
 
-                if(!tTo.GetComponent<T>())
+                if(tTo.GetComponents<T>().Except(addedComponents).FirstOrDefault() == null) // Kinda inefficient but whatever
                 {
-                    T[] oldComps = tTo.GetComponents<T>();
+                    T newComp = tTo.gameObject.AddComponent<T>();
+                    addedComponents.Add(newComp);
+                    
                     ComponentUtility.CopyComponent(typeFrom);
-                    ComponentUtility.PasteComponentAsNew(tTo.gameObject);
-                    PumkinsAvatarTools.Log(log + " - " + Strings.Log.success, LogType.Log);
+                    ComponentUtility.PasteComponentValues(newComp);
+                    PumkinsAvatarTools.Log(log + " - " + Strings.Log.success);
 
-                    T[] newComps = tTo.GetComponents<T>();
-                    T comp = newComps.Except(oldComps).FirstOrDefault();
-                    FixReferences(comp, to.transform, createGameObjects);
+                    if(fixReferences)
+                        FixReferences(newComp, to.transform, createGameObjects);
+
+                    if(adjustScale)
+                    {
+                        string[] propToAdjust = AdjustScaleTypeProps.FirstOrDefault(kv => typeName.Equals(kv.Key)).Value;
+                        if(propToAdjust == null || propToAdjust.Length == 0)
+                            PumkinsAvatarTools.Log($"_Attempting to adjust scale on {tTo.name} for {typeName} but no properties to adjust found. Skipping");
+                        else
+                            AdjustScale(newComp, typeFrom.transform, propToAdjust);
+                    }
                 }
                 else
                 {
-                    PumkinsAvatarTools.Log(log + " - " + Strings.Log.failedAlreadyHas, LogType.Log);
+                    PumkinsAvatarTools.Log($"{log} {String.Format(Strings.Log.failedAlreadyHas, to.name, typeName)}", LogType.Warning);
                 }
             }
         }
@@ -74,9 +98,6 @@ namespace Pumkin.AvatarTools.Copiers
                                        .ToList()
                                        .IndexOf(oldComp);
 
-
-
-
                 var transTarget = Helpers.FindTransformInAnotherHierarchy(oldComp.transform, targetHierarchyRoot, createGameObjects);
                 if(transTarget == null)
                     return;
@@ -86,8 +107,32 @@ namespace Pumkin.AvatarTools.Copiers
                 x.objectReferenceValue = targetComps[compIndex];
             });
 
-            serialComp.ApplyModifiedProperties();
+            serialComp.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        static void AdjustScale(Component newComp, Transform oldCompTransform, params string[] propNames)
+        {
+            if(newComp == null || oldCompTransform == null || propNames == null || propNames.Length == 0)
+                return;
+            
+            var serialComp = new SerializedObject(newComp);
+            float multiplier = Helpers.GetScaleMultiplier(oldCompTransform, newComp.transform);
+
+            if(multiplier == 1)
+                return;
+            
+            foreach(string name in propNames)
+            {
+                var prop = serialComp.FindProperty(name);
+                if(prop.propertyType == SerializedPropertyType.Float)
+                    prop.floatValue *= multiplier;
+                else if(prop.propertyType == SerializedPropertyType.Vector3)
+                    prop.vector3Value *= multiplier;
+                else if(prop.propertyType == SerializedPropertyType.Vector2)
+                    prop.vector2Value *= multiplier;
+            }
+            
+            serialComp.ApplyModifiedPropertiesWithoutUndo();
+        }
     }
 }

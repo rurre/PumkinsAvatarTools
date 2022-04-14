@@ -1567,8 +1567,6 @@ namespace Pumkin.AvatarTools
 
                                 using (var cVerticalScope = new GUILayout.VerticalScope())
                                 {
-                                    Settings.bCopier_physBones_copySettings = GUILayout.Toggle(Settings.bCopier_physBones_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
-                                    Settings.bCopier_physBones_createMissing = GUILayout.Toggle(Settings.bCopier_physBones_createMissing, Strings.Copier.physBones_createMissing, Styles.CopierToggle);
                                     Settings.bCopier_physBones_createObjects = GUILayout.Toggle(Settings.bCopier_physBones_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
                                     Settings.bCopier_physBones_removeOldBones = GUILayout.Toggle(Settings.bCopier_physBones_removeOldBones, Strings.Copier.physBones_removeOldBones, Styles.CopierToggle);
                                     Settings.bCopier_physBones_adjustScale = GUILayout.Toggle(Settings.bCopier_physBones_adjustScale, Strings.Copier.physBones_adjustScale, Styles.CopierToggle);
@@ -1806,7 +1804,6 @@ namespace Pumkin.AvatarTools
 
                                 using (var cVerticalScope = new GUILayout.VerticalScope())
                                 {
-                                    Settings.bCopier_contactReceiver_createMissing = GUILayout.Toggle(Settings.bCopier_contactReceiver_createMissing, Strings.Copier.contactReceiver_createMissing, Styles.CopierToggle);
                                     Settings.bCopier_contactReceiver_createObjects = GUILayout.Toggle(Settings.bCopier_contactReceiver_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
                                     Settings.bCopier_contactReceiver_removeOld = GUILayout.Toggle(Settings.bCopier_contactReceiver_removeOld, Strings.Copier.contactReceiver_removeOld, Styles.CopierToggle);
                                     Settings.bCopier_contactReceiver_adjustScale = GUILayout.Toggle(Settings.bCopier_contactReceiver_adjustScale, Strings.Copier.contactReceiver_adjustScale, Styles.CopierToggle);
@@ -1851,7 +1848,6 @@ namespace Pumkin.AvatarTools
 
                                 using (var cVerticalScope = new GUILayout.VerticalScope())
                                 {
-                                    Settings.bCopier_contactSender_createMissing = GUILayout.Toggle(Settings.bCopier_contactSender_createMissing, Strings.Copier.contactSender_createMissing, Styles.CopierToggle);
                                     Settings.bCopier_contactSender_createObjects = GUILayout.Toggle(Settings.bCopier_contactSender_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
                                     Settings.bCopier_contactSender_removeOld = GUILayout.Toggle(Settings.bCopier_contactSender_removeOld, Strings.Copier.contactSender_removeOld, Styles.CopierToggle);
                                     Settings.bCopier_contactSender_adjustScale = GUILayout.Toggle(Settings.bCopier_contactSender_adjustScale, Strings.Copier.contactSender_adjustScale, Styles.CopierToggle);
@@ -5019,31 +5015,32 @@ namespace Pumkin.AvatarTools
             }
             if(PhysBonesExist)
             {
+                #if PUMKIN_PBONES
                 if(Settings.bCopier_contactReceiver_copy && CopierTabs.ComponentIsInSelectedTab("contactreceiver", Settings._copier_selectedTab))
                 {
                     if(Settings.bCopier_contactReceiver_removeOld)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.ContactReceiver, false, true);
-                    LegacyCopier.CopyAllContactReceivers(objFrom, objTo, Settings.bCopier_contactReceiver_createMissing, Settings.bCopier_contactReceiver_createObjects, Settings.bCopier_contactReceiver_adjustScale);
+                    GenericCopier.CopyComponent<VRCContactReceiver>(objFrom, objTo, Settings.bCopier_contactReceiver_createObjects, Settings.bCopier_contactReceiver_adjustScale, true, true);
                 }
                 if(Settings.bCopier_contactSender_copy && CopierTabs.ComponentIsInSelectedTab("contactsender", Settings._copier_selectedTab))
                 {
                     if(Settings.bCopier_contactSender_removeOld)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.ContactSender, false, true);
-                    LegacyCopier.CopyAllContactSenders(objFrom, objTo, Settings.bCopier_contactSender_createMissing, Settings.bCopier_contactSender_createObjects, Settings.bCopier_contactSender_adjustScale);
+                    GenericCopier.CopyComponent<VRCContactSender>(objFrom, objTo, Settings.bCopier_contactSender_createObjects, Settings.bCopier_contactSender_adjustScale, true, true);
                 }
                 if(Settings.bCopier_physBones_copyColliders && CopierTabs.ComponentIsInSelectedTab("physbonecollider", Settings._copier_selectedTab))
                 {
                     if(Settings.bCopier_physBones_removeOldColliders)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.PhysBoneCollider, false, true);
-                    LegacyCopier.CopyAllPhysBoneColliders(objFrom, objTo, Settings.bCopier_physBones_createObjectsColliders, true, Settings.bCopier_physBones_adjustScaleColliders);
+                    GenericCopier.CopyComponent<VRCPhysBoneCollider>(objFrom, objTo, Settings.bCopier_physBones_createObjectsColliders, Settings.bCopier_physBones_adjustScaleColliders, true, true);
                 }
                 if(Settings.bCopier_physBones_copy && CopierTabs.ComponentIsInSelectedTab("physbone", Settings._copier_selectedTab))
                 {
                     if(Settings.bCopier_physBones_removeOldBones)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.PhysBone, false, true);
-                    if(Settings.bCopier_physBones_copySettings || Settings.bCopier_physBones_createMissing)
-                        LegacyCopier.CopyAllPhysBonesNew(objFrom, objTo, Settings.bCopier_physBones_createMissing, true, Settings.bCopier_physBones_adjustScale);
+                    GenericCopier.CopyComponent<VRCPhysBone>(objFrom, objTo, Settings.bCopier_physBones_createObjects, Settings.bCopier_physBones_adjustScale, true, true);
                 }
+                #endif
             } 
             if(DynamicBonesExist)
             {
@@ -5055,7 +5052,6 @@ namespace Pumkin.AvatarTools
                 }
                 if(Settings.bCopier_dynamicBones_copy && CopierTabs.ComponentIsInSelectedTab("dynamicbone", Settings._copier_selectedTab))
                 {
-                    
                     if(Settings.bCopier_dynamicBones_removeOldBones)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBone, false, true);
                     if(Settings.bCopier_dynamicBones_copySettings || Settings.bCopier_dynamicBones_createMissing)
@@ -5124,19 +5120,19 @@ namespace Pumkin.AvatarTools
             if(_DependencyChecker.FinalIKExists && Settings.bCopier_finalIK_copy && CopierTabs.ComponentIsInSelectedTab("finalik", Settings._copier_selectedTab))
             {
                 if(Settings.bCopier_finalIK_copyCCDIK)
-                    GenericCopier.CopyComponent<CCDIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+                    GenericCopier.CopyComponent<CCDIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false,true, true);
                 if(Settings.bCopier_finalIK_copyLimbIK)
-                    GenericCopier.CopyComponent<LimbIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+                    GenericCopier.CopyComponent<LimbIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true, true);
                 if(Settings.bCopier_finalIK_copyRotationLimits)
-                    GenericCopier.CopyComponent<RotationLimit>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+                    GenericCopier.CopyComponent<RotationLimit>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true, true);
                 if(Settings.bCopier_finalIK_copyFabrik)
-                    GenericCopier.CopyComponent<FABRIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+                    GenericCopier.CopyComponent<FABRIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true, true);
                 if(Settings.bCopier_finalIK_copyAimIK)
-                    GenericCopier.CopyComponent<AimIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+                    GenericCopier.CopyComponent<AimIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true, true);
                 if(Settings.bCopier_finalIK_copyFBTBipedIK)
-                    GenericCopier.CopyComponent<FullBodyBipedIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+                    GenericCopier.CopyComponent<FullBodyBipedIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true, true);
                 if(Settings.bCopier_finalIK_copyVRIK)
-                    GenericCopier.CopyComponent<VRIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, true);
+                    GenericCopier.CopyComponent<VRIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true, true);
             }
 			#endif
         }
