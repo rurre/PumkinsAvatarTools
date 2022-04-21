@@ -1867,6 +1867,7 @@ namespace Pumkin.AvatarTools
                                     Settings.bCopier_transforms_copyPosition = GUILayout.Toggle(Settings.bCopier_transforms_copyPosition, Strings.Copier.transforms_position, Styles.CopierToggle);
                                     Settings.bCopier_transforms_copyRotation = GUILayout.Toggle(Settings.bCopier_transforms_copyRotation, Strings.Copier.transforms_rotation, Styles.CopierToggle);
                                     Settings.bCopier_transforms_copyScale = GUILayout.Toggle(Settings.bCopier_transforms_copyScale, Strings.Copier.transforms_scale, Styles.CopierToggle);
+                                    Settings.bCopier_transforms_createMissing = GUILayout.Toggle(Settings.bCopier_transforms_createMissing, Strings.Copier.transforms_createMissing, Styles.CopierToggle);
                                 }
                             }
 

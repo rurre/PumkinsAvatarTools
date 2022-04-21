@@ -56,6 +56,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_transforms_copyPosition = false;
         [SerializeField] internal bool bCopier_transforms_copyRotation = true;
         [SerializeField] internal bool bCopier_transforms_copyScale = true;
+        [SerializeField] internal bool bCopier_transforms_createMissing = false;
 
         [SerializeField] internal bool bCopier_dynamicBones_copy = true;
         [SerializeField] internal bool bCopier_dynamicBones_copySettings = false;

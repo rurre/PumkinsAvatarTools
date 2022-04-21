@@ -497,21 +497,29 @@ namespace Pumkin.AvatarTools.Copiers
                 string log = String.Format(Strings.Log.copyAttempt + " - ", tFrom.gameObject.name, from.name, to.name);
 
                 Transform tTo = Helpers.FindTransformInAnotherHierarchy(tFrom, to.transform, false);
-                if(tTo)
-                {
-                    if(Settings.bCopier_transforms_copyPosition)
-                        tTo.localPosition = tFrom.localPosition;
-                    if(Settings.bCopier_transforms_copyScale)
-                        tTo.localScale = tFrom.localScale;
-                    if(Settings.bCopier_transforms_copyRotation)
-                    {
-                        tTo.localEulerAngles = tFrom.localEulerAngles;
-                        tTo.localRotation = tFrom.localRotation;
+                
+                if(!tTo) {
+                    if (Settings.bCopier_transforms_createMissing) {
+                        Transform targetParent = Helpers.FindTransformInAnotherHierarchy(tFrom.parent, to.transform, false);
+                        GameObject createdObj = UnityEngine.Object.Instantiate(tFrom.gameObject, targetParent);
+                        createdObj.name = tFrom.gameObject.name;
+                        tTo = createdObj.transform;
+                    } else {
+                        PumkinsAvatarTools.Log(log + Strings.Log.failedHasNoIgnoring, LogType.Warning, from.name, tFrom.gameObject.name);
+                        continue;
                     }
-                    PumkinsAvatarTools.Log(log + Strings.Log.success, LogType.Log);
                 }
-                else
-                    PumkinsAvatarTools.Log(log + Strings.Log.failedHasNoIgnoring, LogType.Warning, from.name, tFrom.gameObject.name);
+ 
+                if(Settings.bCopier_transforms_copyPosition)
+                    tTo.localPosition = tFrom.localPosition;
+                if(Settings.bCopier_transforms_copyScale)
+                    tTo.localScale = tFrom.localScale;
+                if(Settings.bCopier_transforms_copyRotation)
+                {
+                    tTo.localEulerAngles = tFrom.localEulerAngles;
+                    tTo.localRotation = tFrom.localRotation;
+                }
+                PumkinsAvatarTools.Log(log + Strings.Log.success, LogType.Log); 
             }
         }
 
@@ -588,7 +596,7 @@ namespace Pumkin.AvatarTools.Copiers
                     }
                     else
                     {
-                        PumkinsAvatarTools.Log(log + Strings.Log.failedDoesntHave, LogType.Warning, rTo.gameObject.name, rFrom.GetType().ToString());
+                        PumkinsAvatarTools.Log(log + Strings.Log.failedDoesntHave, LogType.Warning, tTo.gameObject.name, rFrom.GetType().ToString());
                     }
                 }
             }
