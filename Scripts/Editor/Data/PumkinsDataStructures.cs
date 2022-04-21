@@ -20,6 +20,8 @@ namespace Pumkin.DataStructures
                 Tab.Common,
                 new string[] //Initially lowercase to avoid having to cast them every time
                 {
+                    "physbone",
+                    "physbonecollider",
                     "dynamicbone",
                     "dynamicbonecollider",
                     "vrc_avatardescriptor",
@@ -30,6 +32,8 @@ namespace Pumkin.DataStructures
                     "audiosource",
                     "trailrenderer",
                     "light",
+                    "contactreceiver",
+                    "contactsender",
                 }
             }
         };
@@ -132,6 +136,7 @@ namespace Pumkin.DataStructures
         public static GUIStyle Label_rightAligned { get; internal set; }
         public static GUIStyle Foldout { get; internal set; }
         public static GUIStyle HelpBox { get; internal set; }
+        public static GUIStyle HelpBox_Warning { get; internal set; }
         public static GUIStyle HelpBox_OneLine { get; internal set; }
         public static GUIStyle Box { get; internal set; }
         public static GUIStyle BigButton { get; internal set; }
@@ -161,6 +166,9 @@ namespace Pumkin.DataStructures
             HelpBox = new GUIStyle("HelpBox");
             Box = new GUIStyle("box");
             Button = new GUIStyle("button");
+
+            HelpBox_Warning = new GUIStyle("HelpBox");
+            HelpBox_Warning.normal.textColor = Color.yellow;
 
             Foldout_title = new GUIStyle("ToolbarDropDown")
             {
@@ -259,6 +267,8 @@ namespace Pumkin.DataStructures
 
     public struct Icons
     {
+        const string FinalIKIconsPath = "Assets/Plugins/RootMotion/FinalIK/Gizmos";
+        
         public static Texture2D Star { get; internal set; }
         public static Texture2D CsScript { get; internal set; }
         public static Texture2D Transform { get; internal set; }
@@ -271,6 +281,8 @@ namespace Pumkin.DataStructures
         public static Texture2D RigidBody { get; internal set; }
         public static Texture2D Prefab { get; internal set; }
         public static Texture2D TrailRenderer { get; internal set; }
+        public static Texture2D PhysBone { get; internal set; }
+        public static Texture2D PhysBoneCollider { get; internal set; }
         public static Texture2D BoneIcon { get; internal set; }
         public static Texture2D BoneColliderIcon { get; internal set; }
         public static Texture2D MeshRenderer { get; internal set; }
@@ -288,12 +300,25 @@ namespace Pumkin.DataStructures
         public static Texture2D GithubIcon { get; internal set; }
         public static Texture2D KofiIcon { get; internal set; }
         public static Texture2D Refresh { get; internal set; }
+        public static Texture2D ContactReceiver { get; internal set; }
+        public static Texture2D ContactSender { get; internal set; }
         public static Texture2D AimConstraint { get; internal set; }
         public static Texture2D LookAtConstraint { get; internal set; }
         public static Texture2D ParentConstraint { get; internal set; }
         public static Texture2D PositionConstraint { get; internal set; }
         public static Texture2D RotationConstraint { get; internal set; }
         public static Texture2D ScaleConstraint { get; internal set; }
+
+        public static Texture2D LinkIcon { get; internal set; }
+        public static Texture2D Camera { get; internal set; }
+        
+        public static Texture2D FinalIK_CCDIK  { get; internal set; }
+        public static Texture2D FINALIK_LimbIK { get; internal set; }
+        public static Texture2D FinalIK_RotationLimits  { get; internal set; }
+        public static Texture2D FinalIK_FabrIK { get; internal set; }
+        public static Texture2D FINALIK_AimIK { get; internal set; }
+        public static Texture2D FinalIK_fbtBipedIK { get; internal set; }
+        public static Texture2D FinalIK_vrIK { get; internal set; }
 
         static Icons()
         {
@@ -325,14 +350,33 @@ namespace Pumkin.DataStructures
             PositionConstraint = (Texture2D)EditorGUIUtility.IconContent("PositionConstraint Icon").image;
             RotationConstraint = (Texture2D)EditorGUIUtility.IconContent("RotationConstraint Icon").image;
             ScaleConstraint = (Texture2D)EditorGUIUtility.IconContent("ScaleConstraint Icon").image;
+            Camera = (Texture2D)EditorGUIUtility.IconContent("Camera Icon").image;
 
             Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");
 
+            #if PUMKIN_FINALIK
+            
+            FinalIK_CCDIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/CCDIK Icon.png");
+            FINALIK_LimbIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/LimbIK Icon.png");
+            FinalIK_RotationLimits = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/RotationLimitAngle Icon.png");
+            FinalIK_FabrIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/FABRIK Icon.png");
+            FINALIK_AimIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/AimIK Icon.png");
+            FinalIK_fbtBipedIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/GrounderFBBIK Icon.png");
+            FinalIK_vrIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/GrounderFBBIK Icon.png");
+
+            #endif
+
+            PhysBone = Resources.Load("icons/phys-bone-icon") as Texture2D ?? CsScript;
+            PhysBoneCollider = Resources.Load("icons/phys-bonecollider-icon") as Texture2D ?? DefaultAsset;
             BoneIcon = Resources.Load("icons/bone-icon") as Texture2D ?? CsScript;
             BoneColliderIcon = Resources.Load("icons/bonecollider-icon") as Texture2D ?? DefaultAsset;
+            ContactReceiver = Resources.Load("icons/receiver-icon") as Texture2D ?? CsScript; ;
+            ContactSender = Resources.Load("icons/sender-icon") as Texture2D ?? CsScript; ;
             DiscordIcon = Resources.Load("icons/discord-logo") as Texture2D ?? Star;
             GithubIcon = Resources.Load("icons/github-logo") as Texture2D ?? Star;
             KofiIcon = Resources.Load("icons/kofi-logo") as Texture2D ?? Star;
+
+            LinkIcon = Resources.Load("icons/link-icon") as Texture2D ?? Joint;
         }
     }
 
@@ -743,5 +787,12 @@ namespace Pumkin.DataStructures
             string path = PumkinsAvatarTools.MainFolderPath + "/thry_module_manifest.json";
             File.WriteAllText(path, json);
         }
+    }
+
+    class TexturePackerData
+    {
+        public enum PumkinsTextureChannel { RGBA, Red, Green, Blue, Alpha }
+        public static Shader PackerShader => Shader.Find("Hidden/Pumkin/TexturePacker");
+        public static Shader UnpackerShader => Shader.Find("Hidden/Pumkin/TextureUnpacker");
     }
 }

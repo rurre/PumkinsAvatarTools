@@ -105,6 +105,12 @@ namespace Pumkin.AvatarTools.Destroyers
         /// </summary>
         internal static void DestroyAllComponentsOfType(GameObject obj, Type type, bool ignoreRoot, bool useIgnoreList)
         {
+			if(type == null)
+			{
+				PumkinsAvatarTools.Log("Invalid type to destroy", LogType.Error);
+				return;
+			}
+
             Transform oldParent = obj.transform.parent;
             obj.transform.parent = null;
 

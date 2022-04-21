@@ -56,10 +56,22 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_transforms_copyPosition = false;
         [SerializeField] internal bool bCopier_transforms_copyRotation = true;
         [SerializeField] internal bool bCopier_transforms_copyScale = true;
-        [SerializeField] internal bool bCopier_transforms_createMissing = false;
+        [SerializeField] internal bool bCopier_transforms_createMissing = true;
+        [SerializeField] internal bool bCopier_transforms_copyActiveState = true;
+        [SerializeField] internal bool bCopier_transforms_copyLayerAndTag = true;
+
+        [SerializeField] internal bool bCopier_physBones_copy = true;
+        [SerializeField] internal bool bCopier_physBones_createObjects = false;
+        [SerializeField] internal bool bCopier_physBones_adjustScale = true;
+
+        [SerializeField] internal bool bCopier_physBones_copyColliders = true;
+        [SerializeField] internal bool bCopier_physBones_removeOldColliders = false;
+        [SerializeField] internal bool bCopier_physBones_removeOldBones = false;
+        [SerializeField] internal bool bCopier_physBones_createObjectsColliders = true;
+        [SerializeField] internal bool bCopier_physBones_adjustScaleColliders = true;
 
         [SerializeField] internal bool bCopier_dynamicBones_copy = true;
-        [SerializeField] internal bool bCopier_dynamicBones_copySettings = false;
+        [SerializeField] internal bool bCopier_dynamicBones_copySettings = true;
         [SerializeField] internal bool bCopier_dynamicBones_createMissing = true;
         [SerializeField] internal bool bCopier_dynamicBones_createObjects = false;
         [SerializeField] internal bool bCopier_dynamicBones_adjustScale = true;
@@ -81,6 +93,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_descriptor_copyEyeLookSettings = true;
         [SerializeField] internal bool bCopier_descriptor_copyPlayableLayers = true;
         [SerializeField] internal bool bCopier_descriptor_copyExpressions = true;
+        [SerializeField] internal bool bCopier_descriptor_copyColliders = true;
 
         [SerializeField] internal bool bCopier_colliders_copy = true;
         [SerializeField] internal bool bCopier_colliders_removeOld = false;
@@ -96,6 +109,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_skinMeshRender_copySettings = true;
         [SerializeField] internal bool bCopier_skinMeshRender_copyBlendShapeValues = true;
         [SerializeField] internal bool bCopier_skinMeshRender_copyMaterials = false;
+        [SerializeField] internal bool bCopier_skinMeshRender_copyBounds = false;
 
         [SerializeField] internal bool bCopier_particleSystems_copy = true;
         [SerializeField] internal bool bCopier_particleSystems_replace = false;
@@ -146,6 +160,16 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_other_copyVRMSpringBones = true;
         [SerializeField] internal bool bCopier_other_createGameObjects = true;
 
+        [SerializeField] internal bool bCopier_contactReceiver_copy = true;
+        [SerializeField] internal bool bCopier_contactReceiver_removeOld = false;
+        [SerializeField] internal bool bCopier_contactReceiver_createObjects = false;
+        [SerializeField] internal bool bCopier_contactReceiver_adjustScale = true;
+
+        [SerializeField] internal bool bCopier_contactSender_copy = true;
+        [SerializeField] internal bool bCopier_contactSender_removeOld = false;
+        [SerializeField] internal bool bCopier_contactSender_createObjects = false;
+        [SerializeField] internal bool bCopier_contactSender_adjustScale = true;
+
         [SerializeField] internal bool bCopier_aimConstraint_copy = true;
         [SerializeField] internal bool bCopier_aimConstraint_replaceOld = true;
         [SerializeField] internal bool bCopier_aimConstraint_createObjects = true;
@@ -175,7 +199,20 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_scaleConstraint_createObjects = true;
         [SerializeField] internal bool bCopier_scaleConstraint_copy = true;
         [SerializeField] internal bool bCopier_scaleConstraint_onlyIfHasValidSources = true;
-
+        
+        [SerializeField] internal bool bCopier_cameras_copy = true;
+        [SerializeField] internal bool bCopier_cameras_createObjects = true;
+        
+        [SerializeField] internal bool bCopier_finalIK_copy = true;
+        [SerializeField] internal bool bCopier_finalIK_createObjects = true;
+        [SerializeField] internal bool bCopier_finalIK_copyCCDIK = true;
+        [SerializeField] internal bool bCopier_finalIK_copyLimbIK = true;
+        [SerializeField] internal bool bCopier_finalIK_copyRotationLimits = true;
+        [SerializeField] internal bool bCopier_finalIK_copyFabrik = true;
+        [SerializeField] internal bool bCopier_finalIK_copyAimIK = true;
+        [SerializeField] internal bool bCopier_finalIK_copyFBTBipedIK = true;
+        [SerializeField] internal bool bCopier_finalIK_copyVRIK = true;
+        
         //Ignore Array
         [SerializeField] internal bool _copierIgnoreArray_expand = false;
         [SerializeField] internal SerializedProperty _serializedIgnoreArrayProp;
@@ -185,8 +222,6 @@ namespace Pumkin.AvatarTools
 
 
         [SerializeField] internal static GameObject _copierSelectedFrom;
-
-        [SerializeField] internal CopierTabs.Tab _copier_selectedTab1976890452 = CopierTabs.Tab.Common;
 
 
         [SerializeField] internal bool bThumbnails_use_camera_overlay = false;
@@ -248,6 +283,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] public bool _avatar_testing_expand = false;
         [SerializeField] internal bool _tools_expand = true;
         [SerializeField] internal bool _tools_avatar_expand = true;
+        [SerializeField] internal bool _tools_physBones_expand = true;
         [SerializeField] internal bool _tools_dynamicBones_expand = true;
         [SerializeField] internal bool _tools_removeAll_expand = false;
 
@@ -262,6 +298,8 @@ namespace Pumkin.AvatarTools
 
         [SerializeField] internal bool _copier_expand = false;
         [SerializeField] internal bool _copier_expand_transforms = false;
+        [SerializeField] internal bool _copier_expand_physBones = false;
+        [SerializeField] internal bool _copier_expand_physBoneColliders = false;
         [SerializeField] internal bool _copier_expand_dynamicBones = false;
         [SerializeField] internal bool _copier_expand_dynamicBoneColliders = false;
         [SerializeField] internal bool _copier_expand_avatarDescriptor = false;
@@ -275,6 +313,8 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool _copier_expand_animators = false;
         [SerializeField] internal bool _copier_expand_audioSources = false;
         [SerializeField] internal bool _copier_expand_other = false;
+        [SerializeField] internal bool _copier_expand_contactReceiver = false;
+        [SerializeField] internal bool _copier_expand_contactSender = false;
         [SerializeField] internal bool _copier_expand_aimConstraints = false;
         [SerializeField] internal bool _copier_expand_lookAtConstraints = false;
         [SerializeField] internal bool _copier_expand_parentConstraints = false;
@@ -282,6 +322,8 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool _copier_expand_rotationConstraints = false;
         [SerializeField] internal bool _copier_expand_scaleConstraints = false;
         [SerializeField] internal bool _copier_expand_joints = false;
+        [SerializeField] internal bool _copier_expand_cameras = false;
+        [SerializeField] internal bool _copier_expand_finalIK = false;
 
         //Languages
         [SerializeField] internal string _selectedLanguageString = "English - Default";
@@ -300,6 +342,6 @@ namespace Pumkin.AvatarTools
 
         [SerializeField] internal static GameObject _selectedAvatar; // use property
 
-        [SerializeField] internal static bool _useSceneSelectionAvatar = false;        
+        [SerializeField] internal static bool _useSceneSelectionAvatar = false;
     }
 }
