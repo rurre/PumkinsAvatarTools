@@ -7,7 +7,6 @@ using Pumkin.HelperFunctions;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
-using VRC.SDK3.Dynamics.PhysBone.Components;
 #if PUMKIN_FINALIK
 using RootMotion.FinalIK;
 #endif
