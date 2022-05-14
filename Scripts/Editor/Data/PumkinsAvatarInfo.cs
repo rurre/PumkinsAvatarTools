@@ -65,6 +65,8 @@ namespace Pumkin.DataStructures
         public int Bones { get; private set; }
         public int IKFollowers { get; private set; }
         public int IKFollowers_Total { get; private set; }
+        public int PhysboneComponents { get; private set; }
+        public int PhysboneComponents_Total { get; private set; }
 
         public PumkinsAvatarInfo()
         {
@@ -403,7 +405,8 @@ namespace Pumkin.DataStructures
                     string.Format(Strings.AvatarInfo.uniqueMaterials, UniqueMaterials, UniqueMaterials_Total) + "\n" +
                     string.Format(Strings.AvatarInfo.shaders, ShaderCount) + "\n\n" +
 
-                    string.Format(Strings.AvatarInfo.physBoneTransforms, PhysBoneTransforms, PhysBoneTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneComponentCount)) + "\n" +
+                    string.Format(Strings.AvatarInfo.physBoneComponents, PhysboneComponents, PhysboneComponents_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneComponentCount)) + "\n" +
+                    string.Format(Strings.AvatarInfo.physBoneTransforms, PhysBoneTransforms, PhysBoneTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneTransformCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.physBoneColliders, PhysBoneColliders, PhysBoneColliders_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneColliderCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.physBoneColliderTransforms, PhysBoneColliderTransforms, PhysBoneColliderTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneCollisionCheckCount)) + "\n\n" +
 

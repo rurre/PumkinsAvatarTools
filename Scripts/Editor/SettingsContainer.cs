@@ -33,6 +33,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal float _tools_quickSetup_viewpointZDepth = 0.06f;
         [SerializeField] internal bool _tools_quickSetup_setSkinnedMeshRendererAnchor = true;
         [SerializeField] internal bool _tools_quickSetup_setMeshRendererAnchor = true;
+        [SerializeField] internal bool _tools_quicksetup_fillEyeBones = true;
         
         [SerializeField] internal bool _tools_quicksetup_setMeshRendererAnchor_usePath = false;
         [SerializeField] internal string _tools_quickSetup_setRenderAnchor_path = "Armature/Hips/Spine";
@@ -61,7 +62,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_transforms_copyLayerAndTag = true;
 
         [SerializeField] internal bool bCopier_physBones_copy = true;
-        [SerializeField] internal bool bCopier_physBones_createObjects = false;
+        [SerializeField] internal bool bCopier_physBones_createObjects = true;
         [SerializeField] internal bool bCopier_physBones_adjustScale = true;
 
         [SerializeField] internal bool bCopier_physBones_copyColliders = true;
@@ -162,12 +163,12 @@ namespace Pumkin.AvatarTools
 
         [SerializeField] internal bool bCopier_contactReceiver_copy = true;
         [SerializeField] internal bool bCopier_contactReceiver_removeOld = false;
-        [SerializeField] internal bool bCopier_contactReceiver_createObjects = false;
+        [SerializeField] internal bool bCopier_contactReceiver_createObjects = true;
         [SerializeField] internal bool bCopier_contactReceiver_adjustScale = true;
 
         [SerializeField] internal bool bCopier_contactSender_copy = true;
         [SerializeField] internal bool bCopier_contactSender_removeOld = false;
-        [SerializeField] internal bool bCopier_contactSender_createObjects = false;
+        [SerializeField] internal bool bCopier_contactSender_createObjects = true;
         [SerializeField] internal bool bCopier_contactSender_adjustScale = true;
 
         [SerializeField] internal bool bCopier_aimConstraint_copy = true;

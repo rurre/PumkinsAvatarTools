@@ -11,8 +11,8 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "1.0";
-        public const double toolsVersion = 1.0;
+        public const string TOOLS_VERSION_STRING = "1.1";
+        public const double toolsVersion = 1.1;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -277,6 +277,7 @@ namespace Pumkin.DataStructures
             public static string dynamicBoneColliderTransforms = "_Collider Affected Transforms: {0} ({1}) - {2}";
             public static string particleSystems = "_Particle Systems: {0} ({1}) - {2}";
             public static string maxParticles = "_Max Particles: {0} ({1}) - {2}";
+            public static string physBoneComponents = "_Physbone Components: {0} ({1}) - {2}";
 
             static AvatarInfo()
             {
@@ -309,6 +310,7 @@ namespace Pumkin.DataStructures
                 selectAvatarFirst = Translation.avatarInfo.selectAvatarFirst;
                 overallPerformance = Translation.avatarInfo.overallPerformance;
                 ikFollowers = Translation.avatarInfo.ikFollowers;
+                physBoneComponents = Translation.avatarInfo.physBoneComponents;
             }
         }
         public static class Thumbnails

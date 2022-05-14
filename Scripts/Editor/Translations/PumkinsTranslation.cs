@@ -383,6 +383,7 @@ namespace Pumkin.Translations
         public string overallPerformance = "Overall Performance: {0}";
         public string selectAvatarFirst = "Select an Avatar first";
         public string ikFollowers = "IK Followers: {0} ({1})";
+        public string physBoneComponents = "Physbone Components: {0} ({1}) - {2}";
     }
 
     [Serializable]

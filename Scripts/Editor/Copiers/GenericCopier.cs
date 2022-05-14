@@ -18,7 +18,7 @@ namespace Pumkin.AvatarTools.Copiers
         static readonly Dictionary<string, string[]> AdjustScaleTypeProps = new Dictionary<string, string[]>()
         {
             {"VRCPhysBone", new [] { "radius", "endpointPosition" }},
-            {"VRCPhysBoneCollider", new [] { "radius", "height", "position" }},
+            {"VRCPhysBoneCollider", new [] { "radius", "height" }},
             {"VRCContactReceiver", new [] { "radius", "height", "position" }},
             {"VRCContactSender", new [] { "radius", "height", "position" }},
             {"DynamicBone", new [] { "m_Radius", "m_EndLength" }},

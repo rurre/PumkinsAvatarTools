@@ -67,8 +67,9 @@ namespace Pumkin.AvatarTools.Callbacks
             {
                 if(_avatarCache == null)
                 {
-                    _avatarCache = GameObject.FindObjectsOfType<VRC_AvatarDescriptor>()
-                        .Select(x => x.gameObject);
+                    var avs = GameObject.FindObjectsOfType<VRC_AvatarDescriptor>();
+                    if(avs != null)
+                        _avatarCache = avs.Select(x => x.gameObject);
                 }
                 return _avatarCache;
             }
@@ -114,7 +115,8 @@ namespace Pumkin.AvatarTools.Callbacks
             {
                 if(av == UploadTarget)
                     continue;
-                av.gameObject.SetActive(isActive);
+                if(av != null)
+                    av.gameObject.SetActive(isActive);
             }
         }
     }
