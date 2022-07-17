@@ -120,6 +120,13 @@ namespace Pumkin.DependencyChecker
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for PhysBones and Contacts in project...");
 
             var pPaths = new List<string>(); 
+            if(AssetDatabase.GetSubFolders("Packages/com.vrchat.base").Length > 0){
+            string[] packageSearchResalt = AssetDatabase.FindAssets("Dynamics",new[]{"Packages/com.vrchat.base"});
+            foreach (string guid in packageSearchResalt)
+            {
+                pPaths.Add(AssetDatabase.GUIDToAssetPath(guid));
+            }
+            }
             pPaths.AddRange(Directory.GetFiles(Application.dataPath, "VRC.SDK3.Dynamics.PhysBone.dll", SearchOption.AllDirectories));
             pPaths.AddRange(Directory.GetFiles(Application.dataPath, "VRC.SDK3.Dynamics.Contact.dll", SearchOption.AllDirectories));
 
