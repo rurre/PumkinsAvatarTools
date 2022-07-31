@@ -12,6 +12,7 @@ using UnityEditor.SceneManagement;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Animations;
+using Object = UnityEngine.Object;
 
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
 using VRC.Core;
@@ -281,7 +282,7 @@ namespace Pumkin.AvatarTools.Copiers
                         if(!newDynBone.m_Root)
                         {
                             PumkinsAvatarTools.Log("_Couldn't set root {0} for new DynamicBone in {1}'s {2}. GameObject is missing. Removing.", LogType.Warning, dbFrom.m_Root.name ?? "null", newDynBone.transform.root.name, newDynBone.transform.name == newDynBone.transform.root.name ? "root" : newDynBone.transform.root.name);
-                            PumkinsAvatarTools.DestroyImmediate(newDynBone);
+                            Object.DestroyImmediate(newDynBone);
                             continue;
                         }
 

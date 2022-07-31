@@ -19,6 +19,7 @@ using Pumkin.Presets;
 using UnityEngine.Animations;
 using Pumkin.YAML;
 using UnityEditor.Experimental.SceneManagement;
+using Object = UnityEngine.Object;
 
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
 using VRC.Core;
@@ -45,8 +46,8 @@ namespace Pumkin.AvatarTools
     /// PumkinsAvatarTools by, well, Pumkin
     /// https://github.com/rurre/PumkinsAvatarTools
     /// </summary>
-    [Serializable, ExecuteInEditMode, CanEditMultipleObjects] // TODO: Check if this is still needed. Rider says it's not
-    public class PumkinsAvatarTools : EditorWindow
+    [Serializable] // TODO: Check if this is still needed. Rider says it's not
+    public class PumkinsAvatarTools
     {
         #region Variables
 
@@ -59,7 +60,7 @@ namespace Pumkin.AvatarTools
             get
             {
                 if(Instance._settings == null)
-                    Instance._settings = CreateInstance<SettingsContainer>();
+                    Instance._settings = ScriptableObject.CreateInstance<SettingsContainer>();
                 return Instance._settings;
             }
         }
@@ -932,7 +933,7 @@ namespace Pumkin.AvatarTools
         {
             if(SettingsContainer._useSceneSelectionAvatar)
                 SelectAvatarFromScene();
-            _PumkinsAvatarToolsWindow.RequestRepaint(this);
+            _PumkinsAvatarToolsWindow.RepaintSelf();
         }
 
         void HandlePrefabStageOpened(PrefabStage stage)
@@ -1244,7 +1245,7 @@ namespace Pumkin.AvatarTools
 #endif
 
             if(DrawingHandlesGUI)
-                _PumkinsAvatarToolsWindow.RequestRepaint(this);
+                _PumkinsAvatarToolsWindow.RepaintSelf();
         }
 
 #if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
@@ -4060,7 +4061,7 @@ namespace Pumkin.AvatarTools
             {
                 Log(e.Message, LogType.Warning);
             }
-            _PumkinsAvatarToolsWindow.RequestRepaint(_PumkinsAvatarToolsWindow.ToolsWindow);
+            _PumkinsAvatarToolsWindow.RepaintSelf();
         }
 
 #if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
@@ -4084,7 +4085,7 @@ namespace Pumkin.AvatarTools
                 tempDummy.parent = SelectedAvatar.transform;
                 desc.transform.root.localScale = Helpers.RoundVectorValues(new Vector3(newScale, newScale, newScale), 3);
                 SetViewpoint(desc, tempDummy.position);
-                DestroyImmediate(tempDummy.gameObject);
+                Object.DestroyImmediate(tempDummy.gameObject);
                 Log(Strings.Log.setAvatarScaleTo, LogType.Log, newScale.ToString(), desc.ViewPosition.ToString());
             }
         }
@@ -4552,7 +4553,7 @@ namespace Pumkin.AvatarTools
             if(!ScaleRulerPrefab)
                 return;
 
-            _scaleRuler = Instantiate(ScaleRulerPrefab, SelectedAvatar.transform.position, ScaleRulerPrefab.transform.rotation);
+            _scaleRuler = Object.Instantiate(ScaleRulerPrefab, SelectedAvatar.transform.position, ScaleRulerPrefab.transform.rotation);
             _scaleRuler.name = SCALE_RULER_DUMMY_NAME;
             _scaleRuler.hideFlags = HideFlags.HideAndDontSave;
         }
