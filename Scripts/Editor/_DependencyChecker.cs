@@ -5,7 +5,6 @@ using System.IO;
 using System.Collections.Generic;
 using Pumkin.Dependencies;
 using System.Linq;
-using System.Reflection;
 
 namespace Pumkin.DependencyChecker
 {
@@ -118,19 +117,7 @@ namespace Pumkin.DependencyChecker
         static bool GetPhysBones()
         {
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for PhysBones and Contacts in project...");
-
-            var pPaths = new List<string>(); 
-            if(AssetDatabase.GetSubFolders("Packages/com.vrchat.base").Length > 0){
-            string[] packageSearchResalt = AssetDatabase.FindAssets("Dynamics",new[]{"Packages/com.vrchat.base"});
-            foreach (string guid in packageSearchResalt)
-            {
-                pPaths.Add(AssetDatabase.GUIDToAssetPath(guid));
-            }
-            }
-            pPaths.AddRange(Directory.GetFiles(Application.dataPath, "VRC.SDK3.Dynamics.PhysBone.dll", SearchOption.AllDirectories));
-            pPaths.AddRange(Directory.GetFiles(Application.dataPath, "VRC.SDK3.Dynamics.Contact.dll", SearchOption.AllDirectories));
-
-            if (pPaths.Count == 0) //No Physbones or Contacts in project
+            if(AppDomain.CurrentDomain.GetAssemblies().Any(ass => ass.FullName == "VRC.SDK3.Dynamics.PhysBone" || ass.FullName == "VRC.SDK3.Dynamics.Contact"))
             {
                 Debug.Log("<color=blue>PumkinsAvatarTools</color>: PhysBones and Contacts not found in project.");
                 return false;

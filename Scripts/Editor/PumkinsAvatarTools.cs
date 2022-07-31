@@ -1724,6 +1724,7 @@ namespace Pumkin.AvatarTools
                                     Settings.bCopier_skinMeshRender_copyMaterials = GUILayout.Toggle(Settings.bCopier_skinMeshRender_copyMaterials, Strings.Copier.skinMeshRender_materials, Styles.CopierToggle);
                                     Settings.bCopier_skinMeshRender_copyBlendShapeValues = GUILayout.Toggle(Settings.bCopier_skinMeshRender_copyBlendShapeValues, Strings.Copier.skinMeshRender_blendShapeValues, Styles.CopierToggle);
                                     Settings.bCopier_skinMeshRender_copyBounds = GUILayout.Toggle(Settings.bCopier_skinMeshRender_copyBounds, Strings.Copier.skinMeshRender_bounds, Styles.CopierToggle);
+                                    Settings.bCopier_skinMeshRender_createObjects = GUILayout.Toggle(Settings.bCopier_skinMeshRender_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
                                 }
                             }
 
@@ -4748,7 +4749,9 @@ namespace Pumkin.AvatarTools
                 d.VisemeBlendShapes = new string[visemes.Length];
             }
 
-            var renders = avatar.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            var renders = avatar.GetComponentsInChildren<SkinnedMeshRenderer>(true)
+                                .Where(r => r.sharedMesh != null)
+                                .ToArray();
 
             bool foundShape = false;
 
@@ -5088,7 +5091,7 @@ namespace Pumkin.AvatarTools
             }
             if(Settings.bCopier_skinMeshRender_copy && CopierTabs.ComponentIsInSelectedTab<SkinnedMeshRenderer>(Settings._copier_selectedTab))
             {
-                LegacyCopier.CopyAllSkinnedMeshRenderersSettings(objFrom, objTo, true);
+                LegacyCopier.CopyAllSkinnedMeshRenderers(objFrom, objTo, true);
             }
             
             if(Settings.bCopier_cameras_copy && CopierTabs.ComponentIsInSelectedTab<Camera>(Settings._copier_selectedTab))

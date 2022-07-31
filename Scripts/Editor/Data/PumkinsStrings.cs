@@ -11,8 +11,8 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "1.1";
-        public const double toolsVersion = 1.1;
+        public const string TOOLS_VERSION_STRING = "1.1.2 - Work in Progress";
+        public const double toolsVersion = 1.12;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
