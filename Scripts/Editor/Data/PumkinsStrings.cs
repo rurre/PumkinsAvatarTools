@@ -11,8 +11,8 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "1.1";
-        public const double toolsVersion = 1.1;
+        public const string TOOLS_VERSION_STRING = "1.2 - Work in Progress";
+        public const double toolsVersion = 1.20;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -482,6 +482,7 @@ namespace Pumkin.DataStructures
             public static string finalIK_limbIK = "_LimbIK";
             public static string finalIK_fbtBipedIK = "_Full Body Biped IK";
             public static string finalIK_VRIK = "_VRIK";
+            public static string finalIK_Grounders = "_Grounders";
             
             public static string cameras = "_Cameras";
 
@@ -598,6 +599,7 @@ namespace Pumkin.DataStructures
                 finalIK_limbIK = Translation.copier.finalIK_limbIK;
                 finalIK_fbtBipedIK = Translation.copier.finalIK_fbtBipedIK;
                 finalIK_VRIK = Translation.copier.finalIK_VRIK;
+                finalIK_Grounders = Translation.copier.finalIK_Grounders;
                 
                 cameras = Translation.copier.cameras;
 

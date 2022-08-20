@@ -1,4 +1,5 @@
-﻿using Pumkin.DataStructures;
+﻿using System;
+using Pumkin.DataStructures;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -115,7 +116,7 @@ namespace Pumkin.DataStructures
         {
             if(o == null)
                 return;
-#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON && PUMKIN_PBONES
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2)
             try
             {
                 AvatarPerformance.CalculatePerformanceStats(o.name, o, PerfStats, EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android);
@@ -132,16 +133,16 @@ namespace Pumkin.DataStructures
             var ts = o.GetComponentsInChildren<Transform>(true);
             foreach(var t in ts)
             {
-                GameObjects_Total += 1;
+                GameObjects_Total++;
                 if(t.gameObject.activeInHierarchy)
-                    GameObjects += 1;
+                    GameObjects++;
             }
 
             var sRenders = o.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             var bonesList = new List<string>();
             foreach(var r in sRenders)
             {
-                SkinnedMeshRenderers_Total += 1;
+                SkinnedMeshRenderers_Total++;
                 if(r.sharedMesh)
                     Polygons_Total += r.sharedMesh.triangles.Length / 3;
                 if(r.bones != null)
@@ -152,7 +153,7 @@ namespace Pumkin.DataStructures
 
                 if(r.gameObject.activeInHierarchy && r.enabled)
                 {
-                    SkinnedMeshRenderers += 1;
+                    SkinnedMeshRenderers++;
                     if(r.sharedMesh)
                         Polygons += r.sharedMesh.triangles.Length / 3;
                 }
@@ -181,13 +182,13 @@ namespace Pumkin.DataStructures
 
                 if(filter != null && filter.sharedMesh != null)
                 {
-                    MeshRenderers_Total += 1;
+                    MeshRenderers_Total++;
                     if(filter.sharedMesh != null)
                         Polygons_Total += filter.sharedMesh.triangles.Length / 3;
 
                     if(r.gameObject.activeInHierarchy && r.enabled)
                     {
-                        MeshRenderers += 1;
+                        MeshRenderers++;
                         if(filter.sharedMesh != null)
                             Polygons += filter.sharedMesh.triangles.Length / 3;
                     }
@@ -217,27 +218,29 @@ namespace Pumkin.DataStructures
             var pbColliders = o.GetComponentsInChildren<VRCPhysBoneCollider>(true);
             foreach (var p in pbColliders)
             {
-                PhysBoneColliders_Total += 1;
+                PhysBoneColliders_Total++;
 
                 if(p.gameObject.activeInHierarchy)
-                    PhysBoneColliders += 1;
+                    PhysBoneColliders++;
             }
 
             var pbones = o.GetComponentsInChildren<VRCPhysBone>(true);
             foreach (var p in pbones)
             {
+                PhysboneComponents_Total++;
+                if(p.enabled)
+                    PhysboneComponents++;
+                
                 if(p.ignoreTransforms != null)
                 {
                     var exclusions = p.ignoreTransforms;
-                    var rootChildren = new Transform[0];
+                    Transform[] rootChildren = null;
+                    
                     if(p.rootTransform != null)
-                    {
                         rootChildren = p.rootTransform.GetComponentsInChildren<Transform>(true);
-                    }
                     else
-                    {
                         rootChildren = p.transform.GetComponentsInChildren<Transform>(true);
-                    }
+                    
                     int affected = 0;
                     int affected_total = 0;
 
@@ -245,25 +248,18 @@ namespace Pumkin.DataStructures
                     {
                         if(exclusions.IndexOf(t) == -1)
                         {
-                            affected_total += 1;
-
+                            affected_total++;
                             if(t.gameObject.activeInHierarchy && p.enabled)
-                            {
-                                affected += 1;
-                            }
+                                affected++;
                         }
                         else
                         {
                             var childChildren = t.GetComponentsInChildren<Transform>(true);
-
                             for (int z = 1; z < childChildren.Length; z++)
                             {
-                                affected_total -= 1;
-
+                                affected_total--;
                                 if(childChildren[z].gameObject.activeInHierarchy && p.enabled)
-                                {
-                                    affected -= 1;
-                                }
+                                    affected--;
                             }
                         }
                     }
@@ -288,10 +284,10 @@ namespace Pumkin.DataStructures
             var dbColliders = o.GetComponentsInChildren<DynamicBoneCollider>(true);
             foreach(var c in dbColliders)
             {
-                DynamicBoneColliders_Total += 1;
+                DynamicBoneColliders_Total++;
 
                 if(c.gameObject.activeInHierarchy)
-                    DynamicBoneColliders += 1;
+                    DynamicBoneColliders++;
             }
 
             var dbones = o.GetComponentsInChildren<DynamicBone>(true);
@@ -309,11 +305,11 @@ namespace Pumkin.DataStructures
                     {
                         if(exclusions.IndexOf(t) == -1)
                         {
-                            affected_total += 1;
+                            affected_total++;
 
                             if(t.gameObject.activeInHierarchy && d.enabled)
                             {
-                                affected += 1;
+                                affected++;
                             }
                         }
                         else
@@ -352,12 +348,12 @@ namespace Pumkin.DataStructures
             var ptc = o.GetComponentsInChildren<ParticleSystem>(true);
             foreach(var p in ptc)
             {
-                ParticleSystems_Total += 1;
+                ParticleSystems_Total++;
                 MaxParticles_Total += p.main.maxParticles;
 
                 if(p.gameObject.activeInHierarchy && p.emission.enabled)
                 {
-                    ParticleSystems += 1;
+                    ParticleSystems++;
                     MaxParticles += p.main.maxParticles;
                 }
             }
@@ -368,10 +364,10 @@ namespace Pumkin.DataStructures
             var ikf = o.GetComponentsInChildren<VRC_IKFollower>(true);
             foreach(var ik in ikf)
             {
-                IKFollowers_Total += 1;
+                IKFollowers_Total++;
 
                 if(ik.gameObject.activeInHierarchy)
-                    IKFollowers += 1;
+                    IKFollowers++;
             }
 #endif
         }
@@ -392,7 +388,7 @@ namespace Pumkin.DataStructures
                 bool useDefault = false;
                 try
                 {
-#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON && PUMKIN_PBONES
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2)
                     CachedInfo =
                     string.Format(Strings.AvatarInfo.name, Name) + "\n" +
                     string.Format(Strings.AvatarInfo.line) + "\n" +
@@ -404,12 +400,12 @@ namespace Pumkin.DataStructures
                     string.Format(Strings.AvatarInfo.usedMaterialSlots, MaterialSlots, MaterialSlots_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.MaterialCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.uniqueMaterials, UniqueMaterials, UniqueMaterials_Total) + "\n" +
                     string.Format(Strings.AvatarInfo.shaders, ShaderCount) + "\n\n" +
-
+#if VRC_SDK_VRCSDK3 && PUMKIN_PBONES
                     string.Format(Strings.AvatarInfo.physBoneComponents, PhysboneComponents, PhysboneComponents_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneComponentCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.physBoneTransforms, PhysBoneTransforms, PhysBoneTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneTransformCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.physBoneColliders, PhysBoneColliders, PhysBoneColliders_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneColliderCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.physBoneColliderTransforms, PhysBoneColliderTransforms, PhysBoneColliderTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneCollisionCheckCount)) + "\n\n" +
-
+#endif
                     string.Format(Strings.AvatarInfo.dynamicBoneTransforms, DynamicBoneTransforms, DynamicBoneTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneSimulatedBoneCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.dynamicBoneColliders, DynamicBoneColliders, DynamicBoneColliders_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneColliderCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.dynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneCollisionCheckCount)) + "\n\n" +

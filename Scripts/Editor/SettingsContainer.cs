@@ -44,7 +44,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool _tools_avatar_resetPose_rotation = true;
         [SerializeField] internal bool _tools_avatar_resetPose_scale = false;
         [SerializeField] internal bool _tools_avatar_resetPose_fullreset = false;
-        [SerializeField] internal ResetPoseType _tools_avatar_resetPose_type = ResetPoseType.Prefab;
+        [SerializeField] internal ResetPoseType _tools_avatar_resetPose_type = ResetPoseType.AvatarDefinition;
         internal enum ResetPoseType
         {
             Prefab,
@@ -111,6 +111,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_skinMeshRender_copyBlendShapeValues = true;
         [SerializeField] internal bool bCopier_skinMeshRender_copyMaterials = false;
         [SerializeField] internal bool bCopier_skinMeshRender_copyBounds = false;
+        [SerializeField] internal bool bCopier_skinMeshRender_createObjects = false;
 
         [SerializeField] internal bool bCopier_particleSystems_copy = true;
         [SerializeField] internal bool bCopier_particleSystems_replace = false;
@@ -213,6 +214,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_finalIK_copyAimIK = true;
         [SerializeField] internal bool bCopier_finalIK_copyFBTBipedIK = true;
         [SerializeField] internal bool bCopier_finalIK_copyVRIK = true;
+        [SerializeField] internal bool bCopier_finalIK_copyGrounders = true;
         
         //Ignore Array
         [SerializeField] internal bool _copierIgnoreArray_expand = false;

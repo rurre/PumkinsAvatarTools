@@ -7,9 +7,6 @@ using Pumkin.HelperFunctions;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
-#if PUMKIN_FINALIK
-using RootMotion.FinalIK;
-#endif
 
 namespace Pumkin.AvatarTools.Copiers
 {
@@ -50,7 +47,8 @@ namespace Pumkin.AvatarTools.Copiers
 
                 if(tTo.GetComponents<T>().Except(addedComponents).FirstOrDefault() == null) // Kinda inefficient but whatever
                 {
-                    T newComp = tTo.gameObject.AddComponent<T>();
+                    var type = typeFrom.GetType(); // Fixes abstract types not working since you can't add those
+                    T newComp = tTo.gameObject.AddComponent(type) as T;
                     addedComponents.Add(newComp);
                     
                     ComponentUtility.CopyComponent(typeFrom);
