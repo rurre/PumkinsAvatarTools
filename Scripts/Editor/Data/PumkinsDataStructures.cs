@@ -317,8 +317,9 @@ namespace Pumkin.DataStructures
         public static Texture2D FinalIK_RotationLimits  { get; internal set; }
         public static Texture2D FinalIK_FabrIK { get; internal set; }
         public static Texture2D FINALIK_AimIK { get; internal set; }
-        public static Texture2D FinalIK_fbtBipedIK { get; internal set; }
-        public static Texture2D FinalIK_vrIK { get; internal set; }
+        public static Texture2D FinalIK_FbtBipedIK { get; internal set; }
+        public static Texture2D FinalIK_VRIK { get; internal set; }
+        public static Texture2D FinalIK_Grounder { get; internal set; }
 
         static Icons()
         {
@@ -361,8 +362,9 @@ namespace Pumkin.DataStructures
             FinalIK_RotationLimits = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/RotationLimitAngle Icon.png");
             FinalIK_FabrIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/FABRIK Icon.png");
             FINALIK_AimIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/AimIK Icon.png");
-            FinalIK_fbtBipedIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/GrounderFBBIK Icon.png");
-            FinalIK_vrIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/GrounderFBBIK Icon.png");
+            FinalIK_FbtBipedIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/GrounderFBBIK Icon.png");
+            FinalIK_VRIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/GrounderFBBIK Icon.png");
+            FinalIK_Grounder = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/GrounderIK.png");
 
             #endif
 

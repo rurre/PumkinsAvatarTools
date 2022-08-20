@@ -117,15 +117,15 @@ namespace Pumkin.DependencyChecker
         static bool GetPhysBones()
         {
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for PhysBones and Contacts in project...");
-            if(AppDomain.CurrentDomain.GetAssemblies().Any(ass => ass.FullName == "VRC.SDK3.Dynamics.PhysBone" || ass.FullName == "VRC.SDK3.Dynamics.Contact"))
-            {
-                Debug.Log("<color=blue>PumkinsAvatarTools</color>: PhysBones and Contacts not found in project.");
-                return false;
-            }
-            else //PhysBones and  and Contacts Present
+            if(AppDomain.CurrentDomain.GetAssemblies().Any(ass => ass.FullName.StartsWith("VRC.Dynamics,")))
             {
                 Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found PhysBones and Contacts in project!");
                 return true;
+            }
+            else
+            {
+                Debug.Log("<color=blue>PumkinsAvatarTools</color>: PhysBones and Contacts not found in project.");
+                return false;
             }
         }
 

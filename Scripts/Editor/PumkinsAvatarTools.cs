@@ -142,7 +142,8 @@ namespace Pumkin.AvatarTools
             RemoveFinalIK_FabrIK,
             RemoveFinalIK_AimIK,
             RemoveFinalIK_FbtBipedIK,
-            RemoveFinalIK_VRIK
+            RemoveFinalIK_VRIK,
+            RemoveFinalIK_Grounder
         }
 
         readonly static string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";
@@ -1185,9 +1186,9 @@ namespace Pumkin.AvatarTools
                     EditorGUILayout.Space();
                     DrawAvatarTestingMenuGUI();
                 }
-
-                EditorGUILayout.Space();
 #endif
+                EditorGUILayout.Space();
+                
                 DrawThumbnailsMenuGUI();
 
                 EditorGUILayout.Space();
@@ -1536,7 +1537,7 @@ namespace Pumkin.AvatarTools
                         {
                             EditorGUI.BeginDisabledGroup(true);
                             {
-                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_physBones_copy, "Phys Bones | SDK version 2022.03.04.12.28 or newer required", Icons.PhysBone);
+                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_physBones_copy, "Phys Bones | VRC SDK version 2022.03.04.12.28 or newer required", Icons.PhysBone);
                                 Settings.bCopier_physBones_copy = false;
                                 Settings._copier_expand_physBones = false;
                             }
@@ -1578,7 +1579,7 @@ namespace Pumkin.AvatarTools
                         {
                             EditorGUI.BeginDisabledGroup(true);
                             {
-                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBoneColliders, ref Settings.bCopier_physBones_copyColliders, "Phys Bones Colliders | SDK version 2022.03.04.12.28 or newer required", Icons.PhysBoneCollider);
+                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBoneColliders, ref Settings.bCopier_physBones_copyColliders, "Phys Bones Colliders | VRC SDK version 2022.03.04.12.28 or newer required", Icons.PhysBoneCollider);
                                 Settings.bCopier_physBones_copyColliders = false;
                                 Settings._copier_expand_physBoneColliders = false;
                             }
@@ -1770,7 +1771,7 @@ namespace Pumkin.AvatarTools
                         {
                             EditorGUI.BeginDisabledGroup(true);
                             {
-                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_contactReceiver_copy, "Contact Receivers | SDK version 2022.03.04.12.28 or newer required", Icons.ContactReceiver);
+                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_contactReceiver_copy, "Contact Receivers | VRC SDK version 2022.03.04.12.28 or newer required", Icons.ContactReceiver);
                                 Settings.bCopier_contactReceiver_copy = false;
                                 Settings._copier_expand_contactReceiver = false;
                                 
@@ -1812,14 +1813,9 @@ namespace Pumkin.AvatarTools
                         {
                             EditorGUI.BeginDisabledGroup(true);
                             {
-                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_contactSender_copy, "Contact Senders | SDK version 2022.03.04.12.28 or newer required", Icons.ContactReceiver);
+                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_contactSender_copy, "Contact Senders | VRC SDK version 2022.03.04.12.28 or newer required", Icons.ContactSender);
                                 Settings.bCopier_contactSender_copy = false;
                                 Settings._copier_expand_contactSender = false;
-                                
-                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_contactSender, ref Settings.bCopier_contactSender_copy, Strings.Copier.contactSender, Icons.ContactSender);
-                                Settings.bCopier_contactSender_createObjects = false;
-                                Settings.bCopier_contactSender_removeOld = false;
-                                Settings.bCopier_contactSender_adjustScale = false;
                             }
                             EditorGUI.EndDisabledGroup();
                         }
@@ -3203,6 +3199,7 @@ namespace Pumkin.AvatarTools
 
             if(Settings._tools_removeAll_expand = GUILayout.Toggle(Settings._tools_removeAll_expand, Strings.Main.removeAll, Styles.Foldout_title))
             {
+                EditorGUILayout.Space();
                 EditorGUILayout.BeginHorizontal();
                 {
                     EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true)); //Left Column
@@ -3237,13 +3234,8 @@ namespace Pumkin.AvatarTools
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveColliders);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.cameras, Icons.Camera)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveCameras);
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.other_ikFollowers, Icons.CsScript)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveIKFollowers);
+
                         EditorGUILayout.Space();
-#else
-                        GUILayout.Space(32);
-#endif
 
                         if(GUILayout.Button(new GUIContent(Strings.Copier.aimConstraints, Icons.AimConstraint)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveAimConstraint);
@@ -3259,9 +3251,9 @@ namespace Pumkin.AvatarTools
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_FabrIK);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_aimIK, Icons.FINALIK_AimIK)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_AimIK);
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_fbtBipedIK, Icons.FinalIK_fbtBipedIK)))
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_fbtBipedIK, Icons.FinalIK_FbtBipedIK)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_FbtBipedIK);
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_VRIK, Icons.FinalIK_vrIK)))
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_VRIK, Icons.FinalIK_VRIK)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_VRIK);
                             
                         #endif
@@ -3301,8 +3293,6 @@ namespace Pumkin.AvatarTools
                         if(GUILayout.Button(new GUIContent(Strings.Copier.other_emptyScripts, Icons.SerializableAsset)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveMissingScripts);
                         
-                        GUILayout.Space(21);
-                        
                         EditorGUILayout.Space();
                         if(GUILayout.Button(
                             new GUIContent(Strings.Copier.positionConstraints, Icons.PositionConstraint)))
@@ -3321,6 +3311,8 @@ namespace Pumkin.AvatarTools
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_LimbIK);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_rotationLimits, Icons.FinalIK_RotationLimits)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_RotationLimits);
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_Grounders, Icons.FinalIK_Grounder)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_Grounder);
                         #endif
                     }
                     EditorGUILayout.EndVertical();
@@ -4134,13 +4126,13 @@ namespace Pumkin.AvatarTools
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(Collider), false, false);
                     break;
                 case ToolMenuActions.RemovePhysBoneColliders:
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(VRCPhysBoneCollider), false, false);
                     CleanupPhysBonesColliderArraySizes();
 #endif
                     break;
                 case ToolMenuActions.RemovePhysBones:
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
 
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(VRCPhysBone), false, false);
 #endif
@@ -4158,12 +4150,12 @@ namespace Pumkin.AvatarTools
 #endif
                     break;
                 case ToolMenuActions.RemoveContactReceiver:
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(VRCContactReceiver), false, false);
 #endif
                     break;
                 case ToolMenuActions.RemoveContactSender:
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(VRCContactSender), false, false);
 #endif
                     break;
@@ -4187,7 +4179,7 @@ namespace Pumkin.AvatarTools
                     else
                         ResetBlendshapes(SelectedAvatar, true);
                     break;
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
                 case ToolMenuActions.FillVisemes:
                     FillVisemes(SelectedAvatar);
                     break;
@@ -4225,7 +4217,7 @@ namespace Pumkin.AvatarTools
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(Animator), true, false);
                     break;
                 case ToolMenuActions.RemoveAudioSources:
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(VRC_SpatialAudioSource), false, false);
 #endif
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(AudioSource), false, false);
@@ -4239,7 +4231,7 @@ namespace Pumkin.AvatarTools
                 case ToolMenuActions.RevertScale:
                     RevertScale(SelectedAvatar);
                     break;
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
                 case ToolMenuActions.RemoveIKFollowers:
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(VRC_IKFollower), false, false);
                     break;
@@ -4274,7 +4266,7 @@ namespace Pumkin.AvatarTools
                 case ToolMenuActions.ResetBoundingBoxes:
                     Helpers.ResetBoundingBoxes(SelectedAvatar);
                     break;
-#if VRC_SDK_VRCSDK3 && !UDON
+#if VRC_SDK_VRCSDK3
                 case ToolMenuActions.FillEyeBones:
                     FillEyeBones(SelectedAvatar);
                     break;
@@ -4299,6 +4291,9 @@ namespace Pumkin.AvatarTools
                     break;
                 case ToolMenuActions.RemoveFinalIK_VRIK:
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.VRIK, false, false);
+                    break;
+                case ToolMenuActions.RemoveFinalIK_Grounder:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.Grounder, false, false);
                     break;
                 default:
                     break;
@@ -4351,13 +4346,13 @@ namespace Pumkin.AvatarTools
 #endif
         }
 
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
         /// <summary>
         /// Sets the enabled state on all phys bones on the avatar and returns affected bones
         /// </summary>
         /// <param name="enabled">Enabled state for phys bones</param>
         /// <param name="pBonesToIgnore">Phys Bones to ignore</param>
         /// <returns>Phys Bones that were disabled before we did anything</returns>
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
         static void SetPhysBonesEnabledState(GameObject avatar, bool enabled, List<VRCPhysBone> pBonesToIgnore = null)
         {
             if(!avatar)
@@ -4463,7 +4458,7 @@ namespace Pumkin.AvatarTools
 #endif
         }
 
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
         /// <summary>
         /// Refreshes the VRC SDK window
         /// </summary>
@@ -4626,7 +4621,7 @@ namespace Pumkin.AvatarTools
             }
         }
 
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
         /// <summary>
         /// Begin Editing Viewposition.
         /// Used to move the viewpoint using unit's transform gizmo

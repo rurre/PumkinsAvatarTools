@@ -1,9 +1,7 @@
-﻿using System;
-using Pumkin.DataStructures;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
+#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2)
 using UnityEditor;
 using VRC.SDKBase;
 using VRC.SDKBase.Validation.Performance;
@@ -16,7 +14,7 @@ namespace Pumkin.DataStructures
 {
     public class PumkinsAvatarInfo //Need to improve this class sometime when I overhaul the performance stats
     {
-#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON && PUMKIN_PBONES
+#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
         AvatarPerformanceStats PerfStats
         {
             get
@@ -116,7 +114,7 @@ namespace Pumkin.DataStructures
         {
             if(o == null)
                 return;
-#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2)
+#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
             try
             {
                 AvatarPerformance.CalculatePerformanceStats(o.name, o, PerfStats, EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android);
@@ -360,7 +358,7 @@ namespace Pumkin.DataStructures
 
             ShaderCount = shaderHash.Count;
 
-#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
+#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
             var ikf = o.GetComponentsInChildren<VRC_IKFollower>(true);
             foreach(var ik in ikf)
             {
@@ -388,7 +386,7 @@ namespace Pumkin.DataStructures
                 bool useDefault = false;
                 try
                 {
-#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2)
+#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
                     CachedInfo =
                     string.Format(Strings.AvatarInfo.name, Name) + "\n" +
                     string.Format(Strings.AvatarInfo.line) + "\n" +

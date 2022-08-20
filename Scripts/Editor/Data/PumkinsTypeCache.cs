@@ -53,5 +53,6 @@ namespace Pumkin.DataStructures
 	public static readonly Type AimIK = TypeHelpers.GetTypeAnywhere("RootMotion.FinalIK.AimIK");
 	public static readonly Type FullBodyBipedIK = TypeHelpers.GetTypeAnywhere("RootMotion.FinalIK.FullBodyBipedIK");
 	public static readonly Type VRIK = TypeHelpers.GetTypeAnywhere("RootMotion.FinalIK.VRIK");
+        public static readonly Type Grounder = TypeHelpers.GetTypeAnywhere("RootMotion.FinalIK.Grounder");
     }
 }
