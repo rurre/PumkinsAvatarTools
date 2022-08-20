@@ -12,6 +12,7 @@ using UnityEditor.SceneManagement;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Animations;
+using Object = UnityEngine.Object;
 
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
 using VRC.Core;
@@ -281,7 +282,7 @@ namespace Pumkin.AvatarTools.Copiers
                         if(!newDynBone.m_Root)
                         {
                             PumkinsAvatarTools.Log("_Couldn't set root {0} for new DynamicBone in {1}'s {2}. GameObject is missing. Removing.", LogType.Warning, dbFrom.m_Root.name ?? "null", newDynBone.transform.root.name, newDynBone.transform.name == newDynBone.transform.root.name ? "root" : newDynBone.transform.root.name);
-                            PumkinsAvatarTools.DestroyImmediate(newDynBone);
+                            Object.DestroyImmediate(newDynBone);
                             continue;
                         }
 
@@ -538,17 +539,23 @@ namespace Pumkin.AvatarTools.Copiers
         }
 
         /// <summary>
-        /// Copies settings of all SkinnedMeshRenderers in object and children.
-        /// Does NOT copy mesh, bounds and root bone settings because that breaks everything.
+        /// Copies all SkinnedMeshRenderers in object and children.        
         /// </summary>
-        internal static void CopyAllSkinnedMeshRenderersSettings(GameObject from, GameObject to, bool useIgnoreList)
+        internal static void CopyAllSkinnedMeshRenderers(GameObject from, GameObject to, bool useIgnoreList)
         {
             if((from == null || to == null)
                || (!(Settings.bCopier_skinMeshRender_copyBlendShapeValues
-               || Settings.bCopier_skinMeshRender_copyMaterials || Settings.bCopier_skinMeshRender_copySettings || Settings.bCopier_skinMeshRender_copyBounds)))
+                     || Settings.bCopier_skinMeshRender_copyMaterials
+                     || Settings.bCopier_skinMeshRender_copySettings
+                     || Settings.bCopier_skinMeshRender_copyBounds
+                     || Settings.bCopier_skinMeshRender_createObjects)))
                 return;
 
-            string log = String.Format(Strings.Log.copyAttempt + " - ", Strings.Copier.skinMeshRender, from.name, to.name);
+            Transform tFromRoot = from.transform;
+            Transform tToRoot = to.transform;
+
+            string log = String.Format(Strings.Log.copyAttempt + " - ", Strings.Copier.skinMeshRender, from.name,
+                to.name);
 
             var rFromArr = from.GetComponentsInChildren<SkinnedMeshRenderer>(true);
 
@@ -557,65 +564,96 @@ namespace Pumkin.AvatarTools.Copiers
                 var rFrom = rFromArr[i];
                 var rFromPath = Helpers.GetTransformPath(rFrom.transform, from.transform);
 
-                if(rFromPath != null)
-                {
-                    var tTo = to.transform.root.Find(rFromPath);
+                Transform tFrom = rFromArr[i].transform;
 
-                    if((!tTo) ||
-                        (useIgnoreList && Helpers.ShouldIgnoreObject(rFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                var tTo = Helpers.FindTransformInAnotherHierarchy(tFrom, tToRoot,
+                    Settings.bCopier_skinMeshRender_createObjects);
+
+                if((!tTo) ||
+                   (useIgnoreList && Helpers.ShouldIgnoreObject(rFrom.transform, Settings._copierIgnoreArray,
+                       Settings.bCopier_ignoreArray_includeChildren)))
+                    continue;
+
+                GameObject rToObj = tTo.gameObject;
+                var rTo = rToObj.GetComponent<SkinnedMeshRenderer>();
+
+                if(rTo == null)
+                {
+                    if(!Settings.bCopier_skinMeshRender_createObjects)
                         continue;
 
-                    GameObject rToObj = tTo.gameObject;
 
-                    var rTo = rToObj.GetComponent<SkinnedMeshRenderer>();
+                    rTo = rToObj.AddComponent<SkinnedMeshRenderer>();
 
-                    if(rTo != null)
+                    Transform[] newBones = new Transform[rFrom.bones.Length];
+                    Transform[] oldBones = rFrom.bones;
+
+                    bool allBonesFound = true;
+                    for(int j = 0; j < newBones.Length; j++)
                     {
-                        if(Settings.bCopier_skinMeshRender_copySettings)
+                        newBones[j] = Helpers.FindTransformInAnotherHierarchy(oldBones[j], tToRoot, false);
+                        if(!newBones[j])
                         {
-                            var t = Helpers.FindTransformInAnotherHierarchy(rFrom.rootBone, rTo.transform.root, false);
-                            rTo.rootBone = t ? t : rTo.rootBone;
-                            t = Helpers.FindTransformInAnotherHierarchy(rFrom.probeAnchor, rTo.transform.root, false);
-
-                            rTo.allowOcclusionWhenDynamic = rFrom.allowOcclusionWhenDynamic;
-                            rTo.quality = rFrom.quality;
-                            rTo.probeAnchor = t ? t : rTo.probeAnchor;
-                            rTo.lightProbeUsage = rFrom.lightProbeUsage;
-                            rTo.reflectionProbeUsage = rFrom.reflectionProbeUsage;
-                            rTo.shadowCastingMode = rFrom.shadowCastingMode;
-                            rTo.receiveShadows = rFrom.receiveShadows;
-                            rTo.motionVectorGenerationMode = rFrom.motionVectorGenerationMode;
-                            rTo.skinnedMotionVectors = rFrom.skinnedMotionVectors;
-                            rTo.allowOcclusionWhenDynamic = rFrom.allowOcclusionWhenDynamic;
-                            rTo.enabled = rFrom.enabled;
+                            allBonesFound = false;
+                            break;
                         }
-                        if(Settings.bCopier_skinMeshRender_copyBlendShapeValues && rFrom.sharedMesh)
-                        {
-                            for(int z = 0; z < rFrom.sharedMesh.blendShapeCount; z++)
-                            {
-                                string toShapeName = rFrom.sharedMesh.GetBlendShapeName(z);
-                                int toShapeIndex = rTo.sharedMesh.GetBlendShapeIndex(toShapeName);
-                                if(toShapeIndex != -1)
-                                {
-                                    int fromShapeIndex = rFrom.sharedMesh.GetBlendShapeIndex(toShapeName);
-                                    if(fromShapeIndex != -1)
-                                        rTo.SetBlendShapeWeight(toShapeIndex, rFrom.GetBlendShapeWeight(fromShapeIndex));
-                                }
-                            }
-                        }
-                        if(Settings.bCopier_skinMeshRender_copyMaterials)
-                            rTo.sharedMaterials = rFrom.sharedMaterials;
+                    }
 
-                        if(Settings.bCopier_skinMeshRender_copyBounds)
-                            rTo.localBounds = rFrom.localBounds;
-                        
-                        PumkinsAvatarTools.Log(log + Strings.Log.success);
+                    var newRoot = Helpers.FindTransformInAnotherHierarchy(rFrom.rootBone, tToRoot, false);
+
+                    if(!allBonesFound || !newRoot)
+                    {
+                        PumkinsAvatarTools.Log("Couldn't find all bones to assign to skinned mesh renderer.",
+                            LogType.Warning);
                     }
                     else
                     {
-                        PumkinsAvatarTools.Log(log + Strings.Log.failedDoesntHave, LogType.Warning, tTo.gameObject.name, rFrom.GetType().ToString());
+                        rTo.rootBone = newRoot;
+                        rTo.bones = newBones;
+                        rTo.sharedMesh = rFrom.sharedMesh;
                     }
                 }
+
+                if(Settings.bCopier_skinMeshRender_copySettings)
+                {
+                    var t = Helpers.FindTransformInAnotherHierarchy(rFrom.rootBone, tToRoot, false);
+                    rTo.rootBone = t ? t : rTo.rootBone;
+
+                    rTo.allowOcclusionWhenDynamic = rFrom.allowOcclusionWhenDynamic;
+                    rTo.quality = rFrom.quality;
+                    rTo.probeAnchor = t ? t : rTo.probeAnchor;
+                    rTo.lightProbeUsage = rFrom.lightProbeUsage;
+                    rTo.reflectionProbeUsage = rFrom.reflectionProbeUsage;
+                    rTo.shadowCastingMode = rFrom.shadowCastingMode;
+                    rTo.receiveShadows = rFrom.receiveShadows;
+                    rTo.motionVectorGenerationMode = rFrom.motionVectorGenerationMode;
+                    rTo.skinnedMotionVectors = rFrom.skinnedMotionVectors;
+                    rTo.allowOcclusionWhenDynamic = rFrom.allowOcclusionWhenDynamic;
+                    rTo.enabled = rFrom.enabled;
+                }
+
+                if(Settings.bCopier_skinMeshRender_copyBlendShapeValues && rFrom.sharedMesh)
+                {
+                    for(int z = 0; z < rFrom.sharedMesh.blendShapeCount; z++)
+                    {
+                        string toShapeName = rFrom.sharedMesh.GetBlendShapeName(z);
+                        int toShapeIndex = rTo.sharedMesh.GetBlendShapeIndex(toShapeName);
+                        if(toShapeIndex != -1)
+                        {
+                            int fromShapeIndex = rFrom.sharedMesh.GetBlendShapeIndex(toShapeName);
+                            if(fromShapeIndex != -1)
+                                rTo.SetBlendShapeWeight(toShapeIndex, rFrom.GetBlendShapeWeight(fromShapeIndex));
+                        }
+                    }
+                }
+
+                if(Settings.bCopier_skinMeshRender_copyMaterials)
+                    rTo.sharedMaterials = rFrom.sharedMaterials;
+
+                if(Settings.bCopier_skinMeshRender_copyBounds)
+                    rTo.localBounds = rFrom.localBounds;
+
+                PumkinsAvatarTools.Log(log + Strings.Log.success);
             }
         }
 

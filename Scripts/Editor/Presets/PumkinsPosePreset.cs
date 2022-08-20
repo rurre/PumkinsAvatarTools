@@ -164,7 +164,7 @@ namespace Pumkin.Presets
 
             Undo.RegisterFullObjectHierarchyUndo(avatar, "Apply Pose");
 
-            PumkinsAvatarTools.ResetPose(avatar);
+            PumkinsAvatarTools.ResetToAvatarDefinition(avatar);
 
             if(presetMode == PosePresetMode.HumanPose)
             {

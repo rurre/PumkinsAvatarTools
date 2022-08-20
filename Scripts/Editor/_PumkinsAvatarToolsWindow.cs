@@ -18,17 +18,9 @@ namespace Pumkin.AvatarTools
 
         public static PumkinsAvatarTools ToolsWindow
         {
-            get
-            {
-                if(!_tools)
-                    _tools = FindObjectOfType(typeof(PumkinsAvatarTools)) as PumkinsAvatarTools ?? CreateInstance<PumkinsAvatarTools>();
-                return _tools;
-            }
+            get => _tools ?? (_tools = new PumkinsAvatarTools());
 
-            private set
-            {
-                _tools = value;
-            }
+            private set => _tools = value;
         }
 
         [DidReloadScripts]
@@ -55,8 +47,7 @@ namespace Pumkin.AvatarTools
         {
             EditorPrefs.DeleteKey("PumkinToolsWindow");
 
-            if(_tools)
-                _tools.ResetBackgroundsAndOverlays();
+            _tools?.ResetBackgroundsAndOverlays();
 
             if(_toolsWindow)
                 DestroyImmediate(_toolsWindow);
@@ -66,13 +57,11 @@ namespace Pumkin.AvatarTools
 
         private void OnEnable()
         {
-            if(ToolsWindow)
                 ToolsWindow.HandleOnEnable();
         }
 
         private void OnDisable()
         {
-            if(ToolsWindow)
                 ToolsWindow.HandleOnDisable();
         }
 
@@ -112,16 +101,14 @@ namespace Pumkin.AvatarTools
         [UnityEditor.Callbacks.DidReloadScripts]
         static void OnReloadScript()
         {
-            if(ToolsWindow)
-                ToolsWindow.RefreshLanguage();
+            ToolsWindow.RefreshLanguage();
         }
 
         public void OnGUI()
         {
             if(_DependencyChecker.MainToolsOK)
             {
-                if(ToolsWindow)
-                    ToolsWindow.OnGUI();
+                ToolsWindow.OnGUI();
             }
             else
             {
