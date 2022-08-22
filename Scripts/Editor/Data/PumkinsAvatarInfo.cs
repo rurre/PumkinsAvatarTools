@@ -62,8 +62,6 @@ namespace Pumkin.DataStructures
         public int MaxParticles { get; private set; }
         public int MaxParticles_Total { get; private set; }
         public int Bones { get; private set; }
-        public int IKFollowers { get; private set; }
-        public int IKFollowers_Total { get; private set; }
         public int PhysboneComponents { get; private set; }
         public int PhysboneComponents_Total { get; private set; }
 
@@ -106,8 +104,6 @@ namespace Pumkin.DataStructures
 
             GameObjects = 0;
             GameObjects_Total = 0;
-
-            IKFollowers = 0;
         }
 
         public PumkinsAvatarInfo(GameObject o)
@@ -357,17 +353,6 @@ namespace Pumkin.DataStructures
             }
 
             ShaderCount = shaderHash.Count;
-
-#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
-            var ikf = o.GetComponentsInChildren<VRC_IKFollower>(true);
-            foreach(var ik in ikf)
-            {
-                IKFollowers_Total++;
-
-                if(ik.gameObject.activeInHierarchy)
-                    IKFollowers++;
-            }
-#endif
         }
 
         public static PumkinsAvatarInfo GetInfo(GameObject o, out string toString)
@@ -409,7 +394,6 @@ namespace Pumkin.DataStructures
                     string.Format(Strings.AvatarInfo.dynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneCollisionCheckCount)) + "\n\n" +
                     string.Format(Strings.AvatarInfo.particleSystems, ParticleSystems, ParticleSystems_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.ParticleSystemCount)) + "\n" +
                     string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.ParticleTotalCount)) + "\n\n" +
-                    string.Format(Strings.AvatarInfo.ikFollowers, IKFollowers, IKFollowers_Total) + "\n" +
                     Strings.AvatarInfo.line + "\n" +
                     string.Format(Strings.AvatarInfo.overallPerformance, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.Overall));
 #else

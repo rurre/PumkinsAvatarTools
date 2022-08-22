@@ -40,7 +40,7 @@ namespace Pumkin.AvatarTools.Copiers
     {
         static SettingsContainer Settings => PumkinsAvatarTools.Settings;
 
-        internal static void CopyAllSpringVRMSpringBones(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyAllSpringVRMSpringBones(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             Type type = Type.GetType("VRM.VRMSpringBone");
 
@@ -56,7 +56,7 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 var vrmFrom = vrmFromArr[i];
                 var tTo = Helpers.FindTransformInAnotherHierarchy(vrmFrom.transform, to.transform, createGameObjects);
-                if(!tTo || useIgnoreList && Helpers.ShouldIgnoreObject(vrmFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren))
+                if(!tTo || ignoreArray != null && Helpers.ShouldIgnoreObject(vrmFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
                 string log = String.Format(Strings.Log.copyAttempt, type.Name, vrmFrom.gameObject, tTo.gameObject);
@@ -77,7 +77,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// <summary>
         /// Copies all DynamicBoneColliders from object and it's children to another object.
         /// </summary>
-        internal static void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList, bool adjustScale)
+        internal static void CopyAllDynamicBoneColliders(GameObject from, GameObject to, bool createGameObjects, bool adjustScale, ref Transform[] ignoreArray)
         {
 #if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
 
@@ -95,7 +95,7 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 var dbcFrom = dbcFromArr[i];
                 var tTo = Helpers.FindTransformInAnotherHierarchy(dbcFrom.transform, to.transform, createGameObjects);
-                if((!tTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(dbcFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                if(!tTo || ignoreArray != null && Helpers.ShouldIgnoreObject(dbcFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
                 var dbcToArr = tTo.GetComponentsInChildren<DynamicBoneCollider>(true);
@@ -137,8 +137,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <param name="createMissing"></param>
-        /// <param name="useIgnoreList"></param>
-        internal static void CopyAllDynamicBonesNew(GameObject from, GameObject to, bool createMissing, bool useIgnoreList, bool adjustScale)
+        internal static void CopyAllDynamicBonesNew(GameObject from, GameObject to, bool createMissing, bool adjustScale, ref Transform[] ignoreArray)
         {
 #if !PUMKIN_DBONES && !PUMKIN_OLD_DBONES
             Debug.Log("No DynamicBones found in project. You shouldn't be able to use this. Help!");
@@ -156,7 +155,7 @@ namespace Pumkin.AvatarTools.Copiers
             List<DynamicBone> newBones = new List<DynamicBone>();
             foreach(var dbFrom in dBoneFromArr)
             {
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(dbFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren))
+                if(ignoreArray != null && Helpers.ShouldIgnoreObject(dbFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
                 var transTo = Helpers.FindTransformInAnotherHierarchy(dbFrom.transform, to.transform, Settings.bCopier_dynamicBones_createObjects);
@@ -353,7 +352,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// </summary>
         /// <param name="from"></param>
         /// <param name="to"></param>
-        internal static void CopyAllColliders(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList, bool adjustScale)
+        internal static void CopyAllColliders(GameObject from, GameObject to, bool createGameObjects, bool adjustScale, ref Transform[] ignoreArray)
         {
             if(from == null || to == null)
                 return;
@@ -370,7 +369,7 @@ namespace Pumkin.AvatarTools.Copiers
                 var cc = cFromArr[i];
                 var cFromPath = Helpers.GetTransformPath(cc.transform, from.transform);
 
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(cc.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren))
+                if(ignoreArray != null && Helpers.ShouldIgnoreObject(cc.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
                 if(cFromPath != null)
@@ -426,13 +425,12 @@ namespace Pumkin.AvatarTools.Copiers
                 }
             }
         }
-
         /// <summary>
         /// Copies character, configurable, fixed hinge and spring joints from one object to another and all of it's children at once.
         /// </summary>
         /// <param name="from"></param>
         /// <param name="to"></param>
-        internal static void CopyAllJoints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyAllJoints(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             if(from == null || to == null)
                 return;
@@ -483,8 +481,8 @@ namespace Pumkin.AvatarTools.Copiers
         /// <summary>
         /// Copies all transform settings in children in object and children
         /// </summary>
-        /// <param name="useIgnoreList">Whether or not to use copier ignore list</param>
-        internal static void CopyAllTransforms(GameObject from, GameObject to, bool useIgnoreList)
+        /// <param name="ignoreArray != null">Whether or not to use copier ignore list</param>
+        internal static void CopyAllTransforms(GameObject from, GameObject to, ref Transform[] ignoreArray)
         {
             if(from == null || to == null || !(Settings.bCopier_transforms_copyPosition || Settings.bCopier_transforms_copyRotation 
                    || Settings.bCopier_transforms_copyScale || Settings.bCopier_transforms_copyLayerAndTag || Settings.bCopier_transforms_copyActiveState))
@@ -499,7 +497,7 @@ namespace Pumkin.AvatarTools.Copiers
                 Transform tFrom = tFromArr[i];
 
                 if(tFrom == tFrom.root || tFrom == tFrom.root.Find(tFrom.name) ||
-                    (useIgnoreList && Helpers.ShouldIgnoreObject(tFrom, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                    (ignoreArray != null && Helpers.ShouldIgnoreObject(tFrom, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
 
                 string log = String.Format(Strings.Log.copyAttempt + " - ", tFrom.gameObject.name, from.name, to.name);
@@ -541,7 +539,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// <summary>
         /// Copies all SkinnedMeshRenderers in object and children.        
         /// </summary>
-        internal static void CopyAllSkinnedMeshRenderers(GameObject from, GameObject to, bool useIgnoreList)
+        internal static void CopyAllSkinnedMeshRenderers(GameObject from, GameObject to, ref Transform[] ignoreArray)
         {
             if((from == null || to == null)
                || (!(Settings.bCopier_skinMeshRender_copyBlendShapeValues
@@ -570,7 +568,7 @@ namespace Pumkin.AvatarTools.Copiers
                     Settings.bCopier_skinMeshRender_createObjects);
 
                 if((!tTo) ||
-                   (useIgnoreList && Helpers.ShouldIgnoreObject(rFrom.transform, Settings._copierIgnoreArray,
+                   (ignoreArray != null && Helpers.ShouldIgnoreObject(rFrom.transform, ignoreArray,
                        Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
 
@@ -661,7 +659,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// Copies all TrailRenderers in object and it's children.
         /// </summary>
         /// <param name="createGameObjects">Whether to create missing GameObjects</param>
-        internal static void CopyAllTrailRenderers(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyAllTrailRenderers(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             if(from == null || to == null)
                 return;
@@ -676,7 +674,7 @@ namespace Pumkin.AvatarTools.Copiers
                 if(!tTo)
                     continue;
 
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(rFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren))
+                if(ignoreArray != null && Helpers.ShouldIgnoreObject(rFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
                 var rToObj = tTo.gameObject;
@@ -698,7 +696,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// <summary>
         /// Copies all RigidBodies in object and in its children.
         /// </summary>
-        internal static void CopyAllRigidBodies(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyAllRigidBodies(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             if(from == null || to == null)
                 return;
@@ -713,7 +711,7 @@ namespace Pumkin.AvatarTools.Copiers
                 if(!tTo)
                     continue;
 
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(rFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren))
+                if(ignoreArray != null && Helpers.ShouldIgnoreObject(rFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
                 var rToObj = tTo.gameObject;
@@ -736,14 +734,14 @@ namespace Pumkin.AvatarTools.Copiers
         /// Copies all ParticleSystems in object and its children
         /// </summary>
         /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        internal static void CopyAllParticleSystems(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyAllParticleSystems(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             var partSysFromArr = from.GetComponentsInChildren<ParticleSystem>(true);
             ParticleSystem[] partSysToArr = new ParticleSystem[partSysFromArr.Length];
             for(int i = 0; i < partSysFromArr.Length; i++)
             {
                 var partSys = partSysFromArr[i];
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(partSys.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren))
+                if(ignoreArray != null && Helpers.ShouldIgnoreObject(partSys.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
                 var transTo = Helpers.FindTransformInAnotherHierarchy(partSys.transform, to.transform, createGameObjects);
                 if(transTo != null)
@@ -790,8 +788,8 @@ namespace Pumkin.AvatarTools.Copiers
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        /// <param name="useIgnoreList"></param>
-        internal static void CopyAllAimConstraints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        /// <param name="ignoreArray != null"></param>
+        internal static void CopyAllAimConstraints(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             var aimConFromArr = from.GetComponentsInChildren<AimConstraint>(true);
             const string typeString = "AimConstraint";
@@ -800,7 +798,7 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 var aimCon = aimConFromArr[i];
 
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(aimCon.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren))
+                if(ignoreArray != null && Helpers.ShouldIgnoreObject(aimCon.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
                 var transTo = Helpers.FindTransformInAnotherHierarchy(aimCon.transform, to.transform, createGameObjects);
@@ -864,8 +862,8 @@ namespace Pumkin.AvatarTools.Copiers
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        /// <param name="useIgnoreList"></param>
-        internal static void CopyAllLookAtConstraints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        /// <param name="ignoreArray != null"></param>
+        internal static void CopyAllLookAtConstraints(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             var lookConFromArr = from.GetComponentsInChildren<LookAtConstraint>(true);
             const string typeString = "LookAtConstraint";
@@ -874,7 +872,7 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 var lookCon = lookConFromArr[i];
 
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(lookCon.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren))
+                if(ignoreArray != null && Helpers.ShouldIgnoreObject(lookCon.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
                 var transTo = Helpers.FindTransformInAnotherHierarchy(lookCon.transform, to.transform, createGameObjects);
@@ -939,8 +937,8 @@ namespace Pumkin.AvatarTools.Copiers
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        /// <param name="useIgnoreList"></param>
-        internal static void CopyAllParentConstraints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        /// <param name="ignoreArray != null"></param>
+        internal static void CopyAllParentConstraints(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             var parConFromArr = from.GetComponentsInChildren<ParentConstraint>(true);
             const string typeString = "ParentConstraint";
@@ -949,7 +947,7 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 var parCon = parConFromArr[i];
 
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(parCon.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren))
+                if(ignoreArray != null && Helpers.ShouldIgnoreObject(parCon.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
                 var transTo = Helpers.FindTransformInAnotherHierarchy(parCon.transform, to.transform, createGameObjects);
@@ -1007,8 +1005,8 @@ namespace Pumkin.AvatarTools.Copiers
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        /// <param name="useIgnoreList"></param>
-        internal static void CopyAllPositionConstraints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        /// <param name="ignoreArray != null"></param>
+        internal static void CopyAllPositionConstraints(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             var posConFromArr = from.GetComponentsInChildren<PositionConstraint>(true);
             const string typeString = "PositionConstraint";
@@ -1017,7 +1015,7 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 var posCon = posConFromArr[i];
 
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(posCon.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren))
+                if(ignoreArray != null && Helpers.ShouldIgnoreObject(posCon.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
                 var transTo = Helpers.FindTransformInAnotherHierarchy(posCon.transform, to.transform, createGameObjects);
@@ -1075,8 +1073,8 @@ namespace Pumkin.AvatarTools.Copiers
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        /// <param name="useIgnoreList"></param>
-        internal static void CopyAllRotationConstraints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        /// <param name="ignoreArray != null"></param>
+        internal static void CopyAllRotationConstraints(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             var rotConFromArr = from.GetComponentsInChildren<RotationConstraint>(true);
             const string typeString = "RotationConstraint";
@@ -1085,7 +1083,7 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 var rotCon = rotConFromArr[i];
 
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(rotCon.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren))
+                if(ignoreArray != null && Helpers.ShouldIgnoreObject(rotCon.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
                 var transTo = Helpers.FindTransformInAnotherHierarchy(rotCon.transform, to.transform, createGameObjects);
@@ -1143,8 +1141,8 @@ namespace Pumkin.AvatarTools.Copiers
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <param name="createGameObjects">Whether to create game objects if missing</param>
-        /// <param name="useIgnoreList"></param>
-        internal static void CopyAllScaleConstraints(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        /// <param name="ignoreArray != null"></param>
+        internal static void CopyAllScaleConstraints(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             var scaleConFromArr = from.GetComponentsInChildren<ScaleConstraint>(true);
             const string typeString = "ScaleConstraint";
@@ -1153,7 +1151,7 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 var scaleCon = scaleConFromArr[i];
 
-                if(useIgnoreList && Helpers.ShouldIgnoreObject(scaleCon.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren))
+                if(ignoreArray != null && Helpers.ShouldIgnoreObject(scaleCon.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
                 var transTo = Helpers.FindTransformInAnotherHierarchy(scaleCon.transform, to.transform, createGameObjects);
@@ -1209,7 +1207,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// Copies all audio sources on object and it's children.
         /// </summary>
         /// <param name="createGameObjects">Whether to create missing objects</param>
-        internal static void CopyAllAudioSources(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyAllAudioSources(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             if(from == null || to == null)
                 return;
@@ -1222,7 +1220,7 @@ namespace Pumkin.AvatarTools.Copiers
                 var audioFrom = audioFromArr[i];
                 var transTo = Helpers.FindTransformInAnotherHierarchy(audioFrom.transform, to.transform, createGameObjects);
 
-                if((!transTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(audioFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                if((!transTo) || (ignoreArray != null && Helpers.ShouldIgnoreObject(audioFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
 
                 var audioToObj = transTo.gameObject;
@@ -1272,7 +1270,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// </summary>
         /// <param name="createGameObjects">Whether to create missing GameObjects</param>
         /// <param name="copyRootAnimator">Whether to copy the Animator on the root object. You don't usually want to.</param>
-        internal static void CopyAllAnimators(GameObject from, GameObject to, bool createGameObjects, bool copyRootAnimator, bool useIgnoreList)
+        internal static void CopyAllAnimators(GameObject from, GameObject to, bool createGameObjects, bool copyRootAnimator, ref Transform[] ignoreArray)
         {
             if(from == null || to == null)
                 return;
@@ -1290,7 +1288,7 @@ namespace Pumkin.AvatarTools.Copiers
                 var aFrom = aFromArr[i];
                 var tTo = Helpers.FindTransformInAnotherHierarchy(aFrom.transform, to.transform, createGameObjects);
 
-                if((!tTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(aFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                if(!tTo || (ignoreArray != null && Helpers.ShouldIgnoreObject(aFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
 
                 var aToObj = tTo.gameObject;
@@ -1322,7 +1320,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// Copies all lights in object and it's children to another object.
         /// </summary>
         /// <param name="createGameObjects">Whether to create missing game objects</param>
-        internal static void CopyAllLights(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyAllLights(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             if(from == null || to == null)
                 return;
@@ -1338,7 +1336,7 @@ namespace Pumkin.AvatarTools.Copiers
                 var tTo = Helpers.FindTransformInAnotherHierarchy(lFrom.transform, to.transform, createGameObjects);
 
                 if((!tTo) ||
-                    (useIgnoreList && Helpers.ShouldIgnoreObject(lFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                    (ignoreArray != null && Helpers.ShouldIgnoreObject(lFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
 
                 var lToObj = tTo.gameObject;
@@ -1370,7 +1368,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// Copies all MeshRenderers in object and it's children to another object.
         /// </summary>
         /// <param name="createGameObjects">Whether to create missing game objects</param>
-        internal static void CopyAllMeshRenderers(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyAllMeshRenderers(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             if(from == null || to == null)
                 return;
@@ -1384,7 +1382,7 @@ namespace Pumkin.AvatarTools.Copiers
                 var tTo = Helpers.FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
                 
                 if((!tTo) ||
-                    (useIgnoreList && Helpers.ShouldIgnoreObject(rFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                    (ignoreArray != null && Helpers.ShouldIgnoreObject(rFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
                 
                 string log = string.Format(Strings.Log.copyAttempt, type, rFrom.gameObject.name, tTo.gameObject.name);
@@ -1426,7 +1424,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// Copies all VRC_IKFollowers on an object and it's children.
         /// </summary>
         /// <param name="createGameObjects">Whether to create missing objects</param>
-        internal static void CopyAllIKFollowers(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyAllIKFollowers(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             Type ikFollowerType = PumkinsTypeCache.VRC_IKFollower;
             
@@ -1443,7 +1441,7 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 var ikFrom = ikFromArr[i];
                 var tTo = Helpers.FindTransformInAnotherHierarchy(ikFrom.transform, to.transform, createGameObjects);
-                if((!tTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(ikFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                if(!tTo || (ignoreArray != null && Helpers.ShouldIgnoreObject(ikFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
 
                 string log = String.Format(Strings.Log.copyAttempt, type, ikFrom.gameObject, tTo.gameObject);
@@ -1461,7 +1459,7 @@ namespace Pumkin.AvatarTools.Copiers
             }
         }
 
-        internal static void CopyAvatarDescriptor(GameObject from, GameObject to, bool useIgnoreList)
+        internal static void CopyAvatarDescriptor(GameObject from, GameObject to, ref Transform[] ignoreArray)
         {
             Type descType = PumkinsTypeCache.VRC_AvatarDescriptor;
             Type pipelineType = PumkinsTypeCache.PipelineManager;
@@ -1469,7 +1467,7 @@ namespace Pumkin.AvatarTools.Copiers
             if(to == null || from == null || descType == null || pipelineType == null)
                 return;
 
-            if(useIgnoreList && Helpers.ShouldIgnoreObject(from.transform, Settings._copierIgnoreArray))
+            if(ignoreArray != null && Helpers.ShouldIgnoreObject(from.transform, ignoreArray))
                 return;
 
             var dFrom = from.GetComponent(descType);
@@ -1605,7 +1603,7 @@ namespace Pumkin.AvatarTools.Copiers
             sDescTo.ApplyModifiedPropertiesWithoutUndo();
         }
         
-        internal static void CopyTransformActiveStateTagsAndLayer(GameObject from, GameObject to, bool useIgnoreList)
+        internal static void CopyTransformActiveStateTagsAndLayer(GameObject from, GameObject to, ref Transform[] ignoreArray)
         {
             if(from == null || to == null || !(Settings.bCopier_transforms_copyActiveState || Settings.bCopier_transforms_copyLayerAndTag))
                 return;
@@ -1614,7 +1612,7 @@ namespace Pumkin.AvatarTools.Copiers
 
             foreach(var tFrom in tFromArr)
             {
-                if(tFrom == tFrom.root || (useIgnoreList && Helpers.ShouldIgnoreObject(tFrom, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                if(tFrom == tFrom.root || (ignoreArray != null && Helpers.ShouldIgnoreObject(tFrom, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
                 Transform tTo = Helpers.FindTransformInAnotherHierarchy(tFrom, to.transform, false);
                 if(!tTo)
@@ -1630,7 +1628,7 @@ namespace Pumkin.AvatarTools.Copiers
             }
         }
 
-        internal static void CopyCameras(GameObject from, GameObject to, bool createGameObjects, bool useIgnoreList)
+        internal static void CopyCameras(GameObject from, GameObject to, bool createGameObjects, ref Transform[] ignoreArray)
         {
             if(from == null || to == null)
                 return;
@@ -1645,7 +1643,7 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 var camFrom = cameraFromArr[i];
                 var tTo = Helpers.FindTransformInAnotherHierarchy(camFrom.transform, to.transform, createGameObjects);
-                if((!tTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(camFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                if(!tTo || (ignoreArray != null && Helpers.ShouldIgnoreObject(camFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
 
                 string log = String.Format(Strings.Log.copyAttempt, type, camFrom.gameObject, tTo.gameObject);

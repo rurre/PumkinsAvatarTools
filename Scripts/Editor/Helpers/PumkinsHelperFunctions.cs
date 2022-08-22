@@ -64,12 +64,12 @@ namespace Pumkin.HelperFunctions
         }
 
         public static void DrawPropertyArrayScrolling(SerializedProperty property, string displayName, ref bool expanded,
-            ref Vector2 scrollPosition, float minHeight, float maxHeight, int indentLevel = 0)
+            ref Vector2 scrollPosition, float minHeight, float maxHeight, int indentLevel = 0, Texture2D icon = null)
         {
             if(property == null)
                 return;
 
-            expanded = EditorGUILayout.Foldout(expanded, displayName);
+            expanded = EditorGUILayout.Foldout(expanded, new GUIContent(displayName, icon));
             if(expanded)
             {
                 SerializedProperty arraySizeProp = property.FindPropertyRelative("Array.size");

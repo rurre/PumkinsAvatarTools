@@ -275,22 +275,17 @@ namespace Pumkin.Translations
         public string physBones_removeOldBones = "Remove Old Phys Bones";
         public string physBones_removeOldColliders = "Remove Old Colliders";
         public string physBones_createMissing = "Copy Missing Phys Bones";
-        public string physBones_adjustScale = "Adjust Scale";
-        public string physBones_adjustScaleColliders = "Adjust Scale";
         public string dynamicBones = "Dynamic Bones";
         public string dynamicBones_colliders = "Dynamic Bone Colliders";
         public string dynamicBones_removeOldBones = "Remove Old Dynamic Bones";
         public string dynamicBones_removeOldColliders = "Remove Old Colliders";
         public string dynamicBones_createMissing = "Copy Missing Dynamic Bones";
-        public string dynamicBones_adjustScale = "Adjust Scale";
-        public string dynamicBones_adjustScaleColliders = "Adjust Scale";
         public string colliders = "Colliders";
         public string colliders_box = "Box Colliders";
         public string colliders_capsule = "Capsule Colliders";
         public string colliders_sphere = "Sphere Colliders";
         public string colliders_mesh = "Mesh Colliders";
         public string colliders_removeOld = "Remove Old Colliders";
-        public string colliders_adjustScale = "Adjust Scale";
         public string descriptor = "Avatar Descriptor";
         public string descriptor_pipelineId = "Pipeline Id";
         public string descriptor_animationOverrides = "Animation Overrides";
@@ -327,11 +322,9 @@ namespace Pumkin.Translations
         public string contactReceiver = "Contact Receivers";
         public string contactReceiver_removeOld = "Remove Old Contact Receivers";
         public string contactReceiver_createMissing = "Create Missing Contact Receivers";
-        public string contactReceiver_adjustScale = "Adjust Scale";
         public string contactSender = "Contact Senders";
         public string contactSender_removeOld = "Remove Old Contact Senders";
         public string contactSender_createMissing = "Create Missing Contact Senders";
-        public string contactSender_adjustScale = "Adjust Scale";
         public string lookAtConstraints = "LookAt Constraints";
         public string parentConstraints = "Parent Constraints";
         public string positionConstraints = "Position Constraints";
@@ -348,6 +341,13 @@ namespace Pumkin.Translations
         public string joints_configurable = "Configurable Joint";
         public string joints_removeOld = "Remove Old Joints";
         public string cameras = "Cameras";
+        
+        public string prefabs = "Prefabs";
+        public string prefabs_copyPropertyOverrides = "Copy Property Overrides";
+        public string prefabs_ignorePrefabByOtherCopiers = "Ignore Prefab By Other Copiers";
+        
+        public string fixReferences = "Fix References";
+        public string adjustScale = "Adjust Scale";
         
         public string finalIK = "FinalIK";
         public string finalIK_fabrIK = "FabrIK";

@@ -21,6 +21,7 @@ namespace Pumkin.DataStructures
                 new string[] //Initially lowercase to avoid having to cast them every time
                 {
                     "physbone",
+                    "prefab",
                     "physbonecollider",
                     "dynamicbone",
                     "dynamicbonecollider",
@@ -320,6 +321,7 @@ namespace Pumkin.DataStructures
         public static Texture2D FinalIK_FbtBipedIK { get; internal set; }
         public static Texture2D FinalIK_VRIK { get; internal set; }
         public static Texture2D FinalIK_Grounder { get; internal set; }
+        public static Texture2D Hidden { get; internal set; }
 
         static Icons()
         {
@@ -352,6 +354,7 @@ namespace Pumkin.DataStructures
             RotationConstraint = (Texture2D)EditorGUIUtility.IconContent("RotationConstraint Icon").image;
             ScaleConstraint = (Texture2D)EditorGUIUtility.IconContent("ScaleConstraint Icon").image;
             Camera = (Texture2D)EditorGUIUtility.IconContent("Camera Icon").image;
+            Hidden = (Texture2D)EditorGUIUtility.IconContent("d_scenevis_hidden_hover").image;
 
             Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");
 

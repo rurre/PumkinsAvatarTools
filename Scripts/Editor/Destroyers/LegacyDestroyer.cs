@@ -103,7 +103,7 @@ namespace Pumkin.AvatarTools.Destroyers
         /// <summary>
         /// Destroy all components of type in object and it's children
         /// </summary>
-        internal static void DestroyAllComponentsOfType(GameObject obj, Type type, bool ignoreRoot, bool useIgnoreList)
+        internal static void DestroyAllComponentsOfType(GameObject obj, Type type, bool ignoreRoot, Transform[] ignoreArray = null)
         {
 			if(type == null)
 			{
@@ -125,7 +125,7 @@ namespace Pumkin.AvatarTools.Destroyers
                     for(int i = 0; i < comps.Length; i++)
                     {
                         if((ignoreRoot && comps[i].transform.parent == null) ||
-                           (useIgnoreList && Helpers.ShouldIgnoreObject(comps[i].transform, PumkinsAvatarTools.Settings._copierIgnoreArray,
+                           (ignoreArray != null && Helpers.ShouldIgnoreObject(comps[i].transform, PumkinsAvatarTools.Settings.copierIgnoreArray,
                                PumkinsAvatarTools.Settings.bCopier_ignoreArray_includeChildren)))
                             continue;
 

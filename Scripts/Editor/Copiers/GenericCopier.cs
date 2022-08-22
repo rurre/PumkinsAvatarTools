@@ -7,6 +7,7 @@ using Pumkin.HelperFunctions;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Pumkin.AvatarTools.Copiers
 {
@@ -24,7 +25,7 @@ namespace Pumkin.AvatarTools.Copiers
         
         static SettingsContainer Settings => PumkinsAvatarTools.Settings;
         
-        public static void CopyComponent<T>(GameObject from, GameObject to, bool createGameObjects, bool adjustScale, bool fixReferences, bool useIgnoreList) where T : Component
+        public static void CopyComponent<T>(GameObject from, GameObject to, bool createGameObjects, bool adjustScale, bool fixReferences, ref Transform[] ignoreArray) where T : Component
         {
             if(from == null || to == null)
                 return;
@@ -40,7 +41,7 @@ namespace Pumkin.AvatarTools.Copiers
             foreach(var typeFrom in typeFromArr)
             {
                 var tTo = Helpers.FindTransformInAnotherHierarchy(typeFrom.transform, to.transform, createGameObjects);
-                if((!tTo) || (useIgnoreList && Helpers.ShouldIgnoreObject(typeFrom.transform, Settings._copierIgnoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                if(!tTo || (ignoreArray != null && Helpers.ShouldIgnoreObject(typeFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
 
                 string log = String.Format(Strings.Log.copyAttempt, typeName, typeFrom.gameObject.name, tTo.gameObject.name);
@@ -130,6 +131,80 @@ namespace Pumkin.AvatarTools.Copiers
             }
             
             serialComp.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        public static void CopyPrefabs(GameObject from, GameObject to, bool createGameObjects, bool adjustScale, bool fixReferences, bool copyPropertyOverrides, bool addPrefabsToIgnoreList, ref Transform[] ignoreArray)
+        {
+            List<GameObject> allPrefabRoots = new List<GameObject>();
+            foreach(var trans in from.GetComponentsInChildren<Transform>(true))
+            {
+                var pref = PrefabUtility.GetNearestPrefabInstanceRoot(trans);
+                if(pref && pref.transform != from.transform)
+                    allPrefabRoots.Add(pref);
+            }
+
+            Transform tTo = to.transform;
+            Transform tFrom = from.transform;
+
+            HashSet<GameObject> prefabs = new HashSet<GameObject>(allPrefabRoots);
+            List<Transform> newPrefabTransforms = addPrefabsToIgnoreList ? new List<Transform>() : null;
+            
+            foreach(var fromPref in prefabs)
+            {
+                Transform tToParent = null;
+                if(fromPref.transform.parent == tFrom)
+                    tToParent = tTo;
+                else
+                    tToParent = Helpers.FindTransformInAnotherHierarchy(fromPref.transform.parent, to.transform, createGameObjects);
+                
+                if(!tToParent || (ignoreArray != null && Helpers.ShouldIgnoreObject(fromPref.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                    continue;
+
+                PropertyModification[] prefabMods = null;
+                if(copyPropertyOverrides)
+                    prefabMods = PrefabUtility.GetPropertyModifications(fromPref);
+                
+                string prefabAssetPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(fromPref);
+
+                GameObject toPref = PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(prefabAssetPath)) as GameObject;
+                if(!toPref)
+                    continue;
+                
+                if(copyPropertyOverrides)
+                    PrefabUtility.SetPropertyModifications(toPref, prefabMods);
+                
+                toPref.transform.SetParent(tToParent, false);
+                toPref.name = fromPref.name;
+
+                if(!fixReferences && !adjustScale)
+                    continue;
+                
+                if(addPrefabsToIgnoreList)
+                    newPrefabTransforms.Add(toPref.transform);
+                
+                Component[] prefComponents = toPref.GetComponentsInChildren<Component>(true);
+                foreach(var comp in prefComponents)
+                {
+                     if(fixReferences)   
+                        FixReferences(comp, tTo, createGameObjects);
+                    
+                     if(adjustScale)
+                     {
+                         string typeName = comp.GetType().Name;
+                         string[] propToAdjust = AdjustScaleTypeProps.FirstOrDefault(kv => typeName.Equals(kv.Key)).Value;
+                         if(propToAdjust == null || propToAdjust.Length == 0)
+                             PumkinsAvatarTools.Log($"_Attempting to adjust scale on {tTo.name} for {typeName} but no properties to adjust found. Skipping");
+                         else
+                         {
+                             Transform fromTrans = Helpers.FindTransformInAnotherHierarchy(comp.transform, tFrom, false);
+                             AdjustScale(comp, fromTrans, propToAdjust);
+                         }
+                     }
+                }
+            }
+
+            if(addPrefabsToIgnoreList) // Add the new prefabs to our ignore array so that they don't get their stuff copied
+                ignoreArray = ignoreArray.Concat(newPrefabTransforms).ToArray();
         }
     }
 }

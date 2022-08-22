@@ -261,7 +261,6 @@ namespace Pumkin.DataStructures
             public static string shaders = "_Shaders: {0}";
             public static string selectAvatarFirst = "_Select an Avatar first";
             public static string uniqueMaterials = "_Unique Materials: {0} ({1})";
-            public static string ikFollowers = "_IK Followers: {0} ({1})";
             public static string overallPerformance = "_Overall Performance: {0}";
 
             public static string bones = "_Bones: {0} - {1}";
@@ -309,7 +308,6 @@ namespace Pumkin.DataStructures
                 maxParticles = Translation.avatarInfo.maxParticles;
                 selectAvatarFirst = Translation.avatarInfo.selectAvatarFirst;
                 overallPerformance = Translation.avatarInfo.overallPerformance;
-                ikFollowers = Translation.avatarInfo.ikFollowers;
                 physBoneComponents = Translation.avatarInfo.physBoneComponents;
             }
         }
@@ -408,21 +406,16 @@ namespace Pumkin.DataStructures
             public static string physBones_removeOldBones = "_Remove Old Phys Bones";
             public static string physBones_removeOldColliders = "_Remove Old Phys Colliders";
             public static string physBones_createMissing = "_Create Missing Phys Bones";
-            public static string physBones_adjustScale = "_Adjust Scale";
-            public static string physBones_adjustScaleColliders = "_Adjust Scale";
             public static string dynamicBones = "_Dynamic Bones";
             public static string dynamicBones_colliders = "_Dynamic Bone Colliders";
             public static string dynamicBones_removeOldBones = "_Remove Old Dynamic Bones";
             public static string dynamicBones_removeOldColliders = "_Remove Old Colliders";
             public static string dynamicBones_createMissing = "_Create Missing Dynamic Bones";
-            public static string dynamicBones_adjustScale = "_Adjust Scale";
-            public static string dynamicBones_adjustScaleColliders = "_Adjust Scale";
             public static string colliders = "_Colliders";
             public static string colliders_box = "_Box Colliders";
             public static string colliders_capsule = "_Capsule Colliders";
             public static string colliders_sphere = "_Sphere Colliders";
             public static string colliders_mesh = "_Mesh Colliders";
-            public static string colliders_adjustScale = "_Adjust Scale";
             public static string colliders_removeOld = "_Remove Old Colliders";
             public static string descriptor = "_Avatar Descriptor";
             public static string descriptor_pipelineId = "_Pipeline Id";
@@ -449,17 +442,14 @@ namespace Pumkin.DataStructures
             public static string audioSources = "_Audio Sources";
             public static string joints = "_Joints";
             public static string other = "_Other";
-            public static string other_ikFollowers = "_IK Followers";
             public static string other_emptyScripts = "_Empty Scripts";
             public static string other_vrmSpringBones = "_VRM Spring Bones";
             public static string contactReceiver = "_Contact Receivers";
             public static string contactReceiver_removeOld = "_Remove Old Contact Receivers";
             public static string contactReceiver_createMissing = "_Create Missing Contact Receivers";
-            public static string contactReceiver_adjustScale = "_Adjust Scale";
             public static string contactSender = "_Contact Senders";
             public static string contactSender_removeOld = "_Remove Old Contact Senders";
             public static string contactSender_createMissing = "_Create Missing Contact Senders";
-            public static string contactSender_adjustScale = "_Adjust Scale";
             public static string aimConstraints = "_Aim Constraints";
             public static string lookAtConstraints = "_LookAt Constraints";
             public static string parentConstraints = "_Parent Constraints";
@@ -485,7 +475,14 @@ namespace Pumkin.DataStructures
             public static string finalIK_Grounders = "_Grounders";
             
             public static string cameras = "_Cameras";
+            
+            public static string prefabs = "_Prefabs";
+            public static string prefabs_copyPropertyOverrides = "_Copy Property Overrides";
+            public static string prefabs_ignorePrefabByOtherCopiers = "_Ignore Prefab By Other Copiers";
 
+            public static string adjustScale = "_Adjust Scale";
+            public static string fixReferences = "_Fix References";
+            
             public static string exclusions = "_Exclusions";
             public static string includeChildren = "_Include Children";
             public static string size = "_Size";
@@ -522,22 +519,17 @@ namespace Pumkin.DataStructures
                 physBones_removeOldBones = Translation.copier.physBones_removeOldBones;
                 physBones_removeOldColliders = Translation.copier.physBones_removeOldColliders;
                 physBones_createMissing = Translation.copier.physBones_createMissing;
-                physBones_adjustScale = Translation.copier.physBones_adjustScale;
-                physBones_adjustScaleColliders = Translation.copier.physBones_adjustScaleColliders;
                 dynamicBones = Translation.copier.dynamicBones;
                 dynamicBones_colliders = Translation.copier.dynamicBones_colliders;
                 dynamicBones_removeOldBones = Translation.copier.dynamicBones_removeOldBones;
                 dynamicBones_removeOldColliders = Translation.copier.dynamicBones_removeOldColliders;
                 dynamicBones_createMissing = Translation.copier.dynamicBones_createMissing;
-                dynamicBones_adjustScale = Translation.copier.dynamicBones_adjustScale;
-                dynamicBones_adjustScaleColliders = Translation.copier.dynamicBones_adjustScaleColliders;
                 colliders = Translation.copier.colliders;
                 colliders_box = Translation.copier.colliders_box;
                 colliders_capsule = Translation.copier.colliders_capsule;
                 colliders_sphere = Translation.copier.colliders_sphere;
                 colliders_mesh = Translation.copier.colliders_mesh;
                 colliders_removeOld = Translation.copier.colliders_removeOld;
-                colliders_adjustScale = Translation.copier.colliders_adjustScale;
 
                 descriptor = Translation.copier.descriptor;
                 descriptor_pipelineId = Translation.copier.descriptor_pipelineId;
@@ -564,17 +556,14 @@ namespace Pumkin.DataStructures
                 animators_inChildren = Translation.copier.animators_inChildren;
                 audioSources = Translation.copier.audioSources;
                 joints = Translation.copier.joints;
-                other = Translation.copier.other;
-                other_ikFollowers = Translation.copier.other_ikFollowers;
+                other = Translation.copier.other;                
                 other_emptyScripts = Translation.copier.other_emptyScripts;
                 contactReceiver = Translation.copier.contactReceiver;
                 contactReceiver_removeOld = Translation.copier.contactReceiver_removeOld;
                 contactReceiver_createMissing = Translation.copier.contactReceiver_createMissing;
-                contactReceiver_adjustScale = Translation.copier.contactReceiver_adjustScale;
                 contactSender = Translation.copier.contactSender;
                 contactSender_removeOld = Translation.copier.contactSender_removeOld;
                 contactSender_createMissing = Translation.copier.contactSender_createMissing;
-                contactSender_adjustScale = Translation.copier.contactSender_adjustScale;
                 aimConstraints = Translation.copier.aimConstraints;
                 lookAtConstraints = Translation.copier.lookAtConstraints;
                 parentConstraints = Translation.copier.parentConstraints;
@@ -602,6 +591,12 @@ namespace Pumkin.DataStructures
                 finalIK_Grounders = Translation.copier.finalIK_Grounders;
                 
                 cameras = Translation.copier.cameras;
+                prefabs = Translation.copier.prefabs;
+                prefabs_copyPropertyOverrides = Translation.copier.prefabs_copyPropertyOverrides;
+                prefabs_ignorePrefabByOtherCopiers = Translation.copier.prefabs_ignorePrefabByOtherCopiers;
+                
+                adjustScale = Translation.copier.adjustScale;
+                fixReferences = Translation.copier.fixReferences;
 
                 exclusions = Translation.copier.ignoreList;
                 includeChildren = Translation.copier.includeChildren;

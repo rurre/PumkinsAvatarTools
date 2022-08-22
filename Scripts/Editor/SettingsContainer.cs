@@ -158,7 +158,6 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_audioSources_createObjects = true;
 
         [SerializeField] internal bool bCopier_other_copy = true;
-        [SerializeField] internal bool bCopier_other_copyIKFollowers = true;
         [SerializeField] internal bool bCopier_other_copyVRMSpringBones = true;
         [SerializeField] internal bool bCopier_other_createGameObjects = true;
 
@@ -216,10 +215,19 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_finalIK_copyVRIK = true;
         [SerializeField] internal bool bCopier_finalIK_copyGrounders = true;
         
+        //Prefabs
+        [SerializeField] internal bool bCopier_prefabs_copy = true;
+        [SerializeField] internal bool bCopier_prefabs_fixReferences = true;
+        [SerializeField] internal bool bCopier_prefabs_adjustScale = true;
+        [SerializeField] internal bool bCopier_prefabs_copyPropertyOverrides = true;
+        [SerializeField] internal bool bCopier_prefabs_createObjects = true;
+        [SerializeField] internal bool bCopier_prefabs_ignorePrefabByOtherCopiers = true;
+        
         //Ignore Array
         [SerializeField] internal bool _copierIgnoreArray_expand = false;
         [SerializeField] internal SerializedProperty _serializedIgnoreArrayProp;
-        [SerializeField] internal Transform[] _copierIgnoreArray = new Transform[0];
+        
+        [SerializeField] internal Transform[] copierIgnoreArray = new Transform[0];
         [SerializeField] internal bool bCopier_ignoreArray_includeChildren = false;
         [SerializeField] internal Vector2 _copierIgnoreArrayScroll = Vector2.zero;
 
@@ -327,7 +335,8 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool _copier_expand_joints = false;
         [SerializeField] internal bool _copier_expand_cameras = false;
         [SerializeField] internal bool _copier_expand_finalIK = false;
-
+        [SerializeField] internal bool _copier_expand_prefab = false;
+        
         //Languages
         [SerializeField] internal string _selectedLanguageString = "English - Default";
         [SerializeField] internal int _selectedLanguageIndex = 0;
