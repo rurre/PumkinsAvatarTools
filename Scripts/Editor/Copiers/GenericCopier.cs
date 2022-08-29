@@ -25,7 +25,7 @@ namespace Pumkin.AvatarTools.Copiers
         
         static SettingsContainer Settings => PumkinsAvatarTools.Settings;
         
-        public static void CopyComponent<T>(GameObject from, GameObject to, bool createGameObjects, bool adjustScale, bool fixReferences, ref Transform[] ignoreArray) where T : Component
+        public static void CopyComponent<T>(GameObject from, GameObject to, bool createGameObjects, bool adjustScale, bool fixReferences, bool onlyAllowOneComponentOfSameType, ref Transform[] ignoreArray) where T : Component
         {
             if(from == null || to == null)
                 return;
@@ -38,7 +38,7 @@ namespace Pumkin.AvatarTools.Copiers
             
             var addedComponents = new List<T>();
 
-            foreach(var typeFrom in typeFromArr)
+            foreach(var typeFrom in typeFromArr.Reverse())
             {
                 var tTo = Helpers.FindTransformInAnotherHierarchy(typeFrom.transform, to.transform, createGameObjects);
                 if(!tTo || (ignoreArray != null && Helpers.ShouldIgnoreObject(typeFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
@@ -46,36 +46,34 @@ namespace Pumkin.AvatarTools.Copiers
 
                 string log = String.Format(Strings.Log.copyAttempt, typeName, typeFrom.gameObject.name, tTo.gameObject.name);
 
-                if(tTo.GetComponents<T>().Except(addedComponents).FirstOrDefault() == null) // Kinda inefficient but whatever
-                {
-                    var type = typeFrom.GetType(); // Fixes abstract types not working since you can't add those
-                    T newComp = tTo.gameObject.AddComponent(type) as T;
-                    addedComponents.Add(newComp);
-                    
-                    ComponentUtility.CopyComponent(typeFrom);
-                    ComponentUtility.PasteComponentValues(newComp);
-                    PumkinsAvatarTools.Log(log + " - " + Strings.Log.success);
+                var type = typeFrom.GetType(); // Fixes abstract types not working since you can't add those
+                T oldComp = tTo.GetComponents(type).Except(addedComponents).FirstOrDefault() as T;
+                
+                T newComp = onlyAllowOneComponentOfSameType && oldComp ? oldComp : tTo.gameObject.AddComponent(type) as T;
+                if(newComp == null)
+                    continue;
+                
+                addedComponents.Add(newComp);
+                
+                ComponentUtility.CopyComponent(typeFrom);
+                ComponentUtility.PasteComponentValues(newComp);
+                PumkinsAvatarTools.Log(log + " - " + Strings.Log.success);
 
-                    if(fixReferences)
-                        FixReferences(newComp, to.transform, createGameObjects);
+                if(fixReferences)
+                    FixReferences(newComp, to.transform, createGameObjects);
 
-                    if(adjustScale)
-                    {
-                        string[] propToAdjust = AdjustScaleTypeProps.FirstOrDefault(kv => typeName.Equals(kv.Key)).Value;
-                        if(propToAdjust == null || propToAdjust.Length == 0)
-                            PumkinsAvatarTools.Log($"_Attempting to adjust scale on {tTo.name} for {typeName} but no properties to adjust found. Skipping");
-                        else
-                            AdjustScale(newComp, typeFrom.transform, propToAdjust);
-                    }
-                }
-                else
+                if(adjustScale)
                 {
-                    PumkinsAvatarTools.Log($"{log} {String.Format(Strings.Log.failedAlreadyHas, to.name, typeName)}", LogType.Warning);
+                    string[] propToAdjust = AdjustScaleTypeProps.FirstOrDefault(kv => typeName.Equals(kv.Key)).Value;
+                    if(propToAdjust == null || propToAdjust.Length == 0)
+                        PumkinsAvatarTools.Log($"_Attempting to adjust scale on {tTo.name} for {typeName} but no properties to adjust found. Skipping");
+                    else
+                        AdjustScale(newComp, typeFrom.transform, propToAdjust);
                 }
             }
         }
         
-        static void FixReferences(Component newComp, Transform targetHierarchyRoot, bool createGameObjects)
+        public static void FixReferences(Component newComp, Transform targetHierarchyRoot, bool createGameObjects)
         {
             if(!newComp)
                 return;

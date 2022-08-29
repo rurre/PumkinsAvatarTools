@@ -738,7 +738,7 @@ namespace Pumkin.AvatarTools.Copiers
         {
             var partSysFromArr = from.GetComponentsInChildren<ParticleSystem>(true);
             ParticleSystem[] partSysToArr = new ParticleSystem[partSysFromArr.Length];
-            for(int i = 0; i < partSysFromArr.Length; i++)
+            for(int i = partSysFromArr.Length - 1; i >= 0; i--)
             {
                 var partSys = partSysFromArr[i];
                 if(ignoreArray != null && Helpers.ShouldIgnoreObject(partSys.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren))
@@ -758,6 +758,8 @@ namespace Pumkin.AvatarTools.Copiers
 
                         PumkinsAvatarTools.Log(Strings.Log.successCopiedOverFromTo, LogType.Log, "ParticleSystem", PumkinsAvatarTools.CopierSelectedFrom.name,
                             partSys.gameObject.name, PumkinsAvatarTools.SelectedAvatar.name, transTo.gameObject.name);
+                        
+                        GenericCopier.FixReferences(newPartSys, to.transform, createGameObjects);
                     }
                     else
                     {
@@ -767,17 +769,18 @@ namespace Pumkin.AvatarTools.Copiers
             }
 
             //Assign Sub-Emitters in 2nd iteration to avoid missing references
-            for (int i = 0; i < partSysFromArr.Length; i++)
+            for(int i = 0; i < partSysFromArr.Length; i++)
             {
                 if(partSysToArr[i] == null) continue;
 
                 var ogSys = partSysFromArr[i];
                 var newSys = partSysToArr[i];
 
-                for (int j = 0; j < ogSys.subEmitters.subEmittersCount; j++)
+                for(int j = 0; j < ogSys.subEmitters.subEmittersCount; j++)
                 {
                     var ogSubEmitter = ogSys.subEmitters.GetSubEmitterSystem(j);
-                    newSys.subEmitters.SetSubEmitterSystem(j, Helpers.FindTransformInAnotherHierarchy(ogSubEmitter.transform, to.transform, false).GetComponent<ParticleSystem>());
+                    newSys.subEmitters.SetSubEmitterSystem(j, Helpers.FindTransformInAnotherHierarchy(ogSubEmitter.transform, to.transform, false)
+                                                                     .GetComponent<ParticleSystem>());
                 }
             }
         }
