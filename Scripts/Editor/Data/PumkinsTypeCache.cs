@@ -30,6 +30,7 @@ namespace Pumkin.DataStructures
         public static readonly Type VRC_SpacialAudioSource = TypeHelpers.GetTypeAnywhere("VRC.SDKBase.VRC_SpatialAudioSource");
         public static readonly Type VRC_IKFollower = TypeHelpers.GetTypeAnywhere("VRC.SDKBase.VRC_IKFollower");
         public static readonly Type ONSPAudioSource = TypeHelpers.GetTypeAnywhere("ONSPAudioSource");
+        public static readonly Type VRCStation = TypeHelpers.GetTypeAnywhere("VRC.SDK3.Avatars.Components.VRCStation");
 #if PUMKIN_PBONES
         public static readonly Type ContactReceiver = typeof(VRCContactReceiver);
         public static readonly Type ContactSender = typeof(VRCContactSender);
@@ -54,5 +55,7 @@ namespace Pumkin.DataStructures
 	public static readonly Type FullBodyBipedIK = TypeHelpers.GetTypeAnywhere("RootMotion.FinalIK.FullBodyBipedIK");
 	public static readonly Type VRIK = TypeHelpers.GetTypeAnywhere("RootMotion.FinalIK.VRIK");
         public static readonly Type Grounder = TypeHelpers.GetTypeAnywhere("RootMotion.FinalIK.Grounder");
+
+        public static readonly Type VRMSpringBone = TypeHelpers.GetTypeAnywhere("VRM.VRMSpringBone");
     }
 }

@@ -133,7 +133,6 @@ namespace Pumkin.AvatarTools
             FixDynamicBoneScripts,
             FillEyeBones,
             ResetBoundingBoxes,
-            SetImportSettings,
             RemoveCameras,
             RemoveFinalIK_CCDIK,
             RemoveFinalIK_LimbIK,
@@ -142,7 +141,8 @@ namespace Pumkin.AvatarTools
             RemoveFinalIK_AimIK,
             RemoveFinalIK_FbtBipedIK,
             RemoveFinalIK_VRIK,
-            RemoveFinalIK_Grounder
+            RemoveFinalIK_Grounder,
+            RemoveVRCStation
         }
 
         readonly static string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";
@@ -327,7 +327,6 @@ namespace Pumkin.AvatarTools
                         Settings.bCopier_animators_copy,
                         Settings.bCopier_colliders_copy,
                         Settings.bCopier_joints_copy,
-                        Settings.bCopier_descriptor_copy,
                         Settings.bCopier_meshRenderers_copy,
                         Settings.bCopier_particleSystems_copy,
                         Settings.bCopier_rigidBodies_copy,
@@ -347,7 +346,11 @@ namespace Pumkin.AvatarTools
                         Settings.bCopier_scaleConstraint_copy,
                         Settings.bCopier_cameras_copy,
                         Settings.bCopier_prefabs_copy,
-
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+                        Settings.bCopier_descriptor_copy,
+                        Settings.bCopier_vrcStations_copy,
+#endif
+                        
                         (Settings.bCopier_other_copy && Settings.bCopier_other_copyVRMSpringBones),
                         
 #if PUMKIN_FINALIK
@@ -2341,7 +2344,7 @@ namespace Pumkin.AvatarTools
                     if(CopierTabs.ComponentIsInSelectedTab("finalik", Settings._copier_selectedTab))
                     {
 						bool exists = FinalIKExists;
-						//Other menu
+						//FinalIK menu
 						if(exists)
 						{							
                         	Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_finalIK, ref Settings.bCopier_finalIK_copy, Strings.Copier.finalIK, Icons.Avatar);
@@ -2386,6 +2389,32 @@ namespace Pumkin.AvatarTools
 						
                         Helpers.DrawGUILine(1, false);
                     }
+                    
+                    if(CopierTabs.ComponentIsInSelectedTab("vrcstation", Settings._copier_selectedTab))
+                    {
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_vrcStations, ref Settings.bCopier_vrcStations_copy, Strings.Copier.vrc_station, Icons.CsScript);
+                        if(Settings._copier_expand_vrcStations)
+                        {
+                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_vrcStations_copy);
+                            EditorGUILayout.Space();
+                            
+                            using(var cHorizontalScope = new GUILayout.HorizontalScope())
+                            {
+                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+                                using(var cVerticalScope = new GUILayout.VerticalScope())
+                                {
+                                    Settings.bCopier_vrcStations_fixReferences = GUILayout.Toggle(Settings.bCopier_vrcStations_fixReferences, Strings.Copier.fixReferences, Styles.CopierToggle);
+                                    Settings.bCopier_vrcStations_createObjects = GUILayout.Toggle(Settings.bCopier_vrcStations_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                }
+                            }
+
+                            EditorGUILayout.Space();
+                            EditorGUI.EndDisabledGroup();
+                        }
+
+                        Helpers.DrawGUILine(1, false);
+                    }
 
                     if(CopierTabs.ComponentIsInSelectedTab("other", Settings._copier_selectedTab))
                     {
@@ -2403,6 +2432,8 @@ namespace Pumkin.AvatarTools
                                 using(var cVerticalScope = new GUILayout.VerticalScope())
                                 {
                                     Settings.bCopier_other_copyVRMSpringBones = GUILayout.Toggle(Settings.bCopier_other_copyVRMSpringBones, Strings.Copier.other_vrmSpringBones, Styles.CopierToggle);
+                                    EditorGUILayout.Space();
+                                    Settings.bCopier_other_fixReferences = GUILayout.Toggle(Settings.bCopier_other_fixReferences, Strings.Copier.fixReferences, Styles.CopierToggle);
                                 }
                             }
 
@@ -2463,9 +2494,13 @@ namespace Pumkin.AvatarTools
                                 Settings.bCopier_joints_copy = false;
                                 Settings.bCopier_cameras_copy = false;
                                 Settings.bCopier_finalIK_copy = false;
+#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
+                                Settings.bCopier_vrcStations_copy = false;
+#endif
                             }
-
+#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
                             Settings.bCopier_descriptor_copy = false;
+#endif
                             Settings.bCopier_trailRenderers_copy = false;
                             Settings.bCopier_lights_copy = false;
                             Settings.bCopier_skinMeshRender_copy = false;
@@ -2502,9 +2537,14 @@ namespace Pumkin.AvatarTools
                                 Settings.bCopier_joints_copy = true;
                                 Settings.bCopier_cameras_copy = true;
                                 Settings.bCopier_finalIK_copy = true && FinalIKExists;
+#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
+                                Settings.bCopier_vrcStations_copy = true;
+#endif
                             }
 
+#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
                             Settings.bCopier_descriptor_copy = true;
+#endif
                             Settings.bCopier_trailRenderers_copy = true;
                             Settings.bCopier_lights_copy = true;
                             Settings.bCopier_skinMeshRender_copy = true;
@@ -3253,6 +3293,8 @@ namespace Pumkin.AvatarTools
                         {
                             if(GUILayout.Button(new GUIContent(Strings.Copier.contactReceiver, Icons.ContactReceiver)))
                                 DoAction(SelectedAvatar, ToolMenuActions.RemoveContactReceiver);
+                            if(GUILayout.Button(new GUIContent(Strings.Copier.vrc_station, Icons.CsScript)))
+                                DoAction(SelectedAvatar, ToolMenuActions.RemoveVRCStation);
                         }
                         EditorGUI.EndDisabledGroup();
                         if(GUILayout.Button(new GUIContent(Strings.Copier.particleSystems, Icons.ParticleSystem)))
@@ -3326,7 +3368,8 @@ namespace Pumkin.AvatarTools
                         if(GUILayout.Button(new GUIContent(Strings.Copier.other_emptyScripts, Icons.SerializableAsset)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveMissingScripts);
                         
-                        EditorGUILayout.Space();
+                        EditorGUILayout.Space(27 * EditorGUIUtility.pixelsPerPoint);
+                        
                         if(GUILayout.Button(
                             new GUIContent(Strings.Copier.positionConstraints, Icons.PositionConstraint)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemovePositionConstraint);
@@ -4192,6 +4235,11 @@ namespace Pumkin.AvatarTools
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(VRCContactSender), false);
 #endif
                     break;
+                case ToolMenuActions.RemoveVRCStation:
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(VRCStation), false);
+#endif
+                    break;
                 case ToolMenuActions.ResetPose:
                     switch (Settings._tools_avatar_resetPose_type)
                     {
@@ -4974,8 +5022,7 @@ namespace Pumkin.AvatarTools
 
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
             
-            if(Settings.bCopier_descriptor_copy &&
-               CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRC_AvatarDescriptor, Settings._copier_selectedTab))
+            if(Settings.bCopier_descriptor_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRC_AvatarDescriptor, Settings._copier_selectedTab))
             {
                 LegacyCopier.CopyAvatarDescriptor(objFrom, objTo, ref tempIgnoreArray);
     
@@ -5058,6 +5105,10 @@ namespace Pumkin.AvatarTools
                     if(Settings.bCopier_physBones_removeOldBones)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.PhysBone, false);
                     GenericCopier.CopyComponent<VRCPhysBone>(objFrom, objTo, Settings.bCopier_physBones_createObjects, Settings.bCopier_physBones_adjustScale, true, false, ref tempIgnoreArray);
+                }
+                if(Settings.bCopier_vrcStations_copy && CopierTabs.ComponentIsInSelectedTab("vrcstation", Settings._copier_selectedTab))
+                {
+                    GenericCopier.CopyComponent<VRCStation>(objFrom, objTo, Settings.bCopier_vrcStations_createObjects, false, Settings.bCopier_vrcStations_fixReferences, true, ref tempIgnoreArray);
                 }
                 #endif
             } 
@@ -5156,6 +5207,14 @@ namespace Pumkin.AvatarTools
                     GenericCopier.CopyComponent<Grounder>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true, true, ref tempIgnoreArray);
             }
 			#endif
+
+            if(Settings.bCopier_other_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRCStation, Settings._copier_selectedTab))
+            {
+                if(Settings.bCopier_other_copyVRMSpringBones)
+                {
+                    GenericCopier.CopyComponent(PumkinsTypeCache.VRMSpringBone, objFrom, objTo, Settings.bCopier_other_createGameObjects, false, Settings.bCopier_other_fixReferences, false, ref tempIgnoreArray);
+                }
+            }
         }
 
 

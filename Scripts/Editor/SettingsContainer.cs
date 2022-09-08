@@ -160,6 +160,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_other_copy = true;
         [SerializeField] internal bool bCopier_other_copyVRMSpringBones = true;
         [SerializeField] internal bool bCopier_other_createGameObjects = true;
+        [SerializeField] internal bool bCopier_other_fixReferences = true;
 
         [SerializeField] internal bool bCopier_contactReceiver_copy = true;
         [SerializeField] internal bool bCopier_contactReceiver_removeOld = false;
@@ -223,6 +224,11 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_prefabs_createObjects = true;
         [SerializeField] internal bool bCopier_prefabs_ignorePrefabByOtherCopiers = true;
         
+        //Stations
+        [SerializeField] internal bool bCopier_vrcStations_copy = true;
+        [SerializeField] internal bool bCopier_vrcStations_createObjects = true;
+        [SerializeField] internal bool bCopier_vrcStations_fixReferences = true;
+
         //Ignore Array
         [SerializeField] internal bool _copierIgnoreArray_expand = false;
         [SerializeField] internal SerializedProperty _serializedIgnoreArrayProp;
@@ -336,6 +342,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool _copier_expand_cameras = false;
         [SerializeField] internal bool _copier_expand_finalIK = false;
         [SerializeField] internal bool _copier_expand_prefab = false;
+        [SerializeField] internal bool _copier_expand_vrcStations = false;
         
         //Languages
         [SerializeField] internal string _selectedLanguageString = "English - Default";

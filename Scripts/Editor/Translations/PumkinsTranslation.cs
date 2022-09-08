@@ -358,6 +358,8 @@ namespace Pumkin.Translations
         public string finalIK_fbtBipedIK = "Full Body Biped IK";
         public string finalIK_VRIK = "VRIK";
         public string finalIK_Grounders = "Grounders";
+        
+        public string vrc_station = "VRC_Station (Chair)";
     }
 
     [Serializable]

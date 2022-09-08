@@ -444,6 +444,7 @@ namespace Pumkin.DataStructures
             public static string other = "_Other";
             public static string other_emptyScripts = "_Empty Scripts";
             public static string other_vrmSpringBones = "_VRM Spring Bones";
+            public static string vrc_station = "_VRC Station (Chair)";
             public static string contactReceiver = "_Contact Receivers";
             public static string contactReceiver_removeOld = "_Remove Old Contact Receivers";
             public static string contactReceiver_createMissing = "_Create Missing Contact Receivers";
@@ -594,6 +595,8 @@ namespace Pumkin.DataStructures
                 prefabs = Translation.copier.prefabs;
                 prefabs_copyPropertyOverrides = Translation.copier.prefabs_copyPropertyOverrides;
                 prefabs_ignorePrefabByOtherCopiers = Translation.copier.prefabs_ignorePrefabByOtherCopiers;
+                
+                vrc_station = Translation.copier.vrc_station;
                 
                 adjustScale = Translation.copier.adjustScale;
                 fixReferences = Translation.copier.fixReferences;

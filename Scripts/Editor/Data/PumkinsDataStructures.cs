@@ -20,8 +20,8 @@ namespace Pumkin.DataStructures
                 Tab.Common,
                 new string[] //Initially lowercase to avoid having to cast them every time
                 {
-                    "physbone",
                     "prefab",
+                    "physbone",
                     "physbonecollider",
                     "dynamicbone",
                     "dynamicbonecollider",

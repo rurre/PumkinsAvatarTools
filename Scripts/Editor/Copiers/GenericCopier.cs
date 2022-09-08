@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Pumkin.DataStructures;
 using Pumkin.Extensions;
 using Pumkin.HelperFunctions;
@@ -22,9 +23,29 @@ namespace Pumkin.AvatarTools.Copiers
             {"DynamicBone", new [] { "m_Radius", "m_EndLength" }},
             {"DynamicBoneCollider", new [] { "m_Radius", "m_Height" }}
         };
+
+        static MethodInfo CopyComponentGeneric;
+        
+        static GenericCopier()
+        {
+            CopyComponentGeneric = typeof(GenericCopier).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                                                        .FirstOrDefault(m => m.Name == nameof(CopyComponent) && m.IsGenericMethod);
+        }
         
         static SettingsContainer Settings => PumkinsAvatarTools.Settings;
-        
+
+        public static void CopyComponent(Type type, GameObject from, GameObject to, bool createGameObjects, bool adjustScale, bool fixReferences, bool onlyAllowOneComponentOfSameType, ref Transform[] ignoreArray)
+        {
+            if(type == null || !type.IsAssignableFrom(typeof(Component)))
+            {
+                Debug.LogWarning($"Attempting to copy type '{type}' which isn't a component. Skipping.");
+                return;
+            }
+            
+            var method = CopyComponentGeneric.MakeGenericMethod(type);
+            method.Invoke(null, new object[] { from, to, createGameObjects, adjustScale, fixReferences, onlyAllowOneComponentOfSameType, ignoreArray });
+        }
+
         public static void CopyComponent<T>(GameObject from, GameObject to, bool createGameObjects, bool adjustScale, bool fixReferences, bool onlyAllowOneComponentOfSameType, ref Transform[] ignoreArray) where T : Component
         {
             if(from == null || to == null)
