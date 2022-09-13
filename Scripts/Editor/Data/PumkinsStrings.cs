@@ -11,8 +11,8 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "1.2.1 - Work in Progress";
-        public const double toolsVersion = 1.21;
+        public const string TOOLS_VERSION_STRING = "1.3";
+        public const double toolsVersion = 1.30;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -405,12 +405,10 @@ namespace Pumkin.DataStructures
             public static string physBones_colliders = "_Phys Bone Colliders";
             public static string physBones_removeOldBones = "_Remove Old Phys Bones";
             public static string physBones_removeOldColliders = "_Remove Old Phys Colliders";
-            public static string physBones_createMissing = "_Create Missing Phys Bones";
             public static string dynamicBones = "_Dynamic Bones";
             public static string dynamicBones_colliders = "_Dynamic Bone Colliders";
             public static string dynamicBones_removeOldBones = "_Remove Old Dynamic Bones";
             public static string dynamicBones_removeOldColliders = "_Remove Old Colliders";
-            public static string dynamicBones_createMissing = "_Create Missing Dynamic Bones";
             public static string colliders = "_Colliders";
             public static string colliders_box = "_Box Colliders";
             public static string colliders_capsule = "_Capsule Colliders";
@@ -447,10 +445,8 @@ namespace Pumkin.DataStructures
             public static string vrc_station = "_VRC Station (Chair)";
             public static string contactReceiver = "_Contact Receivers";
             public static string contactReceiver_removeOld = "_Remove Old Contact Receivers";
-            public static string contactReceiver_createMissing = "_Create Missing Contact Receivers";
             public static string contactSender = "_Contact Senders";
             public static string contactSender_removeOld = "_Remove Old Contact Senders";
-            public static string contactSender_createMissing = "_Create Missing Contact Senders";
             public static string aimConstraints = "_Aim Constraints";
             public static string lookAtConstraints = "_LookAt Constraints";
             public static string parentConstraints = "_Parent Constraints";
@@ -519,12 +515,10 @@ namespace Pumkin.DataStructures
                 physBones_colliders = Translation.copier.physBones_colliders;
                 physBones_removeOldBones = Translation.copier.physBones_removeOldBones;
                 physBones_removeOldColliders = Translation.copier.physBones_removeOldColliders;
-                physBones_createMissing = Translation.copier.physBones_createMissing;
                 dynamicBones = Translation.copier.dynamicBones;
                 dynamicBones_colliders = Translation.copier.dynamicBones_colliders;
                 dynamicBones_removeOldBones = Translation.copier.dynamicBones_removeOldBones;
                 dynamicBones_removeOldColliders = Translation.copier.dynamicBones_removeOldColliders;
-                dynamicBones_createMissing = Translation.copier.dynamicBones_createMissing;
                 colliders = Translation.copier.colliders;
                 colliders_box = Translation.copier.colliders_box;
                 colliders_capsule = Translation.copier.colliders_capsule;
@@ -561,10 +555,8 @@ namespace Pumkin.DataStructures
                 other_emptyScripts = Translation.copier.other_emptyScripts;
                 contactReceiver = Translation.copier.contactReceiver;
                 contactReceiver_removeOld = Translation.copier.contactReceiver_removeOld;
-                contactReceiver_createMissing = Translation.copier.contactReceiver_createMissing;
                 contactSender = Translation.copier.contactSender;
                 contactSender_removeOld = Translation.copier.contactSender_removeOld;
-                contactSender_createMissing = Translation.copier.contactSender_createMissing;
                 aimConstraints = Translation.copier.aimConstraints;
                 lookAtConstraints = Translation.copier.lookAtConstraints;
                 parentConstraints = Translation.copier.parentConstraints;
@@ -739,7 +731,7 @@ namespace Pumkin.DataStructures
             public static string cantLoadImageAtPath = "_Can't load image at {0}";
             public static string armatureScaleNotOne = "_Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
             public static string armatureScalesDontMatch = "_Armature scales for selected avatars don't match!\nThis can cause issues";
-            public static string noDBonesOrMissingScriptDefine = "_No DynamicBones found or missing script define";
+            public static string noDBonesInProject = "_No DynamicBones found in project";
             public static string languageAlreadyExistsOverwrite = "_Language Asset already exists. Overwrite?";
 
             static Warning()
@@ -761,7 +753,7 @@ namespace Pumkin.DataStructures
                 cantRevertRendererWithoutPrefab = Translation.warnings.cantRevertRendererWithoutPrefab;
                 armatureScaleNotOne = Translation.warnings.armatureScaleNotOne;
                 armatureScalesDontMatch = Translation.warnings.armatureScalesDontMatch;
-                noDBonesOrMissingScriptDefine = Translation.warnings.noDBonesOrMissingScriptDefine;
+                noDBonesInProject = Translation.warnings.noDBonesInProject;
                 languageAlreadyExistsOverwrite = Translation.warnings.languageAlreadyExistsOverwrite;
             }
         }

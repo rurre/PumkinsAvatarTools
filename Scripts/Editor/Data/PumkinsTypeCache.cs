@@ -46,6 +46,8 @@ namespace Pumkin.DataStructures
 #endif
         public static readonly Type DynamicBone = TypeHelpers.GetTypeAnywhere("DynamicBone");
         public static readonly Type DynamicBoneCollider = TypeHelpers.GetTypeAnywhere("DynamicBoneCollider");
+        public static readonly Type DynamicBoneColliderBase = TypeHelpers.GetTypeAnywhere("DynamicBoneColliderBase");
+        public static readonly Type DynamicBonePlaneCollider = TypeHelpers.GetTypeAnywhere("DynamicBonePlaneCollider");
 
 	public static readonly Type CCDIK = TypeHelpers.GetTypeAnywhere("RootMotion.FinalIK.CCDIK");
 	public static readonly Type LimbIK = TypeHelpers.GetTypeAnywhere("RootMotion.FinalIK.");

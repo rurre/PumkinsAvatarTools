@@ -36,9 +36,9 @@ namespace Pumkin.AvatarTools.Copiers
 
         public static void CopyComponent(Type type, GameObject from, GameObject to, bool createGameObjects, bool adjustScale, bool fixReferences, bool onlyAllowOneComponentOfSameType, ref Transform[] ignoreArray)
         {
-            if(type == null || !type.IsAssignableFrom(typeof(Component)))
+            if(type == null || !typeof(Component).IsAssignableFrom(type))
             {
-                Debug.LogWarning($"Attempting to copy type '{type}' which isn't a component. Skipping.");
+                PumkinsAvatarTools.LogVerbose($"Attempting to copy type '{type}' which isn't a component. Skipping.", LogType.Error);
                 return;
             }
             

@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using UnityEngine;
 using System.Linq;
+using System.Reflection;
 using Pumkin.AvatarTools.Callbacks;
 using Pumkin.AvatarTools.Copiers;
 using Pumkin.AvatarTools.Destroyers;
@@ -90,12 +91,8 @@ namespace Pumkin.AvatarTools
 #endif
         bool _nextTogglePBoneState = false;
         bool _nextToggleDBoneState = false;
-        
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-        List<DynamicBone> _dBonesThatWereAlreadyDisabled = new List<DynamicBone>();
-#else
-        List<object> _dBonesThatWereAlreadyDisabled = new List<object>();
-#endif
+
+        List<Component> _dBonesThatWereAlreadyDisabled = new List<Component>();
 
         enum ToolMenuActions
         {
@@ -130,7 +127,6 @@ namespace Pumkin.AvatarTools
             RemoveAimConstraint,
             RemoveScaleConstraint,
             RemovePositionConstraint,
-            FixDynamicBoneScripts,
             FillEyeBones,
             ResetBoundingBoxes,
             RemoveCameras,
@@ -307,8 +303,8 @@ namespace Pumkin.AvatarTools
                         Settings.bCopier_skinMeshRender_copy,
                         Settings.bCopier_physBones_copy,
                         Settings.bCopier_physBones_copyColliders,
-                        Settings.bCopier_dynamicBones_copy,
-                        Settings.bCopier_dynamicBones_copyColliders,
+                        DynamicBonesExist && Settings.bCopier_dynamicBones_copy,
+                        DynamicBonesExist && Settings.bCopier_dynamicBones_copyColliders,
                         Settings.bCopier_meshRenderers_copy,
                         Settings.bCopier_particleSystems_copy,
                         Settings.bCopier_trailRenderers_copy,
@@ -335,8 +331,8 @@ namespace Pumkin.AvatarTools
                         Settings.bCopier_skinMeshRender_copy,
                         Settings.bCopier_physBones_copy,
                         Settings.bCopier_physBones_copyColliders,
-                        Settings.bCopier_dynamicBones_copy,
-                        Settings.bCopier_dynamicBones_copyColliders,
+                        DynamicBonesExist && Settings.bCopier_dynamicBones_copy,
+                        DynamicBonesExist && Settings.bCopier_dynamicBones_copyColliders,
                         Settings.bCopier_audioSources_copy,
                         Settings.bCopier_aimConstraint_copy,
                         Settings.bCopier_lookAtConstraint_copy,
@@ -766,9 +762,7 @@ namespace Pumkin.AvatarTools
             Instance._pBonesThatWereAlreadyDisabled = new List<VRCPhysBone>();
 #endif
             Instance._nextToggleDBoneState = false;
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-            Instance._dBonesThatWereAlreadyDisabled = new List<DynamicBone>();
-#endif
+            Instance._dBonesThatWereAlreadyDisabled = new List<Component>();
         }
 
         private static void SetupBlendeshapeRendererHolders(GameObject selection)
@@ -1487,15 +1481,18 @@ namespace Pumkin.AvatarTools
                 {
                     Helpers.DrawGUILine(1, false);
 
-                    var toolbarContent = new GUIContent[] { new GUIContent(Strings.Copier.showCommon), new GUIContent(Strings.Copier.showAll) };
-                    Settings._copier_selectedTab = (CopierTabs.Tab)GUILayout.Toolbar((int)Settings._copier_selectedTab, toolbarContent);
+                    var toolbarContent = new GUIContent[]
+                        { new GUIContent(Strings.Copier.showCommon), new GUIContent(Strings.Copier.showAll) };
+                    Settings._copier_selectedTab =
+                        (CopierTabs.Tab)GUILayout.Toolbar((int)Settings._copier_selectedTab, toolbarContent);
 
                     Helpers.DrawGUILine(1, false);
 
                     if(CopierTabs.ComponentIsInSelectedTab("vrcavatardescriptor", Settings._copier_selectedTab))
                     {
                         //AvatarDescriptor menu
-                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_avatarDescriptor, ref Settings.bCopier_descriptor_copy, Strings.Copier.descriptor, Icons.Avatar);
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_avatarDescriptor,
+                            ref Settings.bCopier_descriptor_copy, Strings.Copier.descriptor, Icons.Avatar);
                         if(Settings._copier_expand_avatarDescriptor)
                         {
                             EditorGUI.BeginDisabledGroup(!Settings.bCopier_descriptor_copy);
@@ -1508,23 +1505,39 @@ namespace Pumkin.AvatarTools
                                 using(var cVerticalScope = new GUILayout.VerticalScope())
                                 {
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-                                    Settings.bCopier_descriptor_copySettings = GUILayout.Toggle(Settings.bCopier_descriptor_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
-                                    Settings.bCopier_descriptor_copyViewpoint = GUILayout.Toggle(Settings.bCopier_descriptor_copyViewpoint, Strings.Copier.descriptor_copyViewpoint, Styles.CopierToggle);
+                                    Settings.bCopier_descriptor_copySettings = GUILayout.Toggle(
+                                        Settings.bCopier_descriptor_copySettings, Strings.Copier.copySettings,
+                                        Styles.CopierToggle);
+                                    Settings.bCopier_descriptor_copyViewpoint = GUILayout.Toggle(
+                                        Settings.bCopier_descriptor_copyViewpoint,
+                                        Strings.Copier.descriptor_copyViewpoint, Styles.CopierToggle);
 #endif
-                                    Settings.bCopier_descriptor_copyAvatarScale = GUILayout.Toggle(Settings.bCopier_descriptor_copyAvatarScale, Strings.Copier.transforms_avatarScale, Styles.CopierToggle);
+                                    Settings.bCopier_descriptor_copyAvatarScale =
+                                        GUILayout.Toggle(Settings.bCopier_descriptor_copyAvatarScale,
+                                            Strings.Copier.transforms_avatarScale, Styles.CopierToggle);
 
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
                                     EditorGUILayout.Space();
 
-                                    Settings.bCopier_descriptor_copyPlayableLayers = GUILayout.Toggle(Settings.bCopier_descriptor_copyPlayableLayers, Strings.Copier.descriptor_playableLayers, Styles.CopierToggle);
-                                    Settings.bCopier_descriptor_copyEyeLookSettings = GUILayout.Toggle(Settings.bCopier_descriptor_copyEyeLookSettings, Strings.Copier.descriptor_eyeLookSettings, Styles.CopierToggle);
-                                    Settings.bCopier_descriptor_copyExpressions = GUILayout.Toggle(Settings.bCopier_descriptor_copyExpressions, Strings.Copier.descriptor_expressions, Styles.CopierToggle);
-                                    Settings.bCopier_descriptor_copyColliders = GUILayout.Toggle(Settings.bCopier_descriptor_copyColliders, Strings.Copier.descriptor_colliders, Styles.CopierToggle);
+                                    Settings.bCopier_descriptor_copyPlayableLayers =
+                                        GUILayout.Toggle(Settings.bCopier_descriptor_copyPlayableLayers,
+                                            Strings.Copier.descriptor_playableLayers, Styles.CopierToggle);
+                                    Settings.bCopier_descriptor_copyEyeLookSettings =
+                                        GUILayout.Toggle(Settings.bCopier_descriptor_copyEyeLookSettings,
+                                            Strings.Copier.descriptor_eyeLookSettings, Styles.CopierToggle);
+                                    Settings.bCopier_descriptor_copyExpressions =
+                                        GUILayout.Toggle(Settings.bCopier_descriptor_copyExpressions,
+                                            Strings.Copier.descriptor_expressions, Styles.CopierToggle);
+                                    Settings.bCopier_descriptor_copyColliders = GUILayout.Toggle(
+                                        Settings.bCopier_descriptor_copyColliders, Strings.Copier.descriptor_colliders,
+                                        Styles.CopierToggle);
 #endif
                                     EditorGUILayout.Space();
 
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-                                    Settings.bCopier_descriptor_copyPipelineId = GUILayout.Toggle(Settings.bCopier_descriptor_copyPipelineId, Strings.Copier.descriptor_pipelineId, Styles.CopierToggle);
+                                    Settings.bCopier_descriptor_copyPipelineId = GUILayout.Toggle(
+                                        Settings.bCopier_descriptor_copyPipelineId,
+                                        Strings.Copier.descriptor_pipelineId, Styles.CopierToggle);
 #endif
                                 }
                             }
@@ -1532,30 +1545,42 @@ namespace Pumkin.AvatarTools
                             EditorGUILayout.Space();
                             EditorGUI.EndDisabledGroup();
                         }
+
                         Helpers.DrawGUILine(1, false);
                     }
-                    
+
                     if(CopierTabs.ComponentIsInSelectedTab("prefab", Settings._copier_selectedTab))
                     {
                         //Prefabs menu
-                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_prefab, ref Settings.bCopier_prefabs_copy, Strings.Copier.prefabs, Icons.Prefab);
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_prefab,
+                            ref Settings.bCopier_prefabs_copy, Strings.Copier.prefabs, Icons.Prefab);
                         if(Settings._copier_expand_prefab)
                         {
 
                             EditorGUI.BeginDisabledGroup(!Settings.bCopier_prefabs_copy);
                             EditorGUILayout.Space();
 
-                            using (var cHorizontalScope = new GUILayout.HorizontalScope())
+                            using(var cHorizontalScope = new GUILayout.HorizontalScope())
                             {
                                 GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
 
-                                using (var cVerticalScope = new GUILayout.VerticalScope())
+                                using(var cVerticalScope = new GUILayout.VerticalScope())
                                 {
-                                    Settings.bCopier_prefabs_adjustScale = GUILayout.Toggle(Settings.bCopier_prefabs_adjustScale, Strings.Copier.adjustScale, Styles.CopierToggle);
-                                    Settings.bCopier_prefabs_fixReferences = GUILayout.Toggle(Settings.bCopier_prefabs_fixReferences, Strings.Copier.fixReferences, Styles.CopierToggle);
-                                    Settings.bCopier_prefabs_copyPropertyOverrides = GUILayout.Toggle(Settings.bCopier_prefabs_copyPropertyOverrides, Strings.Copier.prefabs_copyPropertyOverrides, Styles.CopierToggle);
-                                    Settings.bCopier_prefabs_ignorePrefabByOtherCopiers = GUILayout.Toggle(Settings.bCopier_prefabs_ignorePrefabByOtherCopiers, Strings.Copier.prefabs_ignorePrefabByOtherCopiers, Styles.CopierToggle);
-                                    Settings.bCopier_prefabs_createObjects = GUILayout.Toggle(Settings.bCopier_prefabs_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                    Settings.bCopier_prefabs_adjustScale = GUILayout.Toggle(
+                                        Settings.bCopier_prefabs_adjustScale, Strings.Copier.adjustScale,
+                                        Styles.CopierToggle);
+                                    Settings.bCopier_prefabs_fixReferences = GUILayout.Toggle(
+                                        Settings.bCopier_prefabs_fixReferences, Strings.Copier.fixReferences,
+                                        Styles.CopierToggle);
+                                    Settings.bCopier_prefabs_copyPropertyOverrides =
+                                        GUILayout.Toggle(Settings.bCopier_prefabs_copyPropertyOverrides,
+                                            Strings.Copier.prefabs_copyPropertyOverrides, Styles.CopierToggle);
+                                    Settings.bCopier_prefabs_ignorePrefabByOtherCopiers =
+                                        GUILayout.Toggle(Settings.bCopier_prefabs_ignorePrefabByOtherCopiers,
+                                            Strings.Copier.prefabs_ignorePrefabByOtherCopiers, Styles.CopierToggle);
+                                    Settings.bCopier_prefabs_createObjects = GUILayout.Toggle(
+                                        Settings.bCopier_prefabs_createObjects, Strings.Copier.copyGameObjects,
+                                        Styles.CopierToggle);
                                 }
                             }
 
@@ -1566,187 +1591,154 @@ namespace Pumkin.AvatarTools
                         Helpers.DrawGUILine(1, false);
                     }
                     
-                    if(CopierTabs.ComponentIsInSelectedTab("physbone", Settings._copier_selectedTab))
+                    if(PhysBonesExist)
                     {
-                        //PhysBones menu
-                        if(!PhysBonesExist)
+                        if(CopierTabs.ComponentIsInSelectedTab("physbone", Settings._copier_selectedTab))
                         {
-                            EditorGUI.BeginDisabledGroup(true);
-                            {
-                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_physBones_copy, "Phys Bones | VRC SDK version 2022.03.04.12.28 or newer required", Icons.PhysBone);
-                                Settings.bCopier_physBones_copy = false;
-                                Settings._copier_expand_physBones = false;
-                            }
-                            EditorGUI.EndDisabledGroup();
-                        }
-                        else
-                        {
+                            //PhysBones menu
                             Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_physBones_copy, Strings.Copier.physBones, Icons.PhysBone);
-                        }
-                        if(Settings._copier_expand_physBones)
-                        {
-
-                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_physBones_copy);
-                            EditorGUILayout.Space();
-
-                            using (var cHorizontalScope = new GUILayout.HorizontalScope())
+                            if(Settings._copier_expand_physBones)
                             {
-                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                                using (var cVerticalScope = new GUILayout.VerticalScope())
+    
+                                EditorGUI.BeginDisabledGroup(!Settings.bCopier_physBones_copy);
+                                EditorGUILayout.Space();
+    
+                                using(var cHorizontalScope = new GUILayout.HorizontalScope())
                                 {
-                                    Settings.bCopier_physBones_createObjects = GUILayout.Toggle(Settings.bCopier_physBones_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                                    Settings.bCopier_physBones_removeOldBones = GUILayout.Toggle(Settings.bCopier_physBones_removeOldBones, Strings.Copier.physBones_removeOldBones, Styles.CopierToggle);
-                                    Settings.bCopier_physBones_adjustScale = GUILayout.Toggle(Settings.bCopier_physBones_adjustScale, Strings.Copier.adjustScale, Styles.CopierToggle);
+                                    GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+    
+                                    using(var cVerticalScope = new GUILayout.VerticalScope())
+                                    {
+                                        Settings.bCopier_physBones_createObjects = GUILayout.Toggle(
+                                            Settings.bCopier_physBones_createObjects, Strings.Copier.copyGameObjects,
+                                            Styles.CopierToggle);
+                                        Settings.bCopier_physBones_removeOldBones = GUILayout.Toggle(
+                                            Settings.bCopier_physBones_removeOldBones,
+                                            Strings.Copier.physBones_removeOldBones, Styles.CopierToggle);
+                                        Settings.bCopier_physBones_adjustScale = GUILayout.Toggle(
+                                            Settings.bCopier_physBones_adjustScale, Strings.Copier.adjustScale,
+                                            Styles.CopierToggle);
+                                    }
                                 }
+    
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
                             }
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
+    
+                            Helpers.DrawGUILine(1, false);
                         }
-
-                        Helpers.DrawGUILine(1, false);
-                    }
-
-                    if(CopierTabs.ComponentIsInSelectedTab("physbonecollider", Settings._copier_selectedTab))
-                    {
-                        //Phys Bone Colliders menu
-                        if(!PhysBonesExist)
+    
+                        if(CopierTabs.ComponentIsInSelectedTab("physbonecollider", Settings._copier_selectedTab))
                         {
-                            EditorGUI.BeginDisabledGroup(true);
-                            {
-                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBoneColliders, ref Settings.bCopier_physBones_copyColliders, "Phys Bones Colliders | VRC SDK version 2022.03.04.12.28 or newer required", Icons.PhysBoneCollider);
-                                Settings.bCopier_physBones_copyColliders = false;
-                                Settings._copier_expand_physBoneColliders = false;
-                            }
-                            EditorGUI.EndDisabledGroup();
-                        }
-                        else
-                        {
+                            //Phys Bone Colliders menu
                             Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBoneColliders, ref Settings.bCopier_physBones_copyColliders, Strings.Copier.physBones_colliders, Icons.PhysBoneCollider);
-                        }
-                        if(Settings._copier_expand_physBoneColliders)
-                        {
-                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_physBones_copyColliders);
-                            EditorGUILayout.Space();
-
-                            using (var cHorizontalScope = new GUILayout.HorizontalScope())
+    
+                            if(Settings._copier_expand_physBoneColliders)
                             {
-                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                                using (var cVerticalScope = new GUILayout.VerticalScope())
+                                EditorGUI.BeginDisabledGroup(!Settings.bCopier_physBones_copyColliders);
+                                EditorGUILayout.Space();
+    
+                                using(var cHorizontalScope = new GUILayout.HorizontalScope())
                                 {
-                                    Settings.bCopier_physBones_removeOldColliders = GUILayout.Toggle(Settings.bCopier_physBones_removeOldColliders, Strings.Copier.physBones_removeOldColliders, Styles.CopierToggle);
-                                    Settings.bCopier_physBones_createObjectsColliders = GUILayout.Toggle(Settings.bCopier_physBones_createObjectsColliders, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                                    Settings.bCopier_physBones_adjustScaleColliders = GUILayout.Toggle(Settings.bCopier_physBones_adjustScaleColliders, Strings.Copier.adjustScale, Styles.CopierToggle);
+                                    GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+    
+                                    using(var cVerticalScope = new GUILayout.VerticalScope())
+                                    {
+                                        Settings.bCopier_physBones_removeOldColliders =
+                                            GUILayout.Toggle(Settings.bCopier_physBones_removeOldColliders,
+                                                Strings.Copier.physBones_removeOldColliders, Styles.CopierToggle);
+                                        Settings.bCopier_physBones_createObjectsColliders =
+                                            GUILayout.Toggle(Settings.bCopier_physBones_createObjectsColliders,
+                                                Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                        Settings.bCopier_physBones_adjustScaleColliders =
+                                            GUILayout.Toggle(Settings.bCopier_physBones_adjustScaleColliders,
+                                                Strings.Copier.adjustScale, Styles.CopierToggle);
+                                    }
                                 }
+    
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
                             }
-
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
+    
+                            Helpers.DrawGUILine(1, false);
                         }
-
-                        Helpers.DrawGUILine(1, false);
                     }
 
-                    if(CopierTabs.ComponentIsInSelectedTab("dynamicbone", Settings._copier_selectedTab))
+                    if(DynamicBonesExist)
                     {
-                        //DynamicBones menu
-                        if(!DynamicBonesExist)
+                        if(CopierTabs.ComponentIsInSelectedTab("dynamicbone", Settings._copier_selectedTab))
                         {
-                            EditorGUI.BeginDisabledGroup(true);
+                            //DynamicBones menu
+                            Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_dynamicBones, ref Settings.bCopier_dynamicBones_copy, Strings.Copier.dynamicBones, Icons.BoneIcon);
+
+                            if(Settings._copier_expand_dynamicBones)
                             {
-                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_dynamicBones, ref Settings.bCopier_dynamicBones_copy, Strings.Copier.dynamicBones + " (" + Strings.Warning.notFound + ")", Icons.BoneIcon);
-                                Settings.bCopier_dynamicBones_copy = false;
-                                Settings._copier_expand_dynamicBones = false;
-                            }
-                            EditorGUI.EndDisabledGroup();
-                        }
-                        else
-                        {
-#if PUMKIN_OLD_DBONES
-                        Helpers.DrawDropdownWithToggle(ref _copier_expand_dynamicBones, ref bCopier_dynamicBones_copy, Strings.Copier.dynamicBones + " (" + Strings.Warning.oldVersion + ")", Icons.BoneIcon);
-#elif PUMKIN_DBONES
-                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_dynamicBones, ref Settings.bCopier_dynamicBones_copy, Strings.Copier.dynamicBones, Icons.BoneIcon);
-#endif
-                        }
+                                EditorGUI.BeginDisabledGroup(!Settings.bCopier_dynamicBones_copy);
+                                EditorGUILayout.Space();
 
-                        if(Settings._copier_expand_dynamicBones)
-                        {
-                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_dynamicBones_copy);
-                            EditorGUILayout.Space();
-
-                            using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                            {
-                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                                using(var cVerticalScope = new GUILayout.VerticalScope())
+                                using(var cHorizontalScope = new GUILayout.HorizontalScope())
                                 {
-                                    Settings.bCopier_dynamicBones_copySettings = GUILayout.Toggle(Settings.bCopier_dynamicBones_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
-                                    Settings.bCopier_dynamicBones_createMissing = GUILayout.Toggle(Settings.bCopier_dynamicBones_createMissing, Strings.Copier.dynamicBones_createMissing, Styles.CopierToggle);
-                                    Settings.bCopier_dynamicBones_createObjects = GUILayout.Toggle(Settings.bCopier_dynamicBones_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                                    Settings.bCopier_dynamicBones_removeOldBones = GUILayout.Toggle(Settings.bCopier_dynamicBones_removeOldBones, Strings.Copier.dynamicBones_removeOldBones, Styles.CopierToggle);
-                                    Settings.bCopier_dynamicBones_adjustScale = GUILayout.Toggle(Settings.bCopier_dynamicBones_adjustScale, Strings.Copier.adjustScale, Styles.CopierToggle);
+                                    GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+                                    using(var cVerticalScope = new GUILayout.VerticalScope())
+                                    {
+                                        Settings.bCopier_dynamicBones_removeOldBones = GUILayout.Toggle(Settings.bCopier_dynamicBones_removeOldBones, Strings.Copier.dynamicBones_removeOldBones, Styles.CopierToggle);
+                                        Settings.bCopier_dynamicBones_createObjects = GUILayout.Toggle(Settings.bCopier_dynamicBones_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                        Settings.bCopier_dynamicBones_adjustScale = GUILayout.Toggle(Settings.bCopier_dynamicBones_adjustScale, Strings.Copier.adjustScale, Styles.CopierToggle);
+                                    }
                                 }
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
                             }
 
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
+                            Helpers.DrawGUILine(1, false);
                         }
 
-                        Helpers.DrawGUILine(1, false);
-                    }
-
-                    if(CopierTabs.ComponentIsInSelectedTab("dynamicbonecollider", Settings._copier_selectedTab))
-                    {
-                        //Dynamic Bone Colliders menu
-                        if(!DynamicBonesExist)
+                        if(CopierTabs.ComponentIsInSelectedTab("dynamicbonecollider", Settings._copier_selectedTab))
                         {
-                            EditorGUI.BeginDisabledGroup(true);
+                            //Dynamic Bone Colliders menu
+                            Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_dynamicBoneColliders,
+                                ref Settings.bCopier_dynamicBones_copyColliders, Strings.Copier.dynamicBones_colliders,
+                                Icons.BoneColliderIcon);
+                            if(Settings._copier_expand_dynamicBoneColliders)
                             {
-                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_dynamicBoneColliders, ref Settings.bCopier_dynamicBones_copyColliders, Strings.Copier.dynamicBones_colliders + " (" + Strings.Warning.notFound + ")", Icons.BoneColliderIcon);
-                                Settings.bCopier_dynamicBones_copyColliders = false;
-                                Settings._copier_expand_dynamicBoneColliders = false;
-                            }
-                            EditorGUI.EndDisabledGroup();
-                        }
-                        else
-                        {
-#if PUMKIN_OLD_DBONES
-                        Helpers.DrawDropdownWithToggle(ref settings._copier_expand_dynamicBoneColliders, ref settings.bCopier_dynamicBones_copyColliders, Strings.Copier.dynamicBones_colliders + " (" + Strings.Warning.oldVersion + ")", Icons.BoneColliderIcon);
-#elif PUMKIN_DBONES
-                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_dynamicBoneColliders, ref Settings.bCopier_dynamicBones_copyColliders, Strings.Copier.dynamicBones_colliders, Icons.BoneColliderIcon);
-#endif
-                        }
+                                EditorGUI.BeginDisabledGroup(!Settings.bCopier_dynamicBones_copyColliders);
+                                EditorGUILayout.Space();
 
-                        if(Settings._copier_expand_dynamicBoneColliders)
-                        {
-                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_dynamicBones_copyColliders);
-                            EditorGUILayout.Space();
-
-                            using(var cHorizontalScope = new GUILayout.HorizontalScope())
-                            {
-                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
-                                using(var cVerticalScope = new GUILayout.VerticalScope())
+                                using(var cHorizontalScope = new GUILayout.HorizontalScope())
                                 {
-                                    Settings.bCopier_dynamicBones_removeOldColliders = GUILayout.Toggle(Settings.bCopier_dynamicBones_removeOldColliders, Strings.Copier.dynamicBones_removeOldColliders, Styles.CopierToggle);
-                                    Settings.bCopier_dynamicBones_createObjectsColliders = GUILayout.Toggle(Settings.bCopier_dynamicBones_createObjectsColliders, Strings.Copier.copyGameObjects, Styles.CopierToggle);
-                                    Settings.bCopier_dynamicBones_adjustScaleColliders = GUILayout.Toggle(Settings.bCopier_dynamicBones_adjustScaleColliders, Strings.Copier.adjustScale, Styles.CopierToggle);
+                                    GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+                                    using(var cVerticalScope = new GUILayout.VerticalScope())
+                                    {
+                                        Settings.bCopier_dynamicBones_removeOldColliders =
+                                            GUILayout.Toggle(Settings.bCopier_dynamicBones_removeOldColliders,
+                                                Strings.Copier.dynamicBones_removeOldColliders,
+                                                Styles.CopierToggle);
+                                        Settings.bCopier_dynamicBones_createObjectsColliders =
+                                            GUILayout.Toggle(Settings.bCopier_dynamicBones_createObjectsColliders,
+                                                Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                        Settings.bCopier_dynamicBones_adjustScaleColliders =
+                                            GUILayout.Toggle(Settings.bCopier_dynamicBones_adjustScaleColliders,
+                                                Strings.Copier.adjustScale, Styles.CopierToggle);
+                                    }
                                 }
+
+                                EditorGUILayout.Space();
+                                EditorGUI.EndDisabledGroup();
                             }
 
-                            EditorGUILayout.Space();
-                            EditorGUI.EndDisabledGroup();
+                            Helpers.DrawGUILine(1, false);
                         }
-
-                        Helpers.DrawGUILine(1, false);
                     }
 
                     if(CopierTabs.ComponentIsInSelectedTab<SkinnedMeshRenderer>(Settings._copier_selectedTab))
                     {
                         //SkinnedMeshRenderer menu
-                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_skinnedMeshRenderer, ref Settings.bCopier_skinMeshRender_copy, Strings.Copier.skinMeshRender, Icons.SkinnedMeshRenderer);
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_skinnedMeshRenderer,
+                            ref Settings.bCopier_skinMeshRender_copy, Strings.Copier.skinMeshRender,
+                            Icons.SkinnedMeshRenderer);
                         if(Settings._copier_expand_skinnedMeshRenderer)
                         {
                             EditorGUI.BeginDisabledGroup(!Settings.bCopier_skinMeshRender_copy);
@@ -1758,17 +1750,28 @@ namespace Pumkin.AvatarTools
 
                                 using(var cVerticalScope = new GUILayout.VerticalScope())
                                 {
-                                    Settings.bCopier_skinMeshRender_copySettings = GUILayout.Toggle(Settings.bCopier_skinMeshRender_copySettings, Strings.Copier.copySettings, Styles.CopierToggle);
-                                    Settings.bCopier_skinMeshRender_copyMaterials = GUILayout.Toggle(Settings.bCopier_skinMeshRender_copyMaterials, Strings.Copier.skinMeshRender_materials, Styles.CopierToggle);
-                                    Settings.bCopier_skinMeshRender_copyBlendShapeValues = GUILayout.Toggle(Settings.bCopier_skinMeshRender_copyBlendShapeValues, Strings.Copier.skinMeshRender_blendShapeValues, Styles.CopierToggle);
-                                    Settings.bCopier_skinMeshRender_copyBounds = GUILayout.Toggle(Settings.bCopier_skinMeshRender_copyBounds, Strings.Copier.skinMeshRender_bounds, Styles.CopierToggle);
-                                    Settings.bCopier_skinMeshRender_createObjects = GUILayout.Toggle(Settings.bCopier_skinMeshRender_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                    Settings.bCopier_skinMeshRender_copySettings =
+                                        GUILayout.Toggle(Settings.bCopier_skinMeshRender_copySettings,
+                                            Strings.Copier.copySettings, Styles.CopierToggle);
+                                    Settings.bCopier_skinMeshRender_copyMaterials =
+                                        GUILayout.Toggle(Settings.bCopier_skinMeshRender_copyMaterials,
+                                            Strings.Copier.skinMeshRender_materials, Styles.CopierToggle);
+                                    Settings.bCopier_skinMeshRender_copyBlendShapeValues =
+                                        GUILayout.Toggle(Settings.bCopier_skinMeshRender_copyBlendShapeValues,
+                                            Strings.Copier.skinMeshRender_blendShapeValues, Styles.CopierToggle);
+                                    Settings.bCopier_skinMeshRender_copyBounds =
+                                        GUILayout.Toggle(Settings.bCopier_skinMeshRender_copyBounds,
+                                            Strings.Copier.skinMeshRender_bounds, Styles.CopierToggle);
+                                    Settings.bCopier_skinMeshRender_createObjects =
+                                        GUILayout.Toggle(Settings.bCopier_skinMeshRender_createObjects,
+                                            Strings.Copier.copyGameObjects, Styles.CopierToggle);
                                 }
                             }
 
                             EditorGUILayout.Space();
                             EditorGUI.EndDisabledGroup();
                         }
+
                         Helpers.DrawGUILine(1, false);
                     }
 
@@ -1800,32 +1803,21 @@ namespace Pumkin.AvatarTools
                         Helpers.DrawGUILine(1, false);
                     }
 
-                    if(CopierTabs.ComponentIsInSelectedTab("contactreceiver", Settings._copier_selectedTab))
+                    if(PhysBonesExist)
                     {
-                        //Contact Receivers menu
-                        if(!PhysBonesExist)
+                        if(CopierTabs.ComponentIsInSelectedTab("contactreceiver", Settings._copier_selectedTab))
                         {
-                            EditorGUI.BeginDisabledGroup(true);
-                            {
-                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_contactReceiver_copy, "Contact Receivers | VRC SDK version 2022.03.04.12.28 or newer required", Icons.ContactReceiver);
-                                Settings.bCopier_contactReceiver_copy = false;
-                                Settings._copier_expand_contactReceiver = false;
-                                
-                            }
-                            EditorGUI.EndDisabledGroup();
-                        }
-                        else
-                        {
+                            //Contact Receivers menu
                             Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_contactReceiver, ref Settings.bCopier_contactReceiver_copy, Strings.Copier.contactReceiver, Icons.ContactReceiver);
                             if(Settings._copier_expand_contactReceiver)
                             {
                                 EditorGUI.BeginDisabledGroup(!Settings.bCopier_contactReceiver_copy);
                                 EditorGUILayout.Space();
-
+    
                                 using (var cHorizontalScope = new GUILayout.HorizontalScope())
                                 {
                                     GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
+    
                                     using (var cVerticalScope = new GUILayout.VerticalScope())
                                     {
                                         Settings.bCopier_contactReceiver_createObjects = GUILayout.Toggle(Settings.bCopier_contactReceiver_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
@@ -1833,41 +1825,28 @@ namespace Pumkin.AvatarTools
                                         Settings.bCopier_contactReceiver_adjustScale = GUILayout.Toggle(Settings.bCopier_contactReceiver_adjustScale, Strings.Copier.adjustScale, Styles.CopierToggle);
                                     }
                                 }
-
+    
                                 EditorGUILayout.Space();
                                 EditorGUI.EndDisabledGroup();
                             }
+    
+                            Helpers.DrawGUILine(1, false);
                         }
-
-                        Helpers.DrawGUILine(1, false);
-                    }
-
-                    if(CopierTabs.ComponentIsInSelectedTab("contactsender", Settings._copier_selectedTab))
-                    {
-                        //Contact Senders menu
-                        if(!PhysBonesExist)
+    
+                        if(CopierTabs.ComponentIsInSelectedTab("contactsender", Settings._copier_selectedTab))
                         {
-                            EditorGUI.BeginDisabledGroup(true);
-                            {
-                                Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_physBones, ref Settings.bCopier_contactSender_copy, "Contact Senders | VRC SDK version 2022.03.04.12.28 or newer required", Icons.ContactSender);
-                                Settings.bCopier_contactSender_copy = false;
-                                Settings._copier_expand_contactSender = false;
-                            }
-                            EditorGUI.EndDisabledGroup();
-                        }
-                        else
-                        {
+                            //Contact Senders menu
                             Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_contactSender, ref Settings.bCopier_contactSender_copy, Strings.Copier.contactSender, Icons.ContactSender);
                             if(Settings._copier_expand_contactSender)
                             {
-
+    
                                 EditorGUI.BeginDisabledGroup(!Settings.bCopier_contactSender_copy);
                                 EditorGUILayout.Space();
-
+    
                                 using (var cHorizontalScope = new GUILayout.HorizontalScope())
                                 {
                                     GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
-
+    
                                     using (var cVerticalScope = new GUILayout.VerticalScope())
                                     {
                                         Settings.bCopier_contactSender_createObjects = GUILayout.Toggle(Settings.bCopier_contactSender_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
@@ -1875,15 +1854,15 @@ namespace Pumkin.AvatarTools
                                         Settings.bCopier_contactSender_adjustScale = GUILayout.Toggle(Settings.bCopier_contactSender_adjustScale, Strings.Copier.adjustScale, Styles.CopierToggle);
                                     }
                                 }
-
+    
                                 EditorGUILayout.Space();
                                 EditorGUI.EndDisabledGroup();
                             }
-
+    
                             Helpers.DrawGUILine(1, false);
                         }
                     }
-
+                    
                     if(CopierTabs.ComponentIsInSelectedTab<ParticleSystem>(Settings._copier_selectedTab))
                     {
                         //Particles menu
@@ -3236,10 +3215,9 @@ namespace Pumkin.AvatarTools
                             }
                             EditorGUILayout.EndHorizontal();
 
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
                             if(DrawToggleButtonGUI(Strings.Tools.toggleDynamicBones, _nextToggleDBoneState))
                                 ToggleDynamicBonesEnabledState(SelectedAvatar, ref _nextToggleDBoneState, ref _dBonesThatWereAlreadyDisabled);
-#endif
+
                             EditorGUILayout.Space();
                         }
                         EditorGUI.EndDisabledGroup();
@@ -3784,132 +3762,6 @@ namespace Pumkin.AvatarTools
 #region Main Functions
 
         /// <summary>
-        /// Bad function. Does too many things at once and other bad stuff. Will fix once I get a better yaml serializer
-        /// </summary>
-        /// <param name="avatar"></param>
-        private static void FixDynamicBoneScriptsInPrefab(GameObject avatar)
-        {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-            bool selectionIsInAssets = false;
-            var prefStage = PrefabStageUtility.GetCurrentPrefabStage();
-            var prefType = PrefabUtility.GetPrefabAssetType(avatar);
-
-            if(prefStage != null)
-            {
-                Log(Strings.Log.exitPrefabModeFirst, LogType.Warning);
-            }
-            else if(prefType == PrefabAssetType.NotAPrefab)
-            {
-                Log(Strings.Log.avatarHasNoPrefab, LogType.Error);
-                return;
-            }
-            else
-            {
-                if(Helpers.IsAssetInAssets(avatar))
-                    selectionIsInAssets = true;
-                Log(Strings.Log.attemptingToFixDynamicBoneScripts, LogType.Log);
-            }
-
-            try
-            {
-                string prefPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(SelectedAvatar);
-
-                if(string.IsNullOrEmpty(prefPath))
-                    return;
-
-                var guids = AssetDatabase.FindAssets("DynamicBone");
-                string dboneGUID = null;
-                string dboneColliderGUID = null;
-                foreach(var guid in guids)
-                {
-                    var path = AssetDatabase.GUIDToAssetPath(guid);
-                    if(path.EndsWith("DynamicBone.cs"))
-                        dboneGUID = guid;
-                    else if(path.EndsWith("DynamicBoneCollider.cs"))
-                        dboneColliderGUID = guid;
-
-                    if(!string.IsNullOrEmpty(dboneGUID) && !string.IsNullOrEmpty(dboneColliderGUID))
-                        break;
-                }
-
-                if(string.IsNullOrEmpty(dboneGUID) && string.IsNullOrEmpty(dboneColliderGUID))
-                {
-                    Log("Can't find DynamicBones for some reason", LogType.Error);
-                    return;
-                }
-
-                var blocks = PumkinsYAMLTools.OpenFileGetBlocks(prefPath);
-                for(int i = 0; i < blocks.Length; i++)
-                {
-                    if(blocks[i].StartsWith("MonoBehaviour:")) //Check that it's a script
-                    {
-                        if(blocks[i].Contains("m_Colliders:")  //Check if it's the DBone component
-                        && blocks[i].Contains("m_Exclusions:")
-                        && blocks[i].Contains("m_Damping:"))
-                        {
-                            var lines = PumkinsYAMLTools.BlockToLines(blocks[i]);
-                            for(int j = 0; j < lines.Length; j++)
-                            {
-                                if(!lines[j].Contains("m_Script:"))
-                                    continue;
-
-                                lines[j] = Helpers.ReplaceGUIDInLine(lines[j], dboneGUID, out bool _);
-                                break;
-                            }
-                            blocks[i] = PumkinsYAMLTools.LinesToBlock(lines);
-                        }
-                        else if(blocks[i].Contains("m_Radius:") //Check if it's the DBoneCollider component
-                            && blocks[i].Contains("m_Height:")
-                            && blocks[i].Contains("m_Center:")
-                            && blocks[i].Contains("m_Direction:")
-                            && blocks[i].Contains("m_Bound:"))
-                        {
-                            var lines = PumkinsYAMLTools.BlockToLines(blocks[i]);
-                            for(int j = 0; j < lines.Length; j++)
-                            {
-                                if(!lines[j].Contains("m_Script:"))
-                                    continue;
-
-                                lines[j] = Helpers.ReplaceGUIDInLine(lines[j], dboneColliderGUID, out bool _);
-                                break;
-                            }
-                            blocks[i] = PumkinsYAMLTools.LinesToBlock(lines);
-                        }
-                    }
-                }
-
-                PumkinsYAMLTools.WriteBlocksToFile(prefPath, blocks);
-                AssetDatabase.ImportAsset(prefPath, ImportAssetOptions.ForceUpdate);
-
-                if(selectionIsInAssets)
-                {
-                    var prefObj = AssetDatabase.LoadAssetAtPath<GameObject>(prefPath);
-                    if(prefObj != null)
-                    {
-                        EditorGUIUtility.PingObject(prefObj);
-                        Selection.activeObject = null;
-                        EditorApplication.delayCall += () =>
-                        {
-                            EditorApplication.delayCall += () =>
-                            {
-                                Selection.activeObject = prefObj;
-                            };
-                        };
-                    }
-                }
-
-                Log(Strings.Log.done);
-            }
-            catch(Exception e)
-            {
-                Log(e.Message);
-            }
-#else
-        return;
-#endif
-        }
-
-        /// <summary>
         /// Loads textures back into overlay and background objects if we have a path for them still stored. Useful for when we restart unity
         /// </summary>
         private void RestoreTexturesFromPaths()
@@ -4214,16 +4066,11 @@ namespace Pumkin.AvatarTools
 #endif
                     break;
                 case ToolMenuActions.RemoveDynamicBoneColliders:
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBoneCollider), false);
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.DynamicBoneColliderBase, false);
                     CleanupDynamicBonesColliderArraySizes();
-
-#endif
                     break;
                 case ToolMenuActions.RemoveDynamicBones:
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(DynamicBone), false);
-#endif
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.DynamicBone, false);
                     break;
                 case ToolMenuActions.RemoveContactReceiver:
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
@@ -4336,9 +4183,6 @@ namespace Pumkin.AvatarTools
                 case ToolMenuActions.RemoveCameras:
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(Camera), false);
                     break;
-                case ToolMenuActions.FixDynamicBoneScripts:
-                    FixDynamicBoneScriptsInPrefab(SelectedAvatar);
-                    break;
                 case ToolMenuActions.ResetBoundingBoxes:
                     Helpers.ResetBoundingBoxes(SelectedAvatar);
                     break;
@@ -4404,22 +4248,17 @@ namespace Pumkin.AvatarTools
 
         private static void CleanupDynamicBonesColliderArraySizes()
         {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-            var dbones = SelectedAvatar.GetComponentsInChildren<DynamicBone>(true);
+            Component[] dbones = SelectedAvatar.GetComponentsInChildren(PumkinsTypeCache.DynamicBone, true);
             if(dbones != null && dbones.Length > 0)
             {
                 SerializedObject so = new SerializedObject(dbones);
-                if(so != null)
+                var prop = so.FindProperty("m_Colliders");
+                if(prop != null)
                 {
-                    var prop = so.FindProperty("m_Colliders");
-                    if(prop != null)
-                    {
-                        prop.arraySize = 0;
-                        so.ApplyModifiedProperties();   //Sets count of colliders in array to 0 so the safety system ignores them
-                    }
+                    prop.arraySize = 0;
+                    so.ApplyModifiedProperties();   //Sets count of colliders in array to 0 so the safety system ignores them
                 }
             }
-#endif
         }
 
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
@@ -4473,65 +4312,43 @@ namespace Pumkin.AvatarTools
         /// <param name="enabled">Enabled state for dynamic bones</param>
         /// <param name="dBonesToIgnore">Dynamic Bones to ignore</param>
         /// <returns>Dynamic Bones that were disabled before we did anything</returns>
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-        static void SetDynamicBonesEnabledState(GameObject avatar, bool enabled, List<DynamicBone> dBonesToIgnore = null)
+
+        static void SetDynamicBonesEnabledState(GameObject avatar, bool enabled, List<Component> dBonesToIgnore = null)
         {
             if(!avatar)
                 return;
 
-            foreach(var bone in avatar.GetComponentsInChildren<DynamicBone>(true))
+            foreach(var bone in avatar.GetComponentsInChildren(PumkinsTypeCache.DynamicBone, true))
                 if(dBonesToIgnore == null || !dBonesToIgnore.Contains(bone))
-                    bone.enabled = enabled;
+                {
+                    var boneBehaviour = bone as Behaviour;
+                    if(boneBehaviour)
+                        boneBehaviour.enabled = enabled;
+                }
         }
-#else
-        static void SetDynamicBonesEnabledState(GameObject avatar, bool enabled)
-        {
-            return;
-        }
-#endif
+
         /// <summary>
         /// Toggles the enbaled state of all Dynamic Bones on the avatar and returns affected bones
         /// </summary>
         /// <param name="enabledState">Bool to use as toggle state</param>
         /// <param name="dBonesToIgnore">Dynamic Bones to ignore</param>
         /// <returns>Dynamic Bones that have been enabled or disabled. Used to ignore bones that were disabled before we toggled off</returns>
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-        static void ToggleDynamicBonesEnabledState(GameObject avatar, ref bool enabledState, ref List<DynamicBone> dBonesToIgnore)
-        {
 
+        static void ToggleDynamicBonesEnabledState(GameObject avatar, ref bool enabledState, ref List<Component> dBonesToIgnore)
+        {        
             if(!enabledState)
             {
-                dBonesToIgnore = new List<DynamicBone>();
-                var bones = avatar.GetComponentsInChildren<DynamicBone>(true);
+                dBonesToIgnore = new List<Component>();
+                var bones = avatar.GetComponentsInChildren(PumkinsTypeCache.DynamicBone, true);
                 foreach(var b in bones)
-                    if(!b.enabled)
+                {
+                    var boneBehaviour = b as Behaviour;
+                    if(boneBehaviour && !boneBehaviour.enabled)
                         dBonesToIgnore.Add(b);
+                }
             }
             SetDynamicBonesEnabledState(avatar, enabledState, dBonesToIgnore);
             enabledState = !enabledState;
-
-        }
-#endif
-
-        /// <summary>
-        /// Doesn't seem to work. Need to investigate
-        /// </summary>
-        /// <param name="avatar"></param>
-        static void RefreshDynamicBoneTransforms(GameObject avatar)
-        {
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-            if(!avatar)
-                return;
-
-            var bones = avatar.GetComponentsInChildren<DynamicBone>(true);
-            foreach(var b in bones)
-            {
-                bool enabled = b.enabled;
-                b.enabled = false;
-                b.CallPrivate("InitTransforms");
-                b.enabled = enabled;
-            }
-#endif
         }
 
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
@@ -5117,20 +4934,21 @@ namespace Pumkin.AvatarTools
                 if(Settings.bCopier_dynamicBones_copyColliders && CopierTabs.ComponentIsInSelectedTab("dynamicbonecollider", Settings._copier_selectedTab))
                 {
                     if(Settings.bCopier_dynamicBones_removeOldColliders)
-                        LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBoneCollider, false);
-                    LegacyCopier.CopyAllDynamicBoneColliders(objFrom, objTo, Settings.bCopier_dynamicBones_createObjectsColliders, Settings.bCopier_dynamicBones_adjustScaleColliders, ref tempIgnoreArray);
+                        LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBoneColliderBase, false);
+                    GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBoneCollider, objFrom, objTo, Settings.bCopier_dynamicBones_createObjectsColliders, Settings.bCopier_dynamicBones_adjustScaleColliders, true, false, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBonePlaneCollider, objFrom, objTo, Settings.bCopier_dynamicBones_createObjectsColliders, Settings.bCopier_dynamicBones_adjustScaleColliders, true, false, ref tempIgnoreArray);
                 }
                 if(Settings.bCopier_dynamicBones_copy && CopierTabs.ComponentIsInSelectedTab("dynamicbone", Settings._copier_selectedTab))
                 {
                     if(Settings.bCopier_dynamicBones_removeOldBones)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBone, false);
-                    if(Settings.bCopier_dynamicBones_copySettings || Settings.bCopier_dynamicBones_createMissing)
-                        LegacyCopier.CopyAllDynamicBonesNew(objFrom, objTo, Settings.bCopier_dynamicBones_createMissing, Settings.bCopier_dynamicBones_adjustScale, ref tempIgnoreArray);
+                    if(Settings.bCopier_dynamicBones_copy)
+                        GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBone, objFrom, objTo, Settings.bCopier_dynamicBones_createObjects, Settings.bCopier_dynamicBones_adjustScale, true, false, ref tempIgnoreArray);
                 }
             }
-            else if(Settings.bCopier_dynamicBones_copy)
+            else if(Settings.bCopier_dynamicBones_copy || Settings.bCopier_dynamicBones_copyColliders)
             {
-                Log(Strings.Warning.noDBonesOrMissingScriptDefine, LogType.Error);
+                Log(Strings.Warning.noDBonesInProject, LogType.Error);
             }
 
             if(Settings.bCopier_aimConstraint_copy && CopierTabs.ComponentIsInSelectedTab<AimConstraint>(Settings._copier_selectedTab))

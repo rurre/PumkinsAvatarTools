@@ -493,7 +493,7 @@ namespace Pumkin.Translations
         public string cantLoadImageAtPath = "Can't load image at {0}";
         public string armatureScaleNotOne = "Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
         public string armatureScalesDontMatch = "Armature scales for selected avatars don't match!\nThis can cause issues";
-        public string noDBonesOrMissingScriptDefine = "No DynamicBones found or missing script define";
+        public string noDBonesInProject = "No DynamicBones found in project";
         public string languageAlreadyExistsOverwrite = "Language preset already exists. Overwrite?";
     }
 
