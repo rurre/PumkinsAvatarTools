@@ -1078,7 +1078,7 @@ namespace Pumkin.HelperFunctions
         /// </summary>
         public static bool ShouldIgnoreObject(Transform trans, Transform[] ignoreArray, bool includeChildren = false)
         {
-            if((!trans || ignoreArray == null) || trans == trans.root)
+            if((!trans || ignoreArray == null || ignoreArray.Length == 0) || trans == trans.root)
                 return false;
 
             if(ignoreArray.Length > 0 && includeChildren)

@@ -109,9 +109,10 @@ namespace Pumkin.AvatarTools
         /// <returns></returns>
         static bool HasCachedMaterials(Renderer[] renderers)
         {
-            return renderers
-                .Select(r => GUID.TryParse(r.sharedMaterial.name, out GUID _))
-                .Any(b => b);
+            return false;
+            //return renderers
+                //.Select(r => GUID.TryParse(r.sharedMaterial.name, out GUID _))
+                //.Any(b => b);
         }
 
         public void Dispose()

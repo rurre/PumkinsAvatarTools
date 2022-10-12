@@ -931,7 +931,7 @@ namespace Pumkin.AvatarTools
         void HandleSelectionChanged()
         {
             if(SettingsContainer._useSceneSelectionAvatar)
-                SelectAvatarFromScene();
+                SelectedAvatar = GetAvatarFromSceneSelection(true);
             _PumkinsAvatarToolsWindow.RepaintSelf();
         }
 
@@ -1426,20 +1426,21 @@ namespace Pumkin.AvatarTools
 #endif
         }
 
-        public static void DrawAvatarSelectionWithButtonGUI(bool showSelectFromSceneButton = true, bool showSceneSelectionCheckBox = true)
+        public static void DrawAvatarSelectionWithButtonGUI(bool updateAvatarInfo, bool showSelectFromSceneButton = true, bool showSceneSelectionCheckBox = true)
         {
             SelectedAvatar = (GameObject)EditorGUILayout.ObjectField(Strings.Main.avatar, SelectedAvatar, typeof(GameObject), true);
 
             if(SettingsContainer._useSceneSelectionAvatar)
                 if(Selection.activeObject != SelectedAvatar)
-                    SelectAvatarFromScene();
+                    SelectedAvatar = GetAvatarFromSceneSelection(updateAvatarInfo);
 
             if(showSelectFromSceneButton)
                 if(GUILayout.Button(Strings.Buttons.selectFromScene))
                     if(Selection.activeObject)
-                        SelectAvatarFromScene();
+                        SelectedAvatar = GetAvatarFromSceneSelection(updateAvatarInfo);
 
-            if(showSceneSelectionCheckBox) SettingsContainer._useSceneSelectionAvatar = GUILayout.Toggle(SettingsContainer._useSceneSelectionAvatar, Strings.Main.useSceneSelection);
+            if(showSceneSelectionCheckBox) 
+                SettingsContainer._useSceneSelectionAvatar = GUILayout.Toggle(SettingsContainer._useSceneSelectionAvatar, Strings.Main.useSceneSelection);
         }
 
         void DrawCopierMenuGUI()
@@ -1454,7 +1455,7 @@ namespace Pumkin.AvatarTools
 
                     if(GUILayout.Button(Strings.Buttons.selectFromScene))
                         if(Selection.activeGameObject != null)
-                            CopierSelectedFrom = Selection.activeGameObject.transform.root.gameObject;
+                            CopierSelectedFrom = GetAvatarFromSceneSelection(false);
 
                     if(_copierShowArmatureScaleWarning)
                         EditorGUILayout.LabelField(Strings.Warning.armatureScalesDontMatch, Styles.HelpBox_OneLine);
@@ -3954,25 +3955,44 @@ namespace Pumkin.AvatarTools
         }
 
         /// <summary>
-        /// Sets the root object of our current scene selection as our selected avatar
+        /// Tries to select the avatar from anywhere in it's hierarchy. Recursively looks for an avatar descriptor.
         /// </summary>
-        public static void SelectAvatarFromScene()
+        public static GameObject GetAvatarFromSceneSelection(bool updateAvatarInfo)
         {
+            GameObject selection = null;
             try
             {
-                var sel = Selection.activeGameObject;
-                if(sel == null)
-                    return;
+                selection = Selection.activeGameObject;
+                if(selection == null)
+                    return selection;
 
-                sel = Selection.activeGameObject.transform.root.gameObject;
-                if(sel != null)
+                
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+                Transform parent = selection.transform.parent;
+                while(parent != null)
                 {
-                    if(sel.gameObject.scene.name != null)
+                    if(parent.GetComponent<VRC_AvatarDescriptor>())
                     {
-                        SelectedAvatar = sel;
-                        avatarInfo = PumkinsAvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
+                        selection = parent.gameObject;
+                        break;
                     }
-                    else if(!SettingsContainer._useSceneSelectionAvatar)
+
+                    parent = parent.parent;
+                }
+#else
+                selection = Selection.activeGameObject.transform.root.gameObject;
+#endif
+                
+                if(selection != null)
+                {
+                    if(selection.gameObject.scene.name != null)
+                    {
+                        if(updateAvatarInfo)
+                            avatarInfo = PumkinsAvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
+                        return selection;
+                    }
+
+                    if(!SettingsContainer._useSceneSelectionAvatar)
                     {
                         Log(Strings.Warning.selectSceneObject, LogType.Warning);
                     }
@@ -3983,6 +4003,7 @@ namespace Pumkin.AvatarTools
                 Log(e.Message, LogType.Warning);
             }
             _PumkinsAvatarToolsWindow.RepaintSelf();
+            return selection;
         }
 
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
@@ -4799,10 +4820,17 @@ namespace Pumkin.AvatarTools
 
             objFrom.transform.parent = null;
             objTo.transform.parent = null;
+            CopyInstance copyInst = new CopyInstance(objFrom, objTo);
 
-            try
+            CopyComponents(copyInst);
+            GenericCopier.FixInstanceReferences(copyInst);
+            objFrom.transform.parent = fromParent;
+            objTo.transform.parent = toParent;
+            
+            /*try
             {
-                CopyComponents(objFrom, objTo);
+                CopyComponents(copyInst);
+                GenericCopier.FixInstanceReferences(copyInst);
             }
             catch(Exception ex)
             {
@@ -4812,15 +4840,19 @@ namespace Pumkin.AvatarTools
             {
                 objFrom.transform.parent = fromParent;
                 objTo.transform.parent = toParent;
-            }
+            }*/
         }
 
         /// <summary>
         /// Copies Components and Values from one object to another.
         /// </summary>
-        void CopyComponents(GameObject objFrom, GameObject objTo)
+        void CopyComponents(CopyInstance inst)
         {
             string log = "";
+            
+            GameObject objFrom = inst.from;
+            GameObject objTo = inst.to;
+            
             //Cancel Checks
             if(objFrom == objTo)
             {
@@ -4830,11 +4862,12 @@ namespace Pumkin.AvatarTools
             }
 
             Transform[] tempIgnoreArray = new Transform[Settings.copierIgnoreArray.Length];
-            Array.Copy(Settings.copierIgnoreArray, tempIgnoreArray, Settings.copierIgnoreArray.Length);
+            if(tempIgnoreArray.Length > 0)
+                Array.Copy(Settings.copierIgnoreArray, tempIgnoreArray, Settings.copierIgnoreArray.Length);
 
             if(Settings.bCopier_prefabs_copy && CopierTabs.ComponentIsInSelectedTab("prefab", Settings._copier_selectedTab))
             {
-                GenericCopier.CopyPrefabs(objFrom, objTo, Settings.bCopier_prefabs_createObjects, Settings.bCopier_prefabs_adjustScale, Settings.bCopier_prefabs_fixReferences, Settings.bCopier_prefabs_copyPropertyOverrides, Settings.bCopier_prefabs_ignorePrefabByOtherCopiers, ref tempIgnoreArray);
+                GenericCopier.CopyPrefabs(inst, Settings.bCopier_prefabs_createObjects, Settings.bCopier_prefabs_adjustScale, Settings.bCopier_prefabs_fixReferences, Settings.bCopier_prefabs_copyPropertyOverrides, Settings.bCopier_prefabs_ignorePrefabByOtherCopiers, ref tempIgnoreArray);
             }
 
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
@@ -4866,7 +4899,7 @@ namespace Pumkin.AvatarTools
 #endif
             if(Settings.bCopier_particleSystems_copy && CopierTabs.ComponentIsInSelectedTab<ParticleSystem>(Settings._copier_selectedTab))
             {
-                GenericCopier.CopyComponent<ParticleSystem>(objFrom, objTo, Settings.bCopier_prefabs_createObjects, false, true, true, ref tempIgnoreArray);
+                GenericCopier.CopyComponent<ParticleSystem>(inst, Settings.bCopier_prefabs_createObjects, false, true, true, ref tempIgnoreArray);
             }
             if(Settings.bCopier_colliders_copy && CopierTabs.ComponentIsInSelectedTab<Collider>(Settings._copier_selectedTab))
             {
@@ -4901,19 +4934,19 @@ namespace Pumkin.AvatarTools
                 {
                     if(Settings.bCopier_contactReceiver_removeOld)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.ContactReceiver, false);
-                    GenericCopier.CopyComponent<VRCContactReceiver>(objFrom, objTo, Settings.bCopier_contactReceiver_createObjects, Settings.bCopier_contactReceiver_adjustScale, false, true, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent<VRCContactReceiver>(inst, Settings.bCopier_contactReceiver_createObjects, Settings.bCopier_contactReceiver_adjustScale, false, true, ref tempIgnoreArray);
                 }
                 if(Settings.bCopier_contactSender_copy && CopierTabs.ComponentIsInSelectedTab("contactsender", Settings._copier_selectedTab))
                 {
                     if(Settings.bCopier_contactSender_removeOld)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.ContactSender, false);
-                    GenericCopier.CopyComponent<VRCContactSender>(objFrom, objTo, Settings.bCopier_contactSender_createObjects, Settings.bCopier_contactSender_adjustScale, false, true, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent<VRCContactSender>(inst, Settings.bCopier_contactSender_createObjects, Settings.bCopier_contactSender_adjustScale, false, true, ref tempIgnoreArray);
                 }
                 if(Settings.bCopier_physBones_copyColliders && CopierTabs.ComponentIsInSelectedTab("physbonecollider", Settings._copier_selectedTab))
                 {
                     if(Settings.bCopier_physBones_removeOldColliders)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.PhysBoneCollider, false);
-                    GenericCopier.CopyComponent<VRCPhysBoneCollider>(objFrom, objTo,
+                    GenericCopier.CopyComponent<VRCPhysBoneCollider>(inst,
                         Settings.bCopier_physBones_createObjectsColliders,
                         Settings.bCopier_physBones_adjustScaleColliders, true, false, ref tempIgnoreArray);
                 }
@@ -4921,11 +4954,11 @@ namespace Pumkin.AvatarTools
                 {
                     if(Settings.bCopier_physBones_removeOldBones)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.PhysBone, false);
-                    GenericCopier.CopyComponent<VRCPhysBone>(objFrom, objTo, Settings.bCopier_physBones_createObjects, Settings.bCopier_physBones_adjustScale, true, false, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent<VRCPhysBone>(inst, Settings.bCopier_physBones_createObjects, Settings.bCopier_physBones_adjustScale, true, false, ref tempIgnoreArray);
                 }
                 if(Settings.bCopier_vrcStations_copy && CopierTabs.ComponentIsInSelectedTab("vrcstation", Settings._copier_selectedTab))
                 {
-                    GenericCopier.CopyComponent<VRCStation>(objFrom, objTo, Settings.bCopier_vrcStations_createObjects, false, Settings.bCopier_vrcStations_fixReferences, true, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent<VRCStation>(inst, Settings.bCopier_vrcStations_createObjects, false, Settings.bCopier_vrcStations_fixReferences, true, ref tempIgnoreArray);
                 }
                 #endif
             } 
@@ -4935,15 +4968,15 @@ namespace Pumkin.AvatarTools
                 {
                     if(Settings.bCopier_dynamicBones_removeOldColliders)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBoneColliderBase, false);
-                    GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBoneCollider, objFrom, objTo, Settings.bCopier_dynamicBones_createObjectsColliders, Settings.bCopier_dynamicBones_adjustScaleColliders, true, false, ref tempIgnoreArray);
-                    GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBonePlaneCollider, objFrom, objTo, Settings.bCopier_dynamicBones_createObjectsColliders, Settings.bCopier_dynamicBones_adjustScaleColliders, true, false, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBoneCollider, inst, Settings.bCopier_dynamicBones_createObjectsColliders, Settings.bCopier_dynamicBones_adjustScaleColliders, true, false, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBonePlaneCollider, inst, Settings.bCopier_dynamicBones_createObjectsColliders, Settings.bCopier_dynamicBones_adjustScaleColliders, true, false, ref tempIgnoreArray);
                 }
                 if(Settings.bCopier_dynamicBones_copy && CopierTabs.ComponentIsInSelectedTab("dynamicbone", Settings._copier_selectedTab))
                 {
                     if(Settings.bCopier_dynamicBones_removeOldBones)
                         LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBone, false);
                     if(Settings.bCopier_dynamicBones_copy)
-                        GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBone, objFrom, objTo, Settings.bCopier_dynamicBones_createObjects, Settings.bCopier_dynamicBones_adjustScale, true, false, ref tempIgnoreArray);
+                        GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBone, inst, Settings.bCopier_dynamicBones_createObjects, Settings.bCopier_dynamicBones_adjustScale, true, false, ref tempIgnoreArray);
                 }
             }
             else if(Settings.bCopier_dynamicBones_copy || Settings.bCopier_dynamicBones_copyColliders)
@@ -5008,21 +5041,21 @@ namespace Pumkin.AvatarTools
             if(_DependencyChecker.FinalIKExists && Settings.bCopier_finalIK_copy && CopierTabs.ComponentIsInSelectedTab("finalik", Settings._copier_selectedTab))
             {
                 if(Settings.bCopier_finalIK_copyCCDIK)
-                    GenericCopier.CopyComponent<CCDIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false,true, true, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent<CCDIK>(inst, Settings.bCopier_finalIK_createObjects, false,true, true, ref tempIgnoreArray);
                 if(Settings.bCopier_finalIK_copyLimbIK)
-                    GenericCopier.CopyComponent<LimbIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true, true, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent<LimbIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, ref tempIgnoreArray);
                 if(Settings.bCopier_finalIK_copyRotationLimits)
-                    GenericCopier.CopyComponent<RotationLimit>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true,  true, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent<RotationLimit>(inst, Settings.bCopier_finalIK_createObjects, false, true,  true, ref tempIgnoreArray);
                 if(Settings.bCopier_finalIK_copyFabrik)
-                    GenericCopier.CopyComponent<FABRIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true,  true,ref tempIgnoreArray);
+                    GenericCopier.CopyComponent<FABRIK>(inst, Settings.bCopier_finalIK_createObjects, false, true,  true,ref tempIgnoreArray);
                 if(Settings.bCopier_finalIK_copyAimIK)
-                    GenericCopier.CopyComponent<AimIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true,  true,ref tempIgnoreArray);
+                    GenericCopier.CopyComponent<AimIK>(inst, Settings.bCopier_finalIK_createObjects, false, true,  true,ref tempIgnoreArray);
                 if(Settings.bCopier_finalIK_copyFBTBipedIK)
-                    GenericCopier.CopyComponent<FullBodyBipedIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true, true, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent<FullBodyBipedIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, ref tempIgnoreArray);
                 if(Settings.bCopier_finalIK_copyVRIK)
-                    GenericCopier.CopyComponent<VRIK>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true, true, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent<VRIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, ref tempIgnoreArray);
                 if(Settings.bCopier_finalIK_copyGrounders)
-                    GenericCopier.CopyComponent<Grounder>(objFrom, objTo, Settings.bCopier_finalIK_createObjects, false, true, true, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent<Grounder>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, ref tempIgnoreArray);
             }
 			#endif
 
@@ -5030,7 +5063,7 @@ namespace Pumkin.AvatarTools
             {
                 if(Settings.bCopier_other_copyVRMSpringBones)
                 {
-                    GenericCopier.CopyComponent(PumkinsTypeCache.VRMSpringBone, objFrom, objTo, Settings.bCopier_other_createGameObjects, false, Settings.bCopier_other_fixReferences, false, ref tempIgnoreArray);
+                    GenericCopier.CopyComponent(PumkinsTypeCache.VRMSpringBone, inst, Settings.bCopier_other_createGameObjects, false, Settings.bCopier_other_fixReferences, false, ref tempIgnoreArray);
                 }
             }
         }

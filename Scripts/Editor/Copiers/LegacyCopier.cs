@@ -486,7 +486,7 @@ namespace Pumkin.AvatarTools.Copiers
                         PumkinsAvatarTools.Log(Strings.Log.successCopiedOverFromTo, LogType.Log, "ParticleSystem", PumkinsAvatarTools.CopierSelectedFrom.name,
                             partSys.gameObject.name, PumkinsAvatarTools.SelectedAvatar.name, transTo.gameObject.name);
                         
-                        GenericCopier.FixReferences(newPartSys, to.transform, createGameObjects);
+                        GenericCopier.FixReferencesOnComponent(newPartSys, to.transform, createGameObjects);
                     }
                     else
                     {
