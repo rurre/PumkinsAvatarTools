@@ -34,7 +34,7 @@ namespace Pumkin.AvatarTools.Copiers
         
         static SettingsContainer Settings => PumkinsAvatarTools.Settings;
 
-        public static void CopyComponent(Type type, CopyInstance inst, bool createGameObjects, bool adjustScale, bool fixReferences, bool onlyAllowOneComponentOfSameType, ref Transform[] ignoreArray)
+        public static void CopyComponent(Type type, CopyInstance inst, bool createGameObjects, bool adjustScale, bool fixReferences, bool onlyAllowOneComponentOfSameType, HashSet<Transform> ignoreSet)
         {
             if(type == null || !typeof(Component).IsAssignableFrom(type))
             {
@@ -43,10 +43,10 @@ namespace Pumkin.AvatarTools.Copiers
             }
             
             var method = CopyComponentGeneric.MakeGenericMethod(type);
-            method.Invoke(null, new object[] { inst, createGameObjects, adjustScale, fixReferences, onlyAllowOneComponentOfSameType, ignoreArray });
+            method.Invoke(null, new object[] { inst, createGameObjects, adjustScale, fixReferences, onlyAllowOneComponentOfSameType, ignoreSet });
         }
 
-        public static void CopyComponent<T>(CopyInstance inst, bool createGameObjects, bool adjustScale, bool fixReferences, bool onlyAllowOneComponentOfSameType, ref Transform[] ignoreArray) where T : Component
+        public static void CopyComponent<T>(CopyInstance inst, bool createGameObjects, bool adjustScale, bool fixReferences, bool onlyAllowOneComponentOfSameType, HashSet<Transform> ignoreSet) where T : Component
         {
             if(inst.from == null || inst.to == null)
                 return;
@@ -61,8 +61,11 @@ namespace Pumkin.AvatarTools.Copiers
 
             foreach(var typeFrom in typeFromArr)
             {
+                if(Helpers.ShouldIgnoreObject(typeFrom.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
+                    continue;
+                
                 var tTo = Helpers.FindTransformInAnotherHierarchy(typeFrom.transform, inst.to.transform, createGameObjects);
-                if(!tTo || (Helpers.ShouldIgnoreObject(typeFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                if(!tTo)
                     continue;
 
                 string log = String.Format(Strings.Log.copyAttempt, typeName, typeFrom.gameObject.name, tTo.gameObject.name);
@@ -156,9 +159,8 @@ namespace Pumkin.AvatarTools.Copiers
                                            .IndexOf(oldComp);
 
                     var targetComps = objRef.targetTransforms[i].GetComponents(compType);
-                    prop.objectReferenceValue = targetComps[compIndex];
+                    prop.objectReferenceValue = targetComps.Length > 0 ? targetComps[compIndex] : null;
                 }
-
                 newObj.ApplyModifiedPropertiesWithoutUndo();
             }
         }
@@ -221,7 +223,7 @@ namespace Pumkin.AvatarTools.Copiers
             serialComp.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        public static void CopyPrefabs(CopyInstance inst, bool createGameObjects, bool adjustScale, bool fixReferences, bool copyPropertyOverrides, bool addPrefabsToIgnoreList, ref Transform[] ignoreArray)
+        public static void CopyPrefabs(CopyInstance inst, bool createGameObjects, bool adjustScale, bool fixReferences, bool copyPropertyOverrides, bool addPrefabsToIgnoreList, HashSet<Transform> ignoreSet)
         {
             List<GameObject> allPrefabRoots = new List<GameObject>();
             foreach(var trans in inst.from.GetComponentsInChildren<Transform>(true))
@@ -235,17 +237,19 @@ namespace Pumkin.AvatarTools.Copiers
             Transform tFrom = inst.from.transform;
 
             HashSet<GameObject> prefabs = new HashSet<GameObject>(allPrefabRoots);
-            List<Transform> newPrefabTransforms = addPrefabsToIgnoreList ? new List<Transform>() : null;
+            List<Transform> newPrefabTransformsToIgnore = addPrefabsToIgnoreList ? new List<Transform>() : null;
             
             foreach(var fromPref in prefabs)
             {
-                Transform tToParent = null;
-                if(fromPref.transform.parent == tFrom)
-                    tToParent = tTo;
-                else
-                    tToParent = Helpers.FindTransformInAnotherHierarchy(fromPref.transform.parent, inst.to.transform, createGameObjects);
+                if(Helpers.ShouldIgnoreObject(fromPref.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
+                    continue;
                 
-                if(!tToParent || (ignoreArray != null && Helpers.ShouldIgnoreObject(fromPref.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                Transform tToParent = null;
+                tToParent = fromPref.transform.parent == tFrom 
+                    ? tTo 
+                    : Helpers.FindTransformInAnotherHierarchy(fromPref.transform.parent, inst.to.transform, createGameObjects);
+                
+                if(!tToParent)
                     continue;
 
                 PropertyModification[] prefabMods = null;
@@ -268,7 +272,7 @@ namespace Pumkin.AvatarTools.Copiers
                     continue;
                 
                 if(addPrefabsToIgnoreList)
-                    newPrefabTransforms.Add(toPref.transform);
+                    newPrefabTransformsToIgnore.Add(fromPref.transform);
                 
                 Component[] prefComponents = toPref.GetComponentsInChildren<Component>(true);
                 foreach(var comp in prefComponents)
@@ -291,8 +295,11 @@ namespace Pumkin.AvatarTools.Copiers
                 }
             }
 
-            if(addPrefabsToIgnoreList) // Add the new prefabs to our ignore array so that they don't get their stuff copied
-                ignoreArray = ignoreArray.Concat(newPrefabTransforms).ToArray();
+            if(addPrefabsToIgnoreList) // Add the new prefabs to our ignore set so that they don't get their stuff copied again
+            {
+                var allChildren = newPrefabTransformsToIgnore.GetAllChildrenOfTransforms();
+                ignoreSet.AddRange(allChildren);
+            }
         }
     }
 }

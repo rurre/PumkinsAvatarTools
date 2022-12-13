@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BestHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,12 +10,14 @@ namespace Pumkin.AvatarTools.Copiers
         public GameObject from;
         public GameObject to;
         public List<CopierPropertyReference> propertyRefs;
+        public HashSet<Transform> ignoredTransforms;
 
-        public CopyInstance(GameObject copyFrom, GameObject copyTo)
+        public CopyInstance(GameObject copyFrom, GameObject copyTo, IEnumerable<Transform> ignoreList)
         {
             from = copyFrom;
             to = copyTo;
             propertyRefs = new List<CopierPropertyReference>();
+            ignoredTransforms = new HashSet<Transform>(ignoreList);
         }
     }
 

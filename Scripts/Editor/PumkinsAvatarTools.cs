@@ -18,12 +18,10 @@ using Pumkin.Extensions;
 using UnityEngine.SceneManagement;
 using Pumkin.Presets;
 using UnityEngine.Animations;
-using Pumkin.YAML;
 using UnityEditor.Experimental.SceneManagement;
 using Object = UnityEngine.Object;
 
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-using VRC.Core;
 using VRC.SDKBase;
 #endif
 
@@ -54,6 +52,7 @@ namespace Pumkin.AvatarTools
 
         #region Tools
 
+        const string SettingsEditorPrefsKey = "PumkinToolsSettings";
         [SerializeField] SettingsContainer _settings;
 
         internal static SettingsContainer Settings
@@ -61,7 +60,11 @@ namespace Pumkin.AvatarTools
             get
             {
                 if(Instance._settings == null)
+                {
                     Instance._settings = ScriptableObject.CreateInstance<SettingsContainer>();
+                    Instance.LoadPrefs();
+                }
+
                 return Instance._settings;
             }
         }
@@ -244,10 +247,6 @@ namespace Pumkin.AvatarTools
         static string _mainFolderPathLocal = null;
         static string _mainScriptPathLocal = null;
         static string _resourceFolderPathLocal = null;
-
-        static bool _eventsAdded = false;
-        static bool _loadedPrefs = false;
-
 #endregion
 
 #region Properties
@@ -311,6 +310,10 @@ namespace Pumkin.AvatarTools
                         Settings.bCopier_audioSources_copy,
                         Settings.bCopier_lights_copy,
                         Settings.bCopier_prefabs_copy,
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+                        Settings.bCopier_contactSender_copy,
+                        Settings.bCopier_contactReceiver_copy
+#endif
                     };
                     if(commonToggles.Any(b => b))
                         return true;
@@ -345,6 +348,8 @@ namespace Pumkin.AvatarTools
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
                         Settings.bCopier_descriptor_copy,
                         Settings.bCopier_vrcStations_copy,
+                        Settings.bCopier_contactSender_copy,
+                        Settings.bCopier_contactReceiver_copy,
 #endif
                         
                         (Settings.bCopier_other_copy && Settings.bCopier_other_copyVRMSpringBones),
@@ -658,7 +663,7 @@ namespace Pumkin.AvatarTools
             }
         }
 
-        private bool? _dynamicBonesExist;
+        bool? _dynamicBonesExist;
 
         public bool PhysBonesExist
         {
@@ -680,9 +685,9 @@ namespace Pumkin.AvatarTools
 			}
 		}
 
-		private bool? _finalIKExists;
+		bool? _finalIKExists;
 
-        private bool? _physBonesExist;
+        bool? _physBonesExist;
 
 #endregion
 
@@ -810,21 +815,31 @@ namespace Pumkin.AvatarTools
             LogVerbose("Tools window: OnEnable()");
 
             if(updateCallback == null)
-                updateCallback = new EditorApplication.CallbackFunction(OnUpdate);
+                updateCallback = OnUpdate;
 
+            SceneView.duringSceneGui -= OnSceneGUI;
             SceneView.duringSceneGui += OnSceneGUI;
+            EditorApplication.update -= updateCallback;
             EditorApplication.update += updateCallback;
-            if(!_eventsAdded) //Not sure if this is necessary anymore
-            {
-                EditorApplication.playModeStateChanged += HandlePlayModeStateChange;
-                Selection.selectionChanged += HandleSelectionChanged;
-                EditorSceneManager.sceneOpened += HandleSceneChange;
 
-                PrefabStage.prefabStageOpened += HandlePrefabStageOpened;
-                PrefabStage.prefabStageClosing += HandlePrefabStageClosed;
+            EditorApplication.playModeStateChanged -= HandlePlayModeStateChange;
+            EditorApplication.playModeStateChanged += HandlePlayModeStateChange;
+            Selection.selectionChanged -= HandleSelectionChanged;
+            Selection.selectionChanged += HandleSelectionChanged;
+            EditorSceneManager.sceneOpened -= HandleSceneChange;
+            EditorSceneManager.sceneOpened += HandleSceneChange;
+            EditorSceneManager.newSceneCreated -= HandleNewScene;
+            EditorSceneManager.newSceneCreated += HandleNewScene;
+            EditorSceneManager.sceneClosing -= HandleSceneClosing;
+            EditorSceneManager.sceneClosing += HandleSceneClosing;
 
-                _eventsAdded = true;
-            }
+            PrefabStage.prefabStageOpened -= HandlePrefabStageOpened;
+            PrefabStage.prefabStageOpened += HandlePrefabStageOpened;
+            PrefabStage.prefabStageClosing -= HandlePrefabStageClosed;
+            PrefabStage.prefabStageClosing += HandlePrefabStageClosed;
+
+            EditorApplication.quitting -= HandleQuitting;
+            EditorApplication.quitting += HandleQuitting;
 
             SerializedIgnoreArray = Settings.SerializedSettings.FindProperty(nameof(Settings.copierIgnoreArray));
             SerializedScaleTemp = Settings.SerializedSettings.FindProperty(nameof(Settings._avatarScaleTemp));
@@ -846,16 +861,35 @@ namespace Pumkin.AvatarTools
 
             SelectedCamera = GetVRCCamOrMainCam();
 
-            if(Settings._lastOpenFilePath == default(string))
+            if(Settings._lastOpenFilePath == default)
                 Settings._lastOpenFilePath = MainFolderPath + PumkinsPresetManager.resourceCamerasPath + "/Example Images";
 
             Settings.lockSelectedCameraToSceneView = false;
         }
 
+        void HandleSceneClosing(Scene scene, bool removingscene)
+        {
+            SavePrefs();
+        }
+
+        void HandleNewScene(Scene scene, NewSceneSetup setup, NewSceneMode mode)
+        {
+            if(mode == NewSceneMode.Single)
+                LoadPrefs();
+        }
+
+        void HandleQuitting()
+        {
+            SavePrefs();
+        }
+
         public void HandleSceneChange(Scene scene, OpenSceneMode mode)
         {
             if(mode == OpenSceneMode.Single)
+            {
+                LoadPrefs();
                 RefreshLanguage();
+            }
         }
 
         public void HandleOnDisable()
@@ -869,8 +903,6 @@ namespace Pumkin.AvatarTools
 
             PrefabStage.prefabStageOpened -= HandlePrefabStageOpened;
             PrefabStage.prefabStageClosing -= HandlePrefabStageClosed;
-
-            _eventsAdded = false;
 
             if(Settings.SerializedSettings != null)
                 Settings.SerializedSettings.ApplyModifiedPropertiesWithoutUndo();
@@ -4815,32 +4847,22 @@ namespace Pumkin.AvatarTools
         /// <param name="objTo"></param>
         void CopyComponentsWithoutParents(GameObject objFrom, GameObject objTo)
         {
-            Transform fromParent = objFrom.transform.parent;
-            Transform toParent = objTo.transform.parent;
+            var fromParent = objFrom.transform.parent;
+            var toParent = objTo.transform.parent;            
 
-            objFrom.transform.parent = null;
-            objTo.transform.parent = null;
-            CopyInstance copyInst = new CopyInstance(objFrom, objTo);
+            CopyInstance copyInst = new CopyInstance(objFrom, objTo, Settings.copierIgnoreArray);
 
-            CopyComponents(copyInst);
-            GenericCopier.FixInstanceReferences(copyInst);
-            objFrom.transform.parent = fromParent;
-            objTo.transform.parent = toParent;
-            
-            /*try
+            try
             {
                 CopyComponents(copyInst);
                 GenericCopier.FixInstanceReferences(copyInst);
             }
-            catch(Exception ex)
-            {
-                Log(ex.Message, LogType.Exception);
-            }
             finally
             {
+
                 objFrom.transform.parent = fromParent;
                 objTo.transform.parent = toParent;
-            }*/
+            }
         }
 
         /// <summary>
@@ -4861,211 +4883,356 @@ namespace Pumkin.AvatarTools
                 return;
             }
 
-            Transform[] tempIgnoreArray = new Transform[Settings.copierIgnoreArray.Length];
-            if(tempIgnoreArray.Length > 0)
-                Array.Copy(Settings.copierIgnoreArray, tempIgnoreArray, Settings.copierIgnoreArray.Length);
-
-            if(Settings.bCopier_prefabs_copy && CopierTabs.ComponentIsInSelectedTab("prefab", Settings._copier_selectedTab))
+            try
             {
-                GenericCopier.CopyPrefabs(inst, Settings.bCopier_prefabs_createObjects, Settings.bCopier_prefabs_adjustScale, Settings.bCopier_prefabs_fixReferences, Settings.bCopier_prefabs_copyPropertyOverrides, Settings.bCopier_prefabs_ignorePrefabByOtherCopiers, ref tempIgnoreArray);
-            }
-
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-            
-            if(Settings.bCopier_descriptor_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRC_AvatarDescriptor, Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyAvatarDescriptor(objFrom, objTo, ref tempIgnoreArray);
-    
-                if(Settings.bCopier_descriptor_copyAvatarScale)
+                if(Settings.bCopier_prefabs_copy && CopierTabs.ComponentIsInSelectedTab("prefab", Settings._copier_selectedTab))
                 {
-                    VRC_AvatarDescriptor descriptor = objTo.GetComponentInChildren<VRC_AvatarDescriptor>();
-                    if(descriptor)
-                    {
-                        
-                        if(!(Settings.bCopier_descriptor_copy && Settings.bCopier_descriptor_copyViewpoint))
-                            SetAvatarScaleAndMoveViewpoint(descriptor, objFrom.transform.localScale.z);
-                        objTo.transform.localScale = new Vector3(objFrom.transform.localScale.x
-                            , objFrom.transform.localScale.y, objFrom.transform.localScale.z);
-                    }
-                    else
-                    {
-                        objTo.transform.localScale = objFrom.transform.localScale;
-                    }
+                    GenericCopier.CopyPrefabs(inst, Settings.bCopier_prefabs_createObjects, Settings.bCopier_prefabs_adjustScale, Settings.bCopier_prefabs_fixReferences,
+                            Settings.bCopier_prefabs_copyPropertyOverrides, Settings.bCopier_prefabs_ignorePrefabByOtherCopiers, inst.ignoredTransforms);
                 }
             }
+            catch(Exception ex) { Log("_Failed to copy Prefabs: " + ex.Message, LogType.Error); }
+
+            try
+            {
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+                if(Settings.bCopier_descriptor_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRC_AvatarDescriptor, Settings._copier_selectedTab))
+                {
+                    LegacyCopier.CopyAvatarDescriptor(objFrom, objTo, inst.ignoredTransforms);
+                    if(Settings.bCopier_descriptor_copyAvatarScale)
+                    {
+                        VRC_AvatarDescriptor descriptor = objTo.GetComponentInChildren<VRC_AvatarDescriptor>();
+                        if(descriptor)
+                        {
+
+                            if(!(Settings.bCopier_descriptor_copy && Settings.bCopier_descriptor_copyViewpoint))
+                                SetAvatarScaleAndMoveViewpoint(descriptor, objFrom.transform.localScale.z);
+                            objTo.transform.localScale = new Vector3(objFrom.transform.localScale.x,
+                                objFrom.transform.localScale.y, objFrom.transform.localScale.z);
+                        }
+                        else
+                        {
+                            objTo.transform.localScale = objFrom.transform.localScale;
+                        }
+                    }
+                }
 #else
-            if(Settings.bCopier_descriptor_copy && Settings.bCopier_descriptor_copyAvatarScale)
-                objTo.transform.localScale = objFrom.transform.localScale;
+                if(Settings.bCopier_descriptor_copy && Settings.bCopier_descriptor_copyAvatarScale)
+                    objTo.transform.localScale = objFrom.transform.localScale;
 #endif
-            if(Settings.bCopier_particleSystems_copy && CopierTabs.ComponentIsInSelectedTab<ParticleSystem>(Settings._copier_selectedTab))
-            {
-                GenericCopier.CopyComponent<ParticleSystem>(inst, Settings.bCopier_prefabs_createObjects, false, true, true, ref tempIgnoreArray);
             }
-            if(Settings.bCopier_colliders_copy && CopierTabs.ComponentIsInSelectedTab<Collider>(Settings._copier_selectedTab))
+            catch(Exception ex) { Log("_Failed to copy Avatar Descriptor: " + ex.Message, LogType.Error); }
+
+            try
             {
-                if(Settings.bCopier_colliders_removeOld)
-                    LegacyDestroyer.DestroyAllComponentsOfType(objTo, typeof(Collider), false);
-                LegacyCopier.CopyAllColliders(objFrom, objTo, Settings.bCopier_colliders_createObjects, Settings.bCopier_colliders_adjustScale, ref tempIgnoreArray);
+                if(Settings.bCopier_particleSystems_copy && CopierTabs.ComponentIsInSelectedTab<ParticleSystem>(Settings._copier_selectedTab))
+                    GenericCopier.CopyComponent<ParticleSystem>(inst, Settings.bCopier_prefabs_createObjects, false, true, true, inst.ignoredTransforms);
             }
-            if(Settings.bCopier_rigidBodies_copy && CopierTabs.ComponentIsInSelectedTab<Rigidbody>(Settings._copier_selectedTab))
+            catch(Exception ex) { Log("_Failed to copy Particle Systems: " + ex.Message, LogType.Error); }
+
+            try
             {
-                LegacyCopier.CopyAllRigidBodies(objFrom, objTo, Settings.bCopier_rigidBodies_createObjects, ref tempIgnoreArray);
+                if(Settings.bCopier_colliders_copy && CopierTabs.ComponentIsInSelectedTab<Collider>(Settings._copier_selectedTab))
+                {
+                    if(Settings.bCopier_colliders_removeOld)
+                        LegacyDestroyer.DestroyAllComponentsOfType(objTo, typeof(Collider), false);
+                    LegacyCopier.CopyAllColliders(objFrom, objTo, Settings.bCopier_colliders_createObjects, Settings.bCopier_colliders_adjustScale, inst.ignoredTransforms);
+                }
             }
-            if(Settings.bCopier_trailRenderers_copy && CopierTabs.ComponentIsInSelectedTab<TrailRenderer>(Settings._copier_selectedTab))
+            catch(Exception ex) { Log("_Failed to copy Collider: " + ex.Message, LogType.Error); }
+
+            try
             {
-                LegacyCopier.CopyAllTrailRenderers(objFrom, objTo, Settings.bCopier_trailRenderers_createObjects, ref tempIgnoreArray);
+                if(Settings.bCopier_rigidBodies_copy && CopierTabs.ComponentIsInSelectedTab<Rigidbody>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllRigidBodies(objFrom, objTo, Settings.bCopier_rigidBodies_createObjects, inst.ignoredTransforms);
             }
-            if(Settings.bCopier_lights_copy && CopierTabs.ComponentIsInSelectedTab<Light>(Settings._copier_selectedTab))
+            catch(Exception ex) { Log("_Failed to copy Rigid Bodies: " + ex.Message, LogType.Error); }
+
+            try
             {
-                LegacyCopier.CopyAllLights(objFrom, objTo, Settings.bCopier_lights_createObjects, ref tempIgnoreArray);
+                if(Settings.bCopier_trailRenderers_copy && CopierTabs.ComponentIsInSelectedTab<TrailRenderer>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllTrailRenderers(objFrom, objTo, Settings.bCopier_trailRenderers_createObjects, inst.ignoredTransforms);
             }
-            if(Settings.bCopier_animators_copy && CopierTabs.ComponentIsInSelectedTab<Animator>(Settings._copier_selectedTab))
+            catch(Exception ex) { Log("_Failed to copy Trail Renderers: " + ex.Message, LogType.Error); }
+
+            try
             {
-                LegacyCopier.CopyAllAnimators(objFrom, objTo, Settings.bCopier_animators_createObjects, Settings.bCopier_animators_copyMainAnimator, ref tempIgnoreArray);
+                if(Settings.bCopier_lights_copy && CopierTabs.ComponentIsInSelectedTab<Light>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllLights(objFrom, objTo, Settings.bCopier_lights_createObjects, inst.ignoredTransforms);
             }
-            if(Settings.bCopier_audioSources_copy && CopierTabs.ComponentIsInSelectedTab<AudioSource>(Settings._copier_selectedTab))
+            catch(Exception ex) { Log("_Failed to copy Lights: " + ex.Message, LogType.Error); }
+
+            try
             {
-                LegacyCopier.CopyAllAudioSources(objFrom, objTo, Settings.bCopier_audioSources_createObjects, ref tempIgnoreArray);
+                if(Settings.bCopier_animators_copy && CopierTabs.ComponentIsInSelectedTab<Animator>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllAnimators(objFrom, objTo, Settings.bCopier_animators_createObjects, Settings.bCopier_animators_copyMainAnimator, inst.ignoredTransforms);
             }
+            catch(Exception ex) { Log("_Failed to copy Animators: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_audioSources_copy && CopierTabs.ComponentIsInSelectedTab<AudioSource>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllAudioSources(objFrom, objTo, Settings.bCopier_audioSources_createObjects, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy Audio Sources: " + ex.Message, LogType.Error); }
+
+
             if(PhysBonesExist)
             {
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-                if(Settings.bCopier_contactReceiver_copy && CopierTabs.ComponentIsInSelectedTab("contactreceiver", Settings._copier_selectedTab))
+                try
                 {
-                    if(Settings.bCopier_contactReceiver_removeOld)
-                        LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.ContactReceiver, false);
-                    GenericCopier.CopyComponent<VRCContactReceiver>(inst, Settings.bCopier_contactReceiver_createObjects, Settings.bCopier_contactReceiver_adjustScale, false, true, ref tempIgnoreArray);
+                    if(Settings.bCopier_contactReceiver_copy && CopierTabs.ComponentIsInSelectedTab("contactreceiver", Settings._copier_selectedTab))
+                    {
+                        if(Settings.bCopier_contactReceiver_removeOld)
+                            LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.ContactReceiver, false);
+                        GenericCopier.CopyComponent<VRCContactReceiver>(inst, Settings.bCopier_contactReceiver_createObjects, Settings.bCopier_contactReceiver_adjustScale, true,
+                            false, inst.ignoredTransforms);
+                    }
                 }
-                if(Settings.bCopier_contactSender_copy && CopierTabs.ComponentIsInSelectedTab("contactsender", Settings._copier_selectedTab))
+                catch(Exception ex) { Log("_Failed to copy Contact Receivers: " + ex.Message, LogType.Error); }
+
+                try
                 {
-                    if(Settings.bCopier_contactSender_removeOld)
-                        LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.ContactSender, false);
-                    GenericCopier.CopyComponent<VRCContactSender>(inst, Settings.bCopier_contactSender_createObjects, Settings.bCopier_contactSender_adjustScale, false, true, ref tempIgnoreArray);
+                    if(Settings.bCopier_contactSender_copy && CopierTabs.ComponentIsInSelectedTab("contactsender", Settings._copier_selectedTab))
+                    {
+                        if(Settings.bCopier_contactSender_removeOld)
+                            LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.ContactSender, false);
+                        GenericCopier.CopyComponent<VRCContactSender>(inst, Settings.bCopier_contactSender_createObjects, Settings.bCopier_contactSender_adjustScale, true, false,
+                            inst.ignoredTransforms);
+                    }
                 }
-                if(Settings.bCopier_physBones_copyColliders && CopierTabs.ComponentIsInSelectedTab("physbonecollider", Settings._copier_selectedTab))
+                catch(Exception ex) { Log("_Failed to copy Contact Senders: " + ex.Message, LogType.Error); }
+
+                try
                 {
-                    if(Settings.bCopier_physBones_removeOldColliders)
-                        LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.PhysBoneCollider, false);
-                    GenericCopier.CopyComponent<VRCPhysBoneCollider>(inst,
-                        Settings.bCopier_physBones_createObjectsColliders,
-                        Settings.bCopier_physBones_adjustScaleColliders, true, false, ref tempIgnoreArray);
+                    if(Settings.bCopier_physBones_copyColliders && CopierTabs.ComponentIsInSelectedTab("physbonecollider", Settings._copier_selectedTab))
+                    {
+                        if(Settings.bCopier_physBones_removeOldColliders)
+                            LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.PhysBoneCollider, false);
+                        GenericCopier.CopyComponent<VRCPhysBoneCollider>(inst,
+                            Settings.bCopier_physBones_createObjectsColliders,
+                            Settings.bCopier_physBones_adjustScaleColliders, true, false, inst.ignoredTransforms);
+                    }
                 }
-                if(Settings.bCopier_physBones_copy && CopierTabs.ComponentIsInSelectedTab("physbone", Settings._copier_selectedTab))
+                catch(Exception ex) { Log("_Failed to copy Physbone Colliders: " + ex.Message, LogType.Error); }
+
+                try
                 {
-                    if(Settings.bCopier_physBones_removeOldBones)
-                        LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.PhysBone, false);
-                    GenericCopier.CopyComponent<VRCPhysBone>(inst, Settings.bCopier_physBones_createObjects, Settings.bCopier_physBones_adjustScale, true, false, ref tempIgnoreArray);
+                    if(Settings.bCopier_physBones_copy && CopierTabs.ComponentIsInSelectedTab("physbone", Settings._copier_selectedTab))
+                    {
+                        if(Settings.bCopier_physBones_removeOldBones)
+                            LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.PhysBone, false);
+                        GenericCopier.CopyComponent<VRCPhysBone>(inst, Settings.bCopier_physBones_createObjects, Settings.bCopier_physBones_adjustScale, true, false,
+                            inst.ignoredTransforms);
+                    }
                 }
-                if(Settings.bCopier_vrcStations_copy && CopierTabs.ComponentIsInSelectedTab("vrcstation", Settings._copier_selectedTab))
+                catch(Exception ex) { Log("_Failed to copy Physbone Colliders: " + ex.Message, LogType.Error); }
+
+                try
                 {
-                    GenericCopier.CopyComponent<VRCStation>(inst, Settings.bCopier_vrcStations_createObjects, false, Settings.bCopier_vrcStations_fixReferences, true, ref tempIgnoreArray);
+                    if(Settings.bCopier_vrcStations_copy && CopierTabs.ComponentIsInSelectedTab("vrcstation", Settings._copier_selectedTab))
+                    {
+                        GenericCopier.CopyComponent<VRCStation>(inst, Settings.bCopier_vrcStations_createObjects, false, Settings.bCopier_vrcStations_fixReferences, true,
+                            inst.ignoredTransforms);
+                    }
                 }
-                #endif
-            } 
-            if(DynamicBonesExist)
-            {
-                if(Settings.bCopier_dynamicBones_copyColliders && CopierTabs.ComponentIsInSelectedTab("dynamicbonecollider", Settings._copier_selectedTab))
-                {
-                    if(Settings.bCopier_dynamicBones_removeOldColliders)
-                        LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBoneColliderBase, false);
-                    GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBoneCollider, inst, Settings.bCopier_dynamicBones_createObjectsColliders, Settings.bCopier_dynamicBones_adjustScaleColliders, true, false, ref tempIgnoreArray);
-                    GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBonePlaneCollider, inst, Settings.bCopier_dynamicBones_createObjectsColliders, Settings.bCopier_dynamicBones_adjustScaleColliders, true, false, ref tempIgnoreArray);
-                }
-                if(Settings.bCopier_dynamicBones_copy && CopierTabs.ComponentIsInSelectedTab("dynamicbone", Settings._copier_selectedTab))
-                {
-                    if(Settings.bCopier_dynamicBones_removeOldBones)
-                        LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBone, false);
-                    if(Settings.bCopier_dynamicBones_copy)
-                        GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBone, inst, Settings.bCopier_dynamicBones_createObjects, Settings.bCopier_dynamicBones_adjustScale, true, false, ref tempIgnoreArray);
-                }
-            }
-            else if(Settings.bCopier_dynamicBones_copy || Settings.bCopier_dynamicBones_copyColliders)
-            {
-                Log(Strings.Warning.noDBonesInProject, LogType.Error);
+                catch(Exception ex) { Log("_Failed to copy VRC Stations: " + ex.Message, LogType.Error); }
+#endif
             }
 
-            if(Settings.bCopier_aimConstraint_copy && CopierTabs.ComponentIsInSelectedTab<AimConstraint>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyAllAimConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, ref tempIgnoreArray);
-            }
-            if(Settings.bCopier_lookAtConstraint_copy && CopierTabs.ComponentIsInSelectedTab<LookAtConstraint>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyAllLookAtConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, ref tempIgnoreArray);
-            }
-            if(Settings.bCopier_parentConstraint_copy && CopierTabs.ComponentIsInSelectedTab<ParentConstraint>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyAllParentConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, ref tempIgnoreArray);
-            }
-            if(Settings.bCopier_positionConstraint_copy && CopierTabs.ComponentIsInSelectedTab<PositionConstraint>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyAllPositionConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, ref tempIgnoreArray);
-            }
-            if(Settings.bCopier_rotationConstraint_copy && CopierTabs.ComponentIsInSelectedTab<RotationConstraint>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyAllRotationConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, ref tempIgnoreArray);
-            }
-            if(Settings.bCopier_scaleConstraint_copy && CopierTabs.ComponentIsInSelectedTab<ScaleConstraint>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyAllScaleConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, ref tempIgnoreArray);
-            }
-            if(Settings.bCopier_joints_copy && CopierTabs.ComponentIsInSelectedTab<Joint>(Settings._copier_selectedTab))
-            {
-                if(Settings.bCopier_joints_removeOld)
-                    LegacyDestroyer.DestroyAllComponentsOfType(objTo, typeof(Joint), false);
-                LegacyCopier.CopyAllJoints(objFrom, objTo, Settings.bCopier_joints_createObjects, ref tempIgnoreArray);
-            }
-            if(Settings.bCopier_transforms_copy && CopierTabs.ComponentIsInSelectedTab<Transform>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyAllTransforms(objFrom, objTo, ref tempIgnoreArray);
-            }
-            if(Settings.bCopier_meshRenderers_copy && CopierTabs.ComponentIsInSelectedTab<MeshRenderer>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyAllMeshRenderers(objFrom, objTo, Settings.bCopier_meshRenderers_createObjects, ref tempIgnoreArray);
-            }
-            if(Settings.bCopier_skinMeshRender_copy && CopierTabs.ComponentIsInSelectedTab<SkinnedMeshRenderer>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyAllSkinnedMeshRenderers(objFrom, objTo, ref tempIgnoreArray);
-            }
-            
-            if(Settings.bCopier_cameras_copy && CopierTabs.ComponentIsInSelectedTab<Camera>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyCameras(objFrom, objTo, Settings.bCopier_cameras_createObjects, ref tempIgnoreArray);
-            }
 
-            if(Settings.bCopier_transforms_copy && Settings.bCopier_transforms_copyActiveState && CopierTabs.ComponentIsInSelectedTab<Transform>(Settings._copier_selectedTab))
-            {
-                LegacyCopier.CopyTransformActiveStateTagsAndLayer(objFrom, objTo, ref tempIgnoreArray);
-            }
 
-			#if PUMKIN_FINALIK
+            try
+            {
+                if(DynamicBonesExist)
+                {
+                    if(Settings.bCopier_dynamicBones_copyColliders && CopierTabs.ComponentIsInSelectedTab("dynamicbonecollider", Settings._copier_selectedTab))
+                    {
+                        if(Settings.bCopier_dynamicBones_removeOldColliders)
+                            LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBoneColliderBase, false);
+                        GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBoneCollider, inst, Settings.bCopier_dynamicBones_createObjectsColliders,
+                            Settings.bCopier_dynamicBones_adjustScaleColliders, true, false, inst.ignoredTransforms);
+                        GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBonePlaneCollider, inst, Settings.bCopier_dynamicBones_createObjectsColliders,
+                            Settings.bCopier_dynamicBones_adjustScaleColliders, true, false, inst.ignoredTransforms);
+                    }
+
+                    if(Settings.bCopier_dynamicBones_copy && CopierTabs.ComponentIsInSelectedTab("dynamicbone", Settings._copier_selectedTab))
+                    {
+                        if(Settings.bCopier_dynamicBones_removeOldBones)
+                            LegacyDestroyer.DestroyAllComponentsOfType(objTo, PumkinsTypeCache.DynamicBone, false);
+                        if(Settings.bCopier_dynamicBones_copy)
+                            GenericCopier.CopyComponent(PumkinsTypeCache.DynamicBone, inst, Settings.bCopier_dynamicBones_createObjects, Settings.bCopier_dynamicBones_adjustScale,
+                                true, false, inst.ignoredTransforms);
+                    }
+                }
+                else if(Settings.bCopier_dynamicBones_copy || Settings.bCopier_dynamicBones_copyColliders)
+                {
+                    Log(Strings.Warning.noDBonesInProject, LogType.Error);
+                }
+            }
+            catch(Exception ex) { Log("_Failed to copy Dynamic Bones: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_aimConstraint_copy && CopierTabs.ComponentIsInSelectedTab<AimConstraint>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllAimConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy Aim Constraints: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_lookAtConstraint_copy && CopierTabs.ComponentIsInSelectedTab<LookAtConstraint>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllLookAtConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy Look At Constraints: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_parentConstraint_copy && CopierTabs.ComponentIsInSelectedTab<ParentConstraint>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllParentConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy Parent Constraints: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_positionConstraint_copy && CopierTabs.ComponentIsInSelectedTab<PositionConstraint>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllPositionConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy Position Constraints: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_rotationConstraint_copy && CopierTabs.ComponentIsInSelectedTab<RotationConstraint>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllRotationConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy Rotation Constraints: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_scaleConstraint_copy && CopierTabs.ComponentIsInSelectedTab<ScaleConstraint>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllScaleConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy Scale Constraints: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_joints_copy && CopierTabs.ComponentIsInSelectedTab<Joint>(Settings._copier_selectedTab))
+                {
+                    if(Settings.bCopier_joints_removeOld)
+                        LegacyDestroyer.DestroyAllComponentsOfType(objTo, typeof(Joint), false);
+                    LegacyCopier.CopyAllJoints(objFrom, objTo, Settings.bCopier_joints_createObjects, inst.ignoredTransforms);
+                }
+            }
+            catch(Exception ex) { Log("_Failed to copy Joints: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_transforms_copy && CopierTabs.ComponentIsInSelectedTab<Transform>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllTransforms(objFrom, objTo, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy Transforms: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_meshRenderers_copy && CopierTabs.ComponentIsInSelectedTab<MeshRenderer>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllMeshRenderers(objFrom, objTo, Settings.bCopier_meshRenderers_createObjects, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy Mesh Renderer: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_skinMeshRender_copy && CopierTabs.ComponentIsInSelectedTab<SkinnedMeshRenderer>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyAllSkinnedMeshRenderers(objFrom, objTo, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy Skinned Mesh Renderers: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_cameras_copy && CopierTabs.ComponentIsInSelectedTab<Camera>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyCameras(objFrom, objTo, Settings.bCopier_cameras_createObjects, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy Camera: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_transforms_copy && Settings.bCopier_transforms_copyActiveState && CopierTabs.ComponentIsInSelectedTab<Transform>(Settings._copier_selectedTab))
+                    LegacyCopier.CopyTransformActiveStateTagsAndLayer(objFrom, objTo, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy GameObject Active states, Layers and Tags: " + ex.Message, LogType.Error); }
+
+#if PUMKIN_FINALIK
             if(_DependencyChecker.FinalIKExists && Settings.bCopier_finalIK_copy && CopierTabs.ComponentIsInSelectedTab("finalik", Settings._copier_selectedTab))
             {
-                if(Settings.bCopier_finalIK_copyCCDIK)
-                    GenericCopier.CopyComponent<CCDIK>(inst, Settings.bCopier_finalIK_createObjects, false,true, true, ref tempIgnoreArray);
-                if(Settings.bCopier_finalIK_copyLimbIK)
-                    GenericCopier.CopyComponent<LimbIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, ref tempIgnoreArray);
-                if(Settings.bCopier_finalIK_copyRotationLimits)
-                    GenericCopier.CopyComponent<RotationLimit>(inst, Settings.bCopier_finalIK_createObjects, false, true,  true, ref tempIgnoreArray);
-                if(Settings.bCopier_finalIK_copyFabrik)
-                    GenericCopier.CopyComponent<FABRIK>(inst, Settings.bCopier_finalIK_createObjects, false, true,  true,ref tempIgnoreArray);
-                if(Settings.bCopier_finalIK_copyAimIK)
-                    GenericCopier.CopyComponent<AimIK>(inst, Settings.bCopier_finalIK_createObjects, false, true,  true,ref tempIgnoreArray);
-                if(Settings.bCopier_finalIK_copyFBTBipedIK)
-                    GenericCopier.CopyComponent<FullBodyBipedIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, ref tempIgnoreArray);
-                if(Settings.bCopier_finalIK_copyVRIK)
-                    GenericCopier.CopyComponent<VRIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, ref tempIgnoreArray);
-                if(Settings.bCopier_finalIK_copyGrounders)
-                    GenericCopier.CopyComponent<Grounder>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, ref tempIgnoreArray);
+                try
+                {
+                    if(Settings.bCopier_finalIK_copyCCDIK)
+                        GenericCopier.CopyComponent<CCDIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                }
+                catch(Exception ex) { Log("_Failed to copy FinalIK CCDIK: " + ex.Message, LogType.Error); }
+
+                try
+                {
+                    if(Settings.bCopier_finalIK_copyLimbIK)
+                        GenericCopier.CopyComponent<LimbIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                }
+                catch(Exception ex) { Log("_Failed to copy FinalIK LimbIK: " + ex.Message, LogType.Error); }
+
+                try
+                {
+                    if(Settings.bCopier_finalIK_copyRotationLimits)
+                        GenericCopier.CopyComponent<RotationLimit>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                }
+                catch(Exception ex) { Log("_Failed to copy FinalIK RotationLimits: " + ex.Message, LogType.Error); }
+
+                try
+                {
+                    if(Settings.bCopier_finalIK_copyFabrik)
+                        GenericCopier.CopyComponent<FABRIK>(inst, Settings.bCopier_finalIK_createObjects, false, true,  true, inst.ignoredTransforms);
+                }
+                catch(Exception ex) { Log("_Failed to copy FinalIK FABRIK: " + ex.Message, LogType.Error); }
+
+                try
+                {
+                    if(Settings.bCopier_finalIK_copyAimIK)
+                        GenericCopier.CopyComponent<AimIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                }
+                catch(Exception ex) { Log("_Failed to copy FinalIK AimIK: " + ex.Message, LogType.Error); }
+
+                try
+                {
+                    if(Settings.bCopier_finalIK_copyFBTBipedIK)
+                        GenericCopier.CopyComponent<FullBodyBipedIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                }
+                catch(Exception ex) { Log("_Failed to copy FinalIK FullBodyBipedIK: " + ex.Message, LogType.Error); }
+
+                try
+                {
+                    if(Settings.bCopier_finalIK_copyVRIK)
+                        GenericCopier.CopyComponent<VRIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                }
+                catch(Exception ex) { Log("_Failed to copy FinalIK VRIK: " + ex.Message, LogType.Error); }
+
+                try
+                {
+                    if(Settings.bCopier_finalIK_copyGrounders)
+                        GenericCopier.CopyComponent<Grounder>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                }
+                catch(Exception ex) { Log("_Failed to copy FinalIK Grounders: " + ex.Message, LogType.Error); }
             }
 			#endif
 
-            if(Settings.bCopier_other_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRCStation, Settings._copier_selectedTab))
+            try
             {
-                if(Settings.bCopier_other_copyVRMSpringBones)
+                if(Settings.bCopier_other_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRCStation, Settings._copier_selectedTab))
                 {
-                    GenericCopier.CopyComponent(PumkinsTypeCache.VRMSpringBone, inst, Settings.bCopier_other_createGameObjects, false, Settings.bCopier_other_fixReferences, false, ref tempIgnoreArray);
+                    if(Settings.bCopier_other_copyVRMSpringBones)
+                    {
+                        GenericCopier.CopyComponent(PumkinsTypeCache.VRMSpringBone, inst, Settings.bCopier_other_createGameObjects, false, Settings.bCopier_other_fixReferences, false, inst.ignoredTransforms);
+                    }
                 }
             }
+            catch(Exception ex) { Log("_Failed to copy Other objects: " + ex.Message, LogType.Error); }
         }
 
 
@@ -5557,7 +5724,7 @@ namespace Pumkin.AvatarTools
         void SavePrefs()
         {
             var data = JsonUtility.ToJson(Settings, false);
-            EditorPrefs.SetString("PumkinToolsWindow", data);
+            EditorPrefs.SetString(SettingsEditorPrefsKey, data);
             LogVerbose("Saved tool window preferences");
         }
 
@@ -5567,10 +5734,7 @@ namespace Pumkin.AvatarTools
         /// </summary>
         void LoadPrefs()
         {
-            if(_loadedPrefs)
-                return;
-
-            var data = EditorPrefs.GetString("PumkinToolsWindow", JsonUtility.ToJson(Settings, false));
+            var data = EditorPrefs.GetString(SettingsEditorPrefsKey, JsonUtility.ToJson(Settings, false));
             if(data != null)
             {
                 JsonUtility.FromJsonOverwrite(data, Settings);
@@ -5582,7 +5746,6 @@ namespace Pumkin.AvatarTools
                 LogVerbose("Failed to load window preferences");
             }
             RefreshBackgroundOverrideType();
-            _loadedPrefs = true;
         }
 
         /// <summary>
