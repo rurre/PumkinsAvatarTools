@@ -34,7 +34,7 @@ namespace Pumkin.AvatarTools.Copiers
         
         static SettingsContainer Settings => PumkinsAvatarTools.Settings;
 
-        public static void CopyComponent(Type type, GameObject from, GameObject to, bool createGameObjects, bool adjustScale, bool fixReferences, bool onlyAllowOneComponentOfSameType, ref Transform[] ignoreArray)
+        public static void CopyComponent(Type type, CopyInstance inst, bool createGameObjects, bool adjustScale, bool fixReferences, bool onlyAllowOneComponentOfSameType, HashSet<Transform> ignoreSet)
         {
             if(type == null || !typeof(Component).IsAssignableFrom(type))
             {
@@ -43,15 +43,15 @@ namespace Pumkin.AvatarTools.Copiers
             }
             
             var method = CopyComponentGeneric.MakeGenericMethod(type);
-            method.Invoke(null, new object[] { from, to, createGameObjects, adjustScale, fixReferences, onlyAllowOneComponentOfSameType, ignoreArray });
+            method.Invoke(null, new object[] { inst, createGameObjects, adjustScale, fixReferences, onlyAllowOneComponentOfSameType, ignoreSet });
         }
 
-        public static void CopyComponent<T>(GameObject from, GameObject to, bool createGameObjects, bool adjustScale, bool fixReferences, bool onlyAllowOneComponentOfSameType, ref Transform[] ignoreArray) where T : Component
+        public static void CopyComponent<T>(CopyInstance inst, bool createGameObjects, bool adjustScale, bool fixReferences, bool onlyAllowOneComponentOfSameType, HashSet<Transform> ignoreSet) where T : Component
         {
-            if(from == null || to == null)
+            if(inst.from == null || inst.to == null)
                 return;
 
-            var typeFromArr = from.GetComponentsInChildren<T>(true);
+            var typeFromArr = inst.from.GetComponentsInChildren<T>(true);
             if(typeFromArr == null || typeFromArr.Length == 0)
                 return;
 
@@ -59,10 +59,13 @@ namespace Pumkin.AvatarTools.Copiers
             
             var addedComponents = new List<T>();
 
-            foreach(var typeFrom in typeFromArr.Reverse())
+            foreach(var typeFrom in typeFromArr)
             {
-                var tTo = Helpers.FindTransformInAnotherHierarchy(typeFrom.transform, to.transform, createGameObjects);
-                if(!tTo || (ignoreArray != null && Helpers.ShouldIgnoreObject(typeFrom.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                if(Helpers.ShouldIgnoreObject(typeFrom.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
+                    continue;
+                
+                var tTo = Helpers.FindTransformInAnotherHierarchy(typeFrom.transform, inst.to.transform, createGameObjects);
+                if(!tTo)
                     continue;
 
                 string log = String.Format(Strings.Log.copyAttempt, typeName, typeFrom.gameObject.name, tTo.gameObject.name);
@@ -81,7 +84,12 @@ namespace Pumkin.AvatarTools.Copiers
                 PumkinsAvatarTools.Log(log + " - " + Strings.Log.success);
 
                 if(fixReferences)
-                    FixReferences(newComp, to.transform, createGameObjects);
+                {
+                    var objRef = GetReferencesToFixLater(newComp, inst.to.transform, createGameObjects);
+                    if(objRef != null)
+                        inst.propertyRefs.Add(objRef);
+                    //FixReferences(newComp, inst.to.transform, createGameObjects);
+                }
 
                 if(adjustScale)
                 {
@@ -93,8 +101,71 @@ namespace Pumkin.AvatarTools.Copiers
                 }
             }
         }
-        
-        public static void FixReferences(Component newComp, Transform targetHierarchyRoot, bool createGameObjects)
+
+        public static CopierPropertyReference GetReferencesToFixLater(Component newComp, Transform targetHierarchyRoot, bool createGameObjects)
+        {
+            if(!newComp)
+                return null;
+
+            var serialComp = new SerializedObject(newComp);
+            
+            var trans = new List<Transform>();
+            var props = new List<string>();
+             
+            serialComp.ForEachPropertyVisible(true, x =>
+            {
+                if(x.propertyType != SerializedPropertyType.ObjectReference || x.name == "m_Script")
+                    return;
+
+                var oldComp = x.objectReferenceValue as Component;
+                if(!oldComp)
+                    return;
+
+                var transTarget = Helpers.FindTransformInAnotherHierarchy(oldComp.transform, targetHierarchyRoot, createGameObjects);
+                if(transTarget == null)
+                    return;
+
+                props.Add(x.propertyPath);
+                trans.Add(transTarget);
+            });
+
+            return new CopierPropertyReference()
+            {
+                serialiedObject = serialComp,
+                propertyPaths = props.ToArray(),
+                targetTransforms = trans.ToArray()
+            };
+        }
+
+        public static void FixInstanceReferences(CopyInstance inst)
+        {
+            foreach(var objRef in inst.propertyRefs)
+            {
+                if(objRef.propertyPaths == null || objRef.propertyPaths.Length == 0 || objRef.targetTransforms == null || objRef.targetTransforms.Length == 0)
+                    continue;
+             
+                SerializedObject newObj = new SerializedObject(objRef.serialiedObject.targetObject);
+                
+                for(int i = 0; i < objRef.targetTransforms.Length; i++)
+                {
+                    SerializedProperty prop = newObj.FindProperty(objRef.propertyPaths[i]);
+                    var oldComp = prop.objectReferenceValue as Component;
+                    if(!oldComp)
+                        return;
+
+                    Type compType = oldComp.GetType();
+                    int compIndex = oldComp.gameObject.GetComponents(compType)
+                                           .ToList()
+                                           .IndexOf(oldComp);
+
+                    var targetComps = objRef.targetTransforms[i].GetComponents(compType);
+                    prop.objectReferenceValue = targetComps.Length > 0 ? targetComps[compIndex] : null;
+                }
+                newObj.ApplyModifiedPropertiesWithoutUndo();
+            }
+        }
+
+        public static void FixReferencesOnComponent(Component newComp, Transform targetHierarchyRoot, bool createGameObjects)
         {
             if(!newComp)
                 return;
@@ -152,31 +223,33 @@ namespace Pumkin.AvatarTools.Copiers
             serialComp.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        public static void CopyPrefabs(GameObject from, GameObject to, bool createGameObjects, bool adjustScale, bool fixReferences, bool copyPropertyOverrides, bool addPrefabsToIgnoreList, ref Transform[] ignoreArray)
+        public static void CopyPrefabs(CopyInstance inst, bool createGameObjects, bool adjustScale, bool fixReferences, bool copyPropertyOverrides, bool addPrefabsToIgnoreList, HashSet<Transform> ignoreSet)
         {
             List<GameObject> allPrefabRoots = new List<GameObject>();
-            foreach(var trans in from.GetComponentsInChildren<Transform>(true))
+            foreach(var trans in inst.from.GetComponentsInChildren<Transform>(true))
             {
                 var pref = PrefabUtility.GetNearestPrefabInstanceRoot(trans);
-                if(pref && pref.transform != from.transform)
+                if(pref && pref.transform != inst.from.transform)
                     allPrefabRoots.Add(pref);
             }
 
-            Transform tTo = to.transform;
-            Transform tFrom = from.transform;
+            Transform tTo = inst.to.transform;
+            Transform tFrom = inst.from.transform;
 
             HashSet<GameObject> prefabs = new HashSet<GameObject>(allPrefabRoots);
-            List<Transform> newPrefabTransforms = addPrefabsToIgnoreList ? new List<Transform>() : null;
+            List<Transform> newPrefabTransformsToIgnore = addPrefabsToIgnoreList ? new List<Transform>() : null;
             
             foreach(var fromPref in prefabs)
             {
-                Transform tToParent = null;
-                if(fromPref.transform.parent == tFrom)
-                    tToParent = tTo;
-                else
-                    tToParent = Helpers.FindTransformInAnotherHierarchy(fromPref.transform.parent, to.transform, createGameObjects);
+                if(Helpers.ShouldIgnoreObject(fromPref.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
+                    continue;
                 
-                if(!tToParent || (ignoreArray != null && Helpers.ShouldIgnoreObject(fromPref.transform, ignoreArray, Settings.bCopier_ignoreArray_includeChildren)))
+                Transform tToParent = null;
+                tToParent = fromPref.transform.parent == tFrom 
+                    ? tTo 
+                    : Helpers.FindTransformInAnotherHierarchy(fromPref.transform.parent, inst.to.transform, createGameObjects);
+                
+                if(!tToParent)
                     continue;
 
                 PropertyModification[] prefabMods = null;
@@ -199,13 +272,13 @@ namespace Pumkin.AvatarTools.Copiers
                     continue;
                 
                 if(addPrefabsToIgnoreList)
-                    newPrefabTransforms.Add(toPref.transform);
+                    newPrefabTransformsToIgnore.Add(fromPref.transform);
                 
                 Component[] prefComponents = toPref.GetComponentsInChildren<Component>(true);
                 foreach(var comp in prefComponents)
                 {
                      if(fixReferences)   
-                        FixReferences(comp, tTo, createGameObjects);
+                        FixReferencesOnComponent(comp, tTo, createGameObjects);
                     
                      if(adjustScale)
                      {
@@ -222,8 +295,11 @@ namespace Pumkin.AvatarTools.Copiers
                 }
             }
 
-            if(addPrefabsToIgnoreList) // Add the new prefabs to our ignore array so that they don't get their stuff copied
-                ignoreArray = ignoreArray.Concat(newPrefabTransforms).ToArray();
+            if(addPrefabsToIgnoreList) // Add the new prefabs to our ignore set so that they don't get their stuff copied again
+            {
+                var allChildren = newPrefabTransformsToIgnore.GetAllChildrenOfTransforms();
+                ignoreSet.AddRange(allChildren);
+            }
         }
     }
 }

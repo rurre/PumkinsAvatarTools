@@ -1076,24 +1076,25 @@ namespace Pumkin.HelperFunctions
         /// <summary>
         /// Check whether or not we should ignore the object based on it being in the array.
         /// </summary>
-        public static bool ShouldIgnoreObject(Transform trans, Transform[] ignoreArray, bool includeChildren = false)
+        public static bool ShouldIgnoreObject(Transform trans, IEnumerable<Transform> ignoredTransforms, bool includeChildren = false)
         {
-            if((!trans || ignoreArray == null) || trans == trans.root)
+            var transforms = ignoredTransforms as Transform[] ?? ignoredTransforms.ToArray();
+            if((!trans || transforms.Length == 0) || trans == trans.root)
                 return false;
 
-            if(ignoreArray.Length > 0 && includeChildren)
+            if(transforms.Length > 0 && includeChildren)
             {
                 var t = trans;
                 do
                 {
-                    if(ignoreArray.Contains(t))
+                    if(transforms.Contains(t))
                         return true;
                     t = t.parent;
                 } while(t != null && t != t.root);
                 return false;
             }
 
-            if(ignoreArray.Contains(trans))
+            if(transforms.Contains(trans))
                 return true;
             return false;
         }

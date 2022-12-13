@@ -1,5 +1,6 @@
 ﻿using Pumkin.HelperFunctions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -220,6 +221,31 @@ namespace Pumkin.Extensions
             var prop = startProperty.Copy();
             while(prop.NextVisible(enterChildren))
                 action.Invoke(prop);
+        }
+
+        /// <summary>
+        /// Adds a range of values to HashSet
+        /// </summary>
+        /// <param name="set"></param>
+        /// <param name="enumerable"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void AddRange<T>(this HashSet<T> set, IEnumerable<T> enumerable)
+        {
+            foreach(var item in enumerable)
+                set.Add(item);
+        }
+
+        public static Transform[] GetAllChildrenOfTransforms(this IEnumerable<Transform> transforms)
+        {
+            List<Transform> allTransforms = new List<Transform>();
+            foreach(var tr in transforms)
+            {
+                if(tr == null)
+                    continue;
+                allTransforms.AddRange(tr.GetComponentsInChildren<Transform>());
+            }
+
+            return new HashSet<Transform>(allTransforms).ToArray();
         }
     }
 }

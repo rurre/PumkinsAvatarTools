@@ -57,12 +57,12 @@ namespace Pumkin.AvatarTools
 
         private void OnEnable()
         {
-                ToolsWindow.HandleOnEnable();
+            ToolsWindow.HandleOnEnable();
         }
 
         private void OnDisable()
         {
-                ToolsWindow.HandleOnDisable();
+            ToolsWindow.HandleOnDisable();
         }
 
         private void OnDestroy()
@@ -77,7 +77,7 @@ namespace Pumkin.AvatarTools
 
             //This check is needed otherwise we can't rename any objects in the hierarchy
             //Works for now, but we need to check if changing language will affect it
-            if(EditorWindow.focusedWindow.titleContent.text != "Hierarchy") //UnityEditor.SceneHierarchyWindow
+            if(focusedWindow.titleContent.text != "Hierarchy") //UnityEditor.SceneHierarchyWindow
                 window.Repaint();
         }
 
@@ -98,7 +98,7 @@ namespace Pumkin.AvatarTools
                 _toolsWindow.Repaint();
         }
 
-        [UnityEditor.Callbacks.DidReloadScripts]
+        [DidReloadScripts]
         static void OnReloadScript()
         {
             ToolsWindow.RefreshLanguage();
