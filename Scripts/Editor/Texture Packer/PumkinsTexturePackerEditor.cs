@@ -130,7 +130,7 @@ namespace Pumkin.TexturePacker
         }
 
 
-        [MenuItem("Pumkin/Tools/Texture Packer", priority = 31)]
+        [MenuItem("Tools/Pumkin/Texture Packer", priority = 31)]
         public static void ShowWindow()
         {
             //Show existing window instance. If one doesn't exist, make one.

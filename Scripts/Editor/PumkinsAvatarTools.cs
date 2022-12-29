@@ -962,8 +962,8 @@ namespace Pumkin.AvatarTools
 
         void HandleSelectionChanged()
         {
-            if(SettingsContainer._useSceneSelectionAvatar)
-                SelectedAvatar = GetAvatarFromSceneSelection(true);
+            if(SettingsContainer._useSceneSelectionAvatar && GetAvatarFromSceneSelection(true, out var avatar))
+                SelectedAvatar = avatar;
             _PumkinsAvatarToolsWindow.RepaintSelf();
         }
 
@@ -1462,17 +1462,34 @@ namespace Pumkin.AvatarTools
         {
             SelectedAvatar = (GameObject)EditorGUILayout.ObjectField(Strings.Main.avatar, SelectedAvatar, typeof(GameObject), true);
 
-            if(SettingsContainer._useSceneSelectionAvatar)
-                if(Selection.activeObject != SelectedAvatar)
-                    SelectedAvatar = GetAvatarFromSceneSelection(updateAvatarInfo);
+            GameObject newAvatar;
+            if(SettingsContainer._useSceneSelectionAvatar && Selection.activeObject != SelectedAvatar && GetAvatarFromSceneSelection(true, out newAvatar))
+                SelectedAvatar = newAvatar;
 
-            if(showSelectFromSceneButton)
-                if(GUILayout.Button(Strings.Buttons.selectFromScene))
-                    if(Selection.activeObject)
-                        SelectedAvatar = GetAvatarFromSceneSelection(updateAvatarInfo);
+            if(showSelectFromSceneButton && GUILayout.Button(Strings.Buttons.selectFromScene) && Selection.activeObject && GetAvatarFromSceneSelection(true, out newAvatar))
+                SelectedAvatar = newAvatar;
 
-            if(showSceneSelectionCheckBox) 
-                SettingsContainer._useSceneSelectionAvatar = GUILayout.Toggle(SettingsContainer._useSceneSelectionAvatar, Strings.Main.useSceneSelection);
+            if(showSceneSelectionCheckBox)
+            {
+                EditorGUI.BeginChangeCheck();
+                bool toggle = GUILayout.Toggle(SettingsContainer._useSceneSelectionAvatar, Strings.Main.useSceneSelection);
+                if(EditorGUI.EndChangeCheck())
+                {
+                    SettingsContainer._useSceneSelectionAvatar = toggle;
+                    if(toggle)
+                    {
+                        Selection.selectionChanged = () =>
+                        {
+                            if(GetAvatarFromSceneSelection(true, out newAvatar))
+                                SelectedAvatar = newAvatar;
+                        };
+                    }
+                    else
+                    {
+                        Selection.selectionChanged = null;
+                    }
+                }
+            }
         }
 
         void DrawCopierMenuGUI()
@@ -1486,8 +1503,8 @@ namespace Pumkin.AvatarTools
                     CopierSelectedFrom = (GameObject)EditorGUILayout.ObjectField(Strings.Copier.copyFrom, CopierSelectedFrom, typeof(GameObject), true);
 
                     if(GUILayout.Button(Strings.Buttons.selectFromScene))
-                        if(Selection.activeGameObject != null)
-                            CopierSelectedFrom = GetAvatarFromSceneSelection(false);
+                        if(Selection.activeGameObject != null && GetAvatarFromSceneSelection(false, out GameObject avatar))
+                            CopierSelectedFrom = avatar;
 
                     if(_copierShowArmatureScaleWarning)
                         EditorGUILayout.LabelField(Strings.Warning.armatureScalesDontMatch, Styles.HelpBox_OneLine);
@@ -3989,16 +4006,17 @@ namespace Pumkin.AvatarTools
         /// <summary>
         /// Tries to select the avatar from anywhere in it's hierarchy. Recursively looks for an avatar descriptor.
         /// </summary>
-        public static GameObject GetAvatarFromSceneSelection(bool updateAvatarInfo)
+        public static bool GetAvatarFromSceneSelection(bool updateAvatarInfo, out GameObject avatar)
         {
-            GameObject selection = null;
+            avatar = null;
+            GameObject selection;
             try
             {
                 selection = Selection.activeGameObject;
-                if(selection == null)
-                    return selection;
+                if(!selection)
+                    return false;
 
-                
+
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
                 Transform parent = selection.transform.parent;
                 while(parent != null)
@@ -4014,14 +4032,15 @@ namespace Pumkin.AvatarTools
 #else
                 selection = Selection.activeGameObject.transform.root.gameObject;
 #endif
-                
+
                 if(selection != null)
                 {
                     if(selection.gameObject.scene.name != null)
                     {
                         if(updateAvatarInfo)
                             avatarInfo = PumkinsAvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
-                        return selection;
+                        avatar = selection;
+                        return true;
                     }
 
                     if(!SettingsContainer._useSceneSelectionAvatar)
@@ -4035,7 +4054,7 @@ namespace Pumkin.AvatarTools
                 Log(e.Message, LogType.Warning);
             }
             _PumkinsAvatarToolsWindow.RepaintSelf();
-            return selection;
+            return false;
         }
 
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
@@ -4847,8 +4866,8 @@ namespace Pumkin.AvatarTools
         /// <param name="objTo"></param>
         void CopyComponentsWithoutParents(GameObject objFrom, GameObject objTo)
         {
-            var fromParent = objFrom.transform.parent;
-            var toParent = objTo.transform.parent;            
+            Transform toParent = objTo.transform.parent;
+            int childTransformIndex = objTo.transform.GetSiblingIndex();
 
             CopyInstance copyInst = new CopyInstance(objFrom, objTo, Settings.copierIgnoreArray);
 
@@ -4857,11 +4876,14 @@ namespace Pumkin.AvatarTools
                 CopyComponents(copyInst);
                 GenericCopier.FixInstanceReferences(copyInst);
             }
+            catch(Exception ex)
+            {
+                Log($"{ex.Message},{ex.TargetSite},\n{ex.StackTrace}", LogType.Exception);
+            }
             finally
             {
-
-                objFrom.transform.parent = fromParent;
                 objTo.transform.parent = toParent;
+                objTo.transform.SetSiblingIndex(childTransformIndex);
             }
         }
 
