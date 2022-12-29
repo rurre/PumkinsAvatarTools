@@ -12,10 +12,11 @@ To install these tools grab the `.unitypackage` from [releases](https://github.c
 Also make sure that you are using the [correct version of Unity](https://docs.vrchat.com/docs/current-unity-version) and the [latest version of VRChat SDK2 or SDK3](https://docs.vrchat.com/docs/setting-up-the-sdk)
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/16716633/81964925-fc580180-961f-11ea-887c-72ca63d26632.png"></img>
+<img src="https://user-images.githubusercontent.com/16716633/210008279-ce82655d-89fa-4535-abb4-c699482c16bb.png"></img>
 </p>
 
-If you've got questions, check out the [Wiki](https://github.com/rurre/PumkinsAvatarTools/wiki) for a more detailed explanation of what everything does.
+~~If you've got questions, check out the [Wiki](https://github.com/rurre/PumkinsAvatarTools/wiki) for a more detailed explanation of what everything does.~~
+Haven't updated it in ages, probably won't anytime soon, sorry.
 
 If you need help, want to report a bug, offer suggestions or want to test WIP builds, consider joining my Discord server!
 
