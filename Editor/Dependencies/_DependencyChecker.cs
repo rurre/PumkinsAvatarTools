@@ -5,6 +5,7 @@ using System.IO;
 using System.Collections.Generic;
 using Pumkin.Dependencies;
 using System.Linq;
+using UnityEditor.Compilation;
 
 namespace Pumkin.DependencyChecker
 {
@@ -84,11 +85,12 @@ namespace Pumkin.DependencyChecker
             }
             ScriptDefinesManager.AddDefinesIfMissing(definesToAdd.ToArray());
         }
-
+        
+        
         static bool GetFinalIK()
         {
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for FinalIK in project...");
-            if(Directory.GetFiles(Application.dataPath, "VRIK.cs", SearchOption.AllDirectories).Length > 0)
+            if(Directory.GetFiles(Path.GetDirectoryName(Application.dataPath), "VRIK.cs", SearchOption.AllDirectories).Length > 0)
             {
                 Debug.Log("<color=blue>PumkinsAvatarTools</color>: FinalIK found in project.");
                 return true;
@@ -139,8 +141,8 @@ namespace Pumkin.DependencyChecker
             Type boneColliderBaseType = GetTypeFromName("DynamicBoneColliderBase");                               
 
             var dynPaths = new List<string>();
-            dynPaths.AddRange(Directory.GetFiles(Application.dataPath, "DynamicBone.cs", SearchOption.AllDirectories));
-            dynPaths.AddRange(Directory.GetFiles(Application.dataPath, "DynamicBoneCollider.cs"));            
+            dynPaths.AddRange(Directory.GetFiles(Path.GetDirectoryName(Application.dataPath), "DynamicBone.cs", SearchOption.AllDirectories));
+            dynPaths.AddRange(Directory.GetFiles(Path.GetDirectoryName(Application.dataPath), "DynamicBoneCollider.cs"));            
 
             if(dynPaths.Count == 0) //No Dynamicbones in project
             {                

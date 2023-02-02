@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Pumkin.DependencyChecker;
 using UnityEngine;
 #if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2)
 using UnityEditor;
@@ -275,7 +277,8 @@ namespace Pumkin.DataStructures
 #endif
 #if PUMKIN_DBONES || PUMKIN_OLD_DBONES
 
-            var dbColliders = o.GetComponentsInChildren<DynamicBoneCollider>(true);
+            Type dynamicBoneColliderType = PumkinsTypeCache.DynamicBoneCollider;
+            var dbColliders = o.GetComponentsInChildren(dynamicBoneColliderType, true);
             foreach(var c in dbColliders)
             {
                 DynamicBoneColliders_Total++;
@@ -284,13 +287,15 @@ namespace Pumkin.DataStructures
                     DynamicBoneColliders++;
             }
 
-            var dbones = o.GetComponentsInChildren<DynamicBone>(true);
+            Type dynamicBoneType = PumkinsTypeCache.DynamicBone;
+            var dbones = o.GetComponentsInChildren(dynamicBoneType, true);
             foreach(var d in dbones)
             {
-                if(d.m_Root != null)
+                Transform root = (Transform) dynamicBoneType.GetField("m_Root").GetValue(d);
+                if(root != null)
                 {
-                    var exclusions = d.m_Exclusions;
-                    var rootChildren = d.m_Root.GetComponentsInChildren<Transform>(true);
+                    List<Transform> exclusions = (List<Transform>)dynamicBoneType.GetField("m_Exclusions").GetValue(d);
+                    var rootChildren = root.GetComponentsInChildren<Transform>(true);
 
                     int affected = 0;
                     int affected_total = 0;
@@ -301,7 +306,7 @@ namespace Pumkin.DataStructures
                         {
                             affected_total++;
 
-                            if(t.gameObject.activeInHierarchy && d.enabled)
+                            if(t.gameObject.activeInHierarchy && ((Behaviour)d).enabled)
                             {
                                 affected++;
                             }
@@ -314,17 +319,19 @@ namespace Pumkin.DataStructures
                             {
                                 affected_total -= 1;
 
-                                if(childChildren[z].gameObject.activeInHierarchy && d.enabled)
+                                if(childChildren[z].gameObject.activeInHierarchy && ((Behaviour)d).enabled)
                                 {
                                     affected -= 1;
                                 }
                             }
                         }
                     }
-
-                    foreach(var c in d.m_Colliders)
+                    var list = dynamicBoneType.GetField("m_Colliders").GetValue(d);
+                    int length = (int)list.GetType().GetProperty("Count").GetValue(list);
+                    for (int i = 0; i < length; i++)
                     {
-                        if(c != null)
+                        var collider = list.GetType().GetMethod("get_Item").Invoke(list, new[] { (object)i });
+                        if(collider != null)
                         {
                             DynamicBoneColliderTransforms += affected;
                             DynamicBoneColliderTransforms_Total += affected_total;

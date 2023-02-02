@@ -64,7 +64,7 @@ namespace Pumkin.Presets
 
         public void SavePreset(bool overwriteExisting)
         {
-            ScriptableObjectUtility.SaveAsset(this, name, PumkinsAvatarTools.MainFolderPath + "/Resources/Presets/Blendshapes/", overwriteExisting);
+            ScriptableObjectUtility.SaveAsset(this, name, PumkinsAvatarTools.SaveFolderPath + "/Presets/Blendshapes/", overwriteExisting);
             PumkinsPresetManager.LoadPresets<PumkinsBlendshapePreset>();
         }
 
