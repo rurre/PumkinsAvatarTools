@@ -141,7 +141,7 @@ namespace Pumkin.Presets
         /// </summary>
         public bool SavePreset(GameObject referenceObject, Camera camera, bool overwriteExisting)
         {
-            PumkinsCameraPreset p = ScriptableObjectUtility.CreateAndSaveAsset<PumkinsCameraPreset>(name, PumkinsAvatarTools.MainFolderPath + "/Resources/Presets/Cameras/", overwriteExisting) as PumkinsCameraPreset;
+            PumkinsCameraPreset p = ScriptableObjectUtility.CreateAndSaveAsset<PumkinsCameraPreset>(name, PumkinsAvatarTools.SaveFolderPath + "/Presets/Cameras/", overwriteExisting) as PumkinsCameraPreset;
             if(!p)
                 return false;
 

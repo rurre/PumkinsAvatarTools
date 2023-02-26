@@ -14,7 +14,7 @@ using Pumkin.Dependencies;
 public static class PumkinsLanguageManager
 {
     static readonly string resourceTranslationPath = "Translations/";
-    public static readonly string translationPath = PumkinsAvatarTools.ResourceFolderPath + '/' + resourceTranslationPath;
+    public static readonly string translationPath = PumkinsAvatarTools.SaveFolderPath + '/' + resourceTranslationPath;
     public static readonly string translationPathLocal = PumkinsAvatarTools.ResourceFolderPathLocal + '/' + resourceTranslationPath;
 
     static List<PumkinsTranslation> _languages = new List<PumkinsTranslation>();
@@ -228,16 +228,17 @@ public static class PumkinsLanguageManager
 
     static void FixTranslationAssets()
     {
-        var files = Directory.GetFiles(Helpers.LocalAssetsPathToAbsolutePath(translationPathLocal));
-        foreach(var path in files)
-        {
-            string localPath = Helpers.AbsolutePathToLocalAssetsPath(path);
-            if(ReplaceTranslationGUIDTemp(path, "m_Script", translationScriptGUID))
-                AssetDatabase.ImportAsset(localPath);
-
-            PumkinsTranslation translation = AssetDatabase.LoadAssetAtPath<PumkinsTranslation>(localPath);
-            translation?.FixEmptyFields();
-        }
+        // var files = Directory.GetFiles(Helpers.LocalAssetsPathToAbsolutePath(translationPathLocal));
+        // foreach(var path in files)
+        // {
+        //     
+        //     string resourcePath = Helpers.AbsoluteResourcePathToLocalResourcePath(path);
+        //     ReplaceTranslationGUIDTemp(path, "m_Script", translationScriptGUID);
+        //
+        //     string resourcePathForLoad = Path.ChangeExtension(resourcePath, null);
+        //     PumkinsTranslation translation = Resources.Load<PumkinsTranslation>(resourcePathForLoad);
+        //     translation?.FixEmptyFields();
+        // }
     }
 }
 

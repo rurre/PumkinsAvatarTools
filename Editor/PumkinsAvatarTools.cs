@@ -243,6 +243,7 @@ namespace Pumkin.AvatarTools
 
         static string _mainScriptPath = null;
         static string _mainFolderPath = null;
+        static string _saveFolderPath = null;
         static string _resourceFolderPath = null;
         static string _mainFolderPathLocal = null;
         static string _mainScriptPathLocal = null;
@@ -371,8 +372,8 @@ namespace Pumkin.AvatarTools
             {
                 if(_mainScriptPath == null)
                 {
-                    var toolScriptPath = Directory.GetFiles(Application.dataPath, "PumkinsAvatarTools.cs", SearchOption.AllDirectories)[0];
-                    string s = Helpers.AbsolutePathToLocalAssetsPath(toolScriptPath.Substring(0, toolScriptPath.LastIndexOf('\\')));
+                    var toolScriptPath = Directory.GetFiles(Path.GetDirectoryName(Application.dataPath), "PumkinsAvatarTools.cs", SearchOption.AllDirectories)[0];
+                    string s = Helpers.AbsolutePathToLocalProjectPath(toolScriptPath.Substring(0, toolScriptPath.LastIndexOf('\\')));
                     _mainScriptPath = s;
                 }
                 return _mainScriptPath;
@@ -397,9 +398,9 @@ namespace Pumkin.AvatarTools
             {
                 if(_mainFolderPath == null)
                 {
-                    string[] folder = Directory.GetDirectories(Application.dataPath, "PumkinsAvatarTools*", SearchOption.AllDirectories);
+                    string[] folder = Directory.GetFiles(Path.GetDirectoryName(Application.dataPath), "PumkinsAvatarTools*", SearchOption.AllDirectories);
                     if(folder.Length > 0)
-                        _mainFolderPath = folder[0];
+                        _mainFolderPath = Path.GetDirectoryName(folder[0]);
                     else
                         _mainFolderPath = Directory.GetParent(MainScriptPath).Parent.FullName;
                 }
@@ -409,12 +410,26 @@ namespace Pumkin.AvatarTools
             private set => _mainFolderPath = value;
         }
 
+        public static string SaveFolderPath
+        {
+            get
+            {
+                if(_saveFolderPath == null)
+                {
+                    _saveFolderPath = Application.dataPath + "/PumkinsAvatarTools/Resources";
+                }
+                return _saveFolderPath;
+            }
+
+            private set => _saveFolderPath = value;
+        }
+
         public static string MainFolderPathLocal
         {
             get
             {
                 if(_mainFolderPathLocal == null)
-                    _mainFolderPathLocal = Helpers.AbsolutePathToLocalAssetsPath(MainFolderPath);
+                    _mainFolderPathLocal = Helpers.AbsolutePathToLocalProjectPath(MainFolderPath);
                 return _mainFolderPathLocal;
             }
         }
@@ -424,7 +439,7 @@ namespace Pumkin.AvatarTools
             get
             {
                 if(_resourceFolderPathLocal == null)
-                    _resourceFolderPathLocal = Helpers.AbsolutePathToLocalAssetsPath(ResourceFolderPath);
+                    _resourceFolderPathLocal = Helpers.AbsolutePathToLocalProjectPath(ResourceFolderPath);
                 return _resourceFolderPathLocal;
             }
         }
@@ -5189,56 +5204,56 @@ namespace Pumkin.AvatarTools
                 try
                 {
                     if(Settings.bCopier_finalIK_copyCCDIK)
-                        GenericCopier.CopyComponent<CCDIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                        GenericCopier.CopyComponent(PumkinsTypeCache.CCDIK, inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
                 }
                 catch(Exception ex) { Log("_Failed to copy FinalIK CCDIK: " + ex.Message, LogType.Error); }
 
                 try
                 {
                     if(Settings.bCopier_finalIK_copyLimbIK)
-                        GenericCopier.CopyComponent<LimbIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                        GenericCopier.CopyComponent(PumkinsTypeCache.LimbIK, inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
                 }
                 catch(Exception ex) { Log("_Failed to copy FinalIK LimbIK: " + ex.Message, LogType.Error); }
 
                 try
                 {
                     if(Settings.bCopier_finalIK_copyRotationLimits)
-                        GenericCopier.CopyComponent<RotationLimit>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                        GenericCopier.CopyComponent(PumkinsTypeCache.RotationLimit, inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
                 }
                 catch(Exception ex) { Log("_Failed to copy FinalIK RotationLimits: " + ex.Message, LogType.Error); }
 
                 try
                 {
                     if(Settings.bCopier_finalIK_copyFabrik)
-                        GenericCopier.CopyComponent<FABRIK>(inst, Settings.bCopier_finalIK_createObjects, false, true,  true, inst.ignoredTransforms);
+                        GenericCopier.CopyComponent(PumkinsTypeCache.FABRIK, inst, Settings.bCopier_finalIK_createObjects, false, true,  true, inst.ignoredTransforms);
                 }
                 catch(Exception ex) { Log("_Failed to copy FinalIK FABRIK: " + ex.Message, LogType.Error); }
 
                 try
                 {
                     if(Settings.bCopier_finalIK_copyAimIK)
-                        GenericCopier.CopyComponent<AimIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                        GenericCopier.CopyComponent(PumkinsTypeCache.AimIK, inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
                 }
                 catch(Exception ex) { Log("_Failed to copy FinalIK AimIK: " + ex.Message, LogType.Error); }
 
                 try
                 {
                     if(Settings.bCopier_finalIK_copyFBTBipedIK)
-                        GenericCopier.CopyComponent<FullBodyBipedIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                        GenericCopier.CopyComponent(PumkinsTypeCache.FullBodyBipedIK, inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
                 }
                 catch(Exception ex) { Log("_Failed to copy FinalIK FullBodyBipedIK: " + ex.Message, LogType.Error); }
 
                 try
                 {
                     if(Settings.bCopier_finalIK_copyVRIK)
-                        GenericCopier.CopyComponent<VRIK>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                        GenericCopier.CopyComponent(PumkinsTypeCache.VRIK, inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
                 }
                 catch(Exception ex) { Log("_Failed to copy FinalIK VRIK: " + ex.Message, LogType.Error); }
 
                 try
                 {
                     if(Settings.bCopier_finalIK_copyGrounders)
-                        GenericCopier.CopyComponent<Grounder>(inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
+                        GenericCopier.CopyComponent(PumkinsTypeCache.Grounder, inst, Settings.bCopier_finalIK_createObjects, false, true, true, inst.ignoredTransforms);
                 }
                 catch(Exception ex) { Log("_Failed to copy FinalIK Grounders: " + ex.Message, LogType.Error); }
             }

@@ -153,7 +153,7 @@ namespace Pumkin.Presets
 
         public void SavePreset(bool overwriteExisting)
         {
-            ScriptableObjectUtility.SaveAsset(this, name, PumkinsAvatarTools.MainFolderPath + "/Resources/Presets/Poses/", overwriteExisting);
+            ScriptableObjectUtility.SaveAsset(this, name, PumkinsAvatarTools.SaveFolderPath + "/Presets/Poses/", overwriteExisting);
             PumkinsPresetManager.LoadPresets<PumkinsPosePreset>();
         }
 

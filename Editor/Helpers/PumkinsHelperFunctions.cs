@@ -1278,12 +1278,38 @@ namespace Pumkin.HelperFunctions
             return NormalizePath(path) == NormalizePath(other);
         }
 
+        public static void EnsureAssetDirectoriesExist(string path)
+        {
+            if (!path.StartsWith(Application.dataPath))
+                return;
+            path = path.Substring(Application.dataPath.Length);
+            string currentPath = "Assets";
+            List<string> folders = path.Split('/').Where(x => x != "").ToList();
+            while (folders.Count!=0)
+            {
+                if (!AssetDatabase.IsValidFolder(currentPath + "/" + folders[0]))
+                {
+                    AssetDatabase.CreateFolder(currentPath, folders[0]);
+                }
+                currentPath = $"{currentPath}/{folders[0]}";
+                folders.RemoveAt(0);
+            }
+        }
+
         public static string AbsolutePathToLocalAssetsPath(string path)
         {
             if(path.StartsWith(Application.dataPath))
-                path = "Assets" + path.Substring(Application.dataPath.Length);
+                path = path.Substring(Application.dataPath.Length);
             return path;
         }
+        
+        public static string AbsolutePathToLocalProjectPath(string path)
+        {
+            if(path.StartsWith(Path.GetDirectoryName(Application.dataPath)))
+                path = path.Substring(Path.GetDirectoryName(Application.dataPath).Length);
+            return path;
+        }
+
 
         public static string LocalAssetsPathToAbsolutePath(string localPath)
         {

@@ -20,6 +20,8 @@ namespace Pumkin.Dependencies
                 if(!name.Contains(".asset"))
                     name += ".asset";
 
+                Helpers.EnsureAssetDirectoriesExist(path);
+                
                 if(path.StartsWith(Application.dataPath))
                 {
                     path = path.Substring(Application.dataPath.Length);
@@ -28,30 +30,21 @@ namespace Pumkin.Dependencies
                 path = path.TrimStart('/', '\\');
                 string finalPath = path;
 
-                if(!finalPath.ToLower().StartsWith("assets/"))
-                    finalPath = "Assets/" + finalPath;
-
                 var subFolders = name.Split('/', '\\');
                 if(subFolders.Length > 0)
                     name = subFolders[subFolders.Length - 1];
 
-                string fullPath = Application.dataPath + "/" + path + name;
+                string fullPath = Application.dataPath + "/" + path + name; 
+                
+                finalPath = "Assets/" + path + '/' + name;
 
-                if(File.Exists(fullPath))
+                if(File.Exists(fullPath) && !overwriteExisting)
                 {
-                    if(overwriteExisting)
-                    {
-                        File.Delete(fullPath);
-                        //Debug.Log("Deleting " + fullPath);
-                    }
-                    else
-                    {
-                        finalPath = path + '/' + Helpers.NextAvailableFilename(name);
+                    finalPath =  "Assets/" + path + '/' + Helpers.NextAvailableFilename(name);
                         //Debug.Log("new path is" + fullPath);
-                    }
                 }
 
-                AssetDatabase.CreateAsset(asset, finalPath + name);
+                AssetDatabase.CreateAsset(asset, finalPath);
                 //Debug.Log("Should create " + finalPath);
 
                 AssetDatabase.SaveAssets();
