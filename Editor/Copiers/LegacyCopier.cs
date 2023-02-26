@@ -30,10 +30,6 @@ using VRC_AvatarDescriptor = VRCSDK2.VRC_AvatarDescriptor;
 using VRC_SpatialAudioSource = VRCSDK2.VRC_SpatialAudioSource;
 #endif
 
-#if PUMKIN_FINALIK
-using RootMotion.FinalIK;
-#endif
-
 namespace Pumkin.AvatarTools.Copiers
 {
     internal static class LegacyCopier

@@ -63,30 +63,8 @@ namespace Pumkin.DependencyChecker
             MainToolsOK = GetTypeFromName("Pumkin.AvatarTools.PumkinsAvatarTools") != null;
 
             FinalIKExists = GetFinalIK();
-
-            var definesToAdd = new HashSet<string>();
-            var currentDefines = ScriptDefinesManager.GetDefinesAsArray();
-
-            if(PhysBonesExist)
-                definesToAdd.Add(HAS_PBONES);
-
-            if(FinalIKExists)
-                definesToAdd.Add(HAS_FINALIK);
-
-            switch (DBonesVersion)
-            {
-                case PumkinsDBonesVersion.NewVersionWithBaseColliders:
-                case PumkinsDBonesVersion.OldVersion:
-                    definesToAdd.Add(HAS_DBONES);
-                    break;
-                case PumkinsDBonesVersion.NotFound:
-                default:
-                    break;
-            }
-            ScriptDefinesManager.AddDefinesIfMissing(definesToAdd.ToArray());
         }
-        
-        
+
         static bool GetFinalIK()
         {
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for FinalIK in project...");
@@ -176,13 +154,6 @@ namespace Pumkin.DependencyChecker
                     return type;
             }
             return null;
-        }
-
-        static string GetRelativePath(string path)
-        {            
-            if(path.StartsWith(Application.dataPath))            
-                path = "Assets" + path.Substring(Application.dataPath.Length);            
-            return path;
         }
     }
 }

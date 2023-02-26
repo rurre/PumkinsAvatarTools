@@ -1,5 +1,5 @@
 {
-  "name": "pumkins.pumkinsavatartools",
+  "name": "pumkin.pumkinsavatartools",
   "displayName": "Pumkins Avatar Tools",
   "version": "1.3.4",
   "description": "An editor script that adds tools to help you setup avatars faster and easier. It includes a component copier that makes it a lot easier to reimport your avatars, and tools to make your thumbnails nicer.",
@@ -9,6 +9,6 @@
   },
   "legacyFolders": {},
   "legacyFiles": {},
-  "localPath": ".\\Packages\\pumkins.pumkinsavatartools",
+  "localPath": ".\\Packages\\pumkin.pumkinsavatartools",
   "type": "tool"
 }

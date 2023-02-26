@@ -35,10 +35,6 @@ using VRC_AvatarDescriptor = VRCSDK2.VRC_AvatarDescriptor;
 using VRC_SpatialAudioSource = VRCSDK2.VRC_SpatialAudioSource;
 #endif
 
-#if PUMKIN_FINALIK
-using RootMotion.FinalIK;
-#endif
-
 namespace Pumkin.AvatarTools
 {
     /// <summary>
@@ -4437,16 +4433,6 @@ namespace Pumkin.AvatarTools
             SetDynamicBonesEnabledState(avatar, enabledState, dBonesToIgnore);
             enabledState = !enabledState;
         }
-
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-        /// <summary>
-        /// Refreshes the VRC SDK window
-        /// </summary>
-        private void RefreshSDK()
-        {
-            VRCSdkControlPanel.window?.Reset();
-        }
-#endif
 
         /// <summary>
         /// Reverts avatar scale to prefab values and moves the viewpoint to compensate for the change if avatar a descriptor is present
