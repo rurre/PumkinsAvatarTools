@@ -14,20 +14,11 @@ using UnityEngine;
 using UnityEngine.Animations;
 using Object = UnityEngine.Object;
 
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-using VRC.Core;
-using VRC.SDKBase;
-#endif
-#if (VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3) && PUMKIN_PBONES
+#if VRC_SDK_VRCSDK3 && !UDON
 using VRC.SDK3.Dynamics.PhysBone.Components;
 using VRC.SDK3.Dynamics.Contact.Components;
-#endif
-#if VRC_SDK_VRCSDK3 && !UDON
 using VRC_AvatarDescriptor = VRC.SDK3.Avatars.Components.VRCAvatarDescriptor;
 using VRC_SpatialAudioSource = VRC.SDK3.Avatars.Components.VRCSpatialAudioSource;
-#elif VRC_SDK_VRCSDK2
-using VRC_AvatarDescriptor = VRCSDK2.VRC_AvatarDescriptor;
-using VRC_SpatialAudioSource = VRCSDK2.VRC_SpatialAudioSource;
 #endif
 
 namespace Pumkin.AvatarTools.Copiers

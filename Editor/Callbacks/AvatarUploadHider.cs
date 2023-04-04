@@ -3,22 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
 using VRC.Core;
-using VRC.SDKBase.Editor.BuildPipeline;
-using VRC.SDKBase;
-#endif
 
 #if VRC_SDK_VRCSDK3 && !UDON
+using VRC.SDKBase.Editor.BuildPipeline;
 using VRC_AvatarDescriptor = VRC.SDK3.Avatars.Components.VRCAvatarDescriptor;
-#elif VRC_SDK_VRCSDK2
-using VRC_AvatarDescriptor = VRCSDK2.VRC_AvatarDescriptor;
 #endif
 
 namespace Pumkin.AvatarTools.Callbacks
 {
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK3 && !UDON
     class AvatarUploadHider : IVRCSDKPreprocessAvatarCallback
     {
         public int callbackOrder => 0;

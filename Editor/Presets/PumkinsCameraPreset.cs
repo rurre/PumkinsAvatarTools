@@ -2,20 +2,16 @@
 using Pumkin.DataStructures;
 using Pumkin.Dependencies;
 using Pumkin.HelperFunctions;
-using Pumkin.PoseEditor;
 using System;
 using UnityEditor;
 using UnityEngine;
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
-using VRC.SDKBase;
-#endif
 
 namespace Pumkin.Presets
 {
     [Serializable]
     public class PumkinsCameraPreset : PumkinPreset
     {
-#if  VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK3
         public enum CameraOffsetMode { Viewpoint, AvatarRoot, Transform }
         public CameraOffsetMode offsetMode = CameraOffsetMode.Viewpoint;
 #else
@@ -59,14 +55,15 @@ namespace Pumkin.Presets
             Transform dummy = null;
             try
             {
-#if  VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK3 && !UDON
                 if(offsetMode == CameraOffsetMode.Viewpoint)
                 {
                     dummy = new GameObject("Dummy").transform;
-                    var desc = avatar.GetComponent<VRC_AvatarDescriptor>();
+                    var desc = avatar.GetComponent(PumkinsTypeCache.VRC_AvatarDescriptor);
                     if(desc)
                     {
-                        dummy.localPosition = desc.transform.position + desc.ViewPosition;
+                        dynamic descriptor = Convert.ChangeType(desc, PumkinsTypeCache.VRC_AvatarDescriptor);
+                        dummy.localPosition = desc.transform.position + descriptor.ViewPosition;
                         cam.transform.localPosition = positionOffset + dummy.transform.localPosition;
                         cam.transform.localEulerAngles = rotationAnglesOffset + dummy.transform.localEulerAngles;
                     }
@@ -152,9 +149,9 @@ namespace Pumkin.Presets
                 CalculateOffsets(referenceObject.transform.root, camera);
             else if(p.offsetMode == CameraOffsetMode.Transform)
                 CalculateOffsets(referenceObject.transform, camera);
-#if  VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK3 && !UDON
             else
-                CalculateOffsets(PumkinsAvatarTools.SelectedAvatar.GetComponent<VRC_AvatarDescriptor>(), camera);
+                CalculateOffsets(PumkinsAvatarTools.SelectedAvatar.GetComponent(PumkinsTypeCache.VRC_AvatarDescriptor), camera);
 #endif
             p.positionOffset = positionOffset;
             p.rotationAnglesOffset = rotationAnglesOffset;
@@ -301,11 +298,11 @@ namespace Pumkin.Presets
             return name;
         }
 
-#if  VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if  VRC_SDK_VRCSDK3
         /// <summary>
         /// Returns position and rotation offsets from viewpoint to camera
         /// </summary>
-        public void CalculateOffsets(VRC_AvatarDescriptor desc, Camera cam)
+        public void CalculateOffsets(Component desc, Camera cam)
         {
             if(!desc || !cam)
                 return;
@@ -334,8 +331,10 @@ namespace Pumkin.Presets
             try
             {
                 dummy = new GameObject("Dummy").transform;
-                var desc = avatar.GetComponent<VRC_AvatarDescriptor>();
-                dummy.localPosition = desc.ViewPosition + desc.gameObject.transform.position;
+                var desc = avatar.GetComponent(PumkinsTypeCache.VRC_AvatarDescriptor);
+
+                dynamic descriptor = Convert.ChangeType(desc, PumkinsTypeCache.VRC_AvatarDescriptor);
+                dummy.localPosition = descriptor.ViewPosition + desc.gameObject.transform.position;
 
                 cam.transform.localPosition = position + dummy.transform.position;
                 cam.transform.localEulerAngles = rotationAngles + dummy.transform.eulerAngles;
@@ -358,14 +357,25 @@ namespace Pumkin.Presets
         /// Gets camera offsets from viewpoint and returns a SerialTransform
         /// </summary>
         /// <returns>SerialTransform only holds values, it doesn't reference a real transform</returns>
-        public static SerialTransform GetOffsetsFromViewpoint(VRC_AvatarDescriptor desc, Camera cam)
+        public static SerialTransform GetOffsetsFromViewpoint(Component desc, Camera cam)
         {
+            dynamic descriptor;
+            try
+            {
+                descriptor = Convert.ChangeType(desc, PumkinsTypeCache.VRC_AvatarDescriptor);
+            }
+            catch(Exception ex)
+            {
+                Debug.LogException(ex);
+                return null;
+            }
+
             SerialTransform offsets = new SerialTransform();
             Transform dummy = null;
             try
             {
                 dummy = new GameObject("Dummy").transform;
-                dummy.localPosition = desc.ViewPosition + desc.gameObject.transform.position;
+                dummy.localPosition = descriptor.ViewPosition + desc.gameObject.transform.position;
 
                 offsets.localPosition = cam.transform.localPosition - dummy.localPosition;
                 offsets.localEulerAngles = cam.transform.localEulerAngles - dummy.localEulerAngles;
@@ -388,7 +398,7 @@ namespace Pumkin.Presets
         /// <returns>SerialTransform only holds values, it doesn't reference a real transform</returns>
         public static SerialTransform GetCameraOffsetFromViewpoint(GameObject avatar, Camera cam)
         {
-            VRC_AvatarDescriptor desc = avatar.GetComponent<VRC_AvatarDescriptor>();
+            Component desc = avatar.GetComponent(PumkinsTypeCache.VRC_AvatarDescriptor);
             SerialTransform offsets = null;
 
             if(desc)

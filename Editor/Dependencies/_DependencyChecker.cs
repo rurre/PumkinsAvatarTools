@@ -97,7 +97,7 @@ namespace Pumkin.DependencyChecker
         static bool GetPhysBones()
         {
             Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for PhysBones and Contacts in project...");
-            if(AppDomain.CurrentDomain.GetAssemblies().Any(ass => ass.FullName.StartsWith("VRC.Dynamics,")))
+            if(AppDomain.CurrentDomain.GetAssemblies().Any(ass => ass.FullName.StartsWith("VRC.Dynamics")))
             {
                 Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found PhysBones and Contacts in project!");
                 return true;

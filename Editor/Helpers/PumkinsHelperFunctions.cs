@@ -13,7 +13,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Animations;
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK3 && !UDON
 using VRC.Core;
 using VRC.SDKBase;
 #endif
@@ -279,7 +279,7 @@ namespace Pumkin.HelperFunctions
             }
         }
 
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK3
         /// <summary>
         /// Destroys the avatar descriptor and pipeline manager components if they're present on the avatar
         /// </summary>
@@ -288,8 +288,8 @@ namespace Pumkin.HelperFunctions
             if(!avatar)
                 return;
 
-            var desc = avatar.GetComponent<VRC_AvatarDescriptor>();
-            var pipe = avatar.GetComponent<PipelineManager>();
+            var desc = avatar.GetComponent(PumkinsTypeCache.VRC_AvatarDescriptor);
+            var pipe = avatar.GetComponent(PumkinsTypeCache.PipelineManager);
 
             DestroyAppropriate(desc);
             DestroyAppropriate(pipe);
