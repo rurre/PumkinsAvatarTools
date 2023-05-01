@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using VRC.Core;
 
 #if VRC_SDK_VRCSDK3 && !UDON
+using VRC.Core;
 using VRC.SDKBase.Editor.BuildPipeline;
 using VRC_AvatarDescriptor = VRC.SDK3.Avatars.Components.VRCAvatarDescriptor;
 #endif
