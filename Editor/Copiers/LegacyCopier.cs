@@ -1,25 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Pumkin.AvatarTools.Destroyers;
 using Pumkin.DataStructures;
-using Pumkin.Extensions;
 using Pumkin.HelperFunctions;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Animations;
-using Object = UnityEngine.Object;
-
-#if VRC_SDK_VRCSDK3 && !UDON
-using VRC.SDK3.Dynamics.PhysBone.Components;
-using VRC.SDK3.Dynamics.Contact.Components;
-using VRC_AvatarDescriptor = VRC.SDK3.Avatars.Components.VRCAvatarDescriptor;
-using VRC_SpatialAudioSource = VRC.SDK3.Avatars.Components.VRCSpatialAudioSource;
-#endif
 
 namespace Pumkin.AvatarTools.Copiers
 {
@@ -264,7 +251,7 @@ namespace Pumkin.AvatarTools.Copiers
                     bool allBonesFound = true;
                     for(int j = 0; j < newBones.Length; j++)
                     {
-                        newBones[j] = Helpers.FindTransformInAnotherHierarchy(oldBones[j], tToRoot, false);
+                        newBones[j] = Helpers.FindTransformInAnotherHierarchy(oldBones[j], tToRoot, true);
                         if(!newBones[j])
                         {
                             allBonesFound = false;
@@ -853,14 +840,13 @@ namespace Pumkin.AvatarTools.Copiers
                         PumkinsAvatarTools.Log(log + " - " + Strings.Log.success);
                     }
 
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-
-                    var spatialAudioFrom = audioFrom.GetComponent<VRC_SpatialAudioSource>();
+#if VRC_SDK_VRCSDK3
+                    var spatialAudioFrom = audioFrom.GetComponent(PumkinsTypeCache.VRC_SpatialAudioSource);
                     if(spatialAudioFrom)
                     {
-                        var spatialAudioTo = audioToObj.GetComponent<VRC_SpatialAudioSource>();
+                        var spatialAudioTo = audioToObj.GetComponent(PumkinsTypeCache.VRC_SpatialAudioSource);
                         if(spatialAudioTo == null && Settings.bCopier_audioSources_createMissing)
-                            spatialAudioTo = audioToObj.AddComponent<VRC_SpatialAudioSource>();
+                            spatialAudioTo = audioToObj.AddComponent(PumkinsTypeCache.VRC_SpatialAudioSource);
 
                         if((spatialAudioTo != null && Settings.bCopier_audioSources_copySettings) ||
                            Settings.bCopier_audioSources_createMissing)
@@ -1109,14 +1095,6 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 descPropNames.Add("enableEyeLook");
                 descPropNames.Add("customEyeLookSettings");
-            }
-
-            if(Settings.bCopier_descriptor_copyAnimationOverrides) //SDK2 Only
-            {
-                descPropNames.AddRange(new []
-                {
-                    "CustomSittingAnims", "CustomStandingAnims",
-                });
             }
 
             if(Settings.bCopier_descriptor_copyExpressions)

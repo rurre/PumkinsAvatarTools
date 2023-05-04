@@ -11,8 +11,8 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "1.3.7";
-        public const double toolsVersion = 1.37;
+        public const string TOOLS_VERSION_STRING = "1.3.8";
+        public const double toolsVersion = 1.38;
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
@@ -485,6 +485,7 @@ namespace Pumkin.DataStructures
             public static string size = "_Size";
             public static string showCommon = "_Show Common";
             public static string showAll = "_Show All";
+            public static string ignorePrefabComponents = "_Ignore Components on Prefabs";
 
             static Copier()
             {
@@ -598,6 +599,7 @@ namespace Pumkin.DataStructures
                 size = Translation.copier.size;
                 showCommon = Translation.copier.showCommon;
                 showAll = Translation.copier.showAll;
+                ignorePrefabComponents = Translation.copier.ignorePrefabComponents;
             }
         }
         public static class Log
@@ -632,7 +634,7 @@ namespace Pumkin.DataStructures
             public static string canceledScaleChanges = "_Cancelled Scale changes";
             public static string successCopiedOverFromTo = "_Success: Copied over '{0}' from '{1}''s '{2}' to '{3}''s '{4}'";
             public static string hasNoComponentsOrChildrenDestroying = "_'{0}' has no components or children. Destroying";
-            public static string cantBeDestroyedPartOfPrefab = "_'{0}''s '{1}' can't be destroyed because it's part of a prefab instance. Ignoring";
+            public static string cantBeDestroyedPartOfPrefab = "_{0}'s {1} can't be destroyed because it's part of a prefab instance. This can be changed in settings. Ignoring";
             public static string meshPrefabMissingCantRevertBlednshapes = "_Mesh prefab is missing, can't revert to default blendshapes";
             public static string meshPrefabMissingCantRevertPose = "_Mesh prefab is missing, can't revert to default pose";
             public static string runtimeBlueprintNotFoundStartUploading = "_RuntimeBlueprintCreation script not found. Start uploading an avatar to use this";
@@ -730,7 +732,7 @@ namespace Pumkin.DataStructures
             public static string cantRevertRendererWithoutPrefab = "_Can't revert Skinned Mesh Renderer {0}, object has no Prefab";
             public static string cantLoadImageAtPath = "_Can't load image at {0}";
             public static string armatureScaleNotOne = "_Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
-            public static string armatureScalesDontMatch = "_Armature scales for selected avatars don't match!\nThis can cause issues";
+            public static string armatureScalesDontMatch = "_Armature scales for selected avatars don't match!\nThis can cause scale issues with some components.";
             public static string noDBonesInProject = "_No DynamicBones found in project";
             public static string languageAlreadyExistsOverwrite = "_Language Asset already exists. Overwrite?";
 

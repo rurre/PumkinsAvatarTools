@@ -132,7 +132,7 @@ namespace Pumkin.AvatarTools.Destroyers
                         log = Strings.Log.removeAttempt + " - ";
                         string name = comps[i].name;
 
-                        if(!PrefabUtility.IsPartOfPrefabInstance(comps[i]))
+                        if(!(PrefabUtility.IsPartOfPrefabInstance(comps[i]) && PumkinsAvatarTools.Settings.bCopier_ignorePrefabComponents))
                         {
                             try
                             {

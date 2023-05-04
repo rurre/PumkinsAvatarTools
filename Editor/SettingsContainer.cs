@@ -234,7 +234,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal Transform[] copierIgnoreArray = new Transform[0];
         [SerializeField] internal bool bCopier_ignoreArray_includeChildren = false;
         [SerializeField] internal Vector2 _copierIgnoreArrayScroll = Vector2.zero;
-
+        [SerializeField] internal bool bCopier_ignorePrefabComponents = true;
 
         [SerializeField] internal static GameObject _copierSelectedFrom;
 

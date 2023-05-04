@@ -360,6 +360,8 @@ namespace Pumkin.Translations
         public string finalIK_Grounders = "Grounders";
         
         public string vrc_station = "VRC_Station (Chair)";
+
+        public string ignorePrefabComponents = "Ignore Components on Prefabs";
     }
 
     [Serializable]
@@ -456,7 +458,7 @@ namespace Pumkin.Translations
         public string canceledScaleChanges = "Cancelled Scale changes";
         public string successCopiedOverFromTo = "Success: Copied over '{0}' from '{1}''s '{2}' to '{3}''s '{4}'";
         public string hasNoComponentsOrChildrenDestroying = "'{0}' has no components or children. Destroying";
-        public string cantBeDestroyedPartOfPrefab = "'{0}''s '{1}' can't be destroyed because it's part of a prefab instance. Ignoring";
+        public string cantBeDestroyedPartOfPrefab = "{0}'s {1} can't be destroyed because it's part of a prefab instance. This can be changed in settings. Ignoring";
         public string meshPrefabMissingCantRevertBlednshapes = "Mesh prefab is missing, can't revert to default blendshapes";
         public string meshPrefabMissingCantRevertPose = "Mesh prefab is missing, can't revert to default pose";
         public string runtimeBlueprintNotFoundStartUploading = "RuntimeBlueprintCreation script not found. Start uploading an avatar to use this";
@@ -492,7 +494,7 @@ namespace Pumkin.Translations
         public string cantRevertRendererWithoutPrefab = "Can't revert Skinned Mesh Renderer {0}, object has no Prefab";
         public string cantLoadImageAtPath = "Can't load image at {0}";
         public string armatureScaleNotOne = "Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
-        public string armatureScalesDontMatch = "Armature scales for selected avatars don't match!\nThis can cause issues";
+        public string armatureScalesDontMatch = "Armature scales for selected avatars don't match!\nThis can cause scale issues with some components.";
         public string noDBonesInProject = "No DynamicBones found in project";
         public string languageAlreadyExistsOverwrite = "Language preset already exists. Overwrite?";
     }

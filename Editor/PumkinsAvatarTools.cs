@@ -3414,6 +3414,9 @@ namespace Pumkin.AvatarTools
                     EditorGUILayout.EndVertical();
                 }
                 EditorGUILayout.EndHorizontal();
+                EditorGUILayout.Space();
+
+                Settings.bCopier_ignorePrefabComponents = EditorGUILayout.ToggleLeft(Strings.Copier.ignorePrefabComponents, Settings.bCopier_ignorePrefabComponents);
             }
         }
 
@@ -4752,7 +4755,7 @@ namespace Pumkin.AvatarTools
             {
                 if(foundShape)
                 {
-                    descriptor.lipSync = Enum.Parse(PumkinsTypeCache.VRC_AvatarDescriptor_LipSyncStyle, "VisemeBlendShape");
+                    descriptor.lipSync = (int)Enum.Parse(PumkinsTypeCache.VRC_AvatarDescriptor_LipSyncStyle, "VisemeBlendShape");
                     log += Strings.Log.success;
                     Log(log, LogType.Log, logFormat);
                 }
@@ -4918,36 +4921,6 @@ namespace Pumkin.AvatarTools
                 }
             }
             catch(Exception ex) { Log("_Failed to copy Prefabs: " + ex.Message, LogType.Error); }
-
-            try
-            {
-#if VRC_SDK_VRCSDK3
-                if(Settings.bCopier_descriptor_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRC_AvatarDescriptor, Settings._copier_selectedTab))
-                {
-                    LegacyCopier.CopyAvatarDescriptor(objFrom, objTo, inst.ignoredTransforms);
-                    if(Settings.bCopier_descriptor_copyAvatarScale)
-                    {
-                        Component descriptor = objTo.GetComponentInChildren(PumkinsTypeCache.VRC_AvatarDescriptor);
-                        if(descriptor)
-                        {
-                            dynamic desc = Convert.ChangeType(descriptor, PumkinsTypeCache.VRC_AvatarDescriptor);
-                            if(!(Settings.bCopier_descriptor_copy && Settings.bCopier_descriptor_copyViewpoint))
-                                SetAvatarScaleAndMoveViewpoint(desc, objFrom.transform.localScale.z);
-                            objTo.transform.localScale = new Vector3(objFrom.transform.localScale.x,
-                                objFrom.transform.localScale.y, objFrom.transform.localScale.z);
-                        }
-                        else
-                        {
-                            objTo.transform.localScale = objFrom.transform.localScale;
-                        }
-                    }
-                }
-#else
-                if(Settings.bCopier_descriptor_copy && Settings.bCopier_descriptor_copyAvatarScale)
-                    objTo.transform.localScale = objFrom.transform.localScale;
-#endif
-            }
-            catch(Exception ex) { Log("_Failed to copy Avatar Descriptor: " + ex.Message, LogType.Error); }
 
             try
             {
@@ -5245,6 +5218,36 @@ namespace Pumkin.AvatarTools
                 catch(Exception ex) { Log("_Failed to copy FinalIK Grounders: " + ex.Message, LogType.Error); }
             }
 			#endif
+
+            try
+            {
+#if VRC_SDK_VRCSDK3
+                if(Settings.bCopier_descriptor_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRC_AvatarDescriptor, Settings._copier_selectedTab))
+                {
+                    LegacyCopier.CopyAvatarDescriptor(objFrom, objTo, inst.ignoredTransforms);
+                    if(Settings.bCopier_descriptor_copyAvatarScale)
+                    {
+                        Component descriptor = objTo.GetComponentInChildren(PumkinsTypeCache.VRC_AvatarDescriptor);
+                        if(descriptor)
+                        {
+                            dynamic desc = Convert.ChangeType(descriptor, PumkinsTypeCache.VRC_AvatarDescriptor);
+                            if(!(Settings.bCopier_descriptor_copy && Settings.bCopier_descriptor_copyViewpoint))
+                                SetAvatarScaleAndMoveViewpoint(desc, objFrom.transform.localScale.z);
+                            objTo.transform.localScale = new Vector3(objFrom.transform.localScale.x,
+                                objFrom.transform.localScale.y, objFrom.transform.localScale.z);
+                        }
+                        else
+                        {
+                            objTo.transform.localScale = objFrom.transform.localScale;
+                        }
+                    }
+                }
+#else
+                if(Settings.bCopier_descriptor_copy && Settings.bCopier_descriptor_copyAvatarScale)
+                    objTo.transform.localScale = objFrom.transform.localScale;
+#endif
+            }
+            catch(Exception ex) { Log("_Failed to copy Avatar Descriptor: " + ex.Message, LogType.Error); }
 
             try
             {
