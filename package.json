@@ -3,10 +3,17 @@
   "displayName": "Pumkins Avatar Tools",
   "version": "1.3.8",
   "description": "An editor script that adds tools to help you setup avatars faster and easier. It includes a component copier that makes it a lot easier to reimport your avatars, and tools to make your thumbnails nicer.",
+  "url": "https://github.com/rurre/PumkinsAvatarTools",
+  "author": {
+    "name": "Pumkin",
+  },
   "gitDependencies": {},
   "vpmDependencies": {},
   "legacyFolders": {},
   "legacyFiles": {},
-  "localPath": ".\\Packages\\pumkin.pumkinsavatartools",
-  "type": "tool"
+  "hideInEditor": false,
+  "license": "MIT",
+  "unity": "2019.4",
+  "type": "tool",
+  "localPath": ".\\Packages\\io.github.rurre.pumkinsavatartools",
 }
