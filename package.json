@@ -5,7 +5,7 @@
   "description": "An editor script that adds tools to help you setup avatars faster and easier. It includes a component copier that makes it a lot easier to reimport your avatars, and tools to make your thumbnails nicer.",
   "url": "https://github.com/rurre/PumkinsAvatarTools",
   "author": {
-    "name": "Pumkin",
+    "name": "Pumkin"
   },
   "gitDependencies": {},
   "vpmDependencies": {},
