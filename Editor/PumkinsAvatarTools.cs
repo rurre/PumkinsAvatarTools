@@ -4753,9 +4753,17 @@ namespace Pumkin.AvatarTools
             }
             else
             {
+                FieldInfo lipSyncField = PumkinsTypeCache.VRC_AvatarDescriptor.GetField("lipSync");
+                void SetLipSyncType(string type)
+                {
+                    var intValue = (int)Enum.Parse(PumkinsTypeCache.VRC_AvatarDescriptor_LipSyncStyle, type);
+                    var enumValue = Enum.ToObject(PumkinsTypeCache.VRC_AvatarDescriptor_LipSyncStyle, intValue);
+                    lipSyncField.SetValue(descriptor, enumValue);
+                }
+
                 if(foundShape)
                 {
-                    descriptor.lipSync = (int)Enum.Parse(PumkinsTypeCache.VRC_AvatarDescriptor_LipSyncStyle, "VisemeBlendShape");
+                    SetLipSyncType("VisemeBlendShape");
                     log += Strings.Log.success;
                     Log(log, LogType.Log, logFormat);
                 }
@@ -4766,18 +4774,13 @@ namespace Pumkin.AvatarTools
                     {
                         var jaw = anim.GetBoneTransform(HumanBodyBones.Jaw);
                         if(jaw)
-                        {
-                            descriptor.lipSync = Enum.Parse(PumkinsTypeCache.VRC_AvatarDescriptor_LipSyncStyle, "JawFlapBone");
-                            descriptor.lipSyncJawBone = jaw;
-                        }
+                            SetLipSyncType("JawFlapBone");
                         else
-                        {
-                            descriptor.lipSync = Enum.Parse(PumkinsTypeCache.VRC_AvatarDescriptor_LipSyncStyle, "Default");
-                        }
+                            SetLipSyncType("Default");
                     }
                     else
                     {
-                        descriptor.lipSync = Enum.Parse(PumkinsTypeCache.VRC_AvatarDescriptor_LipSyncStyle, "Default");
+                        SetLipSyncType("Default");
                     }
                     log += Strings.Log.meshHasNoVisemes;
                     Log(log, LogType.Warning, logFormat);
