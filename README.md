@@ -1,6 +1,8 @@
-# [Download the latest unity package here](https://github.com/rurre/PumkinsAvatarTools/releases/latest)
+# How to install
 
-# If using VCC, find my listing [here](https://rurre.github.io/vpm)
+## If using VCC, find my listing [here](https://rurre.github.io/vpm), and info how to use it [here](https://github.com/rurre/vpm#readme).
+
+## Alternatively, download the latest unity package [here](https://github.com/rurre/PumkinsAvatarTools/releases/latest) and import it into your project as normal.
 
 ---------------------
 # Pumkin's Avatar Tools
