@@ -1239,7 +1239,7 @@ namespace Pumkin.HelperFunctions
             }
             return found;
         }
-        #elif UNITY_2019
+        #elif UNITY_2019_1_OR_NEWER
         public static bool DestroyMissingScriptsInGameObject(GameObject obj)
         {
             return GameObjectUtility.RemoveMonoBehavioursWithMissingScript(obj) > 0;
