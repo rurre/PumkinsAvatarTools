@@ -18,7 +18,7 @@ MonoBehaviour:
   rotationAnglesOffset: {x: 3.8389032, y: 193.28188, z: 352.23236}
   transformPath: Armature/Hips/Spine/Chest/Neck/Head
   useOverlay: 1
-  overlayImagePath: D:/Libraries/Desktop/Pumkin Tool Releases/fg_vignette.png
+  overlayImagePath: 
   overlayImageTint: {r: 1, g: 1, b: 1, a: 1}
   useBackground: 1
   backgroundType: 0
