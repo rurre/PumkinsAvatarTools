@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -493,8 +493,8 @@ namespace Pumkin.Translations
         public string invalidPreset = "Can't apply preset {0}: Invalid Preset";
         public string cantRevertRendererWithoutPrefab = "Can't revert Skinned Mesh Renderer {0}, object has no Prefab";
         public string cantLoadImageAtPath = "Can't load image at {0}";
-        public string armatureScaleNotOne = "Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
-        public string armatureScalesDontMatch = "Armature scales for selected avatars don't match!\nThis can cause scale issues with some components.";
+        public string armatureScaleNotOne = "Armature Scale for selected Avatar is not 1! This can cause issues. Please consider re-exporting your Avatar using FBX Units. See Console for more info.\nBLENDER USERS: Check to make sure you have properly Applied All Transforms to your Model in Blender. When exporting the FBX, please ensure Apply Scalings is set to 'FBX All' in your Export Settings.";
+        public string armatureScalesDontMatch = "Armature Scales on the selected Avatars do not match! This can cause scaling issues with some components, such as Phys Bones. Proceed with Caution!";
         public string noDBonesInProject = "No DynamicBones found in project";
         public string languageAlreadyExistsOverwrite = "Language preset already exists. Overwrite?";
     }
