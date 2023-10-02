@@ -1,4 +1,4 @@
-﻿using Pumkin.AvatarTools;
+using Pumkin.AvatarTools;
 using Pumkin.Translations;
 using System;
 using System.Collections;
@@ -731,8 +731,8 @@ namespace Pumkin.DataStructures
             public static string invalidPreset = "_Can't apply preset {0}: Invalid Preset";
             public static string cantRevertRendererWithoutPrefab = "_Can't revert Skinned Mesh Renderer {0}, object has no Prefab";
             public static string cantLoadImageAtPath = "_Can't load image at {0}";
-            public static string armatureScaleNotOne = "_Armature scale for selected avatar isn't 1! This can cause issues. Please re-export your avatar with CATS' export option";
-            public static string armatureScalesDontMatch = "_Armature scales for selected avatars don't match!\nThis can cause scale issues with some components.";
+            public static string armatureScaleNotOne = "_Armature Scale for selected Avatar is not 1! This can cause issues. Please consider re-exporting your Avatar using FBX Units...\nCheck to make sure you have properly Applied All Transforms to your Model in Blender. When exporting the FBX, please ensure Apply Scalings is set to 'FBX All' in your Export Settings.";
+            public static string armatureScalesDontMatch = "_Armature Scales on the selected Avatars do not match!\nThis can cause scaling issues with some components, such as Phys Bones. Proceed with Caution!";
             public static string noDBonesInProject = "_No DynamicBones found in project";
             public static string languageAlreadyExistsOverwrite = "_Language Asset already exists. Overwrite?";
 
