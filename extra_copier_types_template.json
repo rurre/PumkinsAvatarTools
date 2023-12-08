@@ -1,0 +1,39 @@
+{
+    "extraCopierTypes": [
+        {
+            "categoryName": "VRM",
+            "typeFullNames": [
+                "VRM.VRMSpringBone",
+				"VRM.VRMSpringBoneColliderGroup"
+            ]
+        },
+		{
+			"categoryName": "VRC Fury",
+			"typeFullNames": [
+				"VF.Model.VRCFury",
+				"VF.Component.VRCFuryGlobalCollider",
+				"VF.Component.VRCFuryHapticSocket",
+				"VF.Component.VRCFuryHapticPlug"
+			]
+		},
+		{
+			"categoryName": "Modular Avatar",
+			"typeFullNames": [
+				"nadena.dev.modular_avatar.core.ModularAvatarMenuGroup",
+				"nadena.dev.modular_avatar.core.ModularAvatarMenuInstaller",
+				"nadena.dev.modular_avatar.core.ModularAvatarBlendshapeSync",
+				"nadena.dev.modular_avatar.core.ModularAvatarBoneProxy",
+				"nadena.dev.modular_avatar.core.ModularAvatarMenuInstallTarget",
+				"nadena.dev.modular_avatar.core.ModularAvatarMenuItem",
+				"nadena.dev.modular_avatar.core.ModularAvatarMergeAnimator",
+				"nadena.dev.modular_avatar.core.ModularAvatarMergeArmature",
+				"nadena.dev.modular_avatar.core.ModularAvatarMeshSettings",
+				"nadena.dev.modular_avatar.core.ModularAvatarParameters",
+				"nadena.dev.modular_avatar.core.ModularAvatarPBBlocker",
+				"nadena.dev.modular_avatar.core.ModularAvatarReplaceObject",
+				"nadena.dev.modular_avatar.core.ModularAvatarVisibleHeadAccessory",
+				"nadena.dev.modular_avatar.core.ModularAvatarWorldFixedObject"
+			]
+		}
+    ]
+}

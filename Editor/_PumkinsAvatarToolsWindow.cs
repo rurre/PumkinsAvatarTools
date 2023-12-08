@@ -42,10 +42,10 @@ namespace Pumkin.AvatarTools
             _toolsWindow.Show();
         }
 
-        [MenuItem("Tools/Pumkin/Reset Tool Preferences", false, 50)]
+        [MenuItem("Tools/Pumkin/Reset Tool Preferences", false, 5)]
         public static void ResetPrefs()
         {
-            EditorPrefs.DeleteKey("PumkinToolsWindow");
+            EditorPrefs.DeleteKey(PumkinsAvatarTools.SettingsEditorPrefsKey);
 
             _tools?.ResetBackgroundsAndOverlays();
 

@@ -65,7 +65,7 @@ namespace Pumkin.AvatarTools.Destroyers
                     }
                     if(c <= 0 && (t.name.ToLower() != (t.parent.name.ToLower() + "_end")))
                     {
-                        if(PrefabUtility.GetPrefabInstanceStatus(t) == PrefabInstanceStatus.NotAPrefab || PrefabUtility.GetPrefabInstanceStatus(t) == PrefabInstanceStatus.Disconnected)
+                        if(PrefabUtility.GetPrefabInstanceStatus(t) == PrefabInstanceStatus.NotAPrefab)
                         {
                             PumkinsAvatarTools.Log(Strings.Log.hasNoComponentsOrChildrenDestroying, LogType.Log, t.name);
                             GameObject.DestroyImmediate(t.gameObject);

@@ -103,7 +103,7 @@ namespace Pumkin.PoseEditor
             }
         }
 
-        [MenuItem("Tools/Pumkin/Pose Editor", false, 20)]
+        [MenuItem("Tools/Pumkin/Pose Editor", false, 2)]
         public static void ShowWindow()
         {
             //Show existing window instance. If one doesn't exist, make one.

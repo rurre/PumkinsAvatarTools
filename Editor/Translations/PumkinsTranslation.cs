@@ -233,6 +233,8 @@ namespace Pumkin.Translations
         public string setTPose = "Force TPose";
         public string setRendererAnchors = "Set Mesh Renderer Anchors";
         public string setSkinnedMeshRendererAnchors = "Set Skinned Mesh Renderer Anchors";
+        public string setParticleSystemAnchors = "Set Particle System Anchors";
+        public string setTrailRendererAnchors = "Set Trail Renderer Anchors";
         public string viewpointZDepth = "Z Depth";
         public string revertScale = "Revert Scale";
         public string editScaleMoveViewpoint = "Move Viewpoint";
@@ -310,7 +312,7 @@ namespace Pumkin.Translations
         public string animators_inChildren = "Child Animators";
         public string audioSources = "Audio Sources";
         public string joints = "Joints";
-        public string other = "Other";
+        public string other = "External";
         public string other_ikFollowers = "IK Followers";
         public string other_vrmSpringBones = "VRM Spring Bones";
         public string aimConstraints = "Aim Constraints";
@@ -347,7 +349,7 @@ namespace Pumkin.Translations
         public string prefabs_ignorePrefabByOtherCopiers = "Ignore Prefab By Other Copiers";
         
         public string fixReferences = "Fix References";
-        public string adjustScale = "Adjust Scale";
+        public string adjustScale = "Adjust Scale (might not work correctly)";
         
         public string finalIK = "FinalIK";
         public string finalIK_fabrIK = "FabrIK";

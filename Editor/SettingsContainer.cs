@@ -32,12 +32,14 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool _tools_quickSetup_forceTPose = false;
         [SerializeField] internal float _tools_quickSetup_viewpointZDepth = 0.06f;
         [SerializeField] internal bool _tools_quickSetup_setSkinnedMeshRendererAnchor = true;
+        [SerializeField] internal bool _tools_quickSetup_setParticleSystemRendererAnchor = false;
+        [SerializeField] internal bool _tools_quickSetup_setTrailRendererAnchor = false;
         [SerializeField] internal bool _tools_quickSetup_setMeshRendererAnchor = true;
         [SerializeField] internal bool _tools_quicksetup_fillEyeBones = true;
         
         [SerializeField] internal bool _tools_quicksetup_setMeshRendererAnchor_usePath = false;
-        [SerializeField] internal string _tools_quickSetup_setRenderAnchor_path = "Armature/Hips/Spine";
-        [SerializeField] internal HumanBodyBones _tools_quickSetup_setRenderAnchor_bone = HumanBodyBones.Spine;
+        [SerializeField] internal string _tools_quickSetup_setRenderAnchor_path = "Armature/Hips/Chest";
+        [SerializeField] internal HumanBodyBones _tools_quickSetup_setRenderAnchor_bone = HumanBodyBones.Chest;
 
         [SerializeField] internal bool _tools_avatar_resetpose_expand = false;
         [SerializeField] internal bool _tools_avatar_resetPose_position = true;
@@ -213,15 +215,16 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_finalIK_copyFBTBipedIK = true;
         [SerializeField] internal bool bCopier_finalIK_copyVRIK = true;
         [SerializeField] internal bool bCopier_finalIK_copyGrounders = true;
-        
+        [SerializeField] internal bool bCopier_finalIK_copyIKExecutionOrder = true;
+
         //Prefabs
         [SerializeField] internal bool bCopier_prefabs_copy = true;
         [SerializeField] internal bool bCopier_prefabs_fixReferences = true;
-        [SerializeField] internal bool bCopier_prefabs_adjustScale = true;
+        [SerializeField] internal bool bCopier_prefabs_adjustScale = false;
         [SerializeField] internal bool bCopier_prefabs_copyPropertyOverrides = true;
         [SerializeField] internal bool bCopier_prefabs_createObjects = true;
         [SerializeField] internal bool bCopier_prefabs_ignorePrefabByOtherCopiers = true;
-        
+
         //Stations
         [SerializeField] internal bool bCopier_vrcStations_copy = true;
         [SerializeField] internal bool bCopier_vrcStations_createObjects = true;
@@ -230,7 +233,7 @@ namespace Pumkin.AvatarTools
         //Ignore Array
         [SerializeField] internal bool _copierIgnoreArray_expand = false;
         [SerializeField] internal SerializedProperty _serializedIgnoreArrayProp;
-        
+
         [SerializeField] internal Transform[] copierIgnoreArray = new Transform[0];
         [SerializeField] internal bool bCopier_ignoreArray_includeChildren = false;
         [SerializeField] internal Vector2 _copierIgnoreArrayScroll = Vector2.zero;
@@ -341,7 +344,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool _copier_expand_finalIK = false;
         [SerializeField] internal bool _copier_expand_prefab = false;
         [SerializeField] internal bool _copier_expand_vrcStations = false;
-        
+
         //Languages
         [SerializeField] internal string _selectedLanguageString = "English - Default";
         [SerializeField] internal int _selectedLanguageIndex = 0;

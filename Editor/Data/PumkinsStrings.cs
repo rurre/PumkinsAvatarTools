@@ -3,6 +3,7 @@ using Pumkin.Translations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,13 +12,14 @@ namespace Pumkin.DataStructures
     [ExecuteInEditMode, InitializeOnLoad] //needed for string singleton
     public class Strings : SingletonScriptableObject<Strings>
     {
-        public const string TOOLS_VERSION_STRING = "1.3.9";
-        public const double toolsVersion = 1.39;
+        public static string TOOLS_VERSION_STRING = "0.0.0";
 
         public const string POSE_EDITOR_VERSION_NUMBER = "0.1.3b - Work in Progress";
         public const string LINK_GITHUB = "https://github.com/rurre/PumkinsAvatarTools/";
         public const string LINK_DONATION = "https://ko-fi.com/notpumkin";
         public const string LINK_DISCORD = "https://discord.gg/7vyekJv";
+
+        static readonly string packagePath = $"{PumkinsAvatarTools.MainFolderPath}/package.json";
 
         static PumkinsTranslation _translationHolder;
         public static PumkinsTranslation Translation
@@ -85,10 +87,24 @@ namespace Pumkin.DataStructures
                 Reload();
             }
 
+            class PackageJson
+            {
+                public string version;
+            }
+
             public static void Reload()
             {
                 if(Translation is null)
                     return;
+
+                // Get version from package.json
+                if(File.Exists(packagePath))
+                {
+                    string json = File.ReadAllText(packagePath);
+                    var jsonInstance = JsonUtility.FromJson<PackageJson>(json);
+                    if(jsonInstance != null)
+                        TOOLS_VERSION_STRING = jsonInstance.version;
+                }
 
                 avatar = Translation.main.avatar;
                 title = Translation.main.title;
@@ -194,6 +210,8 @@ namespace Pumkin.DataStructures
             public static string autoViewpoint = "_Auto Viewpoint";
             public static string setTPose = "_Force TPose";
             public static string setMeshRendererAnchors = "_Set Mesh Renderer Anchors";
+            public static string setParticleSystemAnchors = "_Set Particle System Anchors";
+            public static string setTrailRendererAnchors = "_Set Trail Renderer Anchors";
             public static string setSkinnedMeshRendererAnchors = "_Set Skinned Mesh Renderer Anchors";
             public static string viewpointZDepth = "_Z Depth";
             public static string revertScale = "_Revert Scale";
@@ -234,6 +252,8 @@ namespace Pumkin.DataStructures
                 setTPose = Translation.tools.setTPose;
                 viewpointZDepth = Translation.tools.viewpointZDepth;
                 setMeshRendererAnchors = Translation.tools.setRendererAnchors;
+                setParticleSystemAnchors = Translation.tools.setParticleSystemAnchors;
+                setTrailRendererAnchors = Translation.tools.setTrailRendererAnchors;
                 setSkinnedMeshRendererAnchors = Translation.tools.setSkinnedMeshRendererAnchors;
                 revertScale = Translation.tools.revertScale;
                 editScaleMoveViewpoint = Translation.tools.editScaleMoveViewpoint;
@@ -439,7 +459,7 @@ namespace Pumkin.DataStructures
             public static string animators_inChildren = "_Child Animators";
             public static string audioSources = "_Audio Sources";
             public static string joints = "_Joints";
-            public static string other = "_Other";
+            public static string other = "_External";
             public static string other_emptyScripts = "_Empty Scripts";
             public static string other_vrmSpringBones = "_VRM Spring Bones";
             public static string vrc_station = "_VRC Station (Chair)";
@@ -477,7 +497,7 @@ namespace Pumkin.DataStructures
             public static string prefabs_copyPropertyOverrides = "_Copy Property Overrides";
             public static string prefabs_ignorePrefabByOtherCopiers = "_Ignore Prefab By Other Copiers";
 
-            public static string adjustScale = "_Adjust Scale";
+            public static string adjustScale = "_Adjust Scale (might not work correctly)";
             public static string fixReferences = "_Fix References";
             
             public static string exclusions = "_Exclusions";
@@ -776,7 +796,7 @@ namespace Pumkin.DataStructures
                 if(Translation is null)
                     return;
 
-                version = (Translation.credits.version + " " + TOOLS_VERSION_STRING) ?? ("_Version" + " " + TOOLS_VERSION_STRING);
+                version = $"{Translation.credits.version} {TOOLS_VERSION_STRING}";
                 redundantStrings = Translation.credits.redundantStrings;
                 addMoreStuff = Translation.credits.addMoreStuff;
                 pokeOnDiscord = Translation.credits.pokeOnDiscord;
