@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using UnityEngine;
 using System.Linq;
-using Pumkin.AvatarTools.Callbacks;
 using Pumkin.AvatarTools.Copiers;
 using Pumkin.AvatarTools.Destroyers;
 using Pumkin.DependencyChecker;
@@ -827,9 +826,6 @@ namespace Pumkin.AvatarTools
 
             LoadPrefs();
 
-#if VRC_SDK_VRCSDK3 && !UDON
-            AvatarUploadHider.Enabled = Settings.shouldHideOtherAvatars;
-#endif
             RestoreTexturesFromPaths();
             RefreshBackgroundOverrideType();
 

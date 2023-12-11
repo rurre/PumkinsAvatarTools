@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using UnityEngine;
 using System.Linq;
-using Pumkin.AvatarTools.Callbacks;
 using Pumkin.AvatarTools.Copiers;
 using Pumkin.AvatarTools.Destroyers;
 using Pumkin.DependencyChecker;

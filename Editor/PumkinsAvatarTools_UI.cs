@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using UnityEngine;
 using System.Linq;
-using Pumkin.AvatarTools.Callbacks;
 using Pumkin.AvatarTools.Copiers;
 using Pumkin.PoseEditor;
 using UnityEngine.UI;
@@ -1620,19 +1619,6 @@ namespace Pumkin.AvatarTools
         {
             if(Settings._thumbnails_expand = GUILayout.Toggle(Settings._thumbnails_expand, Strings.Main.thumbnails, Styles.Foldout_title))
             {
-                Helpers.DrawGUILine();
-
-#if VRC_SDK_VRCSDK3 && !UDON
-                EditorGUI.BeginChangeCheck();
-                {
-                    Settings.shouldHideOtherAvatars = GUILayout.Toggle(Settings.shouldHideOtherAvatars, Strings.Thumbnails.hideOtherAvatars);
-                }
-                if(EditorGUI.EndChangeCheck())
-                {
-                    AvatarUploadHider.Enabled = Settings.shouldHideOtherAvatars;
-                }
-#endif
-
                 Helpers.DrawGUILine();
 
                 EditorGUI.BeginChangeCheck();
