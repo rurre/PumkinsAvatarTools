@@ -12,6 +12,7 @@ using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
 using Pumkin.Presets;
 using UnityEngine.Animations;
+using UnityEngine.SceneManagement;
 
 namespace Pumkin.AvatarTools
 {
@@ -420,6 +421,20 @@ namespace Pumkin.AvatarTools
                     if(GUILayout.Button(Strings.Buttons.selectFromScene))
                         if(Selection.activeGameObject != null && GetAvatarFromSceneSelection(false, out GameObject avatar))
                             CopierSelectedFrom = avatar;
+
+#if PUMKIN_DEV
+                    if(GUILayout.Button("Auto Select"))
+                    {
+                        var objs = SceneManager.GetActiveScene().GetRootGameObjects();
+                        foreach(var obj in objs)
+                        {
+                            if(obj.name.ToLower().Contains("copy from"))
+                                CopierSelectedFrom = obj;
+                            else if(obj.name.ToLower().Contains("copy to"))
+                                SelectedAvatar = obj;
+                        }
+                    }
+#endif
 
                     if(_copierArmatureScalesDontMatch == true)
                         EditorGUILayout.LabelField(Strings.Warning.armatureScalesDontMatch, Styles.HelpBox_OneLine);

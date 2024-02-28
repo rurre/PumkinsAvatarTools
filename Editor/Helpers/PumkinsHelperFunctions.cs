@@ -922,25 +922,8 @@ namespace Pumkin.HelperFunctions
             if(!trans)
                 return string.Empty;
 
-            StringBuilder sb = new StringBuilder();
-            if(trans != root)
-            {
-                if(!skipRoot)
-                {
-                    sb.Append(trans.name);
-                    sb.Append('/');
-                }
-                sb.Append(AnimationUtility.CalculateTransformPath(trans, root));
-            }
-            else
-            {
-                if(!skipRoot)
-                {
-                    sb.Clear();
-                    sb.Append(root.name);
-                }
-            }
-            return sb.ToString();
+            string path = AnimationUtility.CalculateTransformPath(trans, root);
+            return skipRoot ? path : root.name + "/";
         }
 
         /// <summary>
@@ -1056,7 +1039,28 @@ namespace Pumkin.HelperFunctions
             if(trans == currentHierarchyRoot)
                 return otherHierarchyRoot;
 
-            var childPath = GetTransformPath(trans, currentHierarchyRoot);
+            Transform targetHierarchy = otherHierarchyRoot;
+            Transform nextTransform = trans;
+            // Figure out if the transform we're looking for is part of our current or the other hierarchy
+            // This fixes the bug of another avatar hierarchy being created as a child of our own if trans is not part of correct hierarchy
+            // Might introduce other bugs, since we're better off checking what hierarchy trans is before passing it, but we'll see...
+            do
+            {
+                if(nextTransform == currentHierarchyRoot)
+                {
+                    targetHierarchy = currentHierarchyRoot;
+                    break;
+                }
+                else if(nextTransform == otherHierarchyRoot)
+                {
+                    targetHierarchy = otherHierarchyRoot;
+                    break;
+                }
+                nextTransform = nextTransform.parent;
+            }
+            while(nextTransform != null);
+            Debug.Log($"{(targetHierarchy == currentHierarchyRoot ? "our hierarchy" : "target hierarchy")}");
+            var childPath = GetTransformPath(trans, targetHierarchy);
             var childTrans = otherHierarchyRoot.Find(childPath, createIfMissing, trans);
 
             return childTrans;
