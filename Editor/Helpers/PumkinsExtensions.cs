@@ -1,4 +1,5 @@
-﻿using Pumkin.HelperFunctions;
+﻿using Pumkin.AvatarTools;
+using Pumkin.HelperFunctions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,14 +27,11 @@ namespace Pumkin.Extensions
                         path += (arr[i] + '/');
                         var path2 = (arr[i] + (arr.Length > 1 ? "/" : ""));
                         var tNew = transform.Find(path);
-                        var tNew2 = transform.Find(path2);
 
                         if(tNew == null)
                         {
                             string s = Helpers.GetPathNoName(path);
-                            string ss = Helpers.GetPathNoName(path2);
                             var parent = transform.Find(s);
-                            var parent2 = transform.Find(ss);
 
                             if(!parent)
                                 return null;
@@ -63,6 +61,7 @@ namespace Pumkin.Extensions
                                 tNew.localScale = Vector3.one;
                             }
                             t = tNew;
+                            PumkinsAvatarTools.LogVerbose($"Created new object {tNew.name}");
                         }
                     }
                 }
@@ -176,7 +175,7 @@ namespace Pumkin.Extensions
         {
             return array == null || array.Length == 0;
         }
-        
+
                 /// <summary>
         /// Invokes <paramref name="action"/> for each visible property of <paramref name="so"/>
         /// </summary>

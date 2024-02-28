@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -167,7 +168,7 @@ namespace Pumkin.AvatarTools.Copiers
 
         public static void FixReferencesOnComponent(Component newComp, Transform currentHierarchyRoot, Transform targetHierarchyRoot, bool createGameObjects)
         {
-            if(!newComp)
+            if(!newComp || newComp is Transform)
                 return;
 
             var serialComp = new SerializedObject(newComp);
@@ -185,6 +186,9 @@ namespace Pumkin.AvatarTools.Copiers
                 int compIndex = oldComp.gameObject.GetComponents(compType)
                                        .ToList()
                                        .IndexOf(oldComp);
+
+                if(oldComp.gameObject.scene.name == null) // Don't fix if we're referencing an asset
+                    return;
 
                 var transTarget = Helpers.FindTransformInAnotherHierarchy(oldComp.transform, currentHierarchyRoot, targetHierarchyRoot, createGameObjects);
                 if(transTarget == null)
@@ -225,18 +229,17 @@ namespace Pumkin.AvatarTools.Copiers
 
         public static void CopyPrefabs(CopyInstance inst, bool createGameObjects, bool adjustScale, bool fixReferences, bool copyPropertyOverrides, bool addPrefabsToIgnoreList, HashSet<Transform> ignoreSet)
         {
-            List<GameObject> allPrefabRoots = new List<GameObject>();
+            List<GameObject> prefabs = new List<GameObject>();
             foreach(var trans in inst.from.GetComponentsInChildren<Transform>(true))
             {
                 var pref = PrefabUtility.GetNearestPrefabInstanceRoot(trans);
-                if(pref && pref.transform != inst.from.transform)
-                    allPrefabRoots.Add(pref);
+                if(pref && pref.transform != inst.from.transform && !prefabs.Contains(pref))
+                    prefabs.Add(pref);
             }
 
             Transform tTo = inst.to.transform;
             Transform tFrom = inst.from.transform;
 
-            HashSet<GameObject> prefabs = new HashSet<GameObject>(allPrefabRoots);
             List<Transform> newPrefabTransformsToIgnore = addPrefabsToIgnoreList ? new List<Transform>() : null;
 
             foreach(var fromPref in prefabs)
@@ -244,10 +247,29 @@ namespace Pumkin.AvatarTools.Copiers
                 if(Helpers.ShouldIgnoreObject(fromPref.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
+                var prefabStatus = PrefabUtility.GetPrefabInstanceStatus(fromPref);
+                if(prefabStatus == PrefabInstanceStatus.MissingAsset)
+                {
+                    PumkinsAvatarTools.Log($"_Tried to copy prefab with missing asset. {fromPref.name}. Skipping", LogType.Warning);
+
+                    if(addPrefabsToIgnoreList)
+                        ignoreSet.Add(fromPref.transform);
+
+                    continue;
+                }
+                else if(prefabStatus == PrefabInstanceStatus.NotAPrefab)
+                {
+                    PumkinsAvatarTools.Log($"_Prefab Copier tried to copy object {fromPref.name}, which isn't a prefab. Uh oh.. Skipping");
+                    continue;
+                }
+
+                PumkinsAvatarTools.Log($"_Attempting to copy prefab {fromPref.name}");
+
                 Transform tToParent = null;
-                tToParent = fromPref.transform.parent == tFrom
-                    ? tTo
-                    : Helpers.FindTransformInAnotherHierarchy(fromPref.transform.parent, inst.from.transform, inst.to.transform, createGameObjects);
+                if(fromPref.transform.parent == tFrom)
+                    tToParent = tTo;
+                else
+                    tToParent = Helpers.FindTransformInAnotherHierarchy(fromPref.transform.parent, inst.from.transform, inst.to.transform, createGameObjects);
 
                 if(!tToParent)
                     continue;
@@ -257,7 +279,6 @@ namespace Pumkin.AvatarTools.Copiers
                     prefabMods = PrefabUtility.GetPropertyModifications(fromPref);
 
                 string prefabAssetPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(fromPref);
-
                 GameObject toPref = PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(prefabAssetPath)) as GameObject;
                 if(!toPref)
                     continue;

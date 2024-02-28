@@ -922,25 +922,8 @@ namespace Pumkin.HelperFunctions
             if(!trans)
                 return string.Empty;
 
-            StringBuilder sb = new StringBuilder();
-            if(trans != root)
-            {
-                if(!skipRoot)
-                {
-                    sb.Append(trans.name);
-                    sb.Append('/');
-                }
-                sb.Append(AnimationUtility.CalculateTransformPath(trans, root));
-            }
-            else
-            {
-                if(!skipRoot)
-                {
-                    sb.Clear();
-                    sb.Append(root.name);
-                }
-            }
-            return sb.ToString();
+            string path = AnimationUtility.CalculateTransformPath(trans, root);
+            return skipRoot ? path : root.name + "/";
         }
 
         /// <summary>
@@ -1056,7 +1039,25 @@ namespace Pumkin.HelperFunctions
             if(trans == currentHierarchyRoot)
                 return otherHierarchyRoot;
 
-            var childPath = GetTransformPath(trans, currentHierarchyRoot);
+            Transform targetHierarchy = otherHierarchyRoot;
+            Transform nextTransform = trans;
+            do // Figure out if the transform we're looking for is part of our current or the other hierarchy
+            {
+                if(nextTransform == currentHierarchyRoot)
+                {
+                    targetHierarchy = currentHierarchyRoot;
+                    break;
+                }
+                else if(nextTransform == otherHierarchyRoot)
+                {
+                    targetHierarchy = otherHierarchyRoot;
+                    break;
+                }
+                nextTransform = nextTransform.parent;
+            }
+            while(nextTransform != null);
+
+            var childPath = GetTransformPath(trans, targetHierarchy);
             var childTrans = otherHierarchyRoot.Find(childPath, createIfMissing, trans);
 
             return childTrans;
