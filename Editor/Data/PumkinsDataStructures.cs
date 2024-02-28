@@ -240,7 +240,7 @@ namespace Pumkin.DataStructures
                 fixedWidth = 20f,
                 fixedHeight = 20f,
                 imagePosition = ImagePosition.ImageOnly,
-                padding = new RectOffset(0, 0, 0, 0),
+                padding = new RectOffset(2, 2, 2, 2),
             };
 
             BigIconButton = new GUIStyle(BigButton);
@@ -276,7 +276,7 @@ namespace Pumkin.DataStructures
     public struct Icons
     {
         const string FinalIKIconsPath = "Assets/Plugins/RootMotion/FinalIK/Gizmos";
-        
+
         public static Texture2D Star { get; internal set; }
         public static Texture2D CsScript { get; internal set; }
         public static Texture2D Transform { get; internal set; }
@@ -319,7 +319,7 @@ namespace Pumkin.DataStructures
 
         public static Texture2D LinkIcon { get; internal set; }
         public static Texture2D Camera { get; internal set; }
-        
+
         public static Texture2D FinalIK_CCDIK  { get; internal set; }
         public static Texture2D FINALIK_LimbIK { get; internal set; }
         public static Texture2D FinalIK_RotationLimits  { get; internal set; }
@@ -366,7 +366,7 @@ namespace Pumkin.DataStructures
             Refresh = EditorGUIUtility.FindTexture("TreeEditor.Refresh");
 
             #if PUMKIN_FINALIK
-            
+
             FinalIK_CCDIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/CCDIK Icon.png");
             FINALIK_LimbIK = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/LimbIK Icon.png");
             FinalIK_RotationLimits = AssetDatabase.LoadAssetAtPath<Texture2D>($"{FinalIKIconsPath}/RotationLimitAngle Icon.png");

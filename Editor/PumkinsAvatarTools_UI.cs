@@ -26,6 +26,17 @@ namespace Pumkin.AvatarTools
             {
                 EditorGUILayout.LabelField(Strings.Main.title, Styles.Label_mainTitle);
 
+                if(GUILayout.Button(Icons.KofiIcon, Styles.IconButton))
+                    Application.OpenURL(Strings.LINK_DONATION);
+
+                if(GUILayout.Button(Icons.DiscordIcon, Styles.IconButton))
+                    Application.OpenURL(Strings.LINK_DISCORD);
+
+                if(GUILayout.Button(Icons.GithubIcon, Styles.IconButton))
+                    Application.OpenURL(Strings.LINK_GITHUB);
+
+                GUILayout.Space(4);
+
                 if(GUILayout.Button(Icons.Settings, Styles.IconButton))
                     Settings._openedSettings = !Settings._openedSettings;
             }
@@ -169,7 +180,8 @@ namespace Pumkin.AvatarTools
 
                 EditorGUILayout.Space();
 
-                DrawInfoMenuGUI();
+                // It's mostly useless so we're moving buttons to the top
+                //DrawInfoMenuGUI();
 
                 Helpers.DrawGUILine();
             }
@@ -1596,10 +1608,6 @@ namespace Pumkin.AvatarTools
                     if(GUILayout.Button(new GUIContent(Strings.Buttons.openGithubPage, Icons.GithubIcon)))
                     {
                         Application.OpenURL(Strings.LINK_GITHUB);
-                    }
-                    if(GUILayout.Button(new GUIContent(Strings.Buttons.openHelpPage, Icons.Help)))
-                    {
-                        Application.OpenURL(Strings.LINK_GITHUB + "wiki");
                     }
                 }
                 GUILayout.EndHorizontal();
