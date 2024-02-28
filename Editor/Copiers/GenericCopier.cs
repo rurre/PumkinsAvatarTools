@@ -25,13 +25,13 @@ namespace Pumkin.AvatarTools.Copiers
         };
 
         static MethodInfo CopyComponentGeneric;
-        
+
         static GenericCopier()
         {
             CopyComponentGeneric = typeof(GenericCopier).GetMethods(BindingFlags.Public | BindingFlags.Static)
                                                         .FirstOrDefault(m => m.Name == nameof(CopyComponent) && m.IsGenericMethod);
         }
-        
+
         static SettingsContainer Settings => PumkinsAvatarTools.Settings;
 
         public static void CopyComponent(Type type, CopyInstance inst, bool createGameObjects, bool adjustScale, bool fixReferences, bool onlyAllowOneComponentOfSameType, HashSet<Transform> ignoreSet)
@@ -41,7 +41,7 @@ namespace Pumkin.AvatarTools.Copiers
                 PumkinsAvatarTools.LogVerbose($"Attempting to copy type '{type}' which isn't a component. Skipping.", LogType.Error);
                 return;
             }
-            
+
             var method = CopyComponentGeneric.MakeGenericMethod(type);
             method.Invoke(null, new object[] { inst, createGameObjects, adjustScale, fixReferences, onlyAllowOneComponentOfSameType, ignoreSet });
         }
@@ -56,15 +56,15 @@ namespace Pumkin.AvatarTools.Copiers
                 return;
 
             string typeName = typeof(T).Name;
-            
+
             var addedComponents = new List<T>();
 
             foreach(var typeFrom in typeFromArr)
             {
                 if(Helpers.ShouldIgnoreObject(typeFrom.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
-                
-                var tTo = Helpers.FindTransformInAnotherHierarchy(typeFrom.transform, inst.to.transform, createGameObjects);
+
+                var tTo = Helpers.FindTransformInAnotherHierarchy(typeFrom.transform, inst.from.transform, inst.to.transform, createGameObjects);
                 if(!tTo)
                     continue;
 
@@ -72,20 +72,20 @@ namespace Pumkin.AvatarTools.Copiers
 
                 var type = typeFrom.GetType(); // Fixes abstract types not working since you can't add those
                 T oldComp = tTo.GetComponents(type).Except(addedComponents).FirstOrDefault() as T;
-                
+
                 T newComp = onlyAllowOneComponentOfSameType && oldComp ? oldComp : tTo.gameObject.AddComponent(type) as T;
                 if(newComp == null)
                     continue;
-                
+
                 addedComponents.Add(newComp);
-                
+
                 ComponentUtility.CopyComponent(typeFrom);
                 ComponentUtility.PasteComponentValues(newComp);
                 PumkinsAvatarTools.Log(log + " - " + Strings.Log.success);
 
                 if(fixReferences)
                 {
-                    var objRef = GetReferencesToFixLater(newComp, inst.to.transform, createGameObjects);
+                    var objRef = GetReferencesToFixLater(newComp, inst.from.transform, inst.to.transform, createGameObjects);
                     if(objRef != null)
                         inst.propertyRefs.Add(objRef);
                     //FixReferences(newComp, inst.to.transform, createGameObjects);
@@ -102,16 +102,16 @@ namespace Pumkin.AvatarTools.Copiers
             }
         }
 
-        public static CopierPropertyReference GetReferencesToFixLater(Component newComp, Transform targetHierarchyRoot, bool createGameObjects)
+        public static CopierPropertyReference GetReferencesToFixLater(Component newComp, Transform currentHierarchyRoot, Transform targetHierarchyRoot, bool createGameObjects)
         {
             if(!newComp)
                 return null;
 
             var serialComp = new SerializedObject(newComp);
-            
+
             var trans = new List<Transform>();
             var props = new List<string>();
-             
+
             serialComp.ForEachPropertyVisible(true, x =>
             {
                 if(x.propertyType != SerializedPropertyType.ObjectReference || x.name == "m_Script")
@@ -121,7 +121,7 @@ namespace Pumkin.AvatarTools.Copiers
                 if(!oldComp)
                     return;
 
-                var transTarget = Helpers.FindTransformInAnotherHierarchy(oldComp.transform, targetHierarchyRoot, createGameObjects);
+                var transTarget = Helpers.FindTransformInAnotherHierarchy(oldComp.transform, currentHierarchyRoot, targetHierarchyRoot, createGameObjects);
                 if(transTarget == null)
                     return;
 
@@ -143,9 +143,9 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 if(objRef.propertyPaths == null || objRef.propertyPaths.Length == 0 || objRef.targetTransforms == null || objRef.targetTransforms.Length == 0)
                     continue;
-             
+
                 SerializedObject newObj = new SerializedObject(objRef.serialiedObject.targetObject);
-                
+
                 for(int i = 0; i < objRef.targetTransforms.Length; i++)
                 {
                     SerializedProperty prop = newObj.FindProperty(objRef.propertyPaths[i]);
@@ -165,7 +165,7 @@ namespace Pumkin.AvatarTools.Copiers
             }
         }
 
-        public static void FixReferencesOnComponent(Component newComp, Transform targetHierarchyRoot, bool createGameObjects)
+        public static void FixReferencesOnComponent(Component newComp, Transform currentHierarchyRoot, Transform targetHierarchyRoot, bool createGameObjects)
         {
             if(!newComp)
                 return;
@@ -186,7 +186,7 @@ namespace Pumkin.AvatarTools.Copiers
                                        .ToList()
                                        .IndexOf(oldComp);
 
-                var transTarget = Helpers.FindTransformInAnotherHierarchy(oldComp.transform, targetHierarchyRoot, createGameObjects);
+                var transTarget = Helpers.FindTransformInAnotherHierarchy(oldComp.transform, currentHierarchyRoot, targetHierarchyRoot, createGameObjects);
                 if(transTarget == null)
                     return;
 
@@ -202,13 +202,13 @@ namespace Pumkin.AvatarTools.Copiers
         {
             if(newComp == null || oldCompTransform == null || propNames == null || propNames.Length == 0)
                 return;
-            
+
             var serialComp = new SerializedObject(newComp);
             float multiplier = Helpers.GetScaleMultiplier(oldCompTransform, newComp.transform);
 
             if(multiplier == 1)
                 return;
-            
+
             foreach(string name in propNames)
             {
                 var prop = serialComp.FindProperty(name);
@@ -219,7 +219,7 @@ namespace Pumkin.AvatarTools.Copiers
                 else if(prop.propertyType == SerializedPropertyType.Vector2)
                     prop.vector2Value *= multiplier;
             }
-            
+
             serialComp.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -238,48 +238,48 @@ namespace Pumkin.AvatarTools.Copiers
 
             HashSet<GameObject> prefabs = new HashSet<GameObject>(allPrefabRoots);
             List<Transform> newPrefabTransformsToIgnore = addPrefabsToIgnoreList ? new List<Transform>() : null;
-            
+
             foreach(var fromPref in prefabs)
             {
                 if(Helpers.ShouldIgnoreObject(fromPref.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
-                
+
                 Transform tToParent = null;
-                tToParent = fromPref.transform.parent == tFrom 
-                    ? tTo 
-                    : Helpers.FindTransformInAnotherHierarchy(fromPref.transform.parent, inst.to.transform, createGameObjects);
-                
+                tToParent = fromPref.transform.parent == tFrom
+                    ? tTo
+                    : Helpers.FindTransformInAnotherHierarchy(fromPref.transform.parent, inst.from.transform, inst.to.transform, createGameObjects);
+
                 if(!tToParent)
                     continue;
 
                 PropertyModification[] prefabMods = null;
                 if(copyPropertyOverrides)
                     prefabMods = PrefabUtility.GetPropertyModifications(fromPref);
-                
+
                 string prefabAssetPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(fromPref);
 
                 GameObject toPref = PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(prefabAssetPath)) as GameObject;
                 if(!toPref)
                     continue;
-                
+
                 if(copyPropertyOverrides)
                     PrefabUtility.SetPropertyModifications(toPref, prefabMods);
-                
+
                 toPref.transform.SetParent(tToParent, false);
                 toPref.name = fromPref.name;
 
                 if(!fixReferences && !adjustScale)
                     continue;
-                
+
                 if(addPrefabsToIgnoreList)
                     newPrefabTransformsToIgnore.Add(fromPref.transform);
-                
+
                 Component[] prefComponents = toPref.GetComponentsInChildren<Component>(true);
                 foreach(var comp in prefComponents)
                 {
-                     if(fixReferences)   
-                        FixReferencesOnComponent(comp, tTo, createGameObjects);
-                    
+                     if(fixReferences)
+                        FixReferencesOnComponent(comp, tFrom, tTo, createGameObjects);
+
                      if(adjustScale)
                      {
                          string typeName = comp.GetType().Name;
@@ -288,7 +288,7 @@ namespace Pumkin.AvatarTools.Copiers
                              PumkinsAvatarTools.Log($"_Attempting to adjust scale on {tTo.name} for {typeName} but no properties to adjust found. Skipping");
                          else
                          {
-                             Transform fromTrans = Helpers.FindTransformInAnotherHierarchy(comp.transform, tFrom, false);
+                             Transform fromTrans = Helpers.FindTransformInAnotherHierarchy(comp.transform, tTo, tFrom, false);
                              AdjustScale(comp, fromTrans, propToAdjust);
                          }
                      }

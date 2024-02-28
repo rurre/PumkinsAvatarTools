@@ -35,11 +35,11 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 if(Helpers.ShouldIgnoreObject(cFrom.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
-                
+
                 string log = Strings.Log.copyAttempt;
                 var type = cFrom.GetType();
 
-                var tTo = Helpers.FindTransformInAnotherHierarchy(cFrom.transform, to.transform, createGameObjects);
+                var tTo = Helpers.FindTransformInAnotherHierarchy(cFrom.transform, from.transform, to.transform, createGameObjects);
                 if(!tTo)
                     continue;
 
@@ -97,7 +97,7 @@ namespace Pumkin.AvatarTools.Copiers
         {
             if(from == null || to == null)
                 return;
-            
+
             if(!(Settings.bCopier_joints_character || Settings.bCopier_joints_configurable
                 || Settings.bCopier_joints_fixed || Settings.bCopier_joints_hinge || Settings.bCopier_joints_spring))
                 return;
@@ -121,7 +121,7 @@ namespace Pumkin.AvatarTools.Copiers
                     continue;
                 }
 
-                var jointTransTo = Helpers.FindTransformInAnotherHierarchy(jointTransFrom, to.transform, createGameObjects);
+                var jointTransTo = Helpers.FindTransformInAnotherHierarchy(jointTransFrom, from.transform, to.transform, createGameObjects);
 
                 if(!jointTransTo)
                     continue;
@@ -135,7 +135,7 @@ namespace Pumkin.AvatarTools.Copiers
                 Transform targetTrans = null;
                 Rigidbody targetBody = null;
                 if(jointTo.connectedBody != null)
-                    targetTrans = Helpers.FindTransformInAnotherHierarchy(jointFrom.connectedBody.transform, to.transform, createGameObjects);
+                    targetTrans = Helpers.FindTransformInAnotherHierarchy(jointFrom.connectedBody.transform, from.transform, to.transform, createGameObjects);
                 if(targetTrans != null)
                     targetBody = targetTrans.GetComponent<Rigidbody>();
 
@@ -152,8 +152,8 @@ namespace Pumkin.AvatarTools.Copiers
         /// <param name="ignoreSet">Set of transforms to ignore when copying</param>
         internal static void CopyAllTransforms(GameObject from, GameObject to, HashSet<Transform> ignoreSet)
         {
-            if(from == null || to == null || !(Settings.bCopier_transforms_copyPosition || Settings.bCopier_transforms_copyRotation 
-                   || Settings.bCopier_transforms_copyScale || Settings.bCopier_transforms_copyLayerAndTag || Settings.bCopier_transforms_copyActiveState))
+            if(from == null || to == null || !(Settings.bCopier_transforms_copyPosition || Settings.bCopier_transforms_copyRotation
+                   || Settings.bCopier_transforms_copyScale || Settings.bCopier_transforms_copyLayerAndTag || Settings.bCopier_transforms_copyActiveState || Settings.bCopier_transforms_createMissing))
                 return;
 
             var tFromArr = from.GetComponentsInChildren<Transform>(true);
@@ -168,17 +168,11 @@ namespace Pumkin.AvatarTools.Copiers
 
                 string log = String.Format(Strings.Log.copyAttempt + " - ", tFrom.gameObject.name, from.name, to.name);
 
-                Transform tTo = Helpers.FindTransformInAnotherHierarchy(tFrom, to.transform, false);
-                if(!tTo) {
-                    if(Settings.bCopier_transforms_createMissing) {
-                        Transform targetParent = Helpers.FindTransformInAnotherHierarchy(tFrom.parent, to.transform, false);
-                        GameObject createdObj = UnityEngine.Object.Instantiate(tFrom.gameObject, targetParent);
-                        createdObj.name = tFrom.gameObject.name;
-                        tTo = createdObj.transform;
-                    } else {
-                        PumkinsAvatarTools.Log(log + Strings.Log.failedHasNoIgnoring, LogType.Warning, from.name, tFrom.gameObject.name);
-                        continue;
-                    }
+                Transform tTo = Helpers.FindTransformInAnotherHierarchy(tFrom, from.transform, to.transform, Settings.bCopier_transforms_createMissing);
+                if(!tTo)
+                {
+                    PumkinsAvatarTools.Log(log + Strings.Log.failedHasNoIgnoring, LogType.Warning, from.name, tFrom.gameObject.name);
+                    continue;
                 }
 
                 if(Settings.bCopier_transforms_copyPosition)
@@ -203,7 +197,7 @@ namespace Pumkin.AvatarTools.Copiers
         }
 
         /// <summary>
-        /// Copies all SkinnedMeshRenderers in object and children.        
+        /// Copies all SkinnedMeshRenderers in object and children.
         /// </summary>
         internal static void CopyAllSkinnedMeshRenderers(GameObject from, GameObject to, HashSet<Transform> ignoreSet)
         {
@@ -216,6 +210,7 @@ namespace Pumkin.AvatarTools.Copiers
                 return;
 
             Transform tToRoot = to.transform;
+            Transform tFromRoot = from.transform;
 
             string log = String.Format(Strings.Log.copyAttempt + " - ", Strings.Copier.skinMeshRender, from.name,
                 to.name);
@@ -228,7 +223,7 @@ namespace Pumkin.AvatarTools.Copiers
                 if(Helpers.ShouldIgnoreObject(smrFrom.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
-                var tTo = Helpers.FindTransformInAnotherHierarchy(tFrom, tToRoot,
+                var tTo = Helpers.FindTransformInAnotherHierarchy(tFrom, tFromRoot, tToRoot,
                     Settings.bCopier_skinMeshRender_createObjects);
 
                 if(!tTo)
@@ -251,7 +246,7 @@ namespace Pumkin.AvatarTools.Copiers
                     bool allBonesFound = true;
                     for(int j = 0; j < newBones.Length; j++)
                     {
-                        newBones[j] = Helpers.FindTransformInAnotherHierarchy(oldBones[j], tToRoot, true);
+                        newBones[j] = Helpers.FindTransformInAnotherHierarchy(oldBones[j], tFromRoot, tToRoot, true);
                         if(!newBones[j])
                         {
                             allBonesFound = false;
@@ -259,7 +254,7 @@ namespace Pumkin.AvatarTools.Copiers
                         }
                     }
 
-                    var newRoot = Helpers.FindTransformInAnotherHierarchy(smrFrom.rootBone, tToRoot, false);
+                    var newRoot = Helpers.FindTransformInAnotherHierarchy(smrFrom.rootBone, tFromRoot, tToRoot, false);
 
                     if(!allBonesFound || !newRoot)
                     {
@@ -276,7 +271,7 @@ namespace Pumkin.AvatarTools.Copiers
 
                 if(Settings.bCopier_skinMeshRender_copySettings)
                 {
-                    var t = Helpers.FindTransformInAnotherHierarchy(smrFrom.rootBone, tToRoot, false);
+                    var t = Helpers.FindTransformInAnotherHierarchy(smrFrom.rootBone, tFromRoot, tToRoot, false);
                     smrTo.rootBone = t ? t : smrTo.rootBone;
 
                     smrTo.allowOcclusionWhenDynamic = smrFrom.allowOcclusionWhenDynamic;
@@ -332,8 +327,8 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 if(Helpers.ShouldIgnoreObject(rFrom.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
-                       
-                var tTo = Helpers.FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
+
+                var tTo = Helpers.FindTransformInAnotherHierarchy(rFrom.transform, from.transform, to.transform, createGameObjects);
                 if(!tTo)
                     continue;
 
@@ -371,8 +366,8 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 if(Helpers.ShouldIgnoreObject(rFrom.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
-                
-                var tTo = Helpers.FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
+
+                var tTo = Helpers.FindTransformInAnotherHierarchy(rFrom.transform, from.transform, to.transform, createGameObjects);
                 if(!tTo)
                     continue;
 
@@ -410,10 +405,10 @@ namespace Pumkin.AvatarTools.Copiers
                 if(Helpers.ShouldIgnoreObject(aimCon.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
-                var transTo = Helpers.FindTransformInAnotherHierarchy(aimCon.transform, to.transform, createGameObjects);
+                var transTo = Helpers.FindTransformInAnotherHierarchy(aimCon.transform, from.transform, to.transform, createGameObjects);
                 if(transTo == null)
                     continue;
-                
+
                 var aimConTo = transTo.GetComponent<AimConstraint>();
                 if(Settings.bCopier_aimConstraint_replaceOld || aimConTo == null)
                 {
@@ -427,7 +422,7 @@ namespace Pumkin.AvatarTools.Copiers
                     {
                         var upObj = aimConTo.worldUpObject;
                         if(upObj && upObj.root == from.transform)
-                            aimConTo.worldUpObject = Helpers.FindTransformInAnotherHierarchy(upObj, to.transform, createGameObjects);
+                            aimConTo.worldUpObject = Helpers.FindTransformInAnotherHierarchy(upObj, from.transform, to.transform, createGameObjects);
                     }
                     var sources = new List<ConstraintSource>();
                     aimConTo.GetSources(sources);
@@ -438,7 +433,7 @@ namespace Pumkin.AvatarTools.Copiers
                         if(t.sourceTransform && t.sourceTransform.root == from.transform)
                         {
                             var cs = sources[z];
-                            cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, to.transform, createGameObjects);
+                            cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, from.transform, to.transform, createGameObjects);
                             aimConTo.SetSource(z, cs);
                         }
                     }
@@ -481,10 +476,10 @@ namespace Pumkin.AvatarTools.Copiers
                 if(Helpers.ShouldIgnoreObject(lookCon.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
-                var transTo = Helpers.FindTransformInAnotherHierarchy(lookCon.transform, to.transform, createGameObjects);
+                var transTo = Helpers.FindTransformInAnotherHierarchy(lookCon.transform, from.transform, to.transform, createGameObjects);
                 if(transTo == null)
                     continue;
-                
+
                 var lookConTo = transTo.GetComponent<LookAtConstraint>();
                 if(Settings.bCopier_lookAtConstraint_replaceOld || lookConTo == null)
                 {
@@ -498,7 +493,7 @@ namespace Pumkin.AvatarTools.Copiers
                     {
                         var upObj = lookConTo.worldUpObject;
                         if(upObj && upObj.root == from.transform)
-                            lookConTo.worldUpObject = Helpers.FindTransformInAnotherHierarchy(upObj, to.transform, createGameObjects);
+                            lookConTo.worldUpObject = Helpers.FindTransformInAnotherHierarchy(upObj, from.transform, to.transform, createGameObjects);
                     }
 
                     var sources = new List<ConstraintSource>();
@@ -510,7 +505,7 @@ namespace Pumkin.AvatarTools.Copiers
                         if(t.sourceTransform && t.sourceTransform.root == from.transform)
                         {
                             var cs = sources[z];
-                            cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, to.transform, createGameObjects);
+                            cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, from.transform, to.transform, createGameObjects);
                             lookConTo.SetSource(z, cs);
                         }
                     }
@@ -553,10 +548,10 @@ namespace Pumkin.AvatarTools.Copiers
                 if(Helpers.ShouldIgnoreObject(parCon.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
-                var transTo = Helpers.FindTransformInAnotherHierarchy(parCon.transform, to.transform, createGameObjects);
+                var transTo = Helpers.FindTransformInAnotherHierarchy(parCon.transform, from.transform, to.transform, createGameObjects);
                 if(transTo == null)
                     continue;
-                
+
                 var parConTo = transTo.GetComponent<ParentConstraint>();
                 if(Settings.bCopier_parentConstraint_replaceOld || parConTo == null)
                 {
@@ -575,7 +570,7 @@ namespace Pumkin.AvatarTools.Copiers
                         if(t.sourceTransform && t.sourceTransform.root == from.transform)
                         {
                             var cs = sources[z];
-                            cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, to.transform, createGameObjects);
+                            cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, from.transform, to.transform, createGameObjects);
                             parConTo.SetSource(z, cs);
                         }
                     }
@@ -618,10 +613,10 @@ namespace Pumkin.AvatarTools.Copiers
                 if(Helpers.ShouldIgnoreObject(posCon.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
-                var transTo = Helpers.FindTransformInAnotherHierarchy(posCon.transform, to.transform, createGameObjects);
+                var transTo = Helpers.FindTransformInAnotherHierarchy(posCon.transform, from.transform, to.transform, createGameObjects);
                 if(transTo == null)
                     continue;
-                
+
                 var posConTo = transTo.GetComponent<PositionConstraint>();
                 if(Settings.bCopier_positionConstraint_replaceOld || posConTo == null)
                 {
@@ -640,7 +635,7 @@ namespace Pumkin.AvatarTools.Copiers
                         if(t.sourceTransform && t.sourceTransform.root == from.transform)
                         {
                             var cs = sources[z];
-                            cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, to.transform, createGameObjects);
+                            cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, from.transform, to.transform, createGameObjects);
                             posConTo.SetSource(z, cs);
                         }
                     }
@@ -685,7 +680,7 @@ namespace Pumkin.AvatarTools.Copiers
                 if(ignoreSet != null && Helpers.ShouldIgnoreObject(rotCon.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
-                var transTo = Helpers.FindTransformInAnotherHierarchy(rotCon.transform, to.transform, createGameObjects);
+                var transTo = Helpers.FindTransformInAnotherHierarchy(rotCon.transform, from.transform, to.transform, createGameObjects);
 
                 if(transTo != null)
                 {
@@ -708,7 +703,7 @@ namespace Pumkin.AvatarTools.Copiers
                             if(t.sourceTransform && t.sourceTransform.root == from.transform)
                             {
                                 var cs = sources[z];
-                                cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, to.transform, createGameObjects);
+                                cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, from.transform, to.transform, createGameObjects);
                                 rotConTo.SetSource(z, cs);
                             }
                         }
@@ -752,10 +747,10 @@ namespace Pumkin.AvatarTools.Copiers
                 if(Helpers.ShouldIgnoreObject(scaleCon.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
-                var transTo = Helpers.FindTransformInAnotherHierarchy(scaleCon.transform, to.transform, createGameObjects);
+                var transTo = Helpers.FindTransformInAnotherHierarchy(scaleCon.transform, from.transform, to.transform, createGameObjects);
                 if(transTo == null)
                     continue;
-                
+
                 var scaleConTo = transTo.GetComponent<ScaleConstraint>();
                 if(Settings.bCopier_scaleConstraint_replaceOld || scaleConTo == null)
                 {
@@ -774,7 +769,7 @@ namespace Pumkin.AvatarTools.Copiers
                         if(t.sourceTransform && t.sourceTransform.root == from.transform)
                         {
                             var cs = sources[z];
-                            cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, to.transform, createGameObjects);
+                            cs.sourceTransform = Helpers.FindTransformInAnotherHierarchy(t.sourceTransform, from.transform, to.transform, createGameObjects);
                             scaleConTo.SetSource(z, cs);
                         }
                     }
@@ -796,7 +791,7 @@ namespace Pumkin.AvatarTools.Copiers
                 {
                     PumkinsAvatarTools.Log(Strings.Log.failedAlreadyHas, LogType.Log, scaleCon.gameObject.name, typeString);
                 }
-                
+
             }
         }
 
@@ -819,8 +814,8 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 if(Helpers.ShouldIgnoreObject(audioFrom.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
-                
-                var transTo = Helpers.FindTransformInAnotherHierarchy(audioFrom.transform, to.transform, createGameObjects);
+
+                var transTo = Helpers.FindTransformInAnotherHierarchy(audioFrom.transform, from.transform, to.transform, createGameObjects);
                 if(!transTo)
                     continue;
 
@@ -885,7 +880,7 @@ namespace Pumkin.AvatarTools.Copiers
                 string log = Strings.Log.copyAttempt;
                 string type = nameof(Animator);
 
-                var tTo = Helpers.FindTransformInAnotherHierarchy(animFrom.transform, to.transform, createGameObjects);
+                var tTo = Helpers.FindTransformInAnotherHierarchy(animFrom.transform, from.transform, to.transform, createGameObjects);
                 if(!tTo)
                     continue;
 
@@ -932,11 +927,11 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 if(ignoreSet != null && Helpers.ShouldIgnoreObject(lFrom.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
-                
+
                 string log = Strings.Log.copyAttempt;
                 string type = nameof(Light);
 
-                var tTo = Helpers.FindTransformInAnotherHierarchy(lFrom.transform, to.transform, createGameObjects);
+                var tTo = Helpers.FindTransformInAnotherHierarchy(lFrom.transform, from.transform, to.transform, createGameObjects);
                 if(!tTo)
                     continue;
 
@@ -983,11 +978,11 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 if(Helpers.ShouldIgnoreObject(rFrom.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
-                
-                var tTo = Helpers.FindTransformInAnotherHierarchy(rFrom.transform, to.transform, createGameObjects);
+
+                var tTo = Helpers.FindTransformInAnotherHierarchy(rFrom.transform, from.transform, to.transform, createGameObjects);
                 if(!tTo)
                     continue;
-                
+
                 string log = string.Format(Strings.Log.copyAttempt, type, rFrom.gameObject.name, tTo.gameObject.name);
 
                 var rToObj = tTo.gameObject;
@@ -996,7 +991,7 @@ namespace Pumkin.AvatarTools.Copiers
 
                 if(fFrom == null)
                     continue;
-                
+
                 var rTo = rToObj.GetComponent<MeshRenderer>();
                 var fTo = rToObj.GetComponent<MeshFilter>();
 
@@ -1027,7 +1022,7 @@ namespace Pumkin.AvatarTools.Copiers
         {
             Type descType = PumkinsTypeCache.VRC_AvatarDescriptor;
             Type pipelineType = PumkinsTypeCache.PipelineManager;
-            
+
             if(to == null || from == null || descType == null || pipelineType == null)
                 return;
 
@@ -1054,7 +1049,7 @@ namespace Pumkin.AvatarTools.Copiers
             if(Settings.bCopier_descriptor_copyViewpoint)
                 descPropNames.Add("ViewPosition");
 
-            
+
             if(Settings.bCopier_descriptor_copyPipelineId)
             {
                 var sPipeFrom = new SerializedObject(pFrom);
@@ -1116,10 +1111,10 @@ namespace Pumkin.AvatarTools.Copiers
                     "collider_handL", "collider_footL", "collider_fingerIndexL", "collider_fingerMiddleL",
                     "collider_fingerRingL", "collider_fingerLittleL"
                 };
-                
+
                 descPropNames.Add("collidersMirrored");
                 descPropNames.AddRange(colliderProps);
-                
+
                 foreach(var colProp in colliderProps)
                 {
                     var prop = sDescTo.FindProperty(colProp)?.FindPropertyRelative("transform");
@@ -1138,7 +1133,7 @@ namespace Pumkin.AvatarTools.Copiers
             var eyes = sDescTo.FindProperty("customEyeLookSettings");
             if(eyes != null)
             {
-                transLocalize.AddRange(new[] 
+                transLocalize.AddRange(new[]
                 {
                     eyes.FindPropertyRelative("leftEye"),
                     eyes.FindPropertyRelative("rightEye"),
@@ -1149,32 +1144,32 @@ namespace Pumkin.AvatarTools.Copiers
                 });
             }
 
-            Helpers.MakeReferencesLocal<Transform>(to.transform, true, transLocalize.ToArray());
-            
+            Helpers.MakeReferencesLocal<Transform>(to.transform, from.transform, true, transLocalize.ToArray());
+
             SerializedProperty[] rendererLocalize =
             {
                 sDescTo.FindProperty("VisemeSkinnedMesh"),
                 eyes != null ? eyes.FindPropertyRelative("eyelidsSkinnedMesh") : null,
             };
-            Helpers.MakeReferencesLocal<SkinnedMeshRenderer>(to.transform, true, rendererLocalize);
+            Helpers.MakeReferencesLocal<SkinnedMeshRenderer>(to.transform, from.transform, true, rendererLocalize);
             sDescTo.ApplyModifiedPropertiesWithoutUndo();
         }
-        
+
         internal static void CopyTransformActiveStateTagsAndLayer(GameObject from, GameObject to, HashSet<Transform> ignoreSet)
         {
             if(from == null || to == null || !(Settings.bCopier_transforms_copyActiveState || Settings.bCopier_transforms_copyLayerAndTag))
                 return;
-            
+
             var tFromArr = from.GetComponentsInChildren<Transform>(true);
 
             foreach(var tFrom in tFromArr)
             {
                 if(tFrom == tFrom.root || (ignoreSet != null && Helpers.ShouldIgnoreObject(tFrom, ignoreSet, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
-                Transform tTo = Helpers.FindTransformInAnotherHierarchy(tFrom, to.transform, false);
+                Transform tTo = Helpers.FindTransformInAnotherHierarchy(tFrom, from.transform, to.transform, false);
                 if(!tTo)
                     continue;
-                
+
                 if(Settings.bCopier_transforms_copyActiveState)
                     tTo.gameObject.SetActive(tFrom.gameObject.activeSelf);
                 if(Settings.bCopier_transforms_copyLayerAndTag)
@@ -1199,7 +1194,7 @@ namespace Pumkin.AvatarTools.Copiers
             for(int i = 0; i < cameraFromArr.Length; i++)
             {
                 var camFrom = cameraFromArr[i];
-                var tTo = Helpers.FindTransformInAnotherHierarchy(camFrom.transform, to.transform, createGameObjects);
+                var tTo = Helpers.FindTransformInAnotherHierarchy(camFrom.transform, from.transform, to.transform, createGameObjects);
                 if(!tTo || (ignoreSet != null && Helpers.ShouldIgnoreObject(camFrom.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren)))
                     continue;
 

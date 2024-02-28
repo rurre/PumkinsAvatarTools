@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Pumkin.DataStructures;
 using Pumkin.Presets;
 using UnityEditor;
@@ -11,7 +10,7 @@ using UnityEngine;
 namespace Pumkin.AvatarTools
 {
     [Serializable]
-    internal class SettingsContainer : ScriptableObject
+    internal class SettingsContainer : ScriptableObject, ISerializationCallbackReceiver
     {
         internal SerializedObject SerializedSettings
         {
@@ -36,7 +35,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool _tools_quickSetup_setTrailRendererAnchor = false;
         [SerializeField] internal bool _tools_quickSetup_setMeshRendererAnchor = true;
         [SerializeField] internal bool _tools_quicksetup_fillEyeBones = true;
-        
+
         [SerializeField] internal bool _tools_quicksetup_setMeshRendererAnchor_usePath = false;
         [SerializeField] internal string _tools_quickSetup_setRenderAnchor_path = "Armature/Hips/Chest";
         [SerializeField] internal HumanBodyBones _tools_quickSetup_setRenderAnchor_bone = HumanBodyBones.Chest;
@@ -59,7 +58,7 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_transforms_copyPosition = false;
         [SerializeField] internal bool bCopier_transforms_copyRotation = true;
         [SerializeField] internal bool bCopier_transforms_copyScale = true;
-        [SerializeField] internal bool bCopier_transforms_createMissing = true;
+        [SerializeField] internal bool bCopier_transforms_createMissing = false;
         [SerializeField] internal bool bCopier_transforms_copyActiveState = true;
         [SerializeField] internal bool bCopier_transforms_copyLayerAndTag = true;
 
@@ -201,10 +200,10 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_scaleConstraint_createObjects = true;
         [SerializeField] internal bool bCopier_scaleConstraint_copy = true;
         [SerializeField] internal bool bCopier_scaleConstraint_onlyIfHasValidSources = true;
-        
+
         [SerializeField] internal bool bCopier_cameras_copy = true;
         [SerializeField] internal bool bCopier_cameras_createObjects = true;
-        
+
         [SerializeField] internal bool bCopier_finalIK_copy = true;
         [SerializeField] internal bool bCopier_finalIK_createObjects = true;
         [SerializeField] internal bool bCopier_finalIK_copyCCDIK = true;
@@ -363,5 +362,14 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal static GameObject _selectedAvatar; // use property
 
         [SerializeField] internal static bool _useSceneSelectionAvatar = false;
+        public void OnBeforeSerialize()
+        {
+
+        }
+
+        public void OnAfterDeserialize()
+        {
+            copierIgnoreArray = new Transform[0];
+        }
     }
 }

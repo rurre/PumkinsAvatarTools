@@ -1,22 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using System;
-using System.IO;
 using UnityEngine;
-using System.Linq;
-using Pumkin.AvatarTools.Copiers;
-using Pumkin.AvatarTools.Destroyers;
-using Pumkin.DependencyChecker;
 using Pumkin.PoseEditor;
 using UnityEngine.UI;
 using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
 using Pumkin.Extensions;
-using UnityEngine.SceneManagement;
 using Pumkin.Presets;
-using UnityEngine.Animations;
-using UnityEditor.Experimental.SceneManagement;
 
 namespace Pumkin.AvatarTools
 {
@@ -83,7 +74,7 @@ namespace Pumkin.AvatarTools
                 if(!t)
                     newList.Add(t);
 
-                var tt = Helpers.FindTransformInAnotherHierarchy(t, CopierSelectedFrom.transform, false);
+                var tt = Helpers.FindTransformInAnotherHierarchy(t, SelectedAvatar.transform, CopierSelectedFrom.transform, false);
                 if(tt && !newList.Contains(tt))
                     newList.Add(tt);
             }

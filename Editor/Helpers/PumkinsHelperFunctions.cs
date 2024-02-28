@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -908,7 +909,7 @@ namespace Pumkin.HelperFunctions
                 return false;
             }
         }
-        
+
 
         /// <summary>
         /// Get path of transform in hierarchy (ex. Armature/Hips/Chest/Neck/Head/Hair01)
@@ -921,19 +922,25 @@ namespace Pumkin.HelperFunctions
             if(!trans)
                 return string.Empty;
 
-            string path = string.Empty;
+            StringBuilder sb = new StringBuilder();
             if(trans != root)
             {
                 if(!skipRoot)
-                    path = trans.name + "/";
-                path += AnimationUtility.CalculateTransformPath(trans, root);
+                {
+                    sb.Append(trans.name);
+                    sb.Append('/');
+                }
+                sb.Append(AnimationUtility.CalculateTransformPath(trans, root));
             }
             else
             {
                 if(!skipRoot)
-                    path = root.name;
+                {
+                    sb.Clear();
+                    sb.Append(root.name);
+                }
             }
-            return path;
+            return sb.ToString();
         }
 
         /// <summary>
@@ -1041,15 +1048,15 @@ namespace Pumkin.HelperFunctions
         /// Looks for transform in another transform's child hierarchy. Can create if missing.
         /// </summary>
         /// <returns>Found or created transform</returns>
-        public static Transform FindTransformInAnotherHierarchy(Transform trans, Transform otherHierarchyRoot, bool createIfMissing)
+        public static Transform FindTransformInAnotherHierarchy(Transform trans, Transform currentHierarchyRoot, Transform otherHierarchyRoot, bool createIfMissing)
         {
             if(!trans || !otherHierarchyRoot)
                 return null;
 
-            if(trans == trans.root)
-                return otherHierarchyRoot.root;
+            if(trans == currentHierarchyRoot)
+                return otherHierarchyRoot;
 
-            var childPath = GetTransformPath(trans, trans.root);
+            var childPath = GetTransformPath(trans, currentHierarchyRoot);
             var childTrans = otherHierarchyRoot.Find(childPath, createIfMissing, trans);
 
             return childTrans;
@@ -1244,7 +1251,7 @@ namespace Pumkin.HelperFunctions
         {
             return GameObjectUtility.RemoveMonoBehavioursWithMissingScript(obj) > 0;
         }
-        
+
         #endif
 
         /// <summary>
@@ -1302,7 +1309,7 @@ namespace Pumkin.HelperFunctions
                 path = path.Substring(Application.dataPath.Length);
             return path;
         }
-        
+
         public static string AbsolutePathToLocalProjectPath(string path)
         {
             if(path.StartsWith(Path.GetDirectoryName(Application.dataPath)))
@@ -1358,7 +1365,7 @@ namespace Pumkin.HelperFunctions
         /// <param name="properties"></param>
         /// <param name="setNullIfNotFound">Whether to set to null if not found. If false keep old reference</param>
         /// <typeparam name="T"></typeparam>
-        public static void MakeReferencesLocal<T>(Transform newHierarchyRoot, bool setNullIfNotFound, params SerializedProperty[] properties) where T : UnityEngine.Component
+        public static void MakeReferencesLocal<T>(Transform newHierarchyRoot, Transform oldHierarchyRoot, bool setNullIfNotFound, params SerializedProperty[] properties) where T : UnityEngine.Component
         {
             if(newHierarchyRoot == null)
             {
@@ -1402,7 +1409,7 @@ namespace Pumkin.HelperFunctions
                         continue;
                     }
 
-                    var newTrans = FindTransformInAnotherHierarchy(trans, newHierarchyRoot, false);
+                    var newTrans = FindTransformInAnotherHierarchy(trans, oldHierarchyRoot, newHierarchyRoot, false);
 
                     if(newTrans)
                         newComp = newTrans.GetComponent<T>();
