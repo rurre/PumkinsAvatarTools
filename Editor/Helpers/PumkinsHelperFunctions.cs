@@ -1059,7 +1059,7 @@ namespace Pumkin.HelperFunctions
                 nextTransform = nextTransform.parent;
             }
             while(nextTransform != null);
-            Debug.Log($"{(targetHierarchy == currentHierarchyRoot ? "our hierarchy" : "target hierarchy")}");
+
             var childPath = GetTransformPath(trans, targetHierarchy);
             var childTrans = otherHierarchyRoot.Find(childPath, createIfMissing, trans);
 
