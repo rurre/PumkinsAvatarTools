@@ -9,8 +9,13 @@
   },
   "gitDependencies": {},
   "vpmDependencies": {},
-  "legacyFolders": {},
+  "legacyFolders": {
+    "Assets\\PumkinsAvatarTools": "a1670ccbbb3658648bb90c2882b40935"
+  },
   "legacyFiles": {},
+  "legacyPackages": [
+    "pumkin.pumkinsavatartools"
+  ],
   "hideInEditor": false,
   "license": "MIT",
   "unity": "2019.4",
