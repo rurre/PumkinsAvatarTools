@@ -652,6 +652,17 @@ namespace Pumkin.AvatarTools
             }
         }
 
+        public bool SpringBonesExist
+        {
+            get
+            {
+                if(_springBonesExist == null)
+                    _springBonesExist = PumkinsTypeCache.VRMSpringBone != null;
+                return (bool)_springBonesExist;
+            }
+        }
+        bool? _springBonesExist;
+
 		public bool FinalIKExists
 		{
 			get
@@ -1450,13 +1461,8 @@ namespace Pumkin.AvatarTools
 
             try
             {
-                if(PumkinsTypeCache.HasExtraTypes && Settings.bCopier_other_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRCStation, Settings._copier_selectedTab))
+                if(PumkinsTypeCache.HasExtraTypes && Settings.bCopier_other_copy)
                 {
-                    if(Settings.bCopier_other_copyVRMSpringBones)
-                    {
-                        GenericCopier.CopyComponent(PumkinsTypeCache.VRMSpringBone, inst, Settings.bCopier_other_createGameObjects, false, Settings.bCopier_other_fixReferences, false, inst.ignoredTransforms);
-                    }
-
                     foreach(var typeCategory in PumkinsTypeCache.ExtraTypes)
                     {
                         for(int i = 0; i < typeCategory.types.Count; i++)
