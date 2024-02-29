@@ -187,28 +187,35 @@ namespace Pumkin.AvatarTools.Copiers
 
             serialComp.ForEachPropertyVisible(true, x =>
             {
-                if(x.propertyType != SerializedPropertyType.ObjectReference || x.name == "m_Script")
-                    return;
+                try
+                {
+                    if(x.propertyType != SerializedPropertyType.ObjectReference || x.name == "m_Script")
+                        return;
 
-                var oldComp = x.objectReferenceValue as Component;
-                if(!oldComp)
-                    return;
+                    var oldComp = x.objectReferenceValue as Component;
+                    if(!oldComp)
+                        return;
 
-                Type compType = oldComp.GetType();
-                int compIndex = oldComp.gameObject.GetComponents(compType)
-                                       .ToList()
-                                       .IndexOf(oldComp);
+                    Type compType = oldComp.GetType();
+                    int compIndex = oldComp.gameObject.GetComponents(compType)
+                                           .ToList()
+                                           .IndexOf(oldComp);
 
-                if(oldComp.gameObject.scene.name == null) // Don't fix if we're referencing an asset
-                    return;
+                    if(oldComp.gameObject.scene.name == null) // Don't fix if we're referencing an asset
+                        return;
 
-                var transTarget = Helpers.FindTransformInAnotherHierarchy(oldComp.transform, currentHierarchyRoot, targetHierarchyRoot, createGameObjects);
-                if(transTarget == null)
-                    return;
+                    var transTarget = Helpers.FindTransformInAnotherHierarchy(oldComp.transform, currentHierarchyRoot, targetHierarchyRoot, createGameObjects);
+                    if(transTarget == null)
+                        return;
 
-                var targetComps = transTarget.GetComponents(compType);
+                    var targetComps = transTarget.GetComponents(compType);
 
-                x.objectReferenceValue = targetComps[compIndex];
+                    x.objectReferenceValue = targetComps[compIndex];
+                }
+                catch(Exception e)
+                {
+                    PumkinsAvatarTools.Log($"_Error fixing reference on {newComp.name}: {e.Message}. Failed on property: {x.propertyPath}", LogType.Error);
+                }
             });
 
             serialComp.ApplyModifiedPropertiesWithoutUndo();
