@@ -118,11 +118,15 @@ namespace Pumkin.AvatarTools.Copiers
                 if(x.propertyType != SerializedPropertyType.ObjectReference || x.name == "m_Script")
                     return;
 
-                var oldComp = x.objectReferenceValue as Component;
-                if(!oldComp)
+                Transform compTransform;
+                if(x.objectReferenceValue is GameObject obj)
+                    compTransform = obj.transform;
+                else if(x.objectReferenceValue is Component comp)
+                    compTransform = comp.transform;
+                else
                     return;
 
-                var transTarget = Helpers.FindTransformInAnotherHierarchy(oldComp.transform, currentHierarchyRoot, targetHierarchyRoot, createGameObjects);
+                var transTarget = Helpers.FindTransformInAnotherHierarchy(compTransform, currentHierarchyRoot, targetHierarchyRoot, createGameObjects);
                 if(transTarget == null)
                     return;
 
@@ -150,17 +154,25 @@ namespace Pumkin.AvatarTools.Copiers
                 for(int i = 0; i < objRef.targetTransforms.Length; i++)
                 {
                     SerializedProperty prop = newObj.FindProperty(objRef.propertyPaths[i]);
-                    var oldComp = prop.objectReferenceValue as Component;
-                    if(!oldComp)
-                        return;
-
-                    Type compType = oldComp.GetType();
-                    int compIndex = oldComp.gameObject.GetComponents(compType)
-                                           .ToList()
-                                           .IndexOf(oldComp);
-
-                    var targetComps = objRef.targetTransforms[i].GetComponents(compType);
-                    prop.objectReferenceValue = targetComps.Length > 0 ? targetComps[compIndex] : null;
+                    if(prop.objectReferenceValue is GameObject obj)
+                    {
+                        Transform targetTransform = Helpers.FindTransformInAnotherHierarchy(obj.transform, inst.from.transform, inst.to.transform, false);
+                        if(!targetTransform)
+                        {
+                            PumkinsAvatarTools.Log($"_Attempted to fix reference for {obj.name}, but the object wasn't found on {inst.to.name}");
+                            continue;
+                        }
+                        prop.objectReferenceValue = targetTransform.gameObject;
+                    }
+                    else if(prop.objectReferenceValue is Component comp)
+                    {
+                        Type compType = comp.GetType();
+                        int compIndex = comp.gameObject.GetComponents(compType)
+                                               .ToList()
+                                               .IndexOf(comp);
+                        var targetComps = objRef.targetTransforms[i].GetComponents(compType);
+                        prop.objectReferenceValue = targetComps.Length > 0 ? targetComps[compIndex] : null;
+                    }
                 }
                 newObj.ApplyModifiedPropertiesWithoutUndo();
             }

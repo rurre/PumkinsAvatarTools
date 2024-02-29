@@ -226,7 +226,7 @@ namespace Pumkin.DataStructures
             public static string fixDynamicBoneScripts = "_Fix Missing DynamicBone Scripts in Prefab";
             public static string anchorPath = "_Anchor Path";
             public static string humanoidBone = "_Humanoid Bone";
-            public static string anchorUsePath = "_Use Hierarchy Path"; 
+            public static string anchorUsePath = "_Use Hierarchy Path";
             public static string fillEyeBones = "_Fill Eye Bones";
             public static string resetBoundingBoxes = "_Reset Bounding Boxes";
             public static string setImportSettings = "_Set Import Settings";
@@ -480,7 +480,7 @@ namespace Pumkin.DataStructures
             public static string joints_character = "_Character Joint";
             public static string joints_configurable = "_Configurable Joint";
             public static string joints_removeOld = "_Remove Old Joints";
-            
+
             public static string finalIK = "_FinalIK";
             public static string finalIK_fabrIK = "_FabrIK";
             public static string finalIK_aimIK = "_AimIK";
@@ -490,16 +490,16 @@ namespace Pumkin.DataStructures
             public static string finalIK_fbtBipedIK = "_Full Body Biped IK";
             public static string finalIK_VRIK = "_VRIK";
             public static string finalIK_Grounders = "_Grounders";
-            
+
             public static string cameras = "_Cameras";
-            
+
             public static string prefabs = "_Prefabs";
             public static string prefabs_copyPropertyOverrides = "_Copy Property Overrides";
             public static string prefabs_ignorePrefabByOtherCopiers = "_Ignore Prefab By Other Copiers";
 
             public static string adjustScale = "_Adjust Scale (might not work correctly)";
             public static string fixReferences = "_Fix References";
-            
+
             public static string exclusions = "_Exclusions";
             public static string includeChildren = "_Include Children";
             public static string size = "_Size";
@@ -530,7 +530,7 @@ namespace Pumkin.DataStructures
                 transforms_scale = Translation.copier.transforms_scale;
                 transforms_createMissing = Translation.copier.transforms_createMissing;
                 transforms_avatarScale = Translation.copier.transforms_avatarScale;
-                transforms_copyActiveState = Translation.copier.transforms_copyActiveState; 
+                transforms_copyActiveState = Translation.copier.transforms_copyActiveState;
                 transforms_copyLayerAndTag = Translation.copier.transforms_copyLayerAndTag;
                 physBones = Translation.copier.physBones;
                 physBones_colliders = Translation.copier.physBones_colliders;
@@ -572,7 +572,7 @@ namespace Pumkin.DataStructures
                 animators_inChildren = Translation.copier.animators_inChildren;
                 audioSources = Translation.copier.audioSources;
                 joints = Translation.copier.joints;
-                other = Translation.copier.other;                
+                other = Translation.copier.other;
                 other_emptyScripts = Translation.copier.other_emptyScripts;
                 contactReceiver = Translation.copier.contactReceiver;
                 contactReceiver_removeOld = Translation.copier.contactReceiver_removeOld;
@@ -603,14 +603,14 @@ namespace Pumkin.DataStructures
                 finalIK_fbtBipedIK = Translation.copier.finalIK_fbtBipedIK;
                 finalIK_VRIK = Translation.copier.finalIK_VRIK;
                 finalIK_Grounders = Translation.copier.finalIK_Grounders;
-                
+
                 cameras = Translation.copier.cameras;
                 prefabs = Translation.copier.prefabs;
                 prefabs_copyPropertyOverrides = Translation.copier.prefabs_copyPropertyOverrides;
                 prefabs_ignorePrefabByOtherCopiers = Translation.copier.prefabs_ignorePrefabByOtherCopiers;
-                
+
                 vrc_station = Translation.copier.vrc_station;
-                
+
                 adjustScale = Translation.copier.adjustScale;
                 fixReferences = Translation.copier.fixReferences;
 
@@ -652,7 +652,7 @@ namespace Pumkin.DataStructures
             public static string setAvatarScaleTo = "_Set Avatar scale to '{0}'";
             public static string setAvatarScaleAndViewpointTo = "_Set Avatar scale to '{0}' and Viewpoint to '{1}'";
             public static string canceledScaleChanges = "_Cancelled Scale changes";
-            public static string successCopiedOverFromTo = "_Success: Copied over '{0}' from '{1}''s '{2}' to '{3}''s '{4}'";
+            public static string successCopiedOverFromTo = "_Success: Copied over <b>{0}</b> from <b>{1}</b>'s <b>{2}</b> to <b>{3}</b>'s <b>{4}</b>";
             public static string hasNoComponentsOrChildrenDestroying = "_'{0}' has no components or children. Destroying";
             public static string cantBeDestroyedPartOfPrefab = "_{0}'s {1} can't be destroyed because it's part of a prefab instance. This can be changed in settings. Ignoring";
             public static string meshPrefabMissingCantRevertBlednshapes = "_Mesh prefab is missing, can't revert to default blendshapes";
