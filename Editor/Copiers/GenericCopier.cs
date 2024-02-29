@@ -317,8 +317,11 @@ namespace Pumkin.AvatarTools.Copiers
                 Component[] prefComponents = toPref.GetComponentsInChildren<Component>(true);
                 foreach(var comp in prefComponents)
                 {
-                     if(fixReferences)
-                        FixReferencesOnComponent(comp, tFrom, tTo, createGameObjects);
+                    if(fixReferences)
+                    {
+                        var refs = GetReferencesToFixLater(comp, tFrom, tTo, createGameObjects);
+                        inst.propertyRefs.Add(refs);
+                    }
 
                      if(adjustScale)
                      {

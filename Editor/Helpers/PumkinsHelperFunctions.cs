@@ -1418,7 +1418,7 @@ namespace Pumkin.HelperFunctions
                     if(newTrans)
                         newComp = newTrans.GetComponent<T>();
                     else if(setNullIfNotFound)
-                        PumkinsAvatarTools.Log($"Couldn't find object for <b>{prop.displayName}</b> in <b>{newHierarchyRoot.name}</b>'s hierarchy", LogType.Warning);
+                        PumkinsAvatarTools.Log($"Couldn't find object for property <b>{prop.propertyPath}</b> in <b>{newHierarchyRoot.name}</b>'s hierarchy", LogType.Warning);
                     else
                         continue;
                 }
