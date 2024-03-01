@@ -126,6 +126,9 @@ namespace Pumkin.AvatarTools.Copiers
                 else
                     return;
 
+                if(compTransform.gameObject.scene.name == null) // Don't fix if we're referencing an asset
+                    return;
+
                 var transTarget = Helpers.FindTransformInAnotherHierarchy(compTransform, currentHierarchyRoot, targetHierarchyRoot, createGameObjects);
                 if(transTarget == null)
                     return;
@@ -253,7 +256,12 @@ namespace Pumkin.AvatarTools.Copiers
             {
                 var pref = PrefabUtility.GetNearestPrefabInstanceRoot(trans);
                 if(pref && pref.transform != inst.from.transform && !prefabs.Contains(pref))
-                    prefabs.Add(pref);
+                {
+                    // Check if prefab isn't child of another prefab before adding
+                    Transform parentPrefab = pref.transform.parent;
+                    if(parentPrefab == null || parentPrefab == inst.from.transform || !PrefabUtility.GetNearestPrefabInstanceRoot(parentPrefab))
+                        prefabs.Add(pref);
+                }
             }
 
             Transform tTo = inst.to.transform;
