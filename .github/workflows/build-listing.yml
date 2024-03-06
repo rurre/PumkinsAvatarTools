@@ -3,7 +3,7 @@ name: Build Repo Listing
 on: 
   workflow_dispatch:
   push:
-    branches: main
+    branches: master
     paths: source.json
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
