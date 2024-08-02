@@ -3,7 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Pumkin.DependencyChecker;
 using UnityEngine;
-#if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2)
+using Pumkin.AvatarTools;
+using VRC.SDK3.Dynamics.PhysBone.Components;
+using System.Text;
+
+
+
+#if(VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2)
 using UnityEditor;
 using VRC.SDKBase;
 using VRC.SDKBase.Validation.Performance;
@@ -112,7 +118,7 @@ namespace Pumkin.DataStructures
         {
             if(o == null)
                 return;
-#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
+#if VRC_SDK_VRCSDK3
             try
             {
                 AvatarPerformance.CalculatePerformanceStats(o.name, o, PerfStats, EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android);
@@ -210,8 +216,9 @@ namespace Pumkin.DataStructures
 
             UniqueMaterials = new HashSet<Material>(matList).Count;
             UniqueMaterials_Total = new HashSet<Material>(matList_total).Count;
-#if PUMKIN_PBONES
-            var pbColliders = o.GetComponentsInChildren<VRCPhysBoneCollider>(true);
+
+#if VRC_SDK_VRCSDK3
+            var pbColliders = o.GetComponentsInChildren(PumkinsTypeCache.PhysBoneCollider, true);
             foreach (var p in pbColliders)
             {
                 PhysBoneColliders_Total++;
@@ -221,21 +228,21 @@ namespace Pumkin.DataStructures
             }
 
             var pbones = o.GetComponentsInChildren<VRCPhysBone>(true);
-            foreach (var p in pbones)
+            foreach (var pb in pbones)
             {
                 PhysboneComponents_Total++;
-                if(p.enabled)
+                if(pb.enabled)
                     PhysboneComponents++;
-                
-                if(p.ignoreTransforms != null)
+
+                if(pb.ignoreTransforms != null)
                 {
-                    var exclusions = p.ignoreTransforms;
+                    var exclusions = pb.ignoreTransforms;
                     Transform[] rootChildren = null;
-                    
-                    if(p.rootTransform != null)
-                        rootChildren = p.rootTransform.GetComponentsInChildren<Transform>(true);
+
+                    if(pb.rootTransform != null)
+                        rootChildren = pb.rootTransform.GetComponentsInChildren<Transform>(true);
                     else
-                        rootChildren = p.transform.GetComponentsInChildren<Transform>(true);
+                        rootChildren = pb.transform.GetComponentsInChildren<Transform>(true);
                     
                     int affected = 0;
                     int affected_total = 0;
@@ -245,7 +252,7 @@ namespace Pumkin.DataStructures
                         if(exclusions.IndexOf(t) == -1)
                         {
                             affected_total++;
-                            if(t.gameObject.activeInHierarchy && p.enabled)
+                            if(t.gameObject.activeInHierarchy && pb.enabled)
                                 affected++;
                         }
                         else
@@ -254,13 +261,13 @@ namespace Pumkin.DataStructures
                             for (int z = 1; z < childChildren.Length; z++)
                             {
                                 affected_total--;
-                                if(childChildren[z].gameObject.activeInHierarchy && p.enabled)
+                                if(childChildren[z].gameObject.activeInHierarchy && pb.enabled)
                                     affected--;
                             }
                         }
                     }
 
-                    foreach (var c in p.colliders)
+                    foreach (var c in pb.colliders)
                     {
                         if(c != null)
                         {
@@ -275,76 +282,75 @@ namespace Pumkin.DataStructures
                 }
             }
 #endif
-#if PUMKIN_DBONES || PUMKIN_OLD_DBONES
-
-            Type dynamicBoneColliderType = PumkinsTypeCache.DynamicBoneCollider;
-            var dbColliders = o.GetComponentsInChildren(dynamicBoneColliderType, true);
-            foreach(var c in dbColliders)
+            if(PumkinsTypeCache.DynamicBone != null)
             {
-                DynamicBoneColliders_Total++;
-
-                if(c.gameObject.activeInHierarchy)
-                    DynamicBoneColliders++;
-            }
-
-            Type dynamicBoneType = PumkinsTypeCache.DynamicBone;
-            var dbones = o.GetComponentsInChildren(dynamicBoneType, true);
-            foreach(var d in dbones)
-            {
-                Transform root = (Transform) dynamicBoneType.GetField("m_Root").GetValue(d);
-                if(root != null)
+                Type dynamicBoneColliderType = PumkinsTypeCache.DynamicBoneCollider;
+                var dbColliders = o.GetComponentsInChildren(dynamicBoneColliderType, true);
+                foreach(var c in dbColliders)
                 {
-                    List<Transform> exclusions = (List<Transform>)dynamicBoneType.GetField("m_Exclusions").GetValue(d);
-                    var rootChildren = root.GetComponentsInChildren<Transform>(true);
+                    DynamicBoneColliders_Total++;
 
-                    int affected = 0;
-                    int affected_total = 0;
+                    if(c.gameObject.activeInHierarchy)
+                        DynamicBoneColliders++;
+                }
 
-                    foreach(var t in rootChildren)
+                Type dynamicBoneType = PumkinsTypeCache.DynamicBone;
+                var dbones = o.GetComponentsInChildren(dynamicBoneType, true);
+                foreach(var d in dbones)
+                {
+                    Transform root = (Transform)dynamicBoneType.GetField("m_Root").GetValue(d);
+                    if(root != null)
                     {
-                        if(exclusions.IndexOf(t) == -1)
+                        List<Transform> exclusions = (List<Transform>)dynamicBoneType.GetField("m_Exclusions").GetValue(d);
+                        var rootChildren = root.GetComponentsInChildren<Transform>(true);
+
+                        int affected = 0;
+                        int affected_total = 0;
+
+                        foreach(var t in rootChildren)
                         {
-                            affected_total++;
-
-                            if(t.gameObject.activeInHierarchy && ((Behaviour)d).enabled)
+                            if(exclusions.IndexOf(t) == -1)
                             {
-                                affected++;
-                            }
-                        }
-                        else
-                        {
-                            var childChildren = t.GetComponentsInChildren<Transform>(true);
+                                affected_total++;
 
-                            for(int z = 1; z < childChildren.Length; z++)
-                            {
-                                affected_total -= 1;
-
-                                if(childChildren[z].gameObject.activeInHierarchy && ((Behaviour)d).enabled)
+                                if(t.gameObject.activeInHierarchy && ((Behaviour)d).enabled)
                                 {
-                                    affected -= 1;
+                                    affected++;
+                                }
+                            }
+                            else
+                            {
+                                var childChildren = t.GetComponentsInChildren<Transform>(true);
+
+                                for(int z = 1; z < childChildren.Length; z++)
+                                {
+                                    affected_total -= 1;
+
+                                    if(childChildren[z].gameObject.activeInHierarchy && ((Behaviour)d).enabled)
+                                    {
+                                        affected -= 1;
+                                    }
                                 }
                             }
                         }
-                    }
-                    var list = dynamicBoneType.GetField("m_Colliders").GetValue(d);
-                    int length = (int)list.GetType().GetProperty("Count").GetValue(list);
-                    for (int i = 0; i < length; i++)
-                    {
-                        var collider = list.GetType().GetMethod("get_Item").Invoke(list, new[] { (object)i });
-                        if(collider != null)
+                        var list = dynamicBoneType.GetField("m_Colliders").GetValue(d);
+                        int length = (int)list.GetType().GetProperty("Count").GetValue(list);
+                        for(int i = 0; i < length; i++)
                         {
-                            DynamicBoneColliderTransforms += affected;
-                            DynamicBoneColliderTransforms_Total += affected_total;
-                            break;
+                            var collider = list.GetType().GetMethod("get_Item").Invoke(list, new[] { (object)i });
+                            if(collider != null)
+                            {
+                                DynamicBoneColliderTransforms += affected;
+                                DynamicBoneColliderTransforms_Total += affected_total;
+                                break;
+                            }
                         }
-                    }
 
-                    DynamicBoneTransforms += affected;
-                    DynamicBoneTransforms_Total += affected_total;
+                        DynamicBoneTransforms += affected;
+                        DynamicBoneTransforms_Total += affected_total;
+                    }
                 }
             }
-
-#endif
 
             var ptc = o.GetComponentsInChildren<ParticleSystem>(true);
             foreach(var p in ptc)
@@ -373,73 +379,85 @@ namespace Pumkin.DataStructures
         {
             if(!string.IsNullOrEmpty(CachedInfo))
                 return CachedInfo;
-            else
+
+            bool useDefault = false;
+            StringBuilder sb = new StringBuilder();
+            try
             {
-                bool useDefault = false;
-                try
+#if VRC_SDK_VRCSDK3
+                sb.AppendLine(string.Format(Strings.AvatarInfo.name, Name));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.line));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.gameObjects, GameObjects, GameObjects_Total));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.bones, Bones, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.BoneCount)));
+                sb.AppendLine();
+                sb.AppendLine(string.Format(Strings.AvatarInfo.skinnedMeshRenderers, SkinnedMeshRenderers, SkinnedMeshRenderers_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.SkinnedMeshCount)));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.meshRenderers, MeshRenderers, MeshRenderers_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.MeshCount)));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.polygons, Polygons, Polygons_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PolyCount)));
+                sb.AppendLine();
+                sb.AppendLine(string.Format(Strings.AvatarInfo.usedMaterialSlots, MaterialSlots, MaterialSlots_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.MaterialCount)));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.uniqueMaterials, UniqueMaterials, UniqueMaterials_Total));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.shaders, ShaderCount));
+                sb.AppendLine();
+                sb.AppendLine(string.Format(Strings.AvatarInfo.physBoneComponents, PhysboneComponents, PhysboneComponents_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneComponentCount)));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.physBoneTransforms, PhysBoneTransforms, PhysBoneTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneTransformCount)));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.physBoneColliders, PhysBoneColliders, PhysBoneColliders_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneColliderCount)));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.physBoneColliderTransforms, PhysBoneColliderTransforms, PhysBoneColliderTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneCollisionCheckCount)));
+                sb.AppendLine();
+
+                if(_DependencyChecker.DBonesVersion != _DependencyChecker.PumkinsDBonesVersion.NotFound)
                 {
-#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
-                    CachedInfo =
-                    string.Format(Strings.AvatarInfo.name, Name) + "\n" +
-                    string.Format(Strings.AvatarInfo.line) + "\n" +
-                    string.Format(Strings.AvatarInfo.gameObjects, GameObjects, GameObjects_Total) + "\n" +
-                    string.Format(Strings.AvatarInfo.bones, Bones, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.BoneCount)) + "\n\n" +
-                    string.Format(Strings.AvatarInfo.skinnedMeshRenderers, SkinnedMeshRenderers, SkinnedMeshRenderers_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.SkinnedMeshCount)) + "\n" +
-                    string.Format(Strings.AvatarInfo.meshRenderers, MeshRenderers, MeshRenderers_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.MeshCount)) + "\n" +
-                    string.Format(Strings.AvatarInfo.polygons, Polygons, Polygons_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PolyCount)) + "\n\n" +
-                    string.Format(Strings.AvatarInfo.usedMaterialSlots, MaterialSlots, MaterialSlots_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.MaterialCount)) + "\n" +
-                    string.Format(Strings.AvatarInfo.uniqueMaterials, UniqueMaterials, UniqueMaterials_Total) + "\n" +
-                    string.Format(Strings.AvatarInfo.shaders, ShaderCount) + "\n\n" +
-#if VRC_SDK_VRCSDK3 && PUMKIN_PBONES
-                    string.Format(Strings.AvatarInfo.physBoneComponents, PhysboneComponents, PhysboneComponents_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneComponentCount)) + "\n" +
-                    string.Format(Strings.AvatarInfo.physBoneTransforms, PhysBoneTransforms, PhysBoneTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneTransformCount)) + "\n" +
-                    string.Format(Strings.AvatarInfo.physBoneColliders, PhysBoneColliders, PhysBoneColliders_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneColliderCount)) + "\n" +
-                    string.Format(Strings.AvatarInfo.physBoneColliderTransforms, PhysBoneColliderTransforms, PhysBoneColliderTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.PhysBoneCollisionCheckCount)) + "\n\n" +
-#endif
-                    string.Format(Strings.AvatarInfo.dynamicBoneTransforms, DynamicBoneTransforms, DynamicBoneTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneSimulatedBoneCount)) + "\n" +
-                    string.Format(Strings.AvatarInfo.dynamicBoneColliders, DynamicBoneColliders, DynamicBoneColliders_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneColliderCount)) + "\n" +
-                    string.Format(Strings.AvatarInfo.dynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.DynamicBoneCollisionCheckCount)) + "\n\n" +
-                    string.Format(Strings.AvatarInfo.particleSystems, ParticleSystems, ParticleSystems_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.ParticleSystemCount)) + "\n" +
-                    string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.ParticleTotalCount)) + "\n\n" +
-                    Strings.AvatarInfo.line + "\n" +
-                    string.Format(Strings.AvatarInfo.overallPerformance, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.Overall));
+                    sb.AppendLine(string.Format(Strings.AvatarInfo.dynamicBoneTransforms, DynamicBoneTransforms, DynamicBoneTransforms_Total, "?"));
+                    sb.AppendLine(string.Format(Strings.AvatarInfo.dynamicBoneColliders, DynamicBoneColliders, DynamicBoneColliders_Total, "?"));
+                    sb.AppendLine(string.Format(Strings.AvatarInfo.dynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, "?"));
+                    sb.AppendLine();
+                }
+
+                sb.AppendLine(string.Format(Strings.AvatarInfo.particleSystems, ParticleSystems, ParticleSystems_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.ParticleSystemCount)));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.ParticleTotalCount)));
+                sb.AppendLine(Strings.AvatarInfo.line);
+                sb.AppendLine(string.Format(Strings.AvatarInfo.overallPerformance, PerfStats.GetPerformanceRatingForCategory(AvatarPerformanceCategory.Overall)));
 #else
-                    useDefault = true;
+                useDefault = true;
 #endif
-                }
-                catch
-                {
-                    useDefault = true;
-                }
-
-                if(useDefault)
-                {
-                    CachedInfo =
-                        string.Format(Strings.AvatarInfo.name, Name) + "\n" +
-                        string.Format(Strings.AvatarInfo.line) + "\n" +
-                        string.Format(Strings.AvatarInfo.gameObjects, GameObjects, GameObjects_Total) + "\n" +
-                        string.Format(Strings.AvatarInfo.bones, Bones, "?") + "\n\n" +
-                        string.Format(Strings.AvatarInfo.skinnedMeshRenderers, SkinnedMeshRenderers, SkinnedMeshRenderers_Total, "?") + "\n" +
-                        string.Format(Strings.AvatarInfo.meshRenderers, MeshRenderers, MeshRenderers_Total, "?") + "\n" +
-                        string.Format(Strings.AvatarInfo.polygons, Polygons, Polygons_Total, "?") + "\n\n" +
-                        string.Format(Strings.AvatarInfo.usedMaterialSlots, MaterialSlots, MaterialSlots_Total, "?") + "\n" +
-                        string.Format(Strings.AvatarInfo.uniqueMaterials, UniqueMaterials, UniqueMaterials_Total) + "\n" +
-                        string.Format(Strings.AvatarInfo.shaders, ShaderCount) + "\n\n" +
-                        string.Format(Strings.AvatarInfo.physBoneTransforms, PhysBoneTransforms, PhysBoneTransforms_Total, "?") + "\n" +
-                        string.Format(Strings.AvatarInfo.physBoneColliders, PhysBoneColliders, PhysBoneColliders_Total, "?") + "\n" +
-                        string.Format(Strings.AvatarInfo.physBoneColliderTransforms, PhysBoneColliderTransforms, PhysBoneColliderTransforms_Total, "?") + "\n\n" +
-                        string.Format(Strings.AvatarInfo.dynamicBoneTransforms, DynamicBoneTransforms, DynamicBoneTransforms_Total, "?") + "\n" +
-                        string.Format(Strings.AvatarInfo.dynamicBoneColliders, DynamicBoneColliders, DynamicBoneColliders_Total, "?") + "\n" +
-                        string.Format(Strings.AvatarInfo.dynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, "?") + "\n\n" +
-                        string.Format(Strings.AvatarInfo.particleSystems, ParticleSystems, ParticleSystems_Total, "?") + "\n" +
-                        string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, "?") + "\n" +
-                        Strings.AvatarInfo.line + "\n" +
-                        string.Format(Strings.AvatarInfo.overallPerformance, "?") +
-                        "Not supported in this version of the VRChat SDK";
-                }
-
-                return CachedInfo;
             }
+            catch
+            {
+                useDefault = true;
+            }
+
+            if(useDefault)
+            {
+                sb.AppendLine(string.Format(Strings.AvatarInfo.name, Name));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.line));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.gameObjects, GameObjects, GameObjects_Total));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.bones, Bones, "?"));
+                sb.AppendLine();
+                sb.AppendLine(string.Format(Strings.AvatarInfo.skinnedMeshRenderers, SkinnedMeshRenderers, SkinnedMeshRenderers_Total, "?"));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.meshRenderers, MeshRenderers, MeshRenderers_Total, "?"));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.polygons, Polygons, Polygons_Total, "?"));
+                sb.AppendLine();
+                sb.AppendLine(string.Format(Strings.AvatarInfo.usedMaterialSlots, MaterialSlots, MaterialSlots_Total, "?"));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.uniqueMaterials, UniqueMaterials, UniqueMaterials_Total));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.shaders, ShaderCount));
+                sb.AppendLine();
+                sb.AppendLine(string.Format(Strings.AvatarInfo.physBoneTransforms, PhysBoneTransforms, PhysBoneTransforms_Total, "?"));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.physBoneColliders, PhysBoneColliders, PhysBoneColliders_Total, "?"));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.physBoneColliderTransforms, PhysBoneColliderTransforms, PhysBoneColliderTransforms_Total, "?"));
+                sb.AppendLine();
+                sb.AppendLine(string.Format(Strings.AvatarInfo.dynamicBoneTransforms, DynamicBoneTransforms, DynamicBoneTransforms_Total, "?"));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.dynamicBoneColliders, DynamicBoneColliders, DynamicBoneColliders_Total, "?"));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.dynamicBoneColliderTransforms, DynamicBoneColliderTransforms, DynamicBoneColliderTransforms_Total, "?"));
+                sb.AppendLine();
+                sb.AppendLine(string.Format(Strings.AvatarInfo.particleSystems, ParticleSystems, ParticleSystems_Total, "?"));
+                sb.AppendLine(string.Format(Strings.AvatarInfo.maxParticles, MaxParticles, MaxParticles_Total, "?"));
+                sb.AppendLine(Strings.AvatarInfo.line);
+                sb.AppendLine(string.Format(Strings.AvatarInfo.overallPerformance, "?"));
+                sb.AppendLine("Not supported in this version of the VRChat SDK");
+            }
+
+            CachedInfo = sb.ToString();
+            return CachedInfo;
+
         }
 
         public static bool operator true(PumkinsAvatarInfo x) { return x != null; }

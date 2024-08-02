@@ -1,39 +1,129 @@
 {
-    "extraCopierTypes": [
-        {
-            "categoryName": "VRM",
-            "typeFullNames": [
-                "VRM.VRMSpringBone",
-				"VRM.VRMSpringBoneColliderGroup"
-            ]
-        },
-		{
-			"categoryName": "VRC Fury",
-			"typeFullNames": [
-				"VF.Model.VRCFury",
-				"VF.Component.VRCFuryGlobalCollider",
-				"VF.Component.VRCFuryHapticSocket",
-				"VF.Component.VRCFuryHapticPlug"
-			]
-		},
-		{
-			"categoryName": "Modular Avatar",
-			"typeFullNames": [
-				"nadena.dev.modular_avatar.core.ModularAvatarMenuGroup",
-				"nadena.dev.modular_avatar.core.ModularAvatarMenuInstaller",
-				"nadena.dev.modular_avatar.core.ModularAvatarBlendshapeSync",
-				"nadena.dev.modular_avatar.core.ModularAvatarBoneProxy",
-				"nadena.dev.modular_avatar.core.ModularAvatarMenuInstallTarget",
-				"nadena.dev.modular_avatar.core.ModularAvatarMenuItem",
-				"nadena.dev.modular_avatar.core.ModularAvatarMergeAnimator",
-				"nadena.dev.modular_avatar.core.ModularAvatarMergeArmature",
-				"nadena.dev.modular_avatar.core.ModularAvatarMeshSettings",
-				"nadena.dev.modular_avatar.core.ModularAvatarParameters",
-				"nadena.dev.modular_avatar.core.ModularAvatarPBBlocker",
-				"nadena.dev.modular_avatar.core.ModularAvatarReplaceObject",
-				"nadena.dev.modular_avatar.core.ModularAvatarVisibleHeadAccessory",
-				"nadena.dev.modular_avatar.core.ModularAvatarWorldFixedObject"
-			]
-		}
-    ]
+  "extraCopierTypes": [
+    {
+      "categoryName": "VRM",
+      "typeFullNames": [
+        "VRM.VRMSpringBone",
+        "VRM.VRMSpringBoneColliderGroup"
+      ]
+    },
+    {
+      "categoryName": "VRC Fury",
+      "typeFullNames": [
+        "VF.Model.VRCFury",
+        "VF.Component.VRCFuryGlobalCollider",
+        "VF.Component.VRCFuryHapticSocket",
+        "VF.Component.VRCFuryHapticPlug"
+      ]
+    },
+    {
+      "categoryName": "Modular Avatar",
+      "typeFullNames": [
+        "nadena.dev.modular_avatar.core.ModularAvatarMenuGroup",
+        "nadena.dev.modular_avatar.core.ModularAvatarMenuInstaller",
+        "nadena.dev.modular_avatar.core.ModularAvatarBlendshapeSync",
+        "nadena.dev.modular_avatar.core.ModularAvatarBoneProxy",
+        "nadena.dev.modular_avatar.core.ModularAvatarMenuInstallTarget",
+        "nadena.dev.modular_avatar.core.ModularAvatarMenuItem",
+        "nadena.dev.modular_avatar.core.ModularAvatarMergeAnimator",
+        "nadena.dev.modular_avatar.core.ModularAvatarMergeArmature",
+        "nadena.dev.modular_avatar.core.ModularAvatarMeshSettings",
+        "nadena.dev.modular_avatar.core.ModularAvatarParameters",
+        "nadena.dev.modular_avatar.core.ModularAvatarPBBlocker",
+        "nadena.dev.modular_avatar.core.ModularAvatarReplaceObject",
+        "nadena.dev.modular_avatar.core.ModularAvatarVisibleHeadAccessory",
+        "nadena.dev.modular_avatar.core.ModularAvatarWorldFixedObject"
+      ]
+    },
+    {
+      "categoryName": "ChilloutVR CCK",
+      "typeFullNames": [
+        "CVRMirror",
+        "CVRWarpPoint",
+        "ABI.CCK.Components.ControlPoint",
+        "ABI.CCK.Components.CVRAction",
+        "ABI.CCK.Components.CVRAdvancedAvatarSettingsPointer",
+        "ABI.CCK.Components.CVRAdvancedAvatarSettingsTrigger",
+        "ABI.CCK.Components.CVRAdvancedAvatarSettingsTriggerHelper",
+        "ABI.CCK.Components.CVRAnimatorDriver",
+        "ABI.CCK.Components.CVRAssetInfo",
+        "ABI.CCK.Components.CVRAttachment",
+        "ABI.CCK.Components.CVRAudioDriver",
+        "ABI.CCK.Components.CVRAudioMaterialParser",
+        "ABI.CCK.Components.CVRAvatar",
+        "ABI.CCK.Components.CVRAvatarPickupMarker",
+        "ABI.CCK.Components.CVRBuilderSpawnable",
+        "ABI.CCK.Components.CVRCameraHelper",
+        "ABI.CCK.Components.CVRCustomRenderTextureUpdater",
+        "ABI.CCK.Components.CVRDescription",
+        "ABI.CCK.Components.CVRDistanceConstrain",
+        "ABI.CCK.Components.CVRDistanceLod",
+        "ABI.CCK.Components.CVRFaceTracking",
+        "ABI.CCK.Components.CVRGIMaterialUpdater",
+        "ABI.CCK.Components.CVRGlobalMaterialPropertyUpdater",
+        "ABI.CCK.Components.CVRGlobalShaderUpdater",
+        "ABI.CCK.Components.CVRHapticAreaChest",
+        "ABI.CCK.Components.CVRHapticZone",
+        "ABI.CCK.Components.CVRInteractable",
+        "ABI.CCK.Components.CVRMaterialDriver",
+        "ABI.CCK.Components.CVRMaterialUpdater",
+        "ABI.CCK.Components.CVRMovementParent",
+        "ABI.CCK.Components.CVRNavController",
+        "ABI.CCK.Components.CVRObjectLibrary",
+        "ABI.CCK.Components.CVRObjectSync",
+        "ABI.CCK.Components.CVRParameterStream",
+        "ABI.CCK.Components.CVRParticleSound",
+        "ABI.CCK.Components.CVRPickupObject",
+        "ABI.CCK.Components.CVRPointer",
+        "ABI.CCK.Components.CVRPortalMarker",
+        "ABI.CCK.Components.CVRSnappingPoint",
+        "ABI.CCK.Components.CVRSpawnable",
+        "ABI.CCK.Components.CVRSpawnableTrigger",
+        "ABI.CCK.Components.CVRTexturePropertyParser",
+        "ABI.CCK.Components.CVRTimelineSync",
+        "ABI.CCK.Components.CVRToggleStatePointer",
+        "ABI.CCK.Components.CVRToggleStateTrigger",
+        "ABI.CCK.Components.CVRTranslatable",
+        "ABI.CCK.Components.CVRVariableBuffer",
+        "ABI.CCK.Components.CVRVideoPlayer",
+        "ABI.CCK.Components.CVRWorld",
+        "ABI.CCK.Components.CVRWorldModifiers",
+        "ABI.CCK.Components.Damage",
+        "ABI.CCK.Components.FluidVolume",
+        "ABI.CCK.Components.ForceApplicator",
+        "ABI.CCK.Components.FPRExclusion",
+        "ABI.CCK.Components.GameInstanceController",
+        "ABI.CCK.Components.GravityZone",
+        "ABI.CCK.Components.GunController",
+        "ABI.CCK.Components.ObjectHealth",
+        "ABI.CCK.Components.PhysicsInfluencer",
+        "ABI.CCK.Components.PlayerMaterialParser",
+        "ABI.CCK.Components.ScoreBoardController",
+        "ABI.CCK.Components.SpawnablePickupMarker"
+      ]
+    },
+    {
+      "categoryName": "Magica Cloth 2",
+      "typeFullNames": [
+        "MagicaCloth2.MagicaCapsuleCollider",
+        "MagicaCloth2.MagicaPlaneCollider",
+        "MagicaCloth2.MagicaSphereCollider",
+        "MagicaCloth2.MagicaCloth",
+        "MagicaCloth2.MagicaWindZone",
+        "MagicaCloth2.MagicaSettings"
+      ]
+    },
+    {
+      "categoryName": "Magica Cloth",
+      "typeFullNames": [
+        "MagicaCloth.MagicaAvatar",
+        "MagicaCloth.MagicaBoneCloth",
+        "MagicaCloth.MagicaBoneSpring",
+        "MagicaCloth.MagicaMeshCloth",
+        "MagicaCloth.MagicaMeshSpring",
+        "MagicaCloth.MagicaRenderDeformer",
+        "MagicaCloth.MagicaVirtualDeformer"
+      ]
+    }
+  ]
 }

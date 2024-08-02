@@ -208,7 +208,7 @@ namespace Pumkin.AvatarTools
         const string DUMMY_NAME = "_DUMMY";
         const string VIEWPOINT_DUMMY_NAME = "_VIEWPOINT_DUMMY";
 
-
+#pragma warning disable
         static string _mainScriptPath = null;
         static string _mainFolderPath = null;
         static string _saveFolderPath = null;
@@ -216,9 +216,10 @@ namespace Pumkin.AvatarTools
         static string _mainFolderPathLocal = null;
         static string _mainScriptPathLocal = null;
         static string _resourceFolderPathLocal = null;
-#endregion
+#pragma warning restore
+        #endregion
 
-#region Properties
+        #region Properties
 
         public static PumkinsAvatarTools Instance => _PumkinsAvatarToolsWindow.ToolsWindow;
 

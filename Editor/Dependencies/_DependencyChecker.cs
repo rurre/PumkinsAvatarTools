@@ -51,7 +51,7 @@ namespace Pumkin.DependencyChecker
 
         public static void ResetDependencies()
         {
-            Debug.Log("<color=blue>PumkinsAvatarTools</color>: Resetting tool preferences...");
+            //Debug.Log("<color=blue>PumkinsAvatarTools</color>: Resetting tool preferences...");
             ScriptDefinesManager.RemoveDefines(HAS_SDK1, HAS_SDK2, HAS_DBONES, HAS_OLD_DBONES, HAS_PBONES, HAS_FINALIK);
         }
 
@@ -67,13 +67,13 @@ namespace Pumkin.DependencyChecker
 
         static bool GetFinalIK()
         {
-            Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for FinalIK in project...");
+            //Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for FinalIK in project...");
             if(Directory.GetFiles(Path.GetDirectoryName(Application.dataPath), "VRIK.cs", SearchOption.AllDirectories).Length > 0)
             {
-                Debug.Log("<color=blue>PumkinsAvatarTools</color>: FinalIK found in project.");
+                //Debug.Log("<color=blue>PumkinsAvatarTools</color>: FinalIK found in project.");
                 return true;
             }
-            Debug.Log("<color=blue>PumkinsAvatarTools</color>: FinalIK not found in project.");
+            //Debug.Log("<color=blue>PumkinsAvatarTools</color>: FinalIK not found in project.");
             return false;
         }
 
@@ -96,15 +96,15 @@ namespace Pumkin.DependencyChecker
         /// </summary>        
         static bool GetPhysBones()
         {
-            Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for PhysBones and Contacts in project...");
+            //Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for PhysBones and Contacts in project...");
             if(AppDomain.CurrentDomain.GetAssemblies().Any(ass => ass.FullName.StartsWith("VRC.Dynamics")))
             {
-                Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found PhysBones and Contacts in project!");
+                //Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found PhysBones and Contacts in project!");
                 return true;
             }
             else
             {
-                Debug.Log("<color=blue>PumkinsAvatarTools</color>: PhysBones and Contacts not found in project.");
+                //Debug.Log("<color=blue>PumkinsAvatarTools</color>: PhysBones and Contacts not found in project.");
                 return false;
             }
         }
@@ -114,7 +114,7 @@ namespace Pumkin.DependencyChecker
         /// </summary>        
         static PumkinsDBonesVersion GetDynamicBonesVersion()
         {
-            Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for DynamicBones in project...");
+            //Debug.Log("<color=blue>PumkinsAvatarTools</color>: Checking for DynamicBones in project...");
             Type boneColliderType = GetTypeFromName("DynamicBoneCollider");
             Type boneColliderBaseType = GetTypeFromName("DynamicBoneColliderBase");                               
 
@@ -124,19 +124,19 @@ namespace Pumkin.DependencyChecker
 
             if(dynPaths.Count == 0) //No Dynamicbones in project
             {                
-                Debug.Log("<color=blue>PumkinsAvatarTools</color>: DynamicBones not found in project.");
+                //Debug.Log("<color=blue>PumkinsAvatarTools</color>: DynamicBones not found in project.");
                 return PumkinsDBonesVersion.NotFound;
             }
             else //DynamicBones Present
             {
                 if(boneColliderBaseType != null && boneColliderType.IsSubclassOf(boneColliderBaseType))
                 {
-                    Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found DynamicBones in project!");
+                    //Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found DynamicBones in project!");
                     return PumkinsDBonesVersion.NewVersionWithBaseColliders;
                 }
                 else
                 {
-                    Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found old version of DynamicBones in project!");
+                    //Debug.Log("<color=blue>PumkinsAvatarTools</color>: Found old version of DynamicBones in project!");
                     return PumkinsDBonesVersion.OldVersion;
                 }                
             }
