@@ -60,10 +60,7 @@ namespace Pumkin.AvatarTools
             if(Settings.copierIgnoreArray == null)
             {
                 Settings.copierIgnoreArray = new Transform[0];
-                return;
-            }
-            else if(Settings.copierIgnoreArray.Length == 0)
-            {
+                Settings.SerializedSettings.UpdateIfRequiredOrScript();
                 return;
             }
 
@@ -80,6 +77,7 @@ namespace Pumkin.AvatarTools
             }
 
             Settings.copierIgnoreArray = newList.ToArray();
+            Settings.SerializedSettings.ApplyModifiedProperties();
         }
 
         /// <summary>

@@ -231,7 +231,7 @@ namespace Pumkin.AvatarTools
 
         //Ignore Array
         [SerializeField] internal bool _copierIgnoreArray_expand = false;
-        [SerializeField] internal SerializedProperty _serializedIgnoreArrayProp;
+        internal SerializedProperty _serializedIgnoreArrayProp;
 
         [SerializeField] internal Transform[] copierIgnoreArray = new Transform[0];
         [SerializeField] internal bool bCopier_ignoreArray_includeChildren = false;
@@ -266,7 +266,7 @@ namespace Pumkin.AvatarTools
 
 
         [SerializeField] internal bool centerCameraFixClippingPlanes = true;
-#if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
+#if VRC_SDK_VRCSDK3 && !UDON
         [SerializeField] internal PumkinsCameraPreset.CameraOffsetMode centerCameraMode = PumkinsCameraPreset.CameraOffsetMode.Viewpoint;
 #else
         [SerializeField] internal PumkinsCameraPreset.CameraOffsetMode centerCameraMode = PumkinsCameraPreset.CameraOffsetMode.Transform;

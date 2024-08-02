@@ -1446,6 +1446,8 @@ namespace Pumkin.AvatarTools
 
                     //=======================================================
 
+                    //Doesn't work, don't want to fix for now
+                    /*
                     //Ignore Array
                     EditorGUI.BeginChangeCheck();
                     {
@@ -1468,6 +1470,7 @@ namespace Pumkin.AvatarTools
                             }
                         }
                     }
+                    */
 
                     Helpers.DrawGUILine();
 
@@ -1485,11 +1488,11 @@ namespace Pumkin.AvatarTools
                                 Settings.bCopier_joints_copy = false;
                                 Settings.bCopier_cameras_copy = false;
                                 Settings.bCopier_finalIK_copy = false;
-#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
+#if VRC_SDK_VRCSDK3
                                 Settings.bCopier_vrcStations_copy = false;
 #endif
                             }
-#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
+#if VRC_SDK_VRCSDK3
                             Settings.bCopier_descriptor_copy = false;
 #endif
                             Settings.bCopier_other_copy = false;
@@ -1528,12 +1531,12 @@ namespace Pumkin.AvatarTools
                                 Settings.bCopier_joints_copy = true;
                                 Settings.bCopier_cameras_copy = true;
                                 Settings.bCopier_finalIK_copy = true && FinalIKExists;
-#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
+#if VRC_SDK_VRCSDK3
                                 Settings.bCopier_vrcStations_copy = true;
 #endif
                             }
 
-#if VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2
+#if VRC_SDK_VRCSDK3
                             Settings.bCopier_descriptor_copy = true;
 #endif
                             Settings.bCopier_other_copy = true;
