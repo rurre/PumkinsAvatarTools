@@ -99,74 +99,74 @@ MonoBehaviour:
     createMissing: "\u590D\u5236\u4E22\u5931\u7684\u7EC4\u4EF6"
     emptyGameObjects: "\u7A7A\u6E38\u620F\u5BF9\u8C61"
     replaceOld: "\u66FF\u6362\u65E7\u7EC4\u4EF6"
-    transforms: Transforms
-    transforms_position: Position
-    transforms_rotation: Rotation
-    transforms_scale: Scale
-    transforms_createMissing: Create Missing
-    transforms_avatarScale: Avatar Scale
-    transforms_copyActiveState: Active State
-    transforms_copyLayerAndTag: Layer and Tag
-    physBones: Phys Bones
-    physBones_colliders: Phys Bone Colliders
-    physBones_removeOldBones: Remove Old Phys Bones
-    physBones_removeOldColliders: Remove Old Colliders
-    physBones_createMissing: Copy Missing Phys Bones
-    dynamicBones: Dynamic Bones
-    dynamicBones_colliders: Dynamic Bone Colliders
-    dynamicBones_removeOldBones: Remove Old Dynamic Bones
-    dynamicBones_removeOldColliders: Remove Old Colliders
-    dynamicBones_createMissing: Copy Missing Dynamic Bones
-    colliders: Colliders
-    colliders_box: Box Colliders
-    colliders_capsule: Capsule Colliders
-    colliders_sphere: Sphere Colliders
-    colliders_mesh: Mesh Colliders
-    colliders_removeOld: Remove Old Colliders
+    transforms: Transform
+    transforms_position: "\u4F4D\u7F6E"
+    transforms_rotation: "\u65CB\u8F6C"
+    transforms_scale: "\u7F29\u653E"
+    transforms_createMissing: "\u4E3A\u4E22\u5931\u7684\u521B\u5EFA"
+    transforms_avatarScale: "\u6A21\u578B\u7F29\u653E"
+    transforms_copyActiveState: "\u5F00\u542F\u72B6\u6001"
+    transforms_copyLayerAndTag: "\u56FE\u5C42\u548C\u6807\u7B7E"
+    physBones: Phys Bone
+    physBones_colliders: Phys Bone Collider
+    physBones_removeOldBones: "\u79FB\u9664\u65E7\u7684 Phys Bone"
+    physBones_removeOldColliders: "\u79FB\u9664\u65E7\u7684 Phys Bone Collider"
+    physBones_createMissing: "\u590D\u5236\u4E22\u5931\u7684 Phys Bone"
+    dynamicBones: Dynamic Bone
+    dynamicBones_colliders: Dynamic Bone Collider
+    dynamicBones_removeOldBones: "\u79FB\u9664\u65E7\u7684 Dynamic Bone"
+    dynamicBones_removeOldColliders: "\u79FB\u9664\u65E7\u7684 Dynamic Bone Collider"
+    dynamicBones_createMissing: "\u590D\u5236\u4E22\u5931\u7684 Dynamic Bone"
+    colliders: Collider
+    colliders_box: Box Collider
+    colliders_capsule: Capsule Collider
+    colliders_sphere: Sphere Collider
+    colliders_mesh: Mesh Collider
+    colliders_removeOld: "\u79FB\u9664\u65E7\u7684 Collider"
     descriptor: Avatar Descriptor
-    descriptor_pipelineId: Pipeline Id
+    descriptor_pipelineId: "\u84DD\u56FE ID"
     descriptor_animationOverrides: Animation Overrides
-    descriptor_copyViewpoint: Viewpoint
-    descriptor_playableLayers: Playable Layers
-    descriptor_eyeLookSettings: Eye Look Settings
-    descriptor_expressions: Expressions
-    descriptor_colliders: Colliders
-    skinMeshRender: Skinned Mesh Renderers
-    skinMeshRender_materials: Materials
-    skinMeshRender_blendShapeValues: BlendShape Values
-    skinMeshRender_bounds: Bounds
-    particleSystems: Particle Systems
-    rigidBodies: Rigid Bodies
-    trailRenderers: Trail Renderers
-    meshRenderers: Mesh Renderers
-    copyGameObjects: Copy GameObjects
+    descriptor_copyViewpoint: "\u89C6\u89D2\u7403"
+    descriptor_playableLayers: "Playable \u56FE\u5C42"
+    descriptor_eyeLookSettings: "\u81EA\u52A8\u773C\u52A8\u8BBE\u5B9A"
+    descriptor_expressions: "\u53C2\u6570\u548C\u83DC\u5355"
+    descriptor_colliders: "\u56DB\u80A2\u78B0\u649E\u4F53"
+    skinMeshRender: Skinned Mesh Renderer
+    skinMeshRender_materials: "\u6750\u8D28\u7403"
+    skinMeshRender_blendShapeValues: "\u5F62\u6001\u952E\u503C"
+    skinMeshRender_bounds: "\u8FB9\u754C"
+    particleSystems: Particle System
+    rigidBodies: Rigid Body
+    trailRenderers: Trail Renderer
+    meshRenderers: Mesh Renderer
+    copyGameObjects: "\u590D\u5236\u6E38\u620F\u7EC4\u4EF6"
     copyColliderObjects: Copy Collider Objects
-    lights: Lights
-    animators: Animators
-    copyMainAnimator: Copy Main Animator
+    lights: Light
+    animators: Animator
+    copyMainAnimator: "\u590D\u5236\u4E3B\u4F53\u7684 Animator"
     animators_inChildren: Child Animators
     audioSources: Audio Sources
-    joints: Joints
+    joints: Joint
     other: External
     other_ikFollowers: IK Followers
     other_vrmSpringBones: VRM Spring Bones
-    aimConstraints: Aim Constraints
+    aimConstraints: Aim Constraint
     ignoreList: Ignore List
     includeChildren: Include Children
     size: Size
     other_emptyScripts: Empty Scripts
-    contactReceiver: Contact Receivers
-    contactReceiver_removeOld: Remove Old Contact Receivers
-    contactReceiver_createMissing: Create Missing Contact Receivers
-    contactSender: Contact Senders
-    contactSender_removeOld: Remove Old Contact Senders
-    contactSender_createMissing: Create Missing Contact Senders
-    lookAtConstraints: LookAt Constraints
-    parentConstraints: Parent Constraints
-    positionConstraints: Position Constraints
-    rotationConstraints: Rotation Constraints
-    scaleConstraints: Scale Constraints
-    onlyIfHasValidSources: Only if has Valid Sources
+    contactReceiver: Contact Receiver
+    contactReceiver_removeOld: "\u79FB\u9664\u65E7\u7684 Contact Receiver"
+    contactReceiver_createMissing: "\u521B\u5EFA\u4E22\u5931\u7684 Contact Receiver"
+    contactSender: Contact Sender
+    contactSender_removeOld: "\u79FB\u9664\u65E7\u7684 Contact Sender"
+    contactSender_createMissing: "\u521B\u5EFA\u4E22\u5931\u7684 Contact Sender"
+    lookAtConstraints: LookAt Constraint
+    parentConstraints: Parent Constraint
+    positionConstraints: Position Constraint
+    rotationConstraints: Rotation Constraint
+    scaleConstraints: Scale Constraint
+    onlyIfHasValidSources: "\u4EC5\u5177\u6709\u6709\u6548\u7684\u6765\u6E90\u65F6"
     showCommon: "\u663E\u793A\u62E5\u6709"
     showAll: "\u663E\u793A\u5168\u90E8"
     joints_fixed: Fixed Joint
@@ -174,22 +174,22 @@ MonoBehaviour:
     joints_spring: Spring Joint
     joints_character: Character Joint
     joints_configurable: Configurable Joint
-    joints_removeOld: Remove Old Joints
-    cameras: Cameras
-    prefabs: Prefabs
-    prefabs_copyPropertyOverrides: Copy Property Overrides
-    prefabs_ignorePrefabByOtherCopiers: Ignore Prefab By Other Copiers
-    fixReferences: Fix References
-    adjustScale: Adjust Scale (might not work correctly)
+    joints_removeOld: "\u79FB\u9664\u65E7\u7684 Joint"
+    cameras: Camera
+    prefabs: Prefab
+    prefabs_copyPropertyOverrides: "\u590D\u5236\u5C5E\u6027\u8986\u76D6"
+    prefabs_ignorePrefabByOtherCopiers: "\u5FFD\u7565\u5176\u5B83\u590D\u5236\u5DE5\u5177\u7684\u9884\u5236\u4EF6"
+    fixReferences: "\u4FEE\u590D\u5F15\u7528"
+    adjustScale: "\u8C03\u6574\u6BD4\u4F8B\uFF08\u53EF\u80FD\u65E0\u6CD5\u6B63\u5E38\u5DE5\u4F5C\uFF09"
     finalIK: FinalIK
     finalIK_fabrIK: FabrIK
     finalIK_aimIK: AimIK
     finalIK_ccdIK: CCDIK
-    finalIK_rotationLimits: Rotation Limits
+    finalIK_rotationLimits: Rotation Limit
     finalIK_limbIK: LimbIK
     finalIK_fbtBipedIK: Full Body Biped IK
     finalIK_VRIK: VRIK
-    finalIK_Grounders: Grounders
+    finalIK_Grounders: Grounder
     vrc_station: VRC_Station (Chair)
     ignorePrefabComponents: Ignore Components on Prefabs
   avatarInfo:
