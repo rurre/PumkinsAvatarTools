@@ -1,0 +1,393 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cb0f59519795584e95379e0b294ccb5, type: 3}
+  m_Name: zh-CN
+  m_EditorClassIdentifier: 
+  languageName: "\u7B80\u4F53\u4E2D\u6587"
+  author: Hrenact
+  main:
+    title: "Pumkin \u7684\u6A21\u578B\u5DE5\u5177"
+    windowName: "Pumkin \u5DE5\u5177\u96C6"
+    version: "\u7248\u672C"
+    tools: "\u5DE5\u5177"
+    removeAll: "\u79FB\u9664\u7EC4\u4EF6"
+    copier: "\u590D\u5236\u7EC4\u4EF6"
+    avatarInfo: "\u6A21\u578B\u4FE1\u606F"
+    thumbnails: "\u521B\u5EFA\u5C01\u9762"
+    info: "\u4FE1\u606F"
+    avatar: "\u6A21\u578B"
+    useSceneSelection: "\u4F7F\u7528\u9009\u4E2D\u7684\u6A21\u578B"
+    experimental: "\u5B9E\u9A8C"
+    avatarTesting: "\u6A21\u578B\u6D4B\u8BD5"
+  buttons:
+    selectFromScene: "\u4ECE\u573A\u666F\u4E2D\u9009\u62E9"
+    copySelected: "\u590D\u5236\u9009\u4E2D"
+    refresh: "\u5237\u65B0"
+    cancel: "\u53D6\u6D88"
+    apply: "\u5E94\u7528"
+    copy: "\u590D\u5236\u6587\u672C"
+    openHelpPage: "\u6253\u5F00\u5E2E\u52A9\u9875\u9762"
+    openGithubPage: "\u6253\u5F00 Github \u9875\u9762"
+    openDonationPage: "\u8BF7\u6211\u559D\u5496\u5561~"
+    openPoseEditor: "\u6253\u5F00\u59FF\u52BF\u7F16\u8F91\u5668"
+    joinDiscordServer: "\u52A0\u5165 Discord \u9891\u9053"
+    selectNone: "\u53D6\u6D88\u5168\u9009"
+    selectAll: "\u9009\u4E2D\u5168\u90E8"
+    browse: "\u6D4F\u89C8"
+    setFromCamera: "\u4ECE\u76F8\u673A\u8BBE\u7F6E"
+    reset: "\u91CD\u7F6E"
+    edit: "\u7F16\u8F91"
+    load: "\u52A0\u8F7D"
+    createNewPreset: "\u521B\u5EFA\u65B0\u9884\u8BBE"
+    quickSetupAvatar: "\u5FEB\u901F\u8BBE\u7F6E\u6A21\u578B"
+    selectInToolsWindow: "\u5728 \u5DE5\u5177\uFF08Tools\uFF09\u7A97\u53E3\u9009\u62E9"
+    resetRenderer: "\u91CD\u7F6E\u6E32\u67D3\u5668"
+    revertRenderer: "\u8FD8\u539F\u6E32\u67D3\u5668"
+    alignCameraToView: "\u5C06\u6444\u50CF\u673A\u5BF9\u51C6 \u89C6\u56FE\uFF08Scene\uFF09"
+    savePreset: "\u4FDD\u5B58\u9884\u8BBE"
+    selectInAssets: "\u5728 \u8D44\u4EA7\uFF08Assets\uFF09\u4E2D\u9009\u62E9"
+    openFolder: "\u6253\u5F00\u6587\u4EF6\u5939"
+    selectFolder: "\u9009\u62E9\u6587\u4EF6\u5939"
+    ok: "\u597D\u7684"
+    moveToEyes: "\u79FB\u52A8\u81F3\u53CC\u773C"
+    toggleMaterialPreview: "\u5F00\u5173\u6750\u8D28\u9884\u89C8"
+  tools:
+    fillVisemes: "\u586B\u5145\u81EA\u52A8\u53E3\u578B\uFF08Visemes\uFF09"
+    editViewpoint: "\u7F16\u8F91\u89C6\u89D2\u7403"
+    revertBlendshapes: "\u8FD8\u539F\u5F62\u6001\u952E"
+    zeroBlendshapes: "\u5F52\u96F6\u5F62\u6001\u952E"
+    resetPose: "\u91CD\u7F6E\u59FF\u52BF"
+    resetToTPose: "\u91CD\u7F6E\u4E3A T-Pose"
+    editScale: "\u7F16\u8F91\u5927\u5C0F"
+    autoViewpoint: "\u81EA\u52A8\u8BBE\u7F6E\u89C6\u89D2\u7403"
+    setTPose: "\u5F3A\u5236 T-Pose"
+    setRendererAnchors: "\u8BBE\u7F6E Mesh Renderer \u951A\u70B9\u8986\u76D6"
+    setSkinnedMeshRendererAnchors: "\u8BBE\u7F6E Skinned Mesh Renderer \u951A\u70B9\u8986\u76D6"
+    setParticleSystemAnchors: "\u8BBE\u7F6E Particle System \u951A\u70B9\u8986\u76D6"
+    setTrailRendererAnchors: "\u8BBE\u7F6E Trail Renderer \u951A\u70B9\u8986\u76D6"
+    viewpointZDepth: "Z \u8F74\u6DF1\u5EA6"
+    revertScale: "\u8FD8\u539F\u5927\u5C0F"
+    editScaleMoveViewpoint: "\u79FB\u52A8\u89C6\u89D2\u7403"
+    disablePhysBones: "\u7981\u7528 PhysBone"
+    enablePhysBones: "\u542F\u52A8 PhysBone"
+    togglePhysBones: "\u5F00\u5173 PhysBone"
+    fixPhysBoneScripts: "\u4FEE\u590D\u5728\u9884\u5236\u4EF6\u4E2D\u4E22\u5931\u7684
+      PhysBone \u811A\u672C"
+    disableDynamicBones: "\u7981\u7528 DynamicBone"
+    enableDynamicBones: "\u542F\u7528 DynamicBone"
+    toggleDynamicBones: "\u5F00\u5173 DynamicBone"
+    fixDynamicBoneScripts: "\u4FEE\u590D\u5728\u9884\u5236\u4EF6\u4E2D\u4E22\u5931\u7684
+      DynamicBone \u811A\u672C"
+    hierarchyPath: "\u5C42\u7EA7\u8DEF\u5F84"
+    anchorPath: "\u951A\u70B9\u8DEF\u5F84"
+    fillEyeBones: "\u586B\u5145\u53CC\u773C\u9AA8\u9ABC"
+    setImportSettings: "\u8BBE\u7F6E\u5BFC\u5165\u8BBE\u5B9A"
+    anchorUsePath: "\u4F7F\u7528\u5C42\u7EA7\u8DEF\u5F84"
+    humanoidBone: "\u9009\u62E9 Humanoid \u9AA8\u9ABC"
+  copier:
+    copyFrom: "\u590D\u5236\u6765\u6E90"
+    copySettings: "\u8BBE\u5B9A"
+    createMissing: "\u590D\u5236\u4E22\u5931\u7684\u7EC4\u4EF6"
+    emptyGameObjects: "\u7A7A\u6E38\u620F\u5BF9\u8C61"
+    replaceOld: "\u66FF\u6362\u65E7\u7EC4\u4EF6"
+    transforms: Transforms
+    transforms_position: Position
+    transforms_rotation: Rotation
+    transforms_scale: Scale
+    transforms_createMissing: Create Missing
+    transforms_avatarScale: Avatar Scale
+    transforms_copyActiveState: Active State
+    transforms_copyLayerAndTag: Layer and Tag
+    physBones: Phys Bones
+    physBones_colliders: Phys Bone Colliders
+    physBones_removeOldBones: Remove Old Phys Bones
+    physBones_removeOldColliders: Remove Old Colliders
+    physBones_createMissing: Copy Missing Phys Bones
+    dynamicBones: Dynamic Bones
+    dynamicBones_colliders: Dynamic Bone Colliders
+    dynamicBones_removeOldBones: Remove Old Dynamic Bones
+    dynamicBones_removeOldColliders: Remove Old Colliders
+    dynamicBones_createMissing: Copy Missing Dynamic Bones
+    colliders: Colliders
+    colliders_box: Box Colliders
+    colliders_capsule: Capsule Colliders
+    colliders_sphere: Sphere Colliders
+    colliders_mesh: Mesh Colliders
+    colliders_removeOld: Remove Old Colliders
+    descriptor: Avatar Descriptor
+    descriptor_pipelineId: Pipeline Id
+    descriptor_animationOverrides: Animation Overrides
+    descriptor_copyViewpoint: Viewpoint
+    descriptor_playableLayers: Playable Layers
+    descriptor_eyeLookSettings: Eye Look Settings
+    descriptor_expressions: Expressions
+    descriptor_colliders: Colliders
+    skinMeshRender: Skinned Mesh Renderers
+    skinMeshRender_materials: Materials
+    skinMeshRender_blendShapeValues: BlendShape Values
+    skinMeshRender_bounds: Bounds
+    particleSystems: Particle Systems
+    rigidBodies: Rigid Bodies
+    trailRenderers: Trail Renderers
+    meshRenderers: Mesh Renderers
+    copyGameObjects: Copy GameObjects
+    copyColliderObjects: Copy Collider Objects
+    lights: Lights
+    animators: Animators
+    copyMainAnimator: Copy Main Animator
+    animators_inChildren: Child Animators
+    audioSources: Audio Sources
+    joints: Joints
+    other: External
+    other_ikFollowers: IK Followers
+    other_vrmSpringBones: VRM Spring Bones
+    aimConstraints: Aim Constraints
+    ignoreList: Ignore List
+    includeChildren: Include Children
+    size: Size
+    other_emptyScripts: Empty Scripts
+    contactReceiver: Contact Receivers
+    contactReceiver_removeOld: Remove Old Contact Receivers
+    contactReceiver_createMissing: Create Missing Contact Receivers
+    contactSender: Contact Senders
+    contactSender_removeOld: Remove Old Contact Senders
+    contactSender_createMissing: Create Missing Contact Senders
+    lookAtConstraints: LookAt Constraints
+    parentConstraints: Parent Constraints
+    positionConstraints: Position Constraints
+    rotationConstraints: Rotation Constraints
+    scaleConstraints: Scale Constraints
+    onlyIfHasValidSources: Only if has Valid Sources
+    showCommon: "\u663E\u793A\u62E5\u6709"
+    showAll: "\u663E\u793A\u5168\u90E8"
+    joints_fixed: Fixed Joint
+    joints_hinge: Hinge Joint
+    joints_spring: Spring Joint
+    joints_character: Character Joint
+    joints_configurable: Configurable Joint
+    joints_removeOld: Remove Old Joints
+    cameras: Cameras
+    prefabs: Prefabs
+    prefabs_copyPropertyOverrides: Copy Property Overrides
+    prefabs_ignorePrefabByOtherCopiers: Ignore Prefab By Other Copiers
+    fixReferences: Fix References
+    adjustScale: Adjust Scale (might not work correctly)
+    finalIK: FinalIK
+    finalIK_fabrIK: FabrIK
+    finalIK_aimIK: AimIK
+    finalIK_ccdIK: CCDIK
+    finalIK_rotationLimits: Rotation Limits
+    finalIK_limbIK: LimbIK
+    finalIK_fbtBipedIK: Full Body Biped IK
+    finalIK_VRIK: VRIK
+    finalIK_Grounders: Grounders
+    vrc_station: VRC_Station (Chair)
+    ignorePrefabComponents: Ignore Components on Prefabs
+  avatarInfo:
+    name: '{0}'
+    line: ---------------------
+    gameObjects: "\u6E38\u620F\u5BF9\u8C61\uFF1A {0} ({1})"
+    bones: "\u9AA8\u9ABC\uFF1A {0} - {1}"
+    skinnedMeshRenderers: "\u8499\u76AE\u7F51\u683C\uFF1A {0} ({1}) - {2}"
+    meshRenderers: "\u57FA\u672C\u7F51\u683C\uFF1A {0} ({1}) - {2}"
+    polygons: "\u4E09\u89D2\u9762\u6570\uFF1A {0} ({1}) - {2}"
+    usedMaterialSlots: "\u4F7F\u7528\u7684\u6750\u8D28\u69FD\uFF1A {0} ({1}) - {2}"
+    uniqueMaterials: "\u7279\u6B8A\u7684\u6750\u8D28\u7403\uFF1A {0} ({1})"
+    shaders: "\u7740\u8272\u5668\uFF1A {0}"
+    physBoneTransforms: "Phys Bone \u8F6C\u6362\u6570\uFF1A {0} ({1}) - {2}"
+    physBoneColliders: "Phys Bone \u78B0\u649E\u4F53\uFF1A {0} ({1}) - {2}"
+    physBoneColliderTransforms: "PhysCollider \u5F71\u54CD\u7684\u53D8\u6362\u6570\uFF1A
+      {0} ({1}) - {2}"
+    dynamicBoneTransforms: "Dynamic Bone \u8F6C\u6362\u6570\uFF1A {0} ({1}) - {2}"
+    dynamicBoneColliders: "Dynamic Bone \u78B0\u649E\u4F53\uFF1A {0} ({1}) - {2}"
+    dynamicBoneColliderTransforms: "Collider \u5F71\u54CD\u7684\u53D8\u6362\u6570\uFF1A
+      {0} ({1}) - {2}"
+    particleSystems: "\u7C92\u5B50\u7CFB\u7EDF\uFF1A {0} ({1}) - {2}"
+    maxParticles: "\u6700\u5927\u7C92\u5B50\u6570\u91CF\uFF1A {0} ({1}) - {2}"
+    overallPerformance: "\u603B\u4F53\u6027\u80FD\u8BC4\u7EA7\uFF1A {0}"
+    selectAvatarFirst: "\u8BF7\u5148\u9009\u62E9\u4E00\u4E2A\u6A21\u578B"
+    ikFollowers: 'IK Followers: {0} ({1})'
+    physBoneComponents: "Physbone \u7EC4\u4EF6\u6570\uFF1A {0} ({1}) - {2}"
+  thumbnails:
+    overlayCameraImage: "\u53E0\u52A0\u56FE\u50CF"
+    overlayTexture: "\u53E0\u52A0\u8D34\u56FE"
+    startUploadingFirst: "\u5F00\u59CB\u4E0A\u4F20\u6A21\u578B\uFF0C\u6216\u8FDB\u5165\u64AD\u653E\u6A21\u5F0F"
+    backgroundType: "\u80CC\u666F\u6A21\u5F0F"
+    backgroundType_None: "\u65E0"
+    backgroundType_Material: "\u5929\u7A7A\u76D2"
+    backgroundType_Color: "\u7EAF\u8272"
+    backgroundType_Image: "\u56FE\u50CF"
+    hideOtherAvatars: "\u4E0A\u4F20\u65F6\u9690\u85CF\u5176\u5B83\u5934\u50CF"
+    tint: "\u8272\u8C03"
+    useCameraOverlay: "\u542F\u7528\u6444\u50CF\u673A\u53E0\u52A0\u5C42"
+    useCameraBackground: "\u542F\u7528\u6444\u50CF\u673A\u80CC\u666F"
+    selectedCamera: "\u9009\u62E9\u6444\u50CF\u673A"
+    offset: "\u504F\u79FB"
+    blendshapes: "\u5F62\u6001\u952E"
+    poses: "\u59FF\u52BF"
+    cameras: "\u6444\u50CF\u673A"
+    centerCameraFixClippingPlanes: "\u4FEE\u590D\u526A\u88C1\u5E73\u9762"
+    positionOffset: "\u4F4D\u7F6E\u504F\u79FB"
+    rotationOffset: "\u65CB\u8F6C\u504F\u79FB"
+    tryFixPoseSinking: "\u5C1D\u8BD5\u4FEE\u590D\u59FF\u52BF\u4E0B\u6C89"
+    centerCameraOn: "\u5C06\u6444\u50CF\u5934\u5BF9\u51C6 {0}"
+    viewpoint: "\u89C6\u89D2\u7403"
+    applyBodyPosition: "\u5E94\u7528\u8EAB\u4F53\u4F4D\u7F6E"
+    applyBodyRotation: "\u5E94\u7528\u8EAB\u4F53\u65CB\u8F6C"
+    lockSelectedCameraToSceneView: "\u5C06\u6240\u9009\u6444\u50CF\u673A\u9501\u5B9A\u5230\u573A\u666F\u89C6\u56FE"
+    overlayImagePath: "\u53E0\u52A0\u5C42\u56FE\u50CF\u8DEF\u5F84"
+    imagePath: "\u56FE\u50CF\u8DEF\u5F84"
+    backgroundColor: "\u80CC\u666F\u989C\u8272"
+  misc:
+    uwu: uwu
+    searchForPhysBones: "\u641C\u7D22 PhysBone"
+    searchForBones: "\u641C\u7D22 DynamicBone"
+    language: "\u8BED\u8A00"
+    refresh: "\u5237\u65B0"
+    importLanguage: "\u5BFC\u5165\u8BED\u8A00\u8D44\u4EA7"
+    enableVerboseLogging: "\u542F\u7528\u8BE6\u7EC6\u65E5\u5FD7"
+    sceneViewOverlayWindowsAtBottom: "\u5728\u5E95\u90E8\u7ED8\u5236\u573A\u666F\u89C6\u56FE\u53E0\u52A0\u5C42"
+    misc: "\u6742\u9879"
+    showExperimental: "\u663E\u793A\u5B9E\u9A8C\u6027\u529F\u80FD"
+    experimentalWarning: "\u8FD9\u4E9B\u529F\u80FD\u5C1A\u672A\u5B8C\u6210\uFF0C\u53EF\u80FD\u4F1A\u5BFC\u81F4\u95EE\u9898"
+  log:
+    done: "\u5B8C\u6210"
+    cancelled: "\u53D6\u6D88"
+    nothingSelected: "\u8BF7\u5148\u9009\u62E9\u67D0\u4E9B\u5185\u5BB9"
+    cantCopyToSelf: "\u65E0\u6CD5\u5C06\u7EC4\u4EF6\u4ECE\u5BF9\u8C61\u590D\u5236\u5230\u5176\u81EA\u8EAB\u3002\u4F60\u5728\u5E72\u4EC0\u4E48\uFF0C\u6208\u767B\uFF1F"
+    copyAttempt: "\u5C1D\u8BD5\u5C06 '{0}' \u4ECE '{1}' \u590D\u5236\u5230 '{2}'"
+    removeAttempt: "\u5C1D\u8BD5\u4ECE '{1}' \u5220\u9664 '{0}'"
+    copyFromInvalid: "\u65E0\u6CD5\u590D\u5236\u7EC4\u4EF6\uFF0C\u56E0\u4E3A\u201C\u590D\u5236\u6765\u6E90\u201D\u65E0\u6548"
+    viewpointApplied: "\u5C06\u89C6\u89D2\u7403\u4F4D\u7F6E\u8BBE\u7F6E\u4E3A '{0}'"
+    viewpointCancelled: "\u5DF2\u53D6\u6D88\u89C6\u89D2\u7403\u4F4D\u7F6E\u66F4\u6539"
+    tryFillVisemes: "\u5C1D\u8BD5\u586B\u5145 '{0}' \u4E0A\u7684\u81EA\u52A8\u53E3\u578B"
+    noSkinnedMeshFound: "\u5931\u8D25\uFF1A\u672A\u627E\u5230\u8499\u76AE\u7F51\u683C"
+    descriptorIsNull: "Avatar Descriptor \u4E3A\u7A7A"
+    success: "\u6210\u529F"
+    meshHasNoVisemes: "\u5931\u8D25\u3002\u7F51\u683C\u4E0D\u5305\u542B\u81EA\u52A8\u53E3\u578B\u3002\u5DF2\u8BBE\u4E3A\u9ED8\u8BA4\u503C"
+    failed: "\u5931\u8D25"
+    failedIsNull: "\u5931\u8D25\uFF1A '{1}' \u4E3A\u7A7A"
+    nameIsEmpty: "\u540D\u79F0\u4E3A\u7A7A"
+    loadedPose: "\u5DF2\u52A0\u8F7D\u59FF\u52BF\uFF1A '{0}'"
+    loadedBlendshapePreset: "\u5DF2\u52A0\u8F7D\u5F62\u6001\u952E\uFF1A '{0}'"
+    failedDoesntHave: "\u5931\u8D25\uFF1A '{0}' \u672A\u62E5\u6709 '{1}'"
+    failedAlreadyHas: "\u5931\u8D25\uFF1A '{0}' \u5DF2\u62E5\u6709 '{1}'"
+    loadedCameraOverlay: "\u5DF2\u5C06 '{0}' \u6444\u50CF\u673A\u53E0\u52A0\u5C42\u52A0\u8F7D"
+    failedHasNoIgnoring: "'{0}' \u6CA1\u6709 '{1}' \uFF0C\u5FFD\u7565"
+    settingQuickViewpoint: "\u5C06\u5FEB\u6377\u89C6\u89D2\u7403\u8BBE\u7F6E\u4E3A
+      '{0}'"
+    cantSetViewpointNonHumanoid: "\u65E0\u6CD5\u5728\u975E Humanoid \u6A21\u578B\u4E0A\u8BBE\u7F6E\u89C6\u89D2\u7403"
+    setAvatarScaleTo: "\u5C06\u6A21\u578B\u5927\u5C0F\u8BBE\u7F6E\u4E3A '{0}'"
+    setAvatarScaleAndViewpointTo: "\u8BBE\u7F6E\u6A21\u578B\u5927\u5C0F\u4E3A '{0}'
+      \uFF0C\u89C6\u89D2\u7403\u4E3A '{1}'"
+    canceledScaleChanges: "\u5DF2\u53D6\u6D88\u5927\u5C0F\u66F4\u6539"
+    successCopiedOverFromTo: "\u6210\u529F\uFF1A\u5C06 '{0}' \u4ECE '{1}' \u7684
+      '{2}' \u590D\u5236\u5230 '{3}' \u7684 '{4}'"
+    hasNoComponentsOrChildrenDestroying: "'{0}' \u6CA1\u6709\u7EC4\u4EF6\u6216\u5B50\u9879\u3002\u9500\u6BC1"
+    cantBeDestroyedPartOfPrefab: "{0} \u7684 {1} \u65E0\u6CD5\u88AB\u9500\u6BC1\uFF0C\u56E0\u4E3A\u5B83\u662F\u9884\u5236\u4EF6\u5B9E\u4F8B\u7684\u4E00\u90E8\u5206\u3002\u8FD9\u53EF\u4EE5\u5728\u8BBE\u7F6E\u4E2D\u66F4\u6539\u3002\u5FFD\u7565"
+    meshPrefabMissingCantRevertBlednshapes: "\u7F51\u683C\u9884\u5236\u4EF6\u4E22\u5931\uFF0C\u65E0\u6CD5\u6062\u590D\u4E3A\u9ED8\u8BA4\u5F62\u6001\u952E"
+    meshPrefabMissingCantRevertPose: "\u7F51\u683C\u9884\u5236\u4EF6\u4E22\u5931\uFF0C\u65E0\u6CD5\u6062\u590D\u4E3A\u9ED8\u8BA4\u59FF\u52BF"
+    runtimeBlueprintNotFoundStartUploading: "RuntimeBlueprintCreation \u811A\u672C\u672A\u627E\u5230\u3002\u5F00\u59CB\u4E0A\u4F20\u5934\u50CF\u4EE5\u4F7F\u7528"
+    failedToCenterCameraNoDescriptor: "\u672A\u80FD\u5C06\u6444\u50CF\u673A\u5BF9\u51C6\u89C6\u89D2\u7403\u3002\u672A\u627E\u5230
+      Avatar Descriptor"
+    setProbeAnchorTo: "\u8BBE\u7F6E '{0}' \u7684\u63A2\u6D4B\u951A\u70B9\u4E3A '{1}'"
+    cantSetPoseNonHumanoid: "\u65E0\u6CD5\u5C06 Humanoid \u59FF\u52BF '{0}' \u5E94\u7528\u5230\u975E
+      Humanoid \u6A21\u578B"
+    loadedImageAsBackground: "\u5DF2\u5C06 '{0}' \u4F5C\u4E3A\u80CC\u666F\u52A0\u8F7D"
+    loadedImageAsOverlay: "\u5DF2\u5C06 '{0}' \u4F5C\u4E3A\u53E0\u52A0\u5C42\u56FE\u50CF\u52A0\u8F7D"
+    descriptorIsMissingCantGetViewpoint: "Avatar Descriptor \u5DF2\u4E22\u5931\u3002\u65E0\u6CD5\u83B7\u53D6\u89C6\u89D2\u7403\u4F4D\u7F6E"
+    hasMissingScriptDestroying: "{0} \u62E5\u6709\u4E22\u5931\u7684\u811A\u672C\u3002\u9500\u6BC1"
+    copiedPhysBone: "\u5DF2\u5C06 {0} \u7684 {1} PhysBone \u590D\u5236\u5230 {2}
+      \u7684 {1}"
+    copiedDynamicBone: "\u5DF2\u5C06 {0} \u7684 {1} DynamicBone \u590D\u5236\u5230
+      {2} \u7684 {1}"
+    invalidTranslation: "\u7FFB\u8BD1 {0} \u65E0\u6548"
+    constraintHasNoValidSources: "{0} \u7684 {1} \u6CA1\u6709\u6709\u6548\u6765\u6E90\u3002\u9500\u6BC1"
+    avatarHasNoPrefab: "\u9009\u5B9A\u7684\u6A21\u578B\u6CA1\u6709\u4E0E\u4E4B\u5173\u8054\u7684\u9884\u5236\u4EF6\u3002\u76EE\u524D\u53EA\u80FD\u4FEE\u590D\u9884\u5236\u4EF6"
+    attemptingToFixPhysBoneScripts: "\u5C1D\u8BD5\u4FEE\u590D PhysBone \u811A\u672C"
+    attemptingToFixDynamicBoneScripts: "\u5C1D\u8BD5\u4FEE\u590D DynamicBone \u811A\u672C"
+    notSelectedInCopierIgnoring: "{0} \u7684 {1} \u672A\u5728\u590D\u5236\u4E2D\u9009\u4E2D\u3002\u5FFD\u7565"
+    exitPrefabModeFirst: "\u5728\u6267\u884C\u6B64\u64CD\u4F5C\u4E4B\u524D,\u8BF7\u5148\u9000\u51FA\u9884\u5236\u4EF6\u6A21\u5F0F"
+    transformNotFound: "\u5728 '{0}' \u672A\u627E\u5230 Transform "
+    cantApplyPreset: "\u65E0\u6CD5\u5E94\u7528\u9884\u8BBE"
+  warnings:
+    warn: "\u8B66\u544A"
+    notFound: "\u672A\u627E\u5230"
+    oldVersion: "\u65E7\u7248\u672C"
+    selectSceneObject: "\u8BF7\u5728\u573A\u666F\u4E2D\u9009\u62E9\u4E00\u4E2A\u5BF9\u8C61"
+    cameraNotFound: "\u6444\u50CF\u673A\u672A\u627E\u5230"
+    invalidPreset: "\u65E0\u6CD5\u5E94\u7528\u9884\u8BBE {0} \uFF1A\u65E0\u6548\u7684\u9884\u8BBE"
+    cantRevertRendererWithoutPrefab: "\u65E0\u6CD5\u6062\u590D\u8499\u76AE\u6E32\u67D3\u5668
+      {0} \uFF0C\u5BF9\u8C61\u6CA1\u6709\u9884\u5236\u4EF6"
+    cantLoadImageAtPath: "\u65E0\u6CD5\u52A0\u8F7D\u4F4D\u4E8E {0} \u7684\u56FE\u7247"
+    armatureScaleNotOne: "\u6240\u9009\u6A21\u578B\u7684 Armature \u6BD4\u4F8B\u4E0D\u4E3A
+      1 \uFF01\u8FD9\u53EF\u80FD\u4F1A\u9020\u6210\u95EE\u9898\uFF0C\u8BF7\u8003\u8651\u4F7F\u7528
+      FBX \u5355\u4F4D\u91CD\u65B0\u5BFC\u51FA\u4F60\u7684\u6A21\u578B\u2026\u2026\n\u8BF7\u4E8C\u6B21\u68C0\u67E5\u4EE5\u786E\u4FDD\u4F60\u5DF2\u5728
+      Blender \u4E2D\u6B63\u786E\u5730\u5C06\u6240\u6709\u8F6C\u6362\u5E94\u7528\u4E8E\u4F60\u7684\u6A21\u578B\u3002\u5BFC\u51FA
+      FBX\u65F6\uFF0C\u8BF7\u786E\u4FDD\u5728\u5BFC\u51FA\u8BBE\u7F6E\u4E2D\u5C06\u201C\u5E94\u7528\u7F29\u653E\u201D\u8BBE\u7F6E\u4E3A\u201CFBX
+      \u5168\u90E8\u201D\u3002"
+    armatureScalesDontMatch: "\u6240\u9009\u5934\u50CF\u4E0A\u7684 Armature \u6BD4\u4F8B\u4E0D\u5339\u914D\uFF01\n\u8FD9\u53EF\u80FD\u4F1A\u5BFC\u81F4\u67D0\u4E9B\u7EC4\u4EF6\uFF08\u4F8B\u5982
+      PhysBone\uFF09\u51FA\u73B0\u7F29\u653E\u95EE\u9898\u3002\u8BF7\u8C28\u614E\u884C\u4E8B\uFF01"
+    noDBonesInProject: "\u5728\u9879\u76EE\u4E2D\u672A\u627E\u5230 DynamicBone"
+    languageAlreadyExistsOverwrite: "\u8BED\u8A00\u9884\u8BBE\u5DF2\u5B58\u5728\uFF0C\u786E\u5B9A\u8986\u5199\uFF1F"
+  credits:
+    version: "\u7248\u672C"
+    redundantStrings: "\u73B0\u5728\u6709\u8D85\u8FC7 100% \u7684\u5197\u4F59\u5B57\u7B26\u4E32"
+    addMoreStuff: "\u6211\u6700\u7EC8\u4F1A\u6DFB\u52A0\u66F4\u591A\u5185\u5BB9"
+    pokeOnDiscord: "\u6211\u7684 Discord \u7528\u6237\u540D\u79F0\u4E3A Pumkin#9524"
+  poseEditor:
+    title: "Pumkin \u7684\u59FF\u52BF\u7F16\u8F91\u5668"
+    scene: "\u573A\u666F"
+    sceneLoadAdditive: "\u52A0\u8F7D\u989D\u5916\u9879"
+    sceneOverrideLights: "\u8986\u76D6\u706F\u5149"
+    avatarPosition: "\u6A21\u578B\u4F4D\u7F6E"
+    avatarPositionOverridePose: "\u8986\u76D6\u59FF\u52BF"
+    avatarPositionOverrideBlendshapes: "\u8986\u76D6\u5F62\u6001\u952E"
+    sceneSaveChanges: "\u4FDD\u5B58\u573A\u666F\u66F4\u6539"
+    unloadScene: "\u5378\u8F7D\u573A\u666F"
+    resetPosition: "\u91CD\u7F6E\u4F4D\u7F6E"
+    pose: "\u59FF\u52BF"
+    newPose: "\u65B0\u59FF\u52BF"
+    onlySavePoseChanges: "\u4EC5\u4FDD\u5B58\u66F4\u6539\u7684\u59FF\u52BF"
+    loadPose: "\u52A0\u8F7D\u59FF\u52BF"
+    blendshapes: "\u5F62\u6001\u952E"
+    newPreset: "\u65B0\u9884\u8BBE"
+    loadPreset: "\u52A0\u8F7D\u9884\u8BBE"
+    saveButton: "\u4FDD\u5B58"
+    reloadButton: "\u91CD\u65B0\u52A0\u8F7D"
+    bodyPositionYTooSmall: "humanPose.bodyPosition.y \u4E3A {0} \uFF0C\u8FD9\u53EF\u80FD\u4E0D\u662F\u4F60\u6240\u671F\u671B\u7684\u3002\u5DF2\u5C06
+      humanPose.bodyPosition.y \u8BBE\u7F6E\u4E3A 1\u3002"
+    muscles: "\u9A71\u52A8"
+    transformRotations: "\u53D8\u6362\u65CB\u8F6C"
+    selectHumanoidAvatar: "\u9009\u62E9\u4E00\u4E2A Humanoid \u6A21\u578B"
+    animationTime: "\u65F6\u95F4"
+    poseFromAnimation: "\u6765\u81EA\u52A8\u753B\u7684\u59FF\u52BF"
+    allowMotion: "\u5141\u8BB8\u8FD0\u52A8"
+  preset:
+    presetName: "\u9884\u8BBE\u540D\u79F0"
+    mode: "\u9884\u8BBE\u6A21\u5F0F"
+    otherNames: "\u5176\u5B83\u540D\u79F0"
+    poseMode: "\u59FF\u52BF\u540D\u79F0"
+    editPosePreset: "\u7F16\u8F91\u59FF\u52BF\u9884\u8BBE"
+    createPosePreset: "\u521B\u5EFA\u59FF\u52BF\u9884\u8BBE"
+    overwriteFile: "\u8986\u5199\u6587\u4EF6"
+    transformDoesntBelongToAvatar: "{0} \u4E0D\u5C5E\u4E8E\u6A21\u578B {1}"
+    cameraPreset: "\u6444\u50CF\u673A\u9884\u8BBE"
+    posePreset: "\u59FF\u52BF\u9884\u8BBE"
+    blendshapePreset: "\u5F62\u6001\u952E\u9884\u8BBE"
+    editBlendshapePreset: "\u7F16\u8F91\u5F62\u6001\u952E\u9884\u8BBE"
+    createBlendshapePreset: "\u521B\u5EFA\u5F62\u6001\u952E\u9884\u8BBE"
+    transform: "\u53D8\u6362"
+    offsetMode: "\u504F\u79FB\u6A21\u5F0F"
+    camera: "\u6444\u50CF\u673A"
+    editCameraPreset: "\u7F16\u8F91\u6444\u50CF\u673A\u9884\u8BBE"
+    createCameraPreset: "\u521B\u5EFA\u6444\u50CF\u673A\u9884\u8BBE"
