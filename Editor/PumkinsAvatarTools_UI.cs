@@ -5,14 +5,12 @@ using System;
 using System.IO;
 using UnityEngine;
 using System.Linq;
-using Pumkin.AvatarTools.Copiers;
 using Pumkin.PoseEditor;
 using UnityEngine.UI;
 using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
 using Pumkin.Presets;
 using UnityEngine.Animations;
-using UnityEngine.SceneManagement;
 
 namespace Pumkin.AvatarTools
 {
@@ -104,7 +102,7 @@ namespace Pumkin.AvatarTools
             EditorGUILayout.BeginHorizontal();
             {
                 if(GUILayout.Button(Strings.Buttons.openFolder))
-                    Helpers.SelectAndPing(PumkinsLanguageManager.translationPathLocal);
+                    Application.OpenURL($"file:///{PumkinsLanguageManager.translationPath}");
                 //if(GUILayout.Button(Strings.Settings.importLanguage))
                 //    PumkinsLanguageManager.OpenFileImportLanguagePreset();
             }
@@ -1275,6 +1273,168 @@ namespace Pumkin.AvatarTools
                         Helpers.DrawGUILine(1, false);
                     }
 
+                    if(CopierTabs.ComponentIsInSelectedTab("vrcaimconstraint", Settings._copier_selectedTab))
+                    {
+                        //VRC Aim Constraints menu
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_vrcAimConstraints, ref Settings.bCopier_vrcAimConstraint_copy, "VRCAimConstraint", Icons.AimConstraint);
+                        if(Settings._copier_expand_vrcAimConstraints)
+                        {
+                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_vrcAimConstraint_copy);
+                            EditorGUILayout.Space();
+
+                            using(var cHorizontalScope = new GUILayout.HorizontalScope())
+                            {
+                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+                                using(var cVerticalScope = new GUILayout.VerticalScope())
+                                {
+                                    Settings.bCopier_vrcAimConstraint_fixReferences = GUILayout.Toggle(Settings.bCopier_vrcAimConstraint_fixReferences, Strings.Copier.fixReferences, Styles.CopierToggle);
+                                    Settings.bCopier_vrcAimConstraint_createObjects = GUILayout.Toggle(Settings.bCopier_vrcAimConstraint_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                }
+                            }
+
+                            EditorGUILayout.Space();
+                            EditorGUI.EndDisabledGroup();
+                        }
+
+                        Helpers.DrawGUILine(1, false);
+                    }
+
+                    if(CopierTabs.ComponentIsInSelectedTab("vrclookatconstraint", Settings._copier_selectedTab))
+                    {
+                        //VRC LookAt Constraints menu
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_vrcLookAtConstraints, ref Settings.bCopier_vrcLookAtConstraint_copy, "VRCLookAtConstraint", Icons.LookAtConstraint);
+                        if(Settings._copier_expand_vrcLookAtConstraints)
+                        {
+                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_vrcLookAtConstraint_copy);
+                            EditorGUILayout.Space();
+
+                            using(var cHorizontalScope = new GUILayout.HorizontalScope())
+                            {
+                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+                                using(var cVerticalScope = new GUILayout.VerticalScope())
+                                {
+                                    Settings.bCopier_vrcLookAtConstraint_fixReferences = GUILayout.Toggle(Settings.bCopier_vrcLookAtConstraint_fixReferences, Strings.Copier.fixReferences, Styles.CopierToggle);
+                                    Settings.bCopier_vrcLookAtConstraint_createObjects = GUILayout.Toggle(Settings.bCopier_vrcLookAtConstraint_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                }
+                            }
+
+                            EditorGUILayout.Space();
+                            EditorGUI.EndDisabledGroup();
+                        }
+
+                        Helpers.DrawGUILine(1, false);
+                    }
+
+                    if(CopierTabs.ComponentIsInSelectedTab("vrcparentconstraint", Settings._copier_selectedTab))
+                    {
+                        //VRC Parent Constraints menu
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_vrcParentConstraints, ref Settings.bCopier_vrcParentConstraint_copy, "VRCParentConstraint", Icons.ParentConstraint);
+                        if(Settings._copier_expand_vrcParentConstraints)
+                        {
+                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_vrcParentConstraint_copy);
+                            EditorGUILayout.Space();
+
+                            using(var cHorizontalScope = new GUILayout.HorizontalScope())
+                            {
+                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+                                using(var cVerticalScope = new GUILayout.VerticalScope())
+                                {
+                                    Settings.bCopier_vrcParentConstraint_fixReferences = GUILayout.Toggle(Settings.bCopier_vrcParentConstraint_fixReferences, Strings.Copier.fixReferences, Styles.CopierToggle);
+                                    Settings.bCopier_vrcParentConstraint_createObjects = GUILayout.Toggle(Settings.bCopier_vrcParentConstraint_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                }
+                            }
+
+                            EditorGUILayout.Space();
+                            EditorGUI.EndDisabledGroup();
+                        }
+
+                        Helpers.DrawGUILine(1, false);
+                    }
+
+                    if(CopierTabs.ComponentIsInSelectedTab("vrcpositionconstraint", Settings._copier_selectedTab))
+                    {
+                        //VRC Position Constraints menu
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_vrcPositionConstraints, ref Settings.bCopier_vrcPositionConstraint_copy, "VRCPositionConstraint", Icons.PositionConstraint);
+                        if(Settings._copier_expand_vrcPositionConstraints)
+                        {
+                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_vrcPositionConstraint_copy);
+                            EditorGUILayout.Space();
+
+                            using(var cHorizontalScope = new GUILayout.HorizontalScope())
+                            {
+                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+                                using(var cVerticalScope = new GUILayout.VerticalScope())
+                                {
+                                    Settings.bCopier_vrcPositionConstraint_fixReferences = GUILayout.Toggle(Settings.bCopier_vrcPositionConstraint_fixReferences, Strings.Copier.fixReferences, Styles.CopierToggle);
+                                    Settings.bCopier_vrcPositionConstraint_createObjects = GUILayout.Toggle(Settings.bCopier_vrcPositionConstraint_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                }
+                            }
+
+                            EditorGUILayout.Space();
+                            EditorGUI.EndDisabledGroup();
+                        }
+
+                        Helpers.DrawGUILine(1, false);
+                    }
+
+                    if(CopierTabs.ComponentIsInSelectedTab("vrcrotationconstraint", Settings._copier_selectedTab))
+                    {
+                        //VRC Rotation Constraints menu
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_vrcRotationConstraints, ref Settings.bCopier_vrcRotationConstraint_copy, "VRCRotationConstraint", Icons.RotationConstraint);
+                        if(Settings._copier_expand_vrcRotationConstraints)
+                        {
+                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_vrcRotationConstraint_copy);
+                            EditorGUILayout.Space();
+
+                            using(var cHorizontalScope = new GUILayout.HorizontalScope())
+                            {
+                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+                                using(var cVerticalScope = new GUILayout.VerticalScope())
+                                {
+                                    Settings.bCopier_vrcRotationConstraint_fixReferences = GUILayout.Toggle(Settings.bCopier_vrcRotationConstraint_fixReferences, Strings.Copier.fixReferences, Styles.CopierToggle);
+                                    Settings.bCopier_vrcRotationConstraint_createObjects = GUILayout.Toggle(Settings.bCopier_vrcRotationConstraint_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                }
+                            }
+
+                            EditorGUILayout.Space();
+                            EditorGUI.EndDisabledGroup();
+                        }
+
+                        Helpers.DrawGUILine(1, false);
+                    }
+
+                    if(CopierTabs.ComponentIsInSelectedTab("vrcscaleconstraint", Settings._copier_selectedTab))
+                    {
+                        //VRC Scale Constraints menu
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_vrcScaleConstraints, ref Settings.bCopier_vrcScaleConstraint_copy, "VRCScaleConstraint", Icons.ScaleConstraint);
+                        if(Settings._copier_expand_vrcScaleConstraints)
+                        {
+                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_vrcScaleConstraint_copy);
+                            EditorGUILayout.Space();
+
+                            using(var cHorizontalScope = new GUILayout.HorizontalScope())
+                            {
+                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+                                using(var cVerticalScope = new GUILayout.VerticalScope())
+                                {
+                                    Settings.bCopier_vrcScaleConstraint_fixReferences = GUILayout.Toggle(Settings.bCopier_vrcScaleConstraint_fixReferences, Strings.Copier.fixReferences, Styles.CopierToggle);
+                                    Settings.bCopier_vrcScaleConstraint_createObjects = GUILayout.Toggle(Settings.bCopier_vrcScaleConstraint_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                }
+                            }
+
+                            EditorGUILayout.Space();
+                            EditorGUI.EndDisabledGroup();
+                        }
+
+                        Helpers.DrawGUILine(1, false);
+                    }
+
                     if(CopierTabs.ComponentIsInSelectedTab<Camera>(Settings._copier_selectedTab))
                     {
                         //Camera menu
@@ -1365,6 +1525,32 @@ namespace Pumkin.AvatarTools
                                 {
                                     Settings.bCopier_vrcStations_fixReferences = GUILayout.Toggle(Settings.bCopier_vrcStations_fixReferences, Strings.Copier.fixReferences, Styles.CopierToggle);
                                     Settings.bCopier_vrcStations_createObjects = GUILayout.Toggle(Settings.bCopier_vrcStations_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
+                                }
+                            }
+
+                            EditorGUILayout.Space();
+                            EditorGUI.EndDisabledGroup();
+                        }
+
+                        Helpers.DrawGUILine(1, false);
+                    }
+
+                    if(CopierTabs.ComponentIsInSelectedTab("vrcheadchop", Settings._copier_selectedTab))
+                    {
+                        Helpers.DrawDropdownWithToggle(ref Settings._copier_expand_vrcHeadChop, ref Settings.bCopier_vrcHeadChop_copy, "VRCHeadChop", Icons.CsScript);
+                        if(Settings._copier_expand_vrcHeadChop)
+                        {
+                            EditorGUI.BeginDisabledGroup(!Settings.bCopier_vrcHeadChop_copy);
+                            EditorGUILayout.Space();
+
+                            using(var cHorizontalScope = new GUILayout.HorizontalScope())
+                            {
+                                GUILayout.Space(COPIER_SETTINGS_INDENT_SIZE); // horizontal indent size
+
+                                using(var cVerticalScope = new GUILayout.VerticalScope())
+                                {
+                                    Settings.bCopier_vrcHeadChop_fixReferences = GUILayout.Toggle(Settings.bCopier_vrcHeadChop_fixReferences, Strings.Copier.fixReferences, Styles.CopierToggle);
+                                    Settings.bCopier_vrcHeadChop_createObjects = GUILayout.Toggle(Settings.bCopier_vrcHeadChop_createObjects, Strings.Copier.copyGameObjects, Styles.CopierToggle);
                                 }
                             }
 
@@ -1502,6 +1688,12 @@ namespace Pumkin.AvatarTools
                             Settings.bCopier_positionConstraint_copy = false;
                             Settings.bCopier_rotationConstraint_copy = false;
                             Settings.bCopier_scaleConstraint_copy = false;
+                            Settings.bCopier_vrcAimConstraint_copy = false;
+                            Settings.bCopier_vrcLookAtConstraint_copy = false;
+                            Settings.bCopier_vrcParentConstraint_copy = false;
+                            Settings.bCopier_vrcPositionConstraint_copy = false;
+                            Settings.bCopier_vrcRotationConstraint_copy = false;
+                            Settings.bCopier_vrcScaleConstraint_copy = false;
                             Settings.bCopier_trailRenderers_copy = false;
                             Settings.bCopier_lights_copy = false;
                             Settings.bCopier_skinMeshRender_copy = false;
@@ -1513,6 +1705,8 @@ namespace Pumkin.AvatarTools
                             Settings.bCopier_contactReceiver_copy = false;
                             Settings.bCopier_contactSender_copy = false;
                             Settings.bCopier_prefabs_copy = false;
+                            Settings.bCopier_vrcHeadChop_copy = false;
+                            Settings.bCopier_vrcStations_copy =  false;
 
                             if(DynamicBonesExist)
                             {
@@ -1557,6 +1751,14 @@ namespace Pumkin.AvatarTools
                             Settings.bCopier_contactReceiver_copy = true;
                             Settings.bCopier_contactSender_copy = true;
                             Settings.bCopier_prefabs_copy = true;
+                            Settings.bCopier_vrcAimConstraint_copy = true;
+                            Settings.bCopier_vrcLookAtConstraint_copy = true;
+                            Settings.bCopier_vrcParentConstraint_copy = true;
+                            Settings.bCopier_vrcPositionConstraint_copy = true;
+                            Settings.bCopier_vrcRotationConstraint_copy = true;
+                            Settings.bCopier_vrcScaleConstraint_copy = true;
+                            Settings.bCopier_vrcHeadChop_copy = true;
+                            Settings.bCopier_vrcStations_copy = true;
 
                             if(DynamicBonesExist)
                             {
@@ -2281,10 +2483,10 @@ namespace Pumkin.AvatarTools
                         {
                             if(GUILayout.Button(new GUIContent(Strings.Copier.contactReceiver, Icons.ContactReceiver)))
                                 DoAction(SelectedAvatar, ToolMenuActions.RemoveContactReceiver);
-                            if(GUILayout.Button(new GUIContent(Strings.Copier.vrc_station, Icons.CsScript)))
-                                DoAction(SelectedAvatar, ToolMenuActions.RemoveVRCStation);
                         }
                         EditorGUI.EndDisabledGroup();
+                        if(GUILayout.Button(new GUIContent(Strings.Copier.vrc_station, Icons.CsScript)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveVRCStation);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.particleSystems, Icons.ParticleSystem)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveParticleSystems);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.lights, Icons.Light)))
@@ -2307,15 +2509,29 @@ namespace Pumkin.AvatarTools
                         if(GUILayout.Button(new GUIContent(Strings.Copier.parentConstraints, Icons.ParentConstraint)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveParentConstraint);
 
+#if VRC_SDK_VRCSDK3
                         EditorGUILayout.Space();
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_fabrIK, Icons.FinalIK_FabrIK)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_FabrIK);
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_aimIK, Icons.FINALIK_AimIK)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_AimIK);
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_fbtBipedIK, Icons.FinalIK_FbtBipedIK)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_FbtBipedIK);
-                        if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_VRIK, Icons.FinalIK_VRIK)))
-                            DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_VRIK);
+
+                        if(GUILayout.Button(new GUIContent("VRCAimConstraint", Icons.AimConstraint)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveVRCAimConstraint);
+                        if(GUILayout.Button(new GUIContent("VRCLookAtConstraint", Icons.LookAtConstraint)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveVRCLookAtConstraint);
+                        if(GUILayout.Button(new GUIContent("VRCParentConstraint", Icons.ParentConstraint)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveVRCParentConstraint);
+#endif
+
+                        if(FinalIKExists)
+                        {
+                            EditorGUILayout.Space();
+                            if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_fabrIK, Icons.FinalIK_FabrIK)))
+                                DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_FabrIK);
+                            if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_aimIK, Icons.FINALIK_AimIK)))
+                                DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_AimIK);
+                            if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_fbtBipedIK, Icons.FinalIK_FbtBipedIK)))
+                                DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_FbtBipedIK);
+                            if(GUILayout.Button(new GUIContent(Strings.Copier.finalIK_VRIK, Icons.FinalIK_VRIK)))
+                                DoAction(SelectedAvatar, ToolMenuActions.RemoveFinalIK_VRIK);
+                        }
                     }
                     EditorGUILayout.EndVertical();
 
@@ -2332,12 +2548,12 @@ namespace Pumkin.AvatarTools
                             if(GUILayout.Button(new GUIContent(Strings.Copier.dynamicBones_colliders, Icons.BoneColliderIcon)))
                                 DoAction(SelectedAvatar, ToolMenuActions.RemoveDynamicBoneColliders);
                         }
+                        EditorGUI.EndDisabledGroup();
                         EditorGUI.BeginDisabledGroup(!PhysBonesExist);
                         {
                             if(GUILayout.Button(new GUIContent(Strings.Copier.contactSender, Icons.ContactSender)))
                                 DoAction(SelectedAvatar, ToolMenuActions.RemoveContactSender);
                         }
-                        EditorGUI.EndDisabledGroup();
                         EditorGUI.EndDisabledGroup();
                         if(GUILayout.Button(new GUIContent(Strings.Copier.trailRenderers, Icons.TrailRenderer)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveTrailRenderers);
@@ -2351,8 +2567,11 @@ namespace Pumkin.AvatarTools
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveEmptyGameObjects);
                         if(GUILayout.Button(new GUIContent(Strings.Copier.other_emptyScripts, Icons.SerializableAsset)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveMissingScripts);
-
-                        EditorGUILayout.Space(27 * EditorGUIUtility.pixelsPerPoint);
+#if VRC_SDK_VRCSDK3
+                        if(GUILayout.Button(new GUIContent("VRCHeadChop", Icons.CsScript)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveVRCHeadChop);
+#endif
+                        EditorGUILayout.Space();
 
                         if(GUILayout.Button(
                             new GUIContent(Strings.Copier.positionConstraints, Icons.PositionConstraint)))
@@ -2363,7 +2582,18 @@ namespace Pumkin.AvatarTools
                         if(GUILayout.Button(new GUIContent(Strings.Copier.scaleConstraints, Icons.ScaleConstraint)))
                             DoAction(SelectedAvatar, ToolMenuActions.RemoveScaleConstraint);
 
+#if VRC_SDK_VRCSDK3
+                        EditorGUILayout.Space();
 
+                        if(GUILayout.Button(
+                            new GUIContent("VRCPositionConstraint", Icons.PositionConstraint)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveVRCPositionConstraint);
+                        if(GUILayout.Button(
+                            new GUIContent("VRCRotationConstraint", Icons.RotationConstraint)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveVRCRotationConstraint);
+                        if(GUILayout.Button(new GUIContent("VRCScaleConstraint", Icons.ScaleConstraint)))
+                            DoAction(SelectedAvatar, ToolMenuActions.RemoveVRCScaleConstraint);
+#endif
                         if(FinalIKExists)
                         {
                             EditorGUILayout.Space();

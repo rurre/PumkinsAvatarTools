@@ -463,6 +463,28 @@ namespace Pumkin.AvatarTools
                 case ToolMenuActions.RemoveScaleConstraint:
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(ScaleConstraint), false);
                     break;
+
+                case ToolMenuActions.RemoveVRCAimConstraint:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.VRCAimConstraint, false);
+                    break;
+                case ToolMenuActions.RemoveVRCLookAtConstraint:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.VRCLookAtConstraint, false);
+                    break;
+                case ToolMenuActions.RemoveVRCParentConstraint:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.VRCParentConstraint, false);
+                    break;
+                case ToolMenuActions.RemoveVRCPositionConstraint:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.VRCPositionConstraint, false);
+                    break;
+                case ToolMenuActions.RemoveVRCRotationConstraint:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.VRCRotationConstraint, false);
+                    break;
+                case ToolMenuActions.RemoveVRCScaleConstraint:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.VRCScaleConstraint, false);
+                    break;
+                case ToolMenuActions.RemoveVRCHeadChop:
+                    LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, PumkinsTypeCache.VRCHeadChop, false);
+                    break;
                 case ToolMenuActions.RemoveCameras:
                     LegacyDestroyer.DestroyAllComponentsOfType(SelectedAvatar, typeof(Camera), false);
                     break;

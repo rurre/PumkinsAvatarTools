@@ -4,20 +4,16 @@ using System.Linq;
 using Pumkin.DependencyChecker;
 using UnityEngine;
 using Pumkin.AvatarTools;
-using VRC.SDK3.Dynamics.PhysBone.Components;
 using System.Text;
-
-
-
-#if(VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2)
 using UnityEditor;
+
+#if VRC_SDK_VRCSDK3
 using VRC.SDKBase;
+using VRC.SDK3.Dynamics.PhysBone.Components;
 using VRC.SDKBase.Validation.Performance;
 using VRC.SDKBase.Validation.Performance.Stats;
 #endif
-#if PUMKIN_PBONES
-using VRC.SDK3.Dynamics.PhysBone.Components;
-#endif
+
 namespace Pumkin.DataStructures
 {
     public class PumkinsAvatarInfo //Need to improve this class sometime when I overhaul the performance stats

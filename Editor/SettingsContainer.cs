@@ -201,6 +201,30 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_scaleConstraint_copy = true;
         [SerializeField] internal bool bCopier_scaleConstraint_onlyIfHasValidSources = true;
 
+        [SerializeField] internal bool bCopier_vrcAimConstraint_createObjects = true;
+        [SerializeField] internal bool bCopier_vrcAimConstraint_copy = true;
+        [SerializeField] internal bool bCopier_vrcAimConstraint_fixReferences = true;
+
+        [SerializeField] internal bool bCopier_vrcLookAtConstraint_createObjects = true;
+        [SerializeField] internal bool bCopier_vrcLookAtConstraint_copy = true;
+        [SerializeField] internal bool bCopier_vrcLookAtConstraint_fixReferences = true;
+
+        [SerializeField] internal bool bCopier_vrcParentConstraint_createObjects = true;
+        [SerializeField] internal bool bCopier_vrcParentConstraint_copy = true;
+        [SerializeField] internal bool bCopier_vrcParentConstraint_fixReferences = true;
+
+        [SerializeField] internal bool bCopier_vrcPositionConstraint_createObjects = true;
+        [SerializeField] internal bool bCopier_vrcPositionConstraint_copy = true;
+        [SerializeField] internal bool bCopier_vrcPositionConstraint_fixReferences = true;
+
+        [SerializeField] internal bool bCopier_vrcRotationConstraint_createObjects = true;
+        [SerializeField] internal bool bCopier_vrcRotationConstraint_copy = true;
+        [SerializeField] internal bool bCopier_vrcRotationConstraint_fixReferences = true;
+
+        [SerializeField] internal bool bCopier_vrcScaleConstraint_createObjects = true;
+        [SerializeField] internal bool bCopier_vrcScaleConstraint_copy = true;
+        [SerializeField] internal bool bCopier_vrcScaleConstraint_fixReferences = true;
+
         [SerializeField] internal bool bCopier_cameras_copy = true;
         [SerializeField] internal bool bCopier_cameras_createObjects = true;
 
@@ -228,6 +252,10 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool bCopier_vrcStations_copy = true;
         [SerializeField] internal bool bCopier_vrcStations_createObjects = true;
         [SerializeField] internal bool bCopier_vrcStations_fixReferences = true;
+
+        [SerializeField] internal bool bCopier_vrcHeadChop_copy = true;
+        [SerializeField] internal bool bCopier_vrcHeadChop_createObjects = true;
+        [SerializeField] internal bool bCopier_vrcHeadChop_fixReferences = true;
 
         //Ignore Array
         [SerializeField] internal bool _copierIgnoreArray_expand = false;
@@ -338,11 +366,18 @@ namespace Pumkin.AvatarTools
         [SerializeField] internal bool _copier_expand_positionConstraints = false;
         [SerializeField] internal bool _copier_expand_rotationConstraints = false;
         [SerializeField] internal bool _copier_expand_scaleConstraints = false;
+        [SerializeField] internal bool _copier_expand_vrcAimConstraints = false;
+        [SerializeField] internal bool _copier_expand_vrcLookAtConstraints = false;
+        [SerializeField] internal bool _copier_expand_vrcParentConstraints = false;
+        [SerializeField] internal bool _copier_expand_vrcPositionConstraints = false;
+        [SerializeField] internal bool _copier_expand_vrcRotationConstraints = false;
+        [SerializeField] internal bool _copier_expand_vrcScaleConstraints = false;
         [SerializeField] internal bool _copier_expand_joints = false;
         [SerializeField] internal bool _copier_expand_cameras = false;
         [SerializeField] internal bool _copier_expand_finalIK = false;
         [SerializeField] internal bool _copier_expand_prefab = false;
         [SerializeField] internal bool _copier_expand_vrcStations = false;
+        [SerializeField] internal bool _copier_expand_vrcHeadChop = false;
 
         //Languages
         [SerializeField] internal string _selectedLanguageString = "English - Default";

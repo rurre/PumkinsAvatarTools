@@ -118,7 +118,14 @@ namespace Pumkin.AvatarTools
             RemoveFinalIK_FbtBipedIK,
             RemoveFinalIK_VRIK,
             RemoveFinalIK_Grounder,
-            RemoveVRCStation
+            RemoveVRCStation,
+            RemoveVRCHeadChop,
+            RemoveVRCAimConstraint,
+            RemoveVRCLookAtConstraint,
+            RemoveVRCParentConstraint,
+            RemoveVRCPositionConstraint,
+            RemoveVRCRotationConstraint,
+            RemoveVRCScaleConstraint,
         }
 
         readonly static string SCALE_RULER_DUMMY_NAME = "_PumkinsScaleRuler";
@@ -289,6 +296,13 @@ namespace Pumkin.AvatarTools
                         FinalIKExists && Settings.bCopier_finalIK_copy,
                         Settings.bCopier_other_copy,
 #if VRC_SDK_VRCSDK3
+                        Settings.bCopier_vrcAimConstraint_copy,
+                        Settings.bCopier_vrcLookAtConstraint_copy,
+                        Settings.bCopier_vrcParentConstraint_copy,
+                        Settings.bCopier_vrcPositionConstraint_copy,
+                        Settings.bCopier_vrcRotationConstraint_copy,
+                        Settings.bCopier_vrcScaleConstraint_copy,
+                        Settings.bCopier_vrcHeadChop_copy,
                         Settings.bCopier_contactSender_copy,
                         Settings.bCopier_contactReceiver_copy
 #endif
@@ -328,6 +342,13 @@ namespace Pumkin.AvatarTools
                         Settings.bCopier_vrcStations_copy,
                         Settings.bCopier_contactSender_copy,
                         Settings.bCopier_contactReceiver_copy,
+                        Settings.bCopier_vrcAimConstraint_copy,
+                        Settings.bCopier_vrcLookAtConstraint_copy,
+                        Settings.bCopier_vrcParentConstraint_copy,
+                        Settings.bCopier_vrcPositionConstraint_copy,
+                        Settings.bCopier_vrcRotationConstraint_copy,
+                        Settings.bCopier_vrcScaleConstraint_copy,
+                        Settings.bCopier_vrcHeadChop_copy,
 #endif
                         Settings.bCopier_other_copy,
                         Settings.bCopier_finalIK_copy
@@ -1284,6 +1305,16 @@ namespace Pumkin.AvatarTools
                     }
                 }
                 catch(Exception ex) { Log("_Failed to copy VRC Stations: " + ex.Message, LogType.Error); }
+
+                try
+                {
+                    if(Settings.bCopier_vrcHeadChop_copy && CopierTabs.ComponentIsInSelectedTab("vrcheadchop", Settings._copier_selectedTab))
+                    {
+                        GenericCopier.CopyComponent(PumkinsTypeCache.VRCHeadChop, inst, Settings.bCopier_vrcHeadChop_createObjects, false, Settings.bCopier_vrcHeadChop_fixReferences, false,
+                            inst.ignoredTransforms);
+                    }
+                }
+                catch(Exception ex) { Log("_Failed to copy VRC HeadChop components: " + ex.Message, LogType.Error); }
 #endif
             }
 
@@ -1329,37 +1360,82 @@ namespace Pumkin.AvatarTools
             try
             {
                 if(Settings.bCopier_lookAtConstraint_copy && CopierTabs.ComponentIsInSelectedTab<LookAtConstraint>(Settings._copier_selectedTab))
-                    LegacyCopier.CopyAllLookAtConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, inst.ignoredTransforms);
+                    LegacyCopier.CopyAllLookAtConstraints(objFrom, objTo, Settings.bCopier_lookAtConstraint_createObjects, inst.ignoredTransforms);
             }
             catch(Exception ex) { Log("_Failed to copy Look At Constraints: " + ex.Message, LogType.Error); }
 
             try
             {
                 if(Settings.bCopier_parentConstraint_copy && CopierTabs.ComponentIsInSelectedTab<ParentConstraint>(Settings._copier_selectedTab))
-                    LegacyCopier.CopyAllParentConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, inst.ignoredTransforms);
+                    LegacyCopier.CopyAllParentConstraints(objFrom, objTo, Settings.bCopier_parentConstraint_createObjects, inst.ignoredTransforms);
             }
             catch(Exception ex) { Log("_Failed to copy Parent Constraints: " + ex.Message, LogType.Error); }
 
             try
             {
                 if(Settings.bCopier_positionConstraint_copy && CopierTabs.ComponentIsInSelectedTab<PositionConstraint>(Settings._copier_selectedTab))
-                    LegacyCopier.CopyAllPositionConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, inst.ignoredTransforms);
+                    LegacyCopier.CopyAllPositionConstraints(objFrom, objTo, Settings.bCopier_positionConstraint_createObjects, inst.ignoredTransforms);
             }
             catch(Exception ex) { Log("_Failed to copy Position Constraints: " + ex.Message, LogType.Error); }
 
             try
             {
                 if(Settings.bCopier_rotationConstraint_copy && CopierTabs.ComponentIsInSelectedTab<RotationConstraint>(Settings._copier_selectedTab))
-                    LegacyCopier.CopyAllRotationConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, inst.ignoredTransforms);
+                    LegacyCopier.CopyAllRotationConstraints(objFrom, objTo, Settings.bCopier_rotationConstraint_createObjects, inst.ignoredTransforms);
             }
             catch(Exception ex) { Log("_Failed to copy Rotation Constraints: " + ex.Message, LogType.Error); }
 
             try
             {
                 if(Settings.bCopier_scaleConstraint_copy && CopierTabs.ComponentIsInSelectedTab<ScaleConstraint>(Settings._copier_selectedTab))
-                    LegacyCopier.CopyAllScaleConstraints(objFrom, objTo, Settings.bCopier_aimConstraint_createObjects, inst.ignoredTransforms);
+                    LegacyCopier.CopyAllScaleConstraints(objFrom, objTo, Settings.bCopier_scaleConstraint_createObjects, inst.ignoredTransforms);
             }
             catch(Exception ex) { Log("_Failed to copy Scale Constraints: " + ex.Message, LogType.Error); }
+
+#if VRC_SDK_VRCSDK3
+
+            try
+            {
+                if(Settings.bCopier_vrcAimConstraint_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRCAimConstraint, Settings._copier_selectedTab))
+                    GenericCopier.CopyComponent(PumkinsTypeCache.VRCAimConstraint, inst, Settings.bCopier_vrcAimConstraint_createObjects, false, true, false, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy VRC Aim Constraints: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_vrcLookAtConstraint_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRCLookAtConstraint, Settings._copier_selectedTab))
+                    GenericCopier.CopyComponent(PumkinsTypeCache.VRCLookAtConstraint, inst, Settings.bCopier_vrcLookAtConstraint_createObjects, false, true, false, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy VRC Look At Constraints: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_vrcParentConstraint_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRCParentConstraint, Settings._copier_selectedTab))
+                    GenericCopier.CopyComponent(PumkinsTypeCache.VRCParentConstraint, inst, Settings.bCopier_vrcParentConstraint_createObjects, false, true, false, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy VRC Parent Constraints: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_vrcPositionConstraint_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRCPositionConstraint, Settings._copier_selectedTab))
+                    GenericCopier.CopyComponent(PumkinsTypeCache.VRCPositionConstraint, inst, Settings.bCopier_vrcPositionConstraint_createObjects, false, true, false, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy VRC Position Constraints: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_vrcRotationConstraint_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRCRotationConstraint, Settings._copier_selectedTab))
+                    GenericCopier.CopyComponent(PumkinsTypeCache.VRCRotationConstraint, inst, Settings.bCopier_vrcRotationConstraint_createObjects, false, true, false, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy VRC Rotation Constraints: " + ex.Message, LogType.Error); }
+
+            try
+            {
+                if(Settings.bCopier_vrcScaleConstraint_copy && CopierTabs.ComponentIsInSelectedTab(PumkinsTypeCache.VRCScaleConstraint, Settings._copier_selectedTab))
+                    GenericCopier.CopyComponent(PumkinsTypeCache.VRCScaleConstraint, inst, Settings.bCopier_vrcScaleConstraint_createObjects, false, true, false, inst.ignoredTransforms);
+            }
+            catch(Exception ex) { Log("_Failed to copy VRC Scale Constraints: " + ex.Message, LogType.Error); }
+#endif
 
             try
             {

@@ -14,8 +14,7 @@ using Pumkin.Dependencies;
 public static class PumkinsLanguageManager
 {
     static readonly string resourceTranslationPath = "Translations/";
-    public static readonly string translationPath = PumkinsAvatarTools.SaveFolderPath + '/' + resourceTranslationPath;
-    public static readonly string translationPathLocal = PumkinsAvatarTools.ResourceFolderPathLocal + '/' + resourceTranslationPath;
+    public static readonly string translationPath = $"{PumkinsAvatarTools.SaveFolderPath}/{resourceTranslationPath}";
 
     static List<PumkinsTranslation> _languages = new List<PumkinsTranslation>();
 

@@ -19,6 +19,13 @@ namespace Pumkin.DataStructures
         public static readonly Type VRC_SpatialAudioSource = TypeHelpers.GetTypeAnywhere("VRC.SDK3.Avatars.Components.VRCSpatialAudioSource");
         public static readonly Type ContactReceiver = TypeHelpers.GetTypeAnywhere("VRC.SDK3.Dynamics.Contact.Components.VRCContactReceiver");
         public static readonly Type ContactSender = TypeHelpers.GetTypeAnywhere("VRC.SDK3.Dynamics.Contact.Components.VRCContactSender");
+        public static readonly Type VRCHeadChop = TypeHelpers.GetTypeAnywhere("VRC.SDK3.Avatars.Components.VRCHeadChop");
+        public static readonly Type VRCAimConstraint = TypeHelpers.GetTypeAnywhere("VRC.SDK3.Dynamics.Constraint.Components.VRCAimConstraint");
+        public static readonly Type VRCLookAtConstraint = TypeHelpers.GetTypeAnywhere("VRC.SDK3.Dynamics.Constraint.Components.VRCLookAtConstraint");
+        public static readonly Type VRCParentConstraint = TypeHelpers.GetTypeAnywhere("VRC.SDK3.Dynamics.Constraint.Components.VRCParentConstraint");
+        public static readonly Type VRCPositionConstraint = TypeHelpers.GetTypeAnywhere("VRC.SDK3.Dynamics.Constraint.Components.VRCPositionConstraint");
+        public static readonly Type VRCRotationConstraint = TypeHelpers.GetTypeAnywhere("VRC.SDK3.Dynamics.Constraint.Components.VRCRotationConstraint");
+        public static readonly Type VRCScaleConstraint = TypeHelpers.GetTypeAnywhere("VRC.SDK3.Dynamics.Constraint.Components.VRCScaleConstraint");
 
         public static readonly Type PhysBone = TypeHelpers.GetTypeAnywhere("VRC.SDK3.Dynamics.PhysBone.Components.VRCPhysBone");
         public static readonly Type PhysBoneCollider = TypeHelpers.GetTypeAnywhere("VRC.SDK3.Dynamics.PhysBone.Components.VRCPhysBoneCollider");
