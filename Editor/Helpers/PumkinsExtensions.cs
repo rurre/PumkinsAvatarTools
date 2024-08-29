@@ -37,6 +37,7 @@ namespace Pumkin.Extensions
                                 return null;
 
                             tNew = new GameObject(arr[i]).transform;
+                            Undo.RegisterCreatedObjectUndo(tNew.gameObject, "Create GameObject in another hierarchy");
                             tNew.parent = parent;
 
                             var trans = sourceTransform.root.Find(s + arr[i]);

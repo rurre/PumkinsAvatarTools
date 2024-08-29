@@ -1797,6 +1797,9 @@ namespace Pumkin.AvatarTools
 
                                 RefreshIgnoreArray();
 
+                                int undoIndex = Undo.GetCurrentGroup();
+                                Undo.SetCurrentGroupName("Copy Components");
+                                Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "copy components");
                                 CopyComponentsWithoutParents(CopierSelectedFrom, SelectedAvatar);
 
                                 EditorUtility.SetDirty(SelectedAvatar);
@@ -1804,6 +1807,8 @@ namespace Pumkin.AvatarTools
                                     EditorSceneManager.MarkSceneDirty(SelectedAvatar.scene);
 
                                 avatarInfo = PumkinsAvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
+
+                                Undo.CollapseUndoOperations(undoIndex);
 
                                 log += Strings.Log.done;
                                 Log(log, LogType.Log);
@@ -2153,8 +2158,7 @@ namespace Pumkin.AvatarTools
                     {
                         if(GUILayout.Button(Strings.Buttons.quickSetupAvatar, Styles.BigButton))
                         {
-                            //if(settings._tools_quickSetup_autoRig)
-                            //    SetupRig(SelectedAvatar);
+                            Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Quick Setup Avatar");
 #if VRC_SDK_VRCSDK3
                             if(Settings._tools_quickSetup_fillVisemes)
                                 DoAction(SelectedAvatar, ToolMenuActions.FillVisemes);
@@ -2276,14 +2280,23 @@ namespace Pumkin.AvatarTools
                             {
 #if VRC_SDK_VRCSDK3
                                 if(GUILayout.Button(Strings.Tools.fillVisemes))
+                                {
+                                    Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Fill Visemes");
                                     DoAction(SelectedAvatar, ToolMenuActions.FillVisemes);
+                                }
 #endif
                                 if(GUILayout.Button(Strings.Tools.revertBlendshapes))
+                                {
+                                    Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Revert Blendshapes");
                                     DoAction(SelectedAvatar, ToolMenuActions.RevertBlendshapes);
+                                }
                                 EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
                                 {
                                     if(GUILayout.Button(Strings.Tools.revertScale))
+                                    {
+                                        Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Revert Scale");
                                         DoAction(SelectedAvatar, ToolMenuActions.RevertScale);
+                                    }
                                 }
                                 EditorGUI.EndDisabledGroup();
                             }
@@ -2295,15 +2308,24 @@ namespace Pumkin.AvatarTools
                                 EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
                                 {
                                     if(GUILayout.Button(Strings.Tools.editViewpoint))
+                                    {
+                                        Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Edit Viewpoint");
                                         DoAction(SelectedAvatar, ToolMenuActions.EditViewpoint);
+                                    }
                                 }
                                 EditorGUI.EndDisabledGroup();
 
                                 if(GUILayout.Button(Strings.Tools.fillEyeBones))
+                                {
+                                    Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Fill Eye Bones");
                                     DoAction(SelectedAvatar, ToolMenuActions.FillEyeBones);
+                                }
 #endif
                                 if(GUILayout.Button(Strings.Tools.zeroBlendshapes))
+                                {
+                                    Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Zero Blendshapes");
                                     DoAction(SelectedAvatar, ToolMenuActions.ZeroBlendshapes);
+                                }
                             }
                             GUILayout.EndVertical();
                         }
@@ -2312,14 +2334,20 @@ namespace Pumkin.AvatarTools
                         EditorGUI.BeginDisabledGroup(DrawingHandlesGUI);
                         {
                             if(GUILayout.Button(Strings.Tools.editScale))
+                            {
+                                Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Edit Scale");
                                 DoAction(SelectedAvatar, ToolMenuActions.EditScale);
+                            }
                         }
                         EditorGUI.EndDisabledGroup();
 
                         using(new GUILayout.HorizontalScope())
                         {
                             if(GUILayout.Button(Strings.Tools.resetPose))
+                            {
+                                Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Reset pose");
                                 DoAction(SelectedAvatar, ToolMenuActions.ResetPose);
+                            }
                             Settings._tools_avatar_resetpose_expand = GUILayout.Toggle(Settings._tools_avatar_resetpose_expand,
                                 EditorGUIUtility.IconContent("align_vertically_center"), "button", GUILayout.Width(20));
                         }
@@ -2362,13 +2390,25 @@ namespace Pumkin.AvatarTools
                             EditorGUI.BeginDisabledGroup(disabled);
                             {
                                 if(GUILayout.Button(Strings.Tools.setSkinnedMeshRendererAnchors))
+                                {
+                                    Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Set skinned mesh renderer anchors");
                                     SetRendererAnchor(SelectedAvatar, Settings._tools_quickSetup_setRenderAnchor_path, typeof(SkinnedMeshRenderer));
+                                }
                                 if(GUILayout.Button(Strings.Tools.setMeshRendererAnchors))
+                                {
+                                    Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Set mesh renderer anchors");
                                     SetRendererAnchor(SelectedAvatar, Settings._tools_quickSetup_setRenderAnchor_path, typeof(MeshRenderer));
+                                }
                                 if(GUILayout.Button(Strings.Tools.setParticleSystemAnchors))
+                                {
+                                    Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Set particle system renderer anchors");
                                     SetRendererAnchor(SelectedAvatar, Settings._tools_quickSetup_setRenderAnchor_path, typeof(ParticleSystemRenderer));
+                                }
                                 if(GUILayout.Button(Strings.Tools.setTrailRendererAnchors))
+                                {
+                                    Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Set trail renderer anchors");
                                     SetRendererAnchor(SelectedAvatar, Settings._tools_quickSetup_setRenderAnchor_path, typeof(TrailRenderer));
+                                }
                             }
                             EditorGUI.EndDisabledGroup();
                         }
@@ -2378,13 +2418,25 @@ namespace Pumkin.AvatarTools
                                 (HumanBodyBones)EditorGUILayout.EnumPopup(Strings.Tools.humanoidBone, Settings._tools_quickSetup_setRenderAnchor_bone);
 
                             if(GUILayout.Button(Strings.Tools.setSkinnedMeshRendererAnchors))
+                            {
+                                Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Set Skinned mesh renderer anchors");
                                 SetRendererAnchor(SelectedAvatar, Settings._tools_quickSetup_setRenderAnchor_bone, typeof(SkinnedMeshRenderer));
+                            }
                             if(GUILayout.Button(Strings.Tools.setMeshRendererAnchors))
+                            {
+                                Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Set mesh renderer anchors");
                                 SetRendererAnchor(SelectedAvatar, Settings._tools_quickSetup_setRenderAnchor_bone, typeof(MeshRenderer));
+                            }
                             if(GUILayout.Button(Strings.Tools.setParticleSystemAnchors))
+                            {
+                                Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Set particle system anchors");
                                 SetRendererAnchor(SelectedAvatar, Settings._tools_quickSetup_setRenderAnchor_bone, typeof(ParticleSystemRenderer));
+                            }
                             if(GUILayout.Button(Strings.Tools.setTrailRendererAnchors))
+                            {
+                                Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Set trail renderer anchors");
                                 SetRendererAnchor(SelectedAvatar, Settings._tools_quickSetup_setRenderAnchor_bone, typeof(TrailRenderer));
+                            }
                         }
 
                         EditorGUILayout.Space();
@@ -2409,14 +2461,23 @@ namespace Pumkin.AvatarTools
                             EditorGUILayout.BeginHorizontal();
                             {
                                 if(GUILayout.Button(Strings.Tools.disablePhysBones))
+                                {
+                                    Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Disable physbones");
                                     SetPhysBonesEnabledState(SelectedAvatar, false);
+                                }
                                 if(GUILayout.Button(Strings.Tools.enablePhysBones))
+                                {
+                                    Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Enable physbones");
                                     SetPhysBonesEnabledState(SelectedAvatar, true);
+                                }
                             }
                             EditorGUILayout.EndHorizontal();
 
                             if(DrawToggleButtonGUI(Strings.Tools.togglePhysBones, _nextTogglePBoneState))
+                            {
+                                Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Toggle physbone state");
                                 TogglePhysBonesEnabledState(SelectedAvatar, ref _nextTogglePBoneState, ref _pBonesThatWereAlreadyDisabled);
+                            }
 
                             EditorGUILayout.Space();
                         }
@@ -2436,14 +2497,23 @@ namespace Pumkin.AvatarTools
                                 EditorGUILayout.BeginHorizontal();
                                 {
                                     if(GUILayout.Button(Strings.Tools.disableDynamicBones))
+                                    {
+                                        Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Disable dynamic bones");
                                         SetDynamicBonesEnabledState(SelectedAvatar, false);
+                                    }
                                     if(GUILayout.Button(Strings.Tools.enableDynamicBones))
+                                    {
+                                        Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Enable dynamic bones");
                                         SetDynamicBonesEnabledState(SelectedAvatar, true);
+                                    }
                                 }
                                 EditorGUILayout.EndHorizontal();
 
                                 if(DrawToggleButtonGUI(Strings.Tools.toggleDynamicBones, _nextToggleDBoneState))
+                                {
+                                    Undo.RegisterFullObjectHierarchyUndo(SelectedAvatar, "Toggle dynamic bone state");
                                     ToggleDynamicBonesEnabledState(SelectedAvatar, ref _nextToggleDBoneState, ref _dBonesThatWereAlreadyDisabled);
+                                }
 
                                 EditorGUILayout.Space();
                             }
