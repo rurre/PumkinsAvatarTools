@@ -925,31 +925,7 @@ namespace Pumkin.HelperFunctions
             string path = AnimationUtility.CalculateTransformPath(trans, root);
             return skipRoot ? path : root.name + "/";
         }
-
-        /// <summary>
-        /// Get name of object from path. Really just returns the text after last / or \
-        /// </summary>
-        public static string GetNameFromPath(string path)
-        {
-            if(string.IsNullOrEmpty(path))
-                return path;
-
-            for(int i = path.Length - 1; i >= 0; i--)
-            {
-                if(path[i] == '\\' || path[i] == '/')
-                {
-                    try
-                    {
-                        return path.Substring(i + 1);
-                    }
-                    catch
-                    {
-                        return path;
-                    }
-                }
-            }
-            return path;
-        }
+        
 
         /// <summary>
         /// Checks if string is null or whitespaces only. This is missing from some unity versions apparently.
@@ -997,23 +973,6 @@ namespace Pumkin.HelperFunctions
             reverse = reverse.Substring(firstSlash);
             string s = new string(reverse.ToArray().Reverse().ToArray());
             return s;
-
-            //int count = path.Count(c => c == '/') + path.Count(c => c == '\\');
-            //if (count <= 1) //Special case if we don't have any parents in the path
-            //    return "";
-
-            //for(int i = path.Length - 1; i >= 0; i--)
-            //{
-            //    if((path[i] == '\\' || path[i] == '/'))
-            //    {
-            //        if(i + 1 < path.Length - 1 )
-            //            if(path[i + 1] != '\r')
-            //                if(path[i + 1] != '\n')
-            //                    return path.Substring(0, i) + '/';
-
-            //    }
-            //}
-            //return path;
         }
 
         /// <summary>
@@ -1027,11 +986,118 @@ namespace Pumkin.HelperFunctions
             return path.Split('\\', '/');
         }
 
+        public static bool IsHumanBone(Transform transform, Animator animator, out HumanBodyBones humanBone)
+        {
+            humanBone = HumanBodyBones.Hips;
+            for(int i = 0; i < (int)HumanBodyBones.LastBone; i++)
+            {
+                HumanBodyBones currentBone = (HumanBodyBones)i;
+                if(animator.GetBoneTransform(currentBone) != transform)
+                    continue;
+                
+                humanBone = currentBone;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Find transform in another hierarchy, now relative to the closest humanoid bone
+        /// </summary>
+        /// <param name="trans">Transform to search for</param>
+        /// <param name="thisHierarchyRoot">Root of this hierarchy</param>
+        /// <param name="otherHierarchyRoot">Root of the other hierarchy</param>
+        /// <param name="createIfMissing">Create game object hierarchy if it's missing?</param>
+        /// <returns>Transform if found, null if not</returns>
+        public static Transform FindTransformInAnotherHierarchy(Transform trans, Transform thisHierarchyRoot, Transform otherHierarchyRoot, bool createIfMissing)
+        {
+            if(!trans || !otherHierarchyRoot || trans == thisHierarchyRoot) 
+                return null;
+            
+            // Figure out current hierarchy
+            var thisAnimator = trans.GetComponentInParent<Animator>(true);
+            if(!thisAnimator || !thisAnimator.isHuman)
+            {
+                PumkinsAvatarTools.Log($"{thisHierarchyRoot.name} is not part of a humanoid avatar hierarchy. Old search method will be used, which kinda sucks.", LogType.Warning);
+                return FindTransformInAnotherHierarchyOld(trans, thisHierarchyRoot, otherHierarchyRoot, createIfMissing);
+            }
+
+            Transform thisHumanBoneParent, otherHumanBoneParent;
+            if(TryGetParentHierarchyToClosestHumanoidBone(trans, thisHierarchyRoot, thisAnimator, out HumanBodyBones thisHumanBone, out Transform[] thisPathToHumanBoneParent))
+            {
+                // Find bone in new hierarchy
+                var otherAnimator = otherHierarchyRoot.GetComponentInChildren<Animator>(true);
+                if(!otherAnimator.isHuman)
+                {
+                    PumkinsAvatarTools.Log($"{otherHierarchyRoot.name} is not part of a humanoid avatar hierarchy. Old search method will be used, which kinda sucks.", LogType.Warning);
+                    return FindTransformInAnotherHierarchyOld(trans, thisHierarchyRoot, otherHierarchyRoot, createIfMissing);
+                }
+                
+                otherHumanBoneParent = otherAnimator.GetBoneTransform(thisHumanBone);
+                thisHumanBoneParent = thisAnimator.GetBoneTransform(thisHumanBone);
+            }
+            else
+            {
+                thisHumanBoneParent = thisHierarchyRoot;
+                otherHumanBoneParent = otherHierarchyRoot;
+            }
+
+            string pathToSearch = string.Join('/', thisPathToHumanBoneParent.Select(t => t.name));
+            
+            Transform target = otherHumanBoneParent.Find(pathToSearch, createIfMissing, thisHumanBoneParent);
+            
+            #if PUMKIN_DEV
+            Debug.Log(target
+                ? $"Source: {trans?.name} ({AnimationUtility.CalculateTransformPath(trans, thisHierarchyRoot)}), Target: {target.name} ({AnimationUtility.CalculateTransformPath(target, otherHierarchyRoot)})"
+                : $"Source: {trans?.name} ({AnimationUtility.CalculateTransformPath(trans, thisHierarchyRoot)}). Target not found and not allowed to create.");
+#endif
+            
+            return target;
+        }
+        
+        /// <summary>
+        /// Gets parent hierarchy to the closest humanoid bone
+        /// </summary>
+        /// <param name="trans">Transform to start search from</param>
+        /// <param name="hierarchyRoot">The root of the current hierarchy to check for when no humanoid bone is found</param>
+        /// <param name="animator">Animator with humanoid avatar</param>
+        /// <param name="humanBone">Humanoid bone found</param>
+        /// <param name="parentHierarchy">Transform array of child and all parents up until humanoid bone (exclusive)</param>
+        /// <returns>True if a human bone was found</returns>
+        static bool TryGetParentHierarchyToClosestHumanoidBone(Transform trans, Transform hierarchyRoot, Animator animator, out HumanBodyBones humanBone, out Transform[] parentHierarchy)
+        {
+            humanBone = HumanBodyBones.LastBone;
+            parentHierarchy = null;
+            if(trans == null || animator == null || !animator.isHuman)
+                return false;
+            
+            var hierarchy = new List<Transform> { trans };
+            Transform parent = trans.parent;
+            while(parent != null)
+            {
+                if(IsHumanBone(parent, animator, out var bone))
+                {
+                    humanBone = bone;
+                    break;
+                }
+
+                if(parent == null || parent == hierarchyRoot)
+                    break;
+                
+                hierarchy.Insert(0, parent);
+                parent = parent.parent;
+            }
+            
+            parentHierarchy = hierarchy.ToArray();
+            return humanBone != HumanBodyBones.LastBone;
+        }
+
         /// <summary>
         /// Looks for transform in another transform's child hierarchy. Can create if missing.
         /// </summary>
         /// <returns>Found or created transform</returns>
-        public static Transform FindTransformInAnotherHierarchy(Transform trans, Transform currentHierarchyRoot, Transform otherHierarchyRoot, bool createIfMissing)
+        public static Transform FindTransformInAnotherHierarchyOld(Transform trans, Transform currentHierarchyRoot, Transform otherHierarchyRoot, bool createIfMissing)
         {
             if(!trans || !otherHierarchyRoot)
                 return null;

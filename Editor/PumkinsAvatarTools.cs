@@ -1465,7 +1465,7 @@ namespace Pumkin.AvatarTools
             try
             {
                 if(Settings.bCopier_skinMeshRender_copy && CopierTabs.ComponentIsInSelectedTab<SkinnedMeshRenderer>(Settings._copier_selectedTab))
-                    LegacyCopier.CopyAllSkinnedMeshRenderers(objFrom, objTo, inst.ignoredTransforms);
+                    LegacyCopier.CopyAllSkinnedMeshRenderers(objFrom, objTo, Settings.bCopier_skinMeshRender_createObjects, inst.ignoredTransforms);
             }
             catch(Exception ex) { Log("_Failed to copy Skinned Mesh Renderers: " + ex.Message, LogType.Error); }
 

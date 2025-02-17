@@ -11,6 +11,7 @@ using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
 using Pumkin.Presets;
 using UnityEngine.Animations;
+using UnityEngine.SceneManagement;
 
 namespace Pumkin.AvatarTools
 {

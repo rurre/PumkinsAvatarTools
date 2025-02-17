@@ -199,7 +199,7 @@ namespace Pumkin.AvatarTools.Copiers
         /// <summary>
         /// Copies all SkinnedMeshRenderers in object and children.
         /// </summary>
-        internal static void CopyAllSkinnedMeshRenderers(GameObject from, GameObject to, HashSet<Transform> ignoreSet)
+        internal static void CopyAllSkinnedMeshRenderers(GameObject from, GameObject to, bool createGameObjects, HashSet<Transform> ignoreSet)
         {
             if((from == null || to == null)
                || (!(Settings.bCopier_skinMeshRender_copyBlendShapeValues
@@ -223,8 +223,7 @@ namespace Pumkin.AvatarTools.Copiers
                 if(Helpers.ShouldIgnoreObject(smrFrom.transform, ignoreSet, Settings.bCopier_ignoreArray_includeChildren))
                     continue;
 
-                var tTo = Helpers.FindTransformInAnotherHierarchy(tFrom, tFromRoot, tToRoot,
-                    Settings.bCopier_skinMeshRender_createObjects);
+                var tTo = Helpers.FindTransformInAnotherHierarchy(tFrom, tFromRoot, tToRoot, createGameObjects);
 
                 if(!tTo)
                     continue;
@@ -246,7 +245,7 @@ namespace Pumkin.AvatarTools.Copiers
                     bool allBonesFound = true;
                     for(int j = 0; j < newBones.Length; j++)
                     {
-                        newBones[j] = Helpers.FindTransformInAnotherHierarchy(oldBones[j], tFromRoot, tToRoot, true);
+                        newBones[j] = Helpers.FindTransformInAnotherHierarchy(oldBones[j], tFromRoot, tToRoot, false);
                         if(!newBones[j])
                         {
                             allBonesFound = false;
