@@ -1345,7 +1345,7 @@ namespace Pumkin.AvatarTools
                 }
                 else if(Settings.bCopier_dynamicBones_copy || Settings.bCopier_dynamicBones_copyColliders)
                 {
-                    Log(Strings.Warning.noDBonesInProject, LogType.Error);
+                    //Log(Strings.Warning.noDBonesInProject, LogType.Error);
                 }
             }
             catch(Exception ex) { Log("_Failed to copy Dynamic Bones: " + ex.Message, LogType.Error); }

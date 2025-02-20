@@ -1072,21 +1072,21 @@ namespace Pumkin.HelperFunctions
             if(trans == null || animator == null || !animator.isHuman)
                 return false;
             
-            var hierarchy = new List<Transform> { trans };
-            Transform parent = trans.parent;
-            while(parent != null)
+            var hierarchy = new List<Transform>();
+            Transform nextBone = trans;
+            while(nextBone != null)
             {
-                if(IsHumanBone(parent, animator, out var bone))
+                if(IsHumanBone(nextBone, animator, out var bone))
                 {
                     humanBone = bone;
                     break;
                 }
 
-                if(parent == null || parent == hierarchyRoot)
+                if(nextBone == null || nextBone == hierarchyRoot)
                     break;
                 
-                hierarchy.Insert(0, parent);
-                parent = parent.parent;
+                hierarchy.Insert(0, nextBone);
+                nextBone = nextBone.parent;
             }
             
             parentHierarchy = hierarchy.ToArray();

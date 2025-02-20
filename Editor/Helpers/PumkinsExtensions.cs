@@ -17,6 +17,8 @@ namespace Pumkin.Extensions
             var trans = transform.Find(childPath);
             if(trans)
                 return trans;
+            
+            //if(!createIfMissing || transform.name.EndsWith("_end"))
             if(!createIfMissing)
                 return null;
 
@@ -38,12 +40,10 @@ namespace Pumkin.Extensions
                         result.SetLocalPositionAndRotation(otherResult.localPosition, otherResult.localRotation);
                         result.localScale = otherResult.localScale;
                         result.SetSiblingIndex(otherResult.GetSiblingIndex());
-
-                        nextTransformOtherHierarchy = otherResult;
                     }
-
-                    nextTransform = result;
                 }
+                nextTransform = result;
+                nextTransformOtherHierarchy = otherResult;
             }
 
             return nextTransform;
