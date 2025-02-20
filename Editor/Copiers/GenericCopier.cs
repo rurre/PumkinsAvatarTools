@@ -249,6 +249,24 @@ namespace Pumkin.AvatarTools.Copiers
             serialComp.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        public static void CopyPrefabsNew(CopyInstance inst, bool createGameObjects, bool adjustScale, bool fixReferences, bool copyPropertyOverrides, bool addPrefabsToIgnoreList, HashSet<Transform> ignoreSet)
+        {
+            Dictionary<GameObject, GameObject> prefabsAndTheirParentPrefab = new Dictionary<GameObject, GameObject>();
+            foreach(var trans in inst.from.GetComponentsInChildren<Transform>(true))
+            {
+                var pref = PrefabUtility.GetNearestPrefabInstanceRoot(trans);
+                if(!pref || pref.transform == inst.from.transform || prefabsAndTheirParentPrefab.ContainsKey(pref))
+                    continue;
+                
+                Transform prefabParent = pref.transform.parent;
+                GameObject prefabParentRoot = PrefabUtility.GetNearestPrefabInstanceRoot(prefabParent);
+                if(prefabParentRoot == null || prefabParentRoot.transform == inst.from.transform)
+                    prefabParentRoot = null; // Assume that the prefab doesn't have a parent prefab if the parent prefab is the avatar
+                
+                prefabsAndTheirParentPrefab.Add(pref, prefabParentRoot);
+            }
+        }
+
         public static void CopyPrefabs(CopyInstance inst, bool createGameObjects, bool adjustScale, bool fixReferences, bool copyPropertyOverrides, bool addPrefabsToIgnoreList, HashSet<Transform> ignoreSet)
         {
             List<GameObject> prefabs = new List<GameObject>();
@@ -331,18 +349,19 @@ namespace Pumkin.AvatarTools.Copiers
                         inst.propertyRefs.Add(refs);
                     }
 
-                     if(adjustScale)
-                     {
-                         string typeName = comp.GetType().Name;
-                         string[] propToAdjust = AdjustScaleTypeProps.FirstOrDefault(kv => typeName.Equals(kv.Key)).Value;
-                         if(propToAdjust == null || propToAdjust.Length == 0)
-                             PumkinsAvatarTools.Log($"_Attempting to adjust scale on {tTo.name} for {typeName} but no properties to adjust found. Skipping");
-                         else
-                         {
-                             Transform fromTrans = Helpers.FindTransformInAnotherHierarchy(comp.transform, tTo, tFrom, false);
-                             AdjustScale(comp, fromTrans, propToAdjust);
-                         }
-                     }
+                    if(adjustScale)
+                    {
+                        string typeName = comp.GetType().Name;
+                        string[] propToAdjust = AdjustScaleTypeProps.FirstOrDefault(kv => typeName.Equals(kv.Key)).Value;
+                        if(propToAdjust == null || propToAdjust.Length == 0)
+                            PumkinsAvatarTools.Log(
+                                $"_Attempting to adjust scale on {tTo.name} for {typeName} but no properties to adjust found. Skipping");
+                        else
+                        {
+                            Transform fromTrans = Helpers.FindTransformInAnotherHierarchy(comp.transform, tTo, tFrom, false);
+                            AdjustScale(comp, fromTrans, propToAdjust);
+                        }
+                    }
                 }
             }
 

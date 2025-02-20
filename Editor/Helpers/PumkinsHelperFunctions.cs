@@ -1012,8 +1012,10 @@ namespace Pumkin.HelperFunctions
         /// <returns>Transform if found, null if not</returns>
         public static Transform FindTransformInAnotherHierarchy(Transform trans, Transform thisHierarchyRoot, Transform otherHierarchyRoot, bool createIfMissing)
         {
-            if(!trans || !otherHierarchyRoot || trans == thisHierarchyRoot) 
+            if(!trans || !otherHierarchyRoot) 
                 return null;
+            if(trans == thisHierarchyRoot)
+                return otherHierarchyRoot;
             
             // Figure out current hierarchy
             var thisAnimator = trans.GetComponentInParent<Animator>(true);
