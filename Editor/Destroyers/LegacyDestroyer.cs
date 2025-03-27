@@ -5,6 +5,7 @@ using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
 using UnityEditor;
 using UnityEngine;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.AvatarTools.Destroyers
 {
@@ -29,7 +30,7 @@ namespace Pumkin.AvatarTools.Destroyers
                 if(rend != null)
                     GameObject.DestroyImmediate(rend);
 
-                PumkinsAvatarTools.Log(Strings.Log.removeAttempt + " - " + Strings.Log.success, LogType.Log, p.ToString(), from.name);
+                Log(Strings.Log.removeAttempt + " - " + Strings.Log.success, LogType.Log, p.ToString(), from.name);
                 GameObject.DestroyImmediate(p);
             }
         }
@@ -67,12 +68,12 @@ namespace Pumkin.AvatarTools.Destroyers
                     {
                         if(PrefabUtility.GetPrefabInstanceStatus(t) == PrefabInstanceStatus.NotAPrefab)
                         {
-                            PumkinsAvatarTools.Log(Strings.Log.hasNoComponentsOrChildrenDestroying, LogType.Log, t.name);
+                            Log(Strings.Log.hasNoComponentsOrChildrenDestroying, LogType.Log, t.name);
                             GameObject.DestroyImmediate(t.gameObject);
                         }
                         else
                         {
-                            PumkinsAvatarTools.Log(Strings.Log.cantBeDestroyedPartOfPrefab, LogType.Warning, t.name, "GameObject");
+                            Log(Strings.Log.cantBeDestroyedPartOfPrefab, LogType.Warning, t.name, "GameObject");
                         }
                     }
                 }
@@ -87,7 +88,7 @@ namespace Pumkin.AvatarTools.Destroyers
             #if UNITY_2018
             if(EditorApplication.isPlaying)
             {
-                PumkinsAvatarTools.Log("Can't remove missing scripts in play mode, it causes crashes", LogType.Warning);
+                Log("Can't remove missing scripts in play mode, it causes crashes", LogType.Warning);
                 return;
             }
             #endif
@@ -96,7 +97,7 @@ namespace Pumkin.AvatarTools.Destroyers
             foreach(var t in ts)
             {
                 if(Helpers.DestroyMissingScriptsInGameObject(t.gameObject))
-                    PumkinsAvatarTools.Log(Strings.Log.hasMissingScriptDestroying, LogType.Log, Helpers.GetTransformPath(t, avatar.transform));
+                    Log(Strings.Log.hasMissingScriptDestroying, LogType.Log, Helpers.GetTransformPath(t, avatar.transform));
             }
         }
 
@@ -107,7 +108,7 @@ namespace Pumkin.AvatarTools.Destroyers
         {
 			if(type == null)
 			{
-				PumkinsAvatarTools.Log("Invalid type to destroy", LogType.Error);
+				Log("Invalid type to destroy", LogType.Error);
 				return;
 			}
 
@@ -138,17 +139,17 @@ namespace Pumkin.AvatarTools.Destroyers
                             {
                                 Helpers.DestroyAppropriate(comps[i]);
                                 log += Strings.Log.success;
-                                PumkinsAvatarTools.Log(log, LogType.Log, type.Name, name);
+                                Log(log, LogType.Log, type.Name, name);
                             }
                             catch(Exception e)
                             {
                                 log += Strings.Log.failed + " - " + e.Message;
-                                PumkinsAvatarTools.Log(log, LogType.Exception, type.Name, name);
+                                Log(log, LogType.Exception, type.Name, name);
                             }
                         }
                         else
                         {
-                            PumkinsAvatarTools.Log(Strings.Log.cantBeDestroyedPartOfPrefab, LogType.Warning, name, type.Name);
+                            Log(Strings.Log.cantBeDestroyedPartOfPrefab, LogType.Warning, name, type.Name);
                         }
                     }
                 }

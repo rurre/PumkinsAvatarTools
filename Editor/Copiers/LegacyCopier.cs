@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Animations;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.AvatarTools.Copiers
 {
@@ -51,7 +52,7 @@ namespace Pumkin.AvatarTools.Copiers
                     if(Helpers.CollidersAreIdentical(cToArr[z], cFrom))
                     {
                         found = true;
-                        PumkinsAvatarTools.Log(log + " - " + Strings.Log.failedAlreadyHas, LogType.Warning, tTo.name, type.ToString());
+                        Log(log + " - " + Strings.Log.failedAlreadyHas, LogType.Warning, tTo.name, type.ToString());
                         break;
                     }
                 }
@@ -81,7 +82,7 @@ namespace Pumkin.AvatarTools.Copiers
                             capsule.height *= mul;
                         }
                     }
-                    PumkinsAvatarTools.Log(log + " - " + Strings.Log.success, LogType.Log, type.ToString(), cFrom.gameObject.name, tTo.name);
+                    Log(log + " - " + Strings.Log.success, LogType.Log, type.ToString(), cFrom.gameObject.name, tTo.name);
                 }
             }
         }
@@ -117,7 +118,7 @@ namespace Pumkin.AvatarTools.Copiers
                    (!Settings.bCopier_joints_spring && jointType == typeof(SpringJoint)) ||
                    (!Settings.bCopier_joints_hinge && jointType == typeof(CharacterJoint)))
                 {
-                    PumkinsAvatarTools.Log(Strings.Log.notSelectedInCopierIgnoring, LogType.Log, jointTransFrom.gameObject.name, jointType.Name);
+                    Log(Strings.Log.notSelectedInCopierIgnoring, LogType.Log, jointTransFrom.gameObject.name, jointType.Name);
                     continue;
                 }
 
@@ -126,7 +127,7 @@ namespace Pumkin.AvatarTools.Copiers
                 if(!jointTransTo)
                     continue;
 
-                PumkinsAvatarTools.Log(Strings.Log.copyAttempt, LogType.Log, jointType.Name, jointTransFrom.gameObject.name, jointTransTo.gameObject.name);
+                Log(Strings.Log.copyAttempt, LogType.Log, jointType.Name, jointTransFrom.gameObject.name, jointTransTo.gameObject.name);
                 Joint jointTo = jointTransTo.gameObject.AddComponent(jointFrom.GetType()) as Joint;
 
                 ComponentUtility.CopyComponent(jointFrom);
@@ -171,7 +172,7 @@ namespace Pumkin.AvatarTools.Copiers
                 Transform tTo = Helpers.FindTransformInAnotherHierarchy(tFrom, from.transform, to.transform, Settings.bCopier_transforms_createMissing);
                 if(!tTo)
                 {
-                    PumkinsAvatarTools.Log(log + Strings.Log.failedHasNoIgnoring, LogType.Warning, from.name, tFrom.gameObject.name);
+                    Log(log + Strings.Log.failedHasNoIgnoring, LogType.Warning, from.name, tFrom.gameObject.name);
                     continue;
                 }
 
@@ -192,7 +193,7 @@ namespace Pumkin.AvatarTools.Copiers
                 if(Settings.bCopier_transforms_copyActiveState)
                     tTo.gameObject.SetActive(tFrom.gameObject.activeSelf);
 
-                PumkinsAvatarTools.Log(log + Strings.Log.success, LogType.Log);
+                Log(log + Strings.Log.success, LogType.Log);
             }
         }
 
@@ -257,7 +258,7 @@ namespace Pumkin.AvatarTools.Copiers
 
                     if(!allBonesFound || !newRoot)
                     {
-                        PumkinsAvatarTools.Log("Couldn't find all bones to assign to skinned mesh renderer.",
+                        Log("Couldn't find all bones to assign to skinned mesh renderer.",
                             LogType.Warning);
                     }
                     else
@@ -304,7 +305,7 @@ namespace Pumkin.AvatarTools.Copiers
                 if(Settings.bCopier_skinMeshRender_copyBounds)
                     smrTo.localBounds = smrFrom.localBounds;
 
-                PumkinsAvatarTools.Log(log + Strings.Log.success);
+                Log(log + Strings.Log.success);
             }
         }
 
@@ -439,12 +440,12 @@ namespace Pumkin.AvatarTools.Copiers
 
                     if(Settings.bCopier_aimConstraint_onlyIfHasValidSources && !Helpers.ConstraintHasValidSources(aimConTo))
                     {
-                        PumkinsAvatarTools.Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, aimCon.gameObject.name);
+                        Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, aimCon.gameObject.name);
                         Helpers.DestroyAppropriate(aimConTo);
                         return;
                     }
 
-                    PumkinsAvatarTools.Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
+                    Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
                         PumkinsAvatarTools.CopierSelectedFrom.name,
                         aimCon.transform == aimCon.transform.root ? "root" : aimCon.gameObject.name,
                         PumkinsAvatarTools.SelectedAvatar.name,
@@ -452,7 +453,7 @@ namespace Pumkin.AvatarTools.Copiers
                 }
                 else
                 {
-                    PumkinsAvatarTools.Log(Strings.Log.failedAlreadyHas, LogType.Log, aimCon.gameObject.name, typeString);
+                    Log(Strings.Log.failedAlreadyHas, LogType.Log, aimCon.gameObject.name, typeString);
                 }
             }
         }
@@ -511,12 +512,12 @@ namespace Pumkin.AvatarTools.Copiers
 
                     if(Settings.bCopier_lookAtConstraint_onlyIfHasValidSources && !Helpers.ConstraintHasValidSources(lookConTo))
                     {
-                        PumkinsAvatarTools.Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, lookCon.gameObject.name, typeString);
+                        Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, lookCon.gameObject.name, typeString);
                         Helpers.DestroyAppropriate(lookCon);
                         return;
                     }
 
-                    PumkinsAvatarTools.Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
+                    Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
                         PumkinsAvatarTools.CopierSelectedFrom.name,
                         lookCon.transform == lookCon.transform.root ? "root" : lookCon.gameObject.name,
                         PumkinsAvatarTools.SelectedAvatar.name,
@@ -524,7 +525,7 @@ namespace Pumkin.AvatarTools.Copiers
                 }
                 else
                 {
-                    PumkinsAvatarTools.Log(Strings.Log.failedAlreadyHas, LogType.Log, lookCon.gameObject.name, typeString);
+                    Log(Strings.Log.failedAlreadyHas, LogType.Log, lookCon.gameObject.name, typeString);
                 }
             }
         }
@@ -576,12 +577,12 @@ namespace Pumkin.AvatarTools.Copiers
 
                     if(Settings.bCopier_parentConstraint_onlyIfHasValidSources && !Helpers.ConstraintHasValidSources(parConTo))
                     {
-                        PumkinsAvatarTools.Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, parCon.gameObject.name, typeString);
+                        Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, parCon.gameObject.name, typeString);
                         Helpers.DestroyAppropriate(parCon);
                         return;
                     }
 
-                    PumkinsAvatarTools.Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
+                    Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
                         PumkinsAvatarTools.CopierSelectedFrom.name,
                         parCon.transform == parCon.transform.root ? "root" : parCon.gameObject.name,
                         PumkinsAvatarTools.SelectedAvatar.name,
@@ -589,7 +590,7 @@ namespace Pumkin.AvatarTools.Copiers
                 }
                 else
                 {
-                    PumkinsAvatarTools.Log(Strings.Log.failedAlreadyHas, LogType.Log, parCon.gameObject.name, typeString);
+                    Log(Strings.Log.failedAlreadyHas, LogType.Log, parCon.gameObject.name, typeString);
                 }
             }
         }
@@ -641,12 +642,12 @@ namespace Pumkin.AvatarTools.Copiers
 
                     if(Settings.bCopier_positionConstraint_onlyIfHasValidSources && !Helpers.ConstraintHasValidSources(posConTo))
                     {
-                        PumkinsAvatarTools.Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, posCon.gameObject.name, typeString);
+                        Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, posCon.gameObject.name, typeString);
                         Helpers.DestroyAppropriate(posCon);
                         return;
                     }
 
-                    PumkinsAvatarTools.Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
+                    Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
                         PumkinsAvatarTools.CopierSelectedFrom.name,
                         posCon.transform == posCon.transform.root ? "root" : posCon.gameObject.name,
                         PumkinsAvatarTools.SelectedAvatar.name,
@@ -654,7 +655,7 @@ namespace Pumkin.AvatarTools.Copiers
                 }
                 else
                 {
-                    PumkinsAvatarTools.Log(Strings.Log.failedAlreadyHas, LogType.Log, posCon.gameObject.name, typeString);
+                    Log(Strings.Log.failedAlreadyHas, LogType.Log, posCon.gameObject.name, typeString);
                 }
             }
         }
@@ -709,12 +710,12 @@ namespace Pumkin.AvatarTools.Copiers
 
                         if(Settings.bCopier_rotationConstraint_onlyIfHasValidSources && !Helpers.ConstraintHasValidSources(rotConTo))
                         {
-                            PumkinsAvatarTools.Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, rotCon.gameObject.name, typeString);
+                            Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, rotCon.gameObject.name, typeString);
                             Helpers.DestroyAppropriate(rotCon);
                             return;
                         }
 
-                        PumkinsAvatarTools.Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
+                        Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
                                 PumkinsAvatarTools.CopierSelectedFrom.name,
                                 rotCon.transform == rotCon.transform.root ? "root" : rotCon.gameObject.name,
                                 PumkinsAvatarTools.SelectedAvatar.name,
@@ -722,7 +723,7 @@ namespace Pumkin.AvatarTools.Copiers
                     }
                     else
                     {
-                        PumkinsAvatarTools.Log(Strings.Log.failedAlreadyHas, LogType.Log, rotCon.gameObject.name, typeString);
+                        Log(Strings.Log.failedAlreadyHas, LogType.Log, rotCon.gameObject.name, typeString);
                     }
                 }
             }
@@ -775,12 +776,12 @@ namespace Pumkin.AvatarTools.Copiers
 
                     if(Settings.bCopier_scaleConstraint_onlyIfHasValidSources && !Helpers.ConstraintHasValidSources(scaleConTo))
                     {
-                        PumkinsAvatarTools.Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, scaleCon.gameObject.name, typeString);
+                        Log(Strings.Log.constraintHasNoValidSources, LogType.Warning, to.name, scaleCon.gameObject.name, typeString);
                         Helpers.DestroyAppropriate(scaleCon);
                         return;
                     }
 
-                    PumkinsAvatarTools.Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
+                    Log(Strings.Log.successCopiedOverFromTo, LogType.Log, typeString,
                         PumkinsAvatarTools.CopierSelectedFrom.name,
                         scaleCon.transform == scaleCon.transform.root ? "root" : scaleCon.gameObject.name,
                         PumkinsAvatarTools.SelectedAvatar.name,
@@ -788,7 +789,7 @@ namespace Pumkin.AvatarTools.Copiers
                 }
                 else
                 {
-                    PumkinsAvatarTools.Log(Strings.Log.failedAlreadyHas, LogType.Log, scaleCon.gameObject.name, typeString);
+                    Log(Strings.Log.failedAlreadyHas, LogType.Log, scaleCon.gameObject.name, typeString);
                 }
 
             }
@@ -831,7 +832,7 @@ namespace Pumkin.AvatarTools.Copiers
                     {
                         ComponentUtility.CopyComponent(audioFrom);
                         ComponentUtility.PasteComponentValues(audioTo);
-                        PumkinsAvatarTools.Log(log + " - " + Strings.Log.success);
+                        Log(log + " - " + Strings.Log.success);
                     }
 
 #if VRC_SDK_VRCSDK3
@@ -853,7 +854,7 @@ namespace Pumkin.AvatarTools.Copiers
                 }
                 else
                 {
-                    PumkinsAvatarTools.Log(log + " " + Strings.Log.failedDoesntHave, LogType.Warning, audioFrom.gameObject.name.ToString(), audioFrom.GetType().ToString());
+                    Log(log + " " + Strings.Log.failedDoesntHave, LogType.Warning, audioFrom.gameObject.name.ToString(), audioFrom.GetType().ToString());
                 }
             }
         }
@@ -898,12 +899,12 @@ namespace Pumkin.AvatarTools.Copiers
                     {
                         ComponentUtility.CopyComponent(animFrom);
                         ComponentUtility.PasteComponentValues(lTo);
-                        PumkinsAvatarTools.Log(log + " - " + Strings.Log.success, LogType.Log, type, tTo.gameObject.name, animFrom.gameObject.name);
+                        Log(log + " - " + Strings.Log.success, LogType.Log, type, tTo.gameObject.name, animFrom.gameObject.name);
                     }
                 }
                 else
                 {
-                    PumkinsAvatarTools.Log(log + " " + Strings.Log.failedDoesntHave, LogType.Warning, animFrom.gameObject.name.ToString(), animFrom.GetType().ToString());
+                    Log(log + " " + Strings.Log.failedDoesntHave, LogType.Warning, animFrom.gameObject.name.ToString(), animFrom.GetType().ToString());
                 }
             }
         }
@@ -948,12 +949,12 @@ namespace Pumkin.AvatarTools.Copiers
                     {
                         ComponentUtility.CopyComponent(lFrom);
                         ComponentUtility.PasteComponentValues(lTo);
-                        PumkinsAvatarTools.Log(log + " - " + Strings.Log.success);
+                        Log(log + " - " + Strings.Log.success);
                     }
                 }
                 else
                 {
-                    PumkinsAvatarTools.Log(log + " " + Strings.Log.failedDoesntHave, LogType.Warning, lFrom.gameObject.name, type);
+                    Log(log + " " + Strings.Log.failedDoesntHave, LogType.Warning, lFrom.gameObject.name, type);
                 }
             }
         }
@@ -1008,11 +1009,11 @@ namespace Pumkin.AvatarTools.Copiers
 
                     ComponentUtility.CopyComponent(fFrom);
                     ComponentUtility.PasteComponentValues(fTo);
-                    PumkinsAvatarTools.Log(log + " - " + Strings.Log.success, LogType.Log);
+                    Log(log + " - " + Strings.Log.success, LogType.Log);
                 }
                 else
                 {
-                    PumkinsAvatarTools.Log(log += " - " + Strings.Log.failedHasNoIgnoring, LogType.Warning, rFrom.gameObject.name, type);
+                    Log(log += " - " + Strings.Log.failedHasNoIgnoring, LogType.Warning, rFrom.gameObject.name, type);
                 }
             }
         }
@@ -1203,11 +1204,11 @@ namespace Pumkin.AvatarTools.Copiers
                 {
                     ComponentUtility.CopyComponent(camFrom);
                     ComponentUtility.PasteComponentAsNew(tTo.gameObject);
-                    PumkinsAvatarTools.Log(Strings.Log.copyAttempt + " - " + Strings.Log.success, LogType.Log);
+                    Log(Strings.Log.copyAttempt + " - " + Strings.Log.success, LogType.Log);
                 }
                 else
                 {
-                    PumkinsAvatarTools.Log(Strings.Log.copyAttempt + " - " + Strings.Log.failedAlreadyHas, LogType.Log);
+                    Log(Strings.Log.copyAttempt + " - " + Strings.Log.failedAlreadyHas, LogType.Log);
                 }
             }
         }

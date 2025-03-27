@@ -8,6 +8,7 @@ using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
 using Pumkin.Extensions;
 using Pumkin.Presets;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.AvatarTools
 {

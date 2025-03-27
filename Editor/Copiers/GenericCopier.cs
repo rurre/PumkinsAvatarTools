@@ -10,6 +10,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.AvatarTools.Copiers
 {
@@ -39,7 +40,7 @@ namespace Pumkin.AvatarTools.Copiers
         {
             if(type == null || !typeof(Component).IsAssignableFrom(type))
             {
-                PumkinsAvatarTools.LogVerbose($"Attempting to copy type '{type}' which isn't a component. Skipping.", LogType.Error);
+                LogVerbose($"Attempting to copy type '{type}' which isn't a component. Skipping.", LogType.Error);
                 return;
             }
 
@@ -82,7 +83,7 @@ namespace Pumkin.AvatarTools.Copiers
 
                 ComponentUtility.CopyComponent(typeFrom);
                 ComponentUtility.PasteComponentValues(newComp);
-                PumkinsAvatarTools.Log(log + " - " + Strings.Log.success);
+                Log(log + " - " + Strings.Log.success);
 
                 if(fixReferences)
                 {
@@ -96,7 +97,7 @@ namespace Pumkin.AvatarTools.Copiers
                 {
                     string[] propToAdjust = AdjustScaleTypeProps.FirstOrDefault(kv => typeName.Equals(kv.Key)).Value;
                     if(propToAdjust == null || propToAdjust.Length == 0)
-                        PumkinsAvatarTools.Log($"_Attempting to adjust scale on {tTo.name} for {typeName} but no properties to adjust found. Skipping");
+                        Log($"_Attempting to adjust scale on {tTo.name} for {typeName} but no properties to adjust found. Skipping");
                     else
                         AdjustScale(newComp, typeFrom.transform, propToAdjust);
                 }
@@ -162,7 +163,7 @@ namespace Pumkin.AvatarTools.Copiers
                         Transform targetTransform = Helpers.FindTransformInAnotherHierarchy(obj.transform, inst.from.transform, inst.to.transform, false);
                         if(!targetTransform)
                         {
-                            PumkinsAvatarTools.Log($"_Attempted to fix reference for {obj.name}, but the object wasn't found on {inst.to.name}");
+                            Log($"_Attempted to fix reference for {obj.name}, but the object wasn't found on {inst.to.name}");
                             continue;
                         }
                         prop.objectReferenceValue = targetTransform.gameObject;
@@ -217,7 +218,7 @@ namespace Pumkin.AvatarTools.Copiers
                 }
                 catch(Exception e)
                 {
-                    PumkinsAvatarTools.Log($"_Error fixing reference on {newComp.name}: {e.Message}. Failed on property: {x.propertyPath}", LogType.Error);
+                    Log($"_Error fixing reference on {newComp.name}: {e.Message}. Failed on property: {x.propertyPath}", LogType.Error);
                 }
             });
 
@@ -297,7 +298,7 @@ namespace Pumkin.AvatarTools.Copiers
                 var prefabStatus = PrefabUtility.GetPrefabInstanceStatus(fromPref);
                 if(prefabStatus == PrefabInstanceStatus.MissingAsset)
                 {
-                    PumkinsAvatarTools.Log($"_Tried to copy prefab with missing asset. {fromPref.name}. Skipping", LogType.Warning);
+                    Log($"_Tried to copy prefab with missing asset. {fromPref.name}. Skipping", LogType.Warning);
 
                     if(addPrefabsToIgnoreList)
                         ignoreSet.Add(fromPref.transform);
@@ -306,11 +307,11 @@ namespace Pumkin.AvatarTools.Copiers
                 }
                 else if(prefabStatus == PrefabInstanceStatus.NotAPrefab)
                 {
-                    PumkinsAvatarTools.Log($"_Prefab Copier tried to copy object {fromPref.name}, which isn't a prefab. Uh oh.. Skipping");
+                    Log($"_Prefab Copier tried to copy object {fromPref.name}, which isn't a prefab. Uh oh.. Skipping");
                     continue;
                 }
 
-                PumkinsAvatarTools.Log($"_Attempting to copy prefab {fromPref.name}");
+                Log($"_Attempting to copy prefab {fromPref.name}");
 
                 Transform tToParent = null;
                 if(fromPref.transform.parent == tFrom)
@@ -356,7 +357,7 @@ namespace Pumkin.AvatarTools.Copiers
                         string typeName = comp.GetType().Name;
                         string[] propToAdjust = AdjustScaleTypeProps.FirstOrDefault(kv => typeName.Equals(kv.Key)).Value;
                         if(propToAdjust == null || propToAdjust.Length == 0)
-                            PumkinsAvatarTools.Log(
+                            Log(
                                 $"_Attempting to adjust scale on {tTo.name} for {typeName} but no properties to adjust found. Skipping");
                         else
                         {
@@ -402,7 +403,7 @@ namespace Pumkin.AvatarTools.Copiers
                 var prefabStatus = PrefabUtility.GetPrefabInstanceStatus(fromPref);
                 if(prefabStatus == PrefabInstanceStatus.MissingAsset)
                 {
-                    PumkinsAvatarTools.Log($"_Tried to copy prefab with missing asset. {fromPref.name}. Skipping", LogType.Warning);
+                    Log($"_Tried to copy prefab with missing asset. {fromPref.name}. Skipping", LogType.Warning);
 
                     if(addPrefabsToIgnoreList)
                         ignoreSet.Add(fromPref.transform);
@@ -411,11 +412,11 @@ namespace Pumkin.AvatarTools.Copiers
                 }
                 else if(prefabStatus == PrefabInstanceStatus.NotAPrefab)
                 {
-                    PumkinsAvatarTools.Log($"_Prefab Copier tried to copy object {fromPref.name}, which isn't a prefab. Uh oh.. Skipping");
+                    Log($"_Prefab Copier tried to copy object {fromPref.name}, which isn't a prefab. Uh oh.. Skipping");
                     continue;
                 }
 
-                PumkinsAvatarTools.Log($"_Attempting to copy prefab {fromPref.name}");
+                Log($"_Attempting to copy prefab {fromPref.name}");
 
                 Transform tToParent = null;
                 if(fromPref.transform.parent == tFrom)
@@ -461,7 +462,7 @@ namespace Pumkin.AvatarTools.Copiers
                         string typeName = comp.GetType().Name;
                         string[] propToAdjust = AdjustScaleTypeProps.FirstOrDefault(kv => typeName.Equals(kv.Key)).Value;
                         if(propToAdjust == null || propToAdjust.Length == 0)
-                            PumkinsAvatarTools.Log(
+                            Log(
                                 $"_Attempting to adjust scale on {tTo.name} for {typeName} but no properties to adjust found. Skipping");
                         else
                         {

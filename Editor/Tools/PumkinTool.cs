@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.AvatarTools
 {
@@ -60,7 +61,7 @@ namespace Pumkin.AvatarTools
 
         protected virtual void Finish(GameObject avatar)
         {
-            PumkinsAvatarTools.Log($"{NameInUI} finished.");
+            Log($"{NameInUI} finished.");
         }
 
         public void TryExecute(GameObject avatar)

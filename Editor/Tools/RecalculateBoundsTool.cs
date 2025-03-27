@@ -4,6 +4,7 @@ using System.Linq;
 using Pumkin.Presets;
 using UnityEditor;
 using UnityEngine;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.AvatarTools
 {
@@ -37,7 +38,7 @@ namespace Pumkin.AvatarTools
             var anim = avatar.GetComponent<Animator>();
             if(!anim || !anim.isHuman)
             {
-                PumkinsAvatarTools.Log("Can only recalculate bounds of humanoid avatars", LogType.Error);
+                Log("Can only recalculate bounds of humanoid avatars", LogType.Error);
                 return false;
             }
 

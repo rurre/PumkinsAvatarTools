@@ -15,6 +15,7 @@ using Pumkin.HelperFunctions;
 using UnityEngine.Animations;
 using UnityEngine.Rendering;
 using Object = UnityEngine.Object;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.AvatarTools
 {

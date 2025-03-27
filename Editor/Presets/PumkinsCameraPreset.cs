@@ -5,6 +5,7 @@ using Pumkin.HelperFunctions;
 using System;
 using UnityEditor;
 using UnityEngine;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.Presets
 {
@@ -69,7 +70,7 @@ namespace Pumkin.Presets
                     }
                     else
                     {
-                        PumkinsAvatarTools.Log(Strings.Log.descriptorIsMissingCantGetViewpoint);
+                        Log(Strings.Log.descriptorIsMissingCantGetViewpoint);
                     }
                 }
 #endif

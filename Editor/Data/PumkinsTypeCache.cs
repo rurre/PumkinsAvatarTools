@@ -7,6 +7,7 @@ using System.Linq;
 using Pumkin.AvatarTools.Copiers;
 using UnityEditor;
 using UnityEngine;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.DataStructures
 {
@@ -84,7 +85,7 @@ namespace Pumkin.DataStructures
 				        _copierTypesTemplate = JsonUtility.FromJson<DynamicCopierTypesWrapper>(exampleJson);
 				        return _copierTypesTemplate;
 			        }
-			        PumkinsAvatarTools.Log("_Couldn't find example file for extra copier types inside PumkinsAvatarTools folder.", LogType.Warning);
+			        Log("_Couldn't find example file for extra copier types inside PumkinsAvatarTools folder.", LogType.Warning);
 		        }
 		        return _copierTypesTemplate;
 	        }

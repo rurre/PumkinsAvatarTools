@@ -4,6 +4,7 @@ using Pumkin.Dependencies;
 using Pumkin.HelperFunctions;
 using System.Collections.Generic;
 using UnityEngine;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.Presets
 {
@@ -22,7 +23,7 @@ namespace Pumkin.Presets
         {
             if(!avatar || renderers == null)
             {
-                PumkinsAvatarTools.Log(Strings.Warning.invalidPreset, LogType.Warning, name);
+                Log(Strings.Warning.invalidPreset, LogType.Warning, name);
                 return false;
             }
 

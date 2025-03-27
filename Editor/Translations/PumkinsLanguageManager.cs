@@ -10,6 +10,7 @@ using System.IO;
 using UnityEditor.Presets;
 using Pumkin.HelperFunctions;
 using Pumkin.Dependencies;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 public static class PumkinsLanguageManager
 {
@@ -75,7 +76,7 @@ public static class PumkinsLanguageManager
             langs += (i != Languages.Count - 1) ? "," : "";
         }
         langs += " }";
-        PumkinsAvatarTools.LogVerbose(langs);
+        LogVerbose(langs);
     }
 
     private static void LoadTranslationPresets()
@@ -91,7 +92,7 @@ public static class PumkinsLanguageManager
 
             if(Helpers.StringIsNullOrWhiteSpace(langName) || Helpers.StringIsNullOrWhiteSpace(author))
             {
-                PumkinsAvatarTools.Log(Strings.Log.invalidTranslation, LogType.Error, p.name);
+                Log(Strings.Log.invalidTranslation, LogType.Error, p.name);
                 continue;
             }
 
@@ -102,7 +103,7 @@ public static class PumkinsLanguageManager
             if(p.CanBeAppliedTo(tr))
                 p.ApplyTo(tr);
             else
-                PumkinsAvatarTools.Log(Strings.Log.cantApplyPreset, LogType.Error);
+                Log(Strings.Log.cantApplyPreset, LogType.Error);
         }
     }
 

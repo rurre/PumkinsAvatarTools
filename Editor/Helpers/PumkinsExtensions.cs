@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.Extensions
 {
@@ -99,7 +100,7 @@ namespace Pumkin.Extensions
                                 tNew.localScale = Vector3.one;
                             }
                             t = tNew;
-                            PumkinsAvatarTools.LogVerbose($"Created new object {tNew.name}");
+                            LogVerbose($"Created new object {tNew.name}");
                         }
                     }
                 }

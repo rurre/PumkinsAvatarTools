@@ -1,5 +1,4 @@
 ﻿using Pumkin.AvatarTools;
-using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
 using System;
 using System.Collections;
@@ -8,6 +7,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.Presets
 {
@@ -97,7 +97,7 @@ namespace Pumkin.Presets
             {
                 if(preset && !Helpers.IsAssetInAssets(preset))
                 {
-                    PumkinsAvatarTools.LogVerbose($"Destroying orphanned {typeName}");
+                    LogVerbose($"Destroying orphanned {typeName}");
                     Helpers.DestroyAppropriate(preset);
                 }
             }
@@ -316,7 +316,7 @@ namespace Pumkin.Presets
             else
                 return;
 
-            PumkinsAvatarTools.LogVerbose($"Set GUID of {typeof(T).Name} script at {path} to {guid}");
+            LogVerbose($"Set GUID of {typeof(T).Name} script at {path} to {guid}");
         }
         static void SetupAllGUIDs()
         {
@@ -345,7 +345,7 @@ namespace Pumkin.Presets
                 var guid = kv.Value;
                 if(!Directory.Exists(path))
                 {
-                    PumkinsAvatarTools.LogVerbose($"Directory {path} doesn't exist. Can't fix references");
+                    LogVerbose($"Directory {path} doesn't exist. Can't fix references");
                     continue;
                 }
                 var files = Directory.GetFiles($"{path}", "*.asset", SearchOption.AllDirectories);
@@ -354,7 +354,7 @@ namespace Pumkin.Presets
                     if(ReplacePresetGUIDTemp(file, guid))
                         AssetDatabase.ImportAsset(Helpers.AbsolutePathToLocalAssetsPath(file), ImportAssetOptions.ForceUpdate);
                 }
-                PumkinsAvatarTools.LogVerbose($"Fixed references for type {typeof(T).Name}");
+                LogVerbose($"Fixed references for type {typeof(T).Name}");
             }
         }
 
@@ -375,12 +375,12 @@ namespace Pumkin.Presets
             filePath = Helpers.AbsolutePathToLocalAssetsPath(filePath);
             if(Helpers.StringIsNullOrWhiteSpace(filePath) || Helpers.StringIsNullOrWhiteSpace(newGUID))
             {
-                PumkinsAvatarTools.LogVerbose($"Filepath ({filePath}) or GUID ({newGUID}) is empty", LogType.Warning);
+                LogVerbose($"Filepath ({filePath}) or GUID ({newGUID}) is empty", LogType.Warning);
                 return false;
             }
             else if(!File.Exists(filePath))
             {
-                PumkinsAvatarTools.Log($"File {filePath} doesn't exist. Can't fix preset references", LogType.Warning);
+                Log($"File {filePath} doesn't exist. Can't fix preset references", LogType.Warning);
                 return false;
             }
             var lines = File.ReadAllLines(filePath);

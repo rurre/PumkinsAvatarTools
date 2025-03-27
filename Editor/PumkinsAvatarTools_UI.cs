@@ -12,6 +12,7 @@ using Pumkin.HelperFunctions;
 using Pumkin.Presets;
 using UnityEngine.Animations;
 using UnityEngine.SceneManagement;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.AvatarTools
 {
@@ -1810,9 +1811,6 @@ namespace Pumkin.AvatarTools
                                 avatarInfo = PumkinsAvatarInfo.GetInfo(SelectedAvatar, out _avatarInfoString);
 
                                 Undo.CollapseUndoOperations(undoIndex);
-
-                                log += Strings.Log.done;
-                                Log(log, LogType.Log);
                             }
                         }
                     }

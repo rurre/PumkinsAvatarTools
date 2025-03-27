@@ -8,6 +8,7 @@ using Pumkin.HelperFunctions;
 using Pumkin.Presets;
 using UnityEditor.Animations;
 using System;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.PoseEditor
 {
@@ -207,7 +208,7 @@ namespace Pumkin.PoseEditor
 
             //EditorApplication.delayCall += () => ToggleDynamicBonesEnabledState(SelectedAvatar, ref toggle, ref bonesToKeepDisabled);
             //PumkinsAvatarTools.RefreshDynamicBoneTransforms(SelectedAvatar);
-            PumkinsAvatarTools.LogVerbose("Pose was changed and OnPoseWasChanged() was called with changeType as " + changeType.ToString());
+            LogVerbose("Pose was changed and OnPoseWasChanged() was called with changeType as " + changeType.ToString());
         }
 
         static void HandleAvatarSelectionChanged(GameObject newAvatar)
@@ -304,7 +305,7 @@ namespace Pumkin.PoseEditor
                     {
                         if(PumkinsAvatarTools.Settings.posePresetTryFixSinking && avatarPose.bodyPosition.y > 0 && avatarPose.bodyPosition.y <= 0.01f)
                         {
-                            PumkinsAvatarTools.Log(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, avatarPose.bodyPosition.y.ToString());
+                            Log(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, avatarPose.bodyPosition.y.ToString());
                             avatarPose.bodyPosition.y = 1;
                         }
 
@@ -479,7 +480,7 @@ namespace Pumkin.PoseEditor
                     if(humanPose.bodyPosition.y < 1 && !Mathf.Approximately(humanPose.bodyPosition.y, 1))
                     {
                         humanPose.bodyPosition.y = 1;
-                        PumkinsAvatarTools.LogVerbose(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, humanPose.bodyPosition.y.ToString());
+                        LogVerbose(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, humanPose.bodyPosition.y.ToString());
                     }
                 }
 
@@ -588,7 +589,7 @@ namespace Pumkin.PoseEditor
             }
             else
             {
-                PumkinsAvatarTools.Log(Strings.Log.cantSetPoseNonHumanoid, LogType.Warning, "TPose");
+                Log(Strings.Log.cantSetPoseNonHumanoid, LogType.Warning, "TPose");
             }
         }
 

@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 
 namespace Pumkin.Presets
 {
@@ -187,7 +188,7 @@ namespace Pumkin.Presets
                     {
                         if(humanPose.bodyPosition.y < 1 && !Mathf.Approximately(humanPose.bodyPosition.y, 0))
                         {
-                            PumkinsAvatarTools.Log(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, humanPose.bodyPosition.y.ToString());
+                            Log(Strings.PoseEditor.bodyPositionYTooSmall, LogType.Warning, humanPose.bodyPosition.y.ToString());
                             humanPose.bodyPosition.y = 1;
                         }
                     }
@@ -205,7 +206,7 @@ namespace Pumkin.Presets
                 }
                 else
                 {
-                    PumkinsAvatarTools.Log(Strings.Log.cantSetPoseNonHumanoid, LogType.Error, name);
+                    Log(Strings.Log.cantSetPoseNonHumanoid, LogType.Error, name);
                     return false;
                 }
             }

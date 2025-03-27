@@ -3,6 +3,7 @@ using Pumkin.DataStructures;
 using Pumkin.HelperFunctions;
 using UnityEditor;
 using UnityEngine;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 #if VRC_SDK_VRCSDK2 || (VRC_SDK_VRCSDK3 && !UDON)
 using VRC.SDKBase;
 #endif
@@ -121,7 +122,7 @@ namespace Pumkin.Presets
                                 referenceTransform = EditorGUILayout.ObjectField(Strings.Presets.transform, referenceTransform, typeof(Transform), true) as Transform;
                                 if(referenceTransform && !referenceTransform.IsChildOf(PumkinsAvatarTools.SelectedAvatar.transform))
                                 {
-                                    PumkinsAvatarTools.Log(Strings.Presets.transformDoesntBelongToAvatar, LogType.Warning, referenceTransform.name, PumkinsAvatarTools.SelectedAvatar.name);
+                                    Log(Strings.Presets.transformDoesntBelongToAvatar, LogType.Warning, referenceTransform.name, PumkinsAvatarTools.SelectedAvatar.name);
                                     referenceTransform = null;
                                 }
                             }
@@ -156,7 +157,7 @@ namespace Pumkin.Presets
 #if (VRC_SDK_VRCSDK3 || VRC_SDK_VRCSDK2) && !UDON
                                     if(newPreset.offsetMode == PumkinsCameraPreset.CameraOffsetMode.Viewpoint && (Avatar.GetComponent<VRC_AvatarDescriptor>() == null))
                                     {
-                                        PumkinsAvatarTools.Log(Strings.Log.descriptorIsMissingCantGetViewpoint, LogType.Warning);
+                                        Log(Strings.Log.descriptorIsMissingCantGetViewpoint, LogType.Warning);
                                     }
                                     else
 #endif

@@ -14,6 +14,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Animations;
+using static Pumkin.AvatarTools.PumkinToolsLogger;
 #if VRC_SDK_VRCSDK3 && !UDON
 using VRC.Core;
 using VRC.SDKBase;
@@ -1021,7 +1022,7 @@ namespace Pumkin.HelperFunctions
             var thisAnimator = trans.GetComponentInParent<Animator>(true);
             if(!thisAnimator || !thisAnimator.isHuman)
             {
-                PumkinsAvatarTools.Log($"{thisHierarchyRoot.name} is not part of a humanoid avatar hierarchy. Old search method will be used, which kinda sucks.", LogType.Warning);
+                Log($"{thisHierarchyRoot.name} is not part of a humanoid avatar hierarchy. Old search method will be used, which kinda sucks.", LogType.Warning);
                 return FindTransformInAnotherHierarchyOld(trans, thisHierarchyRoot, otherHierarchyRoot, createIfMissing);
             }
 
@@ -1032,7 +1033,7 @@ namespace Pumkin.HelperFunctions
                 var otherAnimator = otherHierarchyRoot.GetComponentInChildren<Animator>(true);
                 if(!otherAnimator.isHuman)
                 {
-                    PumkinsAvatarTools.Log($"{otherHierarchyRoot.name} is not part of a humanoid avatar hierarchy. Old search method will be used, which kinda sucks.", LogType.Warning);
+                    Log($"{otherHierarchyRoot.name} is not part of a humanoid avatar hierarchy. Old search method will be used, which kinda sucks.", LogType.Warning);
                     return FindTransformInAnotherHierarchyOld(trans, thisHierarchyRoot, otherHierarchyRoot, createIfMissing);
                 }
                 
@@ -1270,12 +1271,12 @@ namespace Pumkin.HelperFunctions
                 }
                 else
                 {
-                    PumkinsAvatarTools.Log("No Eye or Head bones assigned", LogType.Warning);
+                    Log("No Eye or Head bones assigned", LogType.Warning);
                     return PumkinsAvatarTools.DEFAULT_VIEWPOINT;
                 }
             }
             else
-                PumkinsAvatarTools.Log(Strings.Log.cantSetViewpointNonHumanoid);
+                Log(Strings.Log.cantSetViewpointNonHumanoid);
 
             return RoundVectorValues(view, 3);
         }
@@ -1296,7 +1297,7 @@ namespace Pumkin.HelperFunctions
         {
             if(EditorApplication.isPlaying)
             {
-                PumkinsAvatarTools.Log("Can't remove scripts in play mode. Unity will crash.", LogType.Warning);
+                Log("Can't remove scripts in play mode. Unity will crash.", LogType.Warning);
                 return false;
             }
 
@@ -1441,7 +1442,7 @@ namespace Pumkin.HelperFunctions
         {
             if(newHierarchyRoot == null)
             {
-                PumkinsAvatarTools.LogVerbose("localRoot is null");
+                LogVerbose("localRoot is null");
                 return;
             }
             else if(properties == null || properties.Length == 0)
@@ -1477,7 +1478,7 @@ namespace Pumkin.HelperFunctions
                     }
                     else
                     {
-                        PumkinsAvatarTools.Log($"{prop.displayName} isn't a GameObject or a component.", LogType.Warning);
+                        Log($"{prop.displayName} isn't a GameObject or a component.", LogType.Warning);
                         continue;
                     }
 
@@ -1486,7 +1487,7 @@ namespace Pumkin.HelperFunctions
                     if(newTrans)
                         newComp = newTrans.GetComponent<T>();
                     else if(setNullIfNotFound)
-                        PumkinsAvatarTools.Log($"Couldn't find object for property <b>{prop.propertyPath}</b> in <b>{newHierarchyRoot.name}</b>'s hierarchy", LogType.Warning);
+                        Log($"Couldn't find object for property <b>{prop.propertyPath}</b> in <b>{newHierarchyRoot.name}</b>'s hierarchy", LogType.Warning);
                     else
                         continue;
                 }
