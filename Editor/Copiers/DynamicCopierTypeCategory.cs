@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Pumkin.HelperFunctions;
+using UnityEditor;
+using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace Pumkin.AvatarTools.Copiers
@@ -61,12 +63,21 @@ namespace Pumkin.AvatarTools.Copiers
             
             foreach(var name in typeFullNames)
             {
+                if(name.EndsWith(".*"))
+                {
+                    var newTypes = TypeHelpers.GetTypesFromNamespace(name);
+                    types.AddRange(newTypes);
+                    names.AddRange(newTypes.Select(t => ObjectNames.NicifyVariableName(t.Name)));
+                    enableStates.AddRange(Enumerable.Repeat(false, types.Count));
+                    continue;
+                }
+
                 var type = TypeHelpers.GetTypeAnywhere(name);
                 if(type == null)
                     continue;
 
                 types.Add(type);
-                names.Add(type.Name);
+                names.Add(ObjectNames.NicifyVariableName(type.Name));
                 enableStates.Add(false);
             }
         }

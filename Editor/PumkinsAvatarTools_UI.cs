@@ -1611,8 +1611,15 @@ namespace Pumkin.AvatarTools
                                             }
                                         }
 
-                                        for(int i = 0; i < typeWrapper.types.Count; i++)
-                                            typeWrapper.enableStates[i] = GUILayout.Toggle(typeWrapper.enableStates[i], typeWrapper.names[i], Styles.CopierToggle);
+                                        try
+                                        {
+                                            for(int i = 0; i < typeWrapper.types.Count; i++)
+                                                typeWrapper.enableStates[i] = GUILayout.Toggle(typeWrapper.enableStates[i], typeWrapper.names[i], Styles.CopierToggle);
+                                        }
+                                        catch(Exception ex)
+                                        {
+                                            Debug.LogException(ex);
+                                        }
 
                                         Helpers.DrawGUILine();
                                     }
