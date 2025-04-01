@@ -1027,7 +1027,7 @@ namespace Pumkin.HelperFunctions
             }
 
             Transform thisHumanBoneParent, otherHumanBoneParent;
-            if(TryGetParentHierarchyToClosestHumanoidBone(trans, thisHierarchyRoot, thisAnimator, out HumanBodyBones thisHumanBone, out Transform[] thisPathToHumanBoneParent))
+            if(TryGetParentHierarchyToClosestHumanoidBone(trans, thisHierarchyRoot, otherHierarchyRoot, thisAnimator, out HumanBodyBones thisHumanBone, out Transform[] thisPathToHumanBoneParent))
             {
                 // Find bone in new hierarchy
                 var otherAnimator = otherHierarchyRoot.GetComponentInChildren<Animator>(true);
@@ -1058,17 +1058,18 @@ namespace Pumkin.HelperFunctions
             
             return target;
         }
-        
+
         /// <summary>
         /// Gets parent hierarchy to the closest humanoid bone
         /// </summary>
         /// <param name="trans">Transform to start search from</param>
         /// <param name="hierarchyRoot">The root of the current hierarchy to check for when no humanoid bone is found</param>
+        /// <param name="otherHierarchyRoot">Normally the transform should already be part of the hirarchyRoot but sometimes it's not so ugh sorry i'll just hack this in because the copier logic sucks somewhere</param>
         /// <param name="animator">Animator with humanoid avatar</param>
         /// <param name="humanBone">Humanoid bone found</param>
         /// <param name="parentHierarchy">Transform array of child and all parents up until humanoid bone (exclusive)</param>
         /// <returns>True if a human bone was found</returns>
-        static bool TryGetParentHierarchyToClosestHumanoidBone(Transform trans, Transform hierarchyRoot, Animator animator, out HumanBodyBones humanBone, out Transform[] parentHierarchy)
+        static bool TryGetParentHierarchyToClosestHumanoidBone(Transform trans, Transform hierarchyRoot, Transform otherHierarchyRoot, Animator animator, out HumanBodyBones humanBone, out Transform[] parentHierarchy)
         {
             humanBone = HumanBodyBones.LastBone;
             parentHierarchy = null;
@@ -1085,7 +1086,7 @@ namespace Pumkin.HelperFunctions
                     break;
                 }
 
-                if(nextBone == null || nextBone == hierarchyRoot)
+                if(nextBone == null || nextBone == hierarchyRoot || nextBone == otherHierarchyRoot)
                     break;
                 
                 hierarchy.Insert(0, nextBone);
@@ -1105,7 +1106,7 @@ namespace Pumkin.HelperFunctions
             if(!trans || !otherHierarchyRoot)
                 return null;
 
-            if(trans == currentHierarchyRoot)
+            if(trans == currentHierarchyRoot || trans == otherHierarchyRoot)
                 return otherHierarchyRoot;
 
             Transform targetHierarchy = otherHierarchyRoot;

@@ -1148,20 +1148,20 @@ namespace Pumkin.AvatarTools
 
             CopyInstance copyInst = new CopyInstance(objFrom, objTo, Settings.copierIgnoreArray);
 
-            try
-            {
+            //try
+            //{
                 CopyComponents(copyInst);
                 GenericCopier.FixInstanceReferences(copyInst);
-            }
-            catch(Exception ex)
-            {
-                Log($"{ex.Message},{ex.TargetSite},\n{ex.StackTrace}", LogType.Exception);
-            }
-            finally
-            {
+            //}
+            //catch(Exception ex)
+            //{
+                //Log($"{ex.Message},{ex.TargetSite},\n{ex.StackTrace}", LogType.Exception);
+            //}
+            //finally
+            //{
                 objTo.transform.parent = toParent;
                 objTo.transform.SetSiblingIndex(childTransformIndex);
-            }
+            //}
         }
 
         /// <summary>
@@ -1184,15 +1184,15 @@ namespace Pumkin.AvatarTools
                 return;
             }
 
-            try
-            {
+            //try
+            //{
                 if(Settings.bCopier_prefabs_copy && CopierTabs.ComponentIsInSelectedTab("prefab", Settings._copier_selectedTab))
                 {
                     GenericCopier.CopyPrefabs(inst, Settings.bCopier_prefabs_createObjects, scaleMismatch && Settings.bCopier_prefabs_adjustScale, Settings.bCopier_prefabs_fixReferences,
                             Settings.bCopier_prefabs_copyPropertyOverrides, Settings.bCopier_prefabs_ignorePrefabByOtherCopiers, inst.ignoredTransforms);
                 }
-            }
-            catch(Exception ex) { Log("_Failed to copy Prefabs: " + ex.Message, LogType.Error); }
+            //}
+            //catch(Exception ex) { Log("_Failed to copy Prefabs: " + ex.Message, LogType.Error); }
 
             try
             {
