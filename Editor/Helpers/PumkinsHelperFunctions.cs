@@ -1031,7 +1031,7 @@ namespace Pumkin.HelperFunctions
             {
                 // Find bone in new hierarchy
                 var otherAnimator = otherHierarchyRoot.GetComponentInChildren<Animator>(true);
-                if(!otherAnimator.isHuman)
+                if(!otherAnimator || !otherAnimator.isHuman)
                 {
                     Log($"{otherHierarchyRoot.name} is not part of a humanoid avatar hierarchy. Old search method will be used, which kinda sucks.", LogType.Warning);
                     return FindTransformInAnotherHierarchyOld(trans, thisHierarchyRoot, otherHierarchyRoot, createIfMissing);
